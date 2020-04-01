@@ -7,8 +7,8 @@ import (
 	argoCDProject "github.com/argoproj/argo-cd/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/util"
 	"github.com/argoproj/argo-cd/util/jwt"
-	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	jwtGo "github.com/square/go-jose/jwt"
 	"strconv"
 )
 
@@ -90,15 +90,16 @@ func resourceArgoCDProjectJWTCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 	// TODO: check signing algorithm, issuer (argocd) and subject (should be proj:PROJECT:ROLE)
-	parsed, err := jwtGo.Parse(resp.GetToken(), nil)
+	token, err := jwtGo.ParseSigned(resp.GetToken())
 	if err != nil {
 		return err
 	}
-	claims, err := jwt.MapClaims(parsed.Claims)
-	if err != nil {
-		return err
+	
+	claims := make(map[string]interface{})
+    if err := token.UnsafeClaimsWithoutVerification(&claims); err != nil {
+    	return err
 	}
-
+	
 	iat, err := jwt.GetIssuedAt(claims)
 	if err != nil {
 		return err
@@ -110,7 +111,7 @@ func resourceArgoCDProjectJWTCreate(d *schema.ResourceData, meta interface{}) er
 		_ = d.Set("expires_at", exp)
 	}
 
-	if err := d.Set("token", parsed.Raw); err != nil {
+	if err := d.Set("jwt", resp.GetToken()); err != nil {
 		return err
 	}
 	d.SetId(fmt.Sprintf("%s-%s-%d", project, role, iat))

@@ -22,6 +22,7 @@ require (
 	github.com/robfig/cron v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.5.0 // indirect
 	github.com/spf13/cobra v0.0.7 // indirect
+	github.com/square/go-jose v2.4.1+incompatible
 	gopkg.in/square/go-jose.v2 v2.4.1 // indirect
 	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
 	k8s.io/api v0.17.3

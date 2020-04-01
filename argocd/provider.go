@@ -51,6 +51,7 @@ func Provider() terraform.ResourceProvider {
 			"headers": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"insecure": {
 				Type:     schema.TypeBool,
@@ -60,7 +61,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"argocd_project_jwt": resourceArgoCDProjectToken(),
+			"argocd_project_token": resourceArgoCDProjectToken(),
 		},
 
 		ConfigureFunc: providerConfigure,
