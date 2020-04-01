@@ -143,7 +143,9 @@ func resourceArgoCDProjectJWTRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		token, _, err := project.GetJWTToken(d.Get("role").(string), iat)
 		if err != nil {
-			return err
+			// Token has been deleted in an out-of-band fashion
+			d.SetId("")
+			return nil
 		}
 		_ = d.Set("issued_at", strconv.FormatInt(token.IssuedAt, 10))
 		_ = d.Set("expires_at", strconv.FormatInt(token.ExpiresAt, 10))
