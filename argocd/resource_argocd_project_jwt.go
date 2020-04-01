@@ -94,12 +94,12 @@ func resourceArgoCDProjectJWTCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	
+
 	claims := make(map[string]interface{})
-    if err := token.UnsafeClaimsWithoutVerification(&claims); err != nil {
-    	return err
+	if err := token.UnsafeClaimsWithoutVerification(&claims); err != nil {
+		return err
 	}
-	
+
 	iat, err := jwt.GetIssuedAt(claims)
 	if err != nil {
 		return err
@@ -147,6 +147,8 @@ func resourceArgoCDProjectJWTRead(d *schema.ResourceData, meta interface{}) erro
 			d.SetId("")
 			return nil
 		}
+		// TODO: check for signature, ask for ArgoCD devs to implement HS256 sig alg, and/or check that a session can be created with that token meaning its signature is validated by the server
+
 		_ = d.Set("issued_at", strconv.FormatInt(token.IssuedAt, 10))
 		_ = d.Set("expires_at", strconv.FormatInt(token.ExpiresAt, 10))
 	}
@@ -160,7 +162,7 @@ func resourceArgoCDProjectJWTDelete(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 	defer util.Close(closer)
-	
+
 	if _iat, ok := d.GetOk("issued_at"); ok {
 		iat, err := strconv.ParseInt(_iat.(string), 10, 64)
 		if err != nil {
