@@ -83,9 +83,9 @@ func Provider() terraform.ResourceProvider {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"insecure": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_INSECURE", false),
 			},
 		},
 

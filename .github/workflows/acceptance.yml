@@ -1,0 +1,54 @@
+name: Acceptance Tests
+on: [push, pull_request]
+jobs:
+  acceptance_tests:
+    name: Acceptance Tests
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
+
+      - name: Restore Go cache
+        uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install bitnami/bcrypt-cli
+        run: GO111MODULE=on go get github.com/bitnami/bcrypt-cli
+
+      - name: Install Kind
+        run: GO111MODULE=on go get sigs.k8s.io/kind
+
+      - name: Create Kind cluster
+        run: PATH=$(go env GOPATH)/bin:$PATH kind create cluster --name argocd
+
+      - name: Run Kind sanity checks
+        run: |
+          kubectl get nodes -o wide
+          kubectl get pods --all-namespaces -o wide
+          kubectl get services --all-namespaces -o wide
+
+      - name: Set up ArgoCD 1.5.0
+        run: |
+          export PATH=${PATH}:$(go env GOPATH)/bin &&
+          kubectl create namespace argocd &&
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v1.5.0/manifests/install.yaml &&
+          kubectl patch -n argocd secret/argocd-secret --type merge -p '{"stringData":{"admin.password":"'$(echo -n acceptancetesting|bcrypt-cli)'"}}' &&
+          kubectl apply -n argocd -f manifests/argocd-project.yml &&
+          kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd &&
+          kubectl port-forward -n argocd service/argocd-server --address 127.0.0.1 8080:443&
+          sleep 5
+          netstat -tulpn
+
+      - name: Run acceptance tests
+        run: >
+          ARGOCD_INSECURE=true
+          ARGOCD_SERVER=127.0.0.1:8080
+          ARGOCD_AUTH_USERNAME=admin
+          ARGOCD_AUTH_PASSWORD=acceptancetesting
+          TF_ACC=1 go test $(go list ./... |grep -v 'vendor') -v -timeout 5m

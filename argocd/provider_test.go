@@ -13,7 +13,7 @@ var testAccProvider *schema.Provider
 func init() {
 	testAccProvider = Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
-		"gitlab": testAccProvider,
+		"argocd": testAccProvider,
 	}
 }
 
@@ -28,7 +28,16 @@ func TestProvider_impl(t *testing.T) {
 }
 
 func testAccPreCheck(t *testing.T) {
-	if v := os.Getenv("ARGOCD_AUTH_TOKEN"); v == "" {
-		t.Fatal("ARGOCD_AUTH_TOKEN must be set for acceptance tests")
+	if v := os.Getenv("ARGOCD_AUTH_USERNAME"); v == "" {
+		t.Fatal("ARGOCD_AUTH_USERNAME must be set for acceptance tests")
+	}
+	if v := os.Getenv("ARGOCD_AUTH_PASSWORD"); v == "" {
+		t.Fatal("ARGOCD_AUTH_PASSWORD must be set for acceptance tests")
+	}
+	if v := os.Getenv("ARGOCD_SERVER"); v == "" {
+		t.Fatal("ARGOCD_SERVER must be set for acceptance tests")
+	}
+	if v := os.Getenv("ARGOCD_INSECURE"); v == "" {
+		t.Fatal("ARGOCD_INSECURE should be set for acceptance tests")
 	}
 }

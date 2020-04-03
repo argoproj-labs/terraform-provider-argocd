@@ -6,6 +6,7 @@ require (
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/argoproj/argo-cd v1.5.0-rc3
 	github.com/argoproj/pkg v0.0.0-20200319004004-f46beff7cd54 // indirect
+	github.com/bitnami/bcrypt-cli v1.0.1 // indirect
 	github.com/coreos/go-oidc v2.2.1+incompatible // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-redis/cache v6.4.0+incompatible // indirect
