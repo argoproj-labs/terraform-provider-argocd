@@ -42,7 +42,7 @@ jobs:
           kubectl apply -n argocd -f manifests/argocd-project.yml &&
           kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd &&
           kubectl port-forward -n argocd service/argocd-server --address 127.0.0.1 8080:443&
-          sleep 5
+          until $(nc -z 127.0.0.1 8080); do sleep 2;done
           netstat -tulpn
 
       - name: Run acceptance tests
