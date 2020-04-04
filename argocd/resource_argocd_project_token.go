@@ -14,9 +14,9 @@ import (
 
 func resourceArgoCDProjectToken() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceArgoCDProjectJWTCreate,
-		Read:   resourceArgoCDProjectJWTRead,
-		Delete: resourceArgoCDProjectJWTDelete,
+		Create: resourceArgoCDProjectTokenCreate,
+		Read:   resourceArgoCDProjectTokenRead,
+		Delete: resourceArgoCDProjectTokenDelete,
 
 		Schema: map[string]*schema.Schema{
 			"project": {
@@ -58,7 +58,7 @@ func resourceArgoCDProjectToken() *schema.Resource {
 	}
 }
 
-func resourceArgoCDProjectJWTCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(argoCDApiClient.Client)
 	project := d.Get("project").(string)
 	role := d.Get("role").(string)
@@ -115,10 +115,10 @@ func resourceArgoCDProjectJWTCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 	d.SetId(fmt.Sprintf("%s-%s-%d", project, role, iat))
-	return resourceArgoCDProjectJWTRead(d, meta)
+	return resourceArgoCDProjectTokenRead(d, meta)
 }
 
-func resourceArgoCDProjectJWTRead(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(argoCDApiClient.Client)
 	closer, c, err := client.NewProjectClient()
 	if err != nil {
@@ -157,7 +157,7 @@ func resourceArgoCDProjectJWTRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceArgoCDProjectJWTDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDProjectTokenDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(argoCDApiClient.Client)
 	closer, c, err := client.NewProjectClient()
 	if err != nil {
