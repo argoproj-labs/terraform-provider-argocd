@@ -10,7 +10,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	jwtGo "github.com/square/go-jose/jwt"
 	"strconv"
+	"sync"
 )
+
+var tokenMutex sync.RWMutex
 
 func resourceArgoCDProjectToken() *schema.Resource {
 	return &schema.Resource{
@@ -85,7 +88,9 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	defer util.Close(closer)
 
+	tokenMutex.Lock()
 	resp, err := c.CreateToken(context.Background(), opts)
+	tokenMutex.Unlock()
 	if err != nil {
 		return err
 	}
@@ -141,13 +146,15 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return err
 		}
+		tokenMutex.RLock()
 		token, _, err := project.GetJWTToken(d.Get("role").(string), iat)
+		tokenMutex.RUnlock()
 		if err != nil {
 			// Token has been deleted in an out-of-band fashion
 			d.SetId("")
 			return nil
 		}
-		// TODO: check for signature, ask for ArgoCD devs to implement HS256 sig alg,
+		// TODO: check for signature, ask for ArgoCD devs to implement RS256 sig alg,
 		// and/or check that a session can be created with that token meaning its signature is validated by the server
 		// if not, remove the token from the state to regenerate it
 
@@ -175,9 +182,11 @@ func resourceArgoCDProjectTokenDelete(d *schema.ResourceData, meta interface{}) 
 			Role:    d.Get("role").(string),
 			Iat:     iat,
 		}
+		tokenMutex.Lock()
 		if _, err := c.DeleteToken(context.Background(), opts); err != nil {
 			return err
 		}
+		tokenMutex.Unlock()
 		d.SetId("")
 	}
 	return nil
