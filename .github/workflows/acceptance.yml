@@ -1,5 +1,9 @@
 name: Acceptance Tests
-on: [push, pull_request]
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
 jobs:
   acceptance_tests:
     name: Acceptance Tests
