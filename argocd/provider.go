@@ -58,8 +58,9 @@ func Provider() terraform.ResourceProvider {
 				Default:  false,
 			},
 			"context": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_CONTEXT", nil),
 			},
 			"user_agent": {
 				Type:     schema.TypeString,
@@ -70,12 +71,14 @@ func Provider() terraform.ResourceProvider {
 				Optional: true,
 			},
 			"port_forward": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_PORT_FORWARD", nil),
 			},
 			"port_forward_with_namespace": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_PORT_FORWARD_WITH_NAMESPACE", nil),
 			},
 			"headers": {
 				Type:     schema.TypeSet,
@@ -90,7 +93,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"argocd_project":       resourceArgoCDProject(),
+			//"argocd_project":       resourceArgoCDProject(),
 			"argocd_project_token": resourceArgoCDProjectToken(),
 		},
 
