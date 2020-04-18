@@ -22,9 +22,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Install bitnami/bcrypt-cli
-        run: GO111MODULE=on go get github.com/bitnami/bcrypt-cli
-
       - name: Install Kind
         run: GO111MODULE=on go get sigs.k8s.io/kind
 
