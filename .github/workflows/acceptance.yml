@@ -30,10 +30,10 @@ jobs:
 
       - name: Set up ArgoCD 1.5.0
         run: |
-          sh testacc_prepare_env.sh
+          sh scripts/testacc_prepare_env.sh
           kubectl port-forward -n argocd service/argocd-server --address 127.0.0.1 8080:443&
           until $(nc -z 127.0.0.1 8080); do sleep 2;done
           netstat -tulpn
 
       - name: Run acceptance tests
-        run: sh testacc.sh
+        run: sh scripts/testacc.sh
