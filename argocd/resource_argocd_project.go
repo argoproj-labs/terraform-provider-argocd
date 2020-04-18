@@ -23,7 +23,8 @@ func resourceArgoCDProject() *schema.Resource {
 			},
 			"namespace": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Default:  "argocd",
 				ForceNew: true,
 			},
 			"cluster_resource_whitelist": {
@@ -39,9 +40,9 @@ func resourceArgoCDProject() *schema.Resource {
 			},
 			"destinations": {
 				Type:     schema.TypeSet,
-				Set:      schema.HashString,
+				Set:      schema.HashSchema(&schema.Schema{Type: schema.TypeMap}),
 				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem:     &schema.Schema{Type: schema.TypeMap},
 				// TODO: add a validatefunc
 			},
 			"namespace_resource_blacklist": {

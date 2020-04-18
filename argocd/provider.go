@@ -90,6 +90,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"argocd_project":       resourceArgoCDProject(),
 			"argocd_project_token": resourceArgoCDProjectToken(),
 		},
 
