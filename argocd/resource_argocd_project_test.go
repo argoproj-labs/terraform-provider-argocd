@@ -34,12 +34,12 @@ func TestAccArgoCDProject(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_project.coexistence",
-						"roles.testrole.jwtTokens.0.iat",
+						"roles.testrole.jwt_tokens.0.iat",
 						string(iat),
 					),
 					resource.TestCheckResourceAttrPair(
 						"argocd_project.coexistence",
-						"roles.testrole.jwtTokens.1.iat",
+						"roles.testrole.jwt_tokens.1.iat",
 						"argocd_project_token.coexistence_testrole",
 						"issued_at"),
 				),
@@ -51,15 +51,19 @@ func TestAccArgoCDProject(t *testing.T) {
 func testAccArgoCDProjectSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_project" "single" {
-  name        = "%s"
-  description = "foo"
-
-  destinations {
-    server    = "https://kubernetes.default.svc"
-    namespace = "*"
+  metadata = {
+    name      = "%s"
+    namespace = "argocd"
   }
 
-  source_repos = ["*"]
+  spec {
+    description = "single"
+    source_repos = ["*"]
+    destinations {
+      server    = "https://kubernetes.default.svc"
+      namespace = "*"
+    }
+  }
 }
 	`, name)
 }
@@ -67,29 +71,33 @@ resource "argocd_project" "single" {
 func testAccArgoCDProjectCoexistenceWithTokenResource(name string, iat int64) string {
 	return fmt.Sprintf(`
 resource "argocd_project" "coexistence" {
-  name        = "%s"
-  description = "foo"
-
-  destinations {
-    server    = "https://kubernetes.default.svc"
-    namespace = "*"
+  metadata {
+    name        = "%s"
+    namespace   = "argocd"
   }
 
-  source_repos = ["*"]
-  roles {
-    name = "testrole"
-    policies = [
-      "p, proj:%s:testrole, applications, override, %s/*, allow",
-    ]
-    jwtTokens {
-      iat = %d
+  spec {
+    description = "coexistence"
+    destinations {
+	   server    = "https://kubernetes.default.svc"
+	   namespace = "*"
+    }
+    source_repos = ["*"]
+    roles = {
+      name = "testrole"
+      policies = [
+        "p, proj:%s:testrole, applications, override, %s/*, allow",
+      ]
+      jwt_tokens {
+        iat = %d
+      }
     }
   }
 }
 
 resource "argocd_project_token" "coexistence_testrole" {
   project = argocd_project.coexistence.name
-  role = "testrole"
+  role    = "testrole"
 }
 
 	`, name, name, name, iat)
