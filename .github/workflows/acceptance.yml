@@ -10,7 +10,7 @@ jobs:
     runs-on: [ubuntu-latest]
     strategy:
       matrix:
-        argocd_version: ["1.5.2", "1.4.3"]
+        argocd_version: ["v1.5.2", "v1.4.3"]
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-go@v1
