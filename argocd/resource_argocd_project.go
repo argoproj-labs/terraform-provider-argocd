@@ -2,15 +2,13 @@ package argocd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	argoCDApiClient "github.com/argoproj/argo-cd/pkg/apiclient"
 	argoCDProject "github.com/argoproj/argo-cd/pkg/apiclient/project"
 	argoCDAppv1 "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/argo-cd/util"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/mitchellh/mapstructure"
-	//"github.com/mitchellh/copystructure"
-	k8smetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func resourceArgoCDProject() *schema.Resource {
@@ -19,22 +17,52 @@ func resourceArgoCDProject() *schema.Resource {
 		Read:   resourceArgoCDProjectRead,
 		Update: resourceArgoCDProjectUpdate,
 		Delete: resourceArgoCDProjectDelete,
-		// TODO: add importer
+		// TODO: add an importer
 
 		Schema: map[string]*schema.Schema{
 			"metadata": {
-				Type: schema.TypeMap,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Description: "Kubernetes resource metadata, such as name, namespace, annotations. At least name and namespace are required",
+				Type:        schema.TypeList,
+				MinItems:    1,
+				MaxItems:    1,
+				Description: "Kubernetes resource metadata. Required attributes: name, namespace.",
 				Required:    true,
-				// TODO: add validatefunc to ensure name/namespace are present
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"namespace": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"uid": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"resource_version": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"generation": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"creation_timestamp": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
 			},
 			"spec": {
-				Type:     schema.TypeList,
-				MinItems: 1,
-				Required: true,
+				Type:        schema.TypeList,
+				MinItems:    1,
+				MaxItems:    1,
+				Description: "ArgoCD App project resource specs. Required attributes: destinations, source_repos.",
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cluster_resource_whitelist": {
@@ -168,22 +196,23 @@ func resourceArgoCDProject() *schema.Resource {
 	}
 }
 
-// TODO: needs comprehensive unit tests
-func expandArgoCDProject(d *schema.ResourceData) (k8smetav1.ObjectMeta, argoCDAppv1.AppProjectSpec, error) {
-	objectMeta := k8smetav1.ObjectMeta{}
-	spec := argoCDAppv1.AppProjectSpec{}
-
-	// Expand project metadata
-	m := d.Get("metadata")
-	if err := mapstructure.Decode(m, &objectMeta); err != nil {
-		return objectMeta, spec, fmt.Errorf("metadata expansion: %s | %v", err, m)
+func storeArgoCDProjectToState(d *schema.ResourceData, p *argoCDAppv1.AppProject) error {
+	if p == nil {
+		return fmt.Errorf("project NPE")
 	}
-	// Expand project spec
-	s := d.Get("spec.0")
-	if err := mapstructure.Decode(s, &spec); err != nil {
-		return objectMeta, spec, fmt.Errorf("spec expansion: %s | %v ", err, s)
+	f, err := flattenArgoCDProject(p)
+	if err != nil {
+		return err
 	}
-	return objectMeta, spec, nil
+	if err := d.Set("metadata", f["metadata"]); err != nil {
+		e, _ := json.MarshalIndent(f["metadata"], "", "\t")
+		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
+	}
+	if err := d.Set("spec", f["spec"]); err != nil {
+		e, _ := json.MarshalIndent(f["spec"], "", "\t")
+		return fmt.Errorf("error persisting spec: %s\n%s", err, e)
+	}
+	return nil
 }
 
 func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error {
@@ -191,7 +220,6 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-
 	client := meta.(argoCDApiClient.Client)
 	closer, c, err := client.NewProjectClient()
 	if err != nil {
@@ -204,10 +232,10 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 			ObjectMeta: objectMeta,
 			Spec:       spec,
 		},
-		// TODO: remember to investigate upsert behavior
+		// TODO: allow upsert instead of always requiring resource import?
+		// TODO: make that a resource flag with proper acceptance tests
 		Upsert: false,
 	})
-
 	if err != nil {
 		return err
 	}
@@ -229,15 +257,7 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	// TODO: needs flattening function
-	if err := d.Set("metadata", p.ObjectMeta); err != nil {
-		return fmt.Errorf("error persisting metadata: %s | %v", err, p.ObjectMeta)
-	}
-	// TODO: needs flattening function
-	if err := d.Set("spec.0", p.Spec); err != nil {
-		return fmt.Errorf("error persisting spec: %s | %v", err, p.Spec)
-	}
-	return nil
+	return storeArgoCDProjectToState(d, p)
 }
 
 func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -246,7 +266,6 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return err
 		}
-
 		client := meta.(argoCDApiClient.Client)
 		closer, c, err := client.NewProjectClient()
 		if err != nil {
@@ -262,10 +281,7 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return err
 		}
-		if err := d.Set("metadata", p.ObjectMeta); err != nil {
-			return err
-		}
-		if err := d.Set("spec", p.Spec); err != nil {
+		if err := storeArgoCDProjectToState(d, p); err != nil {
 			return err
 		}
 	}
@@ -284,7 +300,6 @@ func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-
 	d.SetId("")
 	return nil
 }

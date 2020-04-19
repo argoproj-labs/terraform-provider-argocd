@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccArgoCDProject(t *testing.T) {
-	name := acctest.RandString(50)
+	name := "test-acc-" + acctest.RandString(50)
 	// ensure generated iat is always in the past
 	iat := rand.Int63() % (time.Now().Unix() - 1)
 
@@ -50,19 +50,20 @@ func TestAccArgoCDProject(t *testing.T) {
 
 func testAccArgoCDProjectSimple(name string) string {
 	return fmt.Sprintf(`
-resource "argocd_project" "single" {
-  metadata = {
+resource "argocd_project" "simple" {
+  metadata {
     name      = "%s"
     namespace = "argocd"
   }
 
   spec {
-    description = "single"
+    description = "simple"
     source_repos = ["*"]
     destinations {
       server    = "https://kubernetes.default.svc"
       namespace = "*"
     }
+    
   }
 }
 	`, name)
