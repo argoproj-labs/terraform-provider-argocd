@@ -9,6 +9,7 @@ jobs:
     name: Acceptance Tests
     runs-on: [ubuntu-latest]
     strategy:
+      fail-fast: false
       matrix:
         argocd_version: ["v1.5.2", "v1.4.3"]
     steps:
