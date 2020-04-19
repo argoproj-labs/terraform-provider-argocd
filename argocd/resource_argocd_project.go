@@ -20,43 +20,7 @@ func resourceArgoCDProject() *schema.Resource {
 		// TODO: add an importer
 
 		Schema: map[string]*schema.Schema{
-			"metadata": {
-				Type:        schema.TypeList,
-				MinItems:    1,
-				MaxItems:    1,
-				Description: "Kubernetes resource metadata. Required attributes: name, namespace.",
-				Required:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"namespace": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"uid": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"resource_version": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"generation": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"creation_timestamp": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
+			"metadata": metadataSchema(),
 			"spec": {
 				Type:        schema.TypeList,
 				MinItems:    1,
@@ -70,7 +34,7 @@ func resourceArgoCDProject() *schema.Resource {
 							Set:      schema.HashSchema(&schema.Schema{Type: schema.TypeMap}),
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeMap},
-							// TODO: add a validatefunc
+							// TODO: add a validatefunc to ensure group and kind only are present
 						},
 						"description": {
 							Type:     schema.TypeString,
@@ -97,13 +61,21 @@ func resourceArgoCDProject() *schema.Resource {
 							Type:     schema.TypeSet,
 							Set:      schema.HashSchema(&schema.Schema{Type: schema.TypeMap}),
 							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeMap},
-							// TODO: add a validatefunc
+							Elem: &schema.Schema{
+								Type: schema.TypeMap,
+								Elem: &schema.Schema{
+									Type: schema.TypeString,
+								},
+							},
+							// TODO: add a validatefunc to ensure group and kind only are present
 						},
 						"orphaned_resources": {
 							Type:     schema.TypeMap,
 							Optional: true,
-							// TODO: add a validatefunc
+							Elem: &schema.Schema{
+								Type: schema.TypeBool,
+							},
+							// TODO: add a validatefunc to ensure only warn is present
 						},
 						"roles": {
 							Type:     schema.TypeList,
@@ -126,10 +98,13 @@ func resourceArgoCDProject() *schema.Resource {
 									"jwt_tokens": {
 										Type:     schema.TypeList,
 										Optional: true,
-										// TODO: add a Diffsuppressfunc to allow for argocd_project_token resources to coexist
+										// TODO: add a Diffsuppressfunc to allow for argocd_project_token resources, and future named tokens to coexist
 										//DiffSuppressFunc:
-										// TODO: add a validatefunc
-										Elem: &schema.Schema{Type: schema.TypeMap},
+										// TODO: add a validatefunc to ensure issued_at, expires_at (and name?) only are present.
+										Elem: &schema.Schema{
+											Type: schema.TypeMap,
+											Elem: &schema.Schema{Type: schema.TypeString},
+										},
 									},
 									"policies": {
 										Type:     schema.TypeList,
