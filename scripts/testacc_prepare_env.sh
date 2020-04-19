@@ -9,9 +9,9 @@ kubectl get nodes -o wide
 kubectl get pods --all-namespaces -o wide
 kubectl get services --all-namespaces -o wide
 
-echo '--- Install ArgoCD\n\n'
+echo '--- Install ArgoCD ${ARGOCD_VERSION:-1.5.2}\n\n'
 kubectl create namespace argocd &&
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v1.5.0/manifests/install.yaml &&
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION:-1.5.2}/manifests/install.yaml &&
 kubectl patch -n argocd secret/argocd-secret --type merge -p '{"stringData":{"admin.password":"$2a$10$O7VHb/85434QLWAep6.pye/z454DE3R2IWbCIJ7q5V/nTXUdPEBZC"}}' &&
 kubectl apply -n argocd -f manifests/argocd-project.yml &&
 kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd
