@@ -22,7 +22,7 @@ func TestAccArgoCDProject(t *testing.T) {
 				Config: testAccArgoCDProjectSimple(name),
 				Check: resource.TestCheckResourceAttrSet(
 					"argocd_project.simple",
-					"metadata.uid",
+					"metadata.0.uid",
 				),
 			},
 			{
@@ -30,16 +30,16 @@ func TestAccArgoCDProject(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"argocd_project.coexistence",
-						"metadata.uid",
+						"metadata.0.uid",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_project.coexistence",
-						"roles.testrole.jwt_tokens.0.iat",
+						"spec.0.roles.testrole.jwt_tokens.0.iat",
 						string(iat),
 					),
 					resource.TestCheckResourceAttrPair(
 						"argocd_project.coexistence",
-						"roles.testrole.jwt_tokens.1.iat",
+						"spec.0.roles.testrole.jwt_tokens.1.iat",
 						"argocd_project_token.coexistence_testrole",
 						"issued_at"),
 				),
@@ -57,13 +57,29 @@ resource "argocd_project" "simple" {
   }
 
   spec {
-    description = "simple"
+    description  = "simple"
     source_repos = ["*"]
-    destinations {
+
+    destination {
       server    = "https://kubernetes.default.svc"
-      namespace = "*"
+      namespace = "default"
     }
-    
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "foo"
+    }
+    cluster_resource_whitelist {
+      group = ""
+      kind  = "Namespace"
+    }
+    cluster_resource_whitelist {
+      group = "rbac.authorization.k8s.io"
+      kind  = "ClusterRole"
+    }
+    orphaned_resources = {
+      warn = true
+      foo = "bah"
+    }
   }
 }
 	`, name)
@@ -79,7 +95,7 @@ resource "argocd_project" "coexistence" {
 
   spec {
     description = "coexistence"
-    destinations {
+    destination {
 	   server    = "https://kubernetes.default.svc"
 	   namespace = "*"
     }

@@ -9,6 +9,27 @@
 - [Terraform](https://www.terraform.io/downloads.html) 0.12.x
 - [Go](https://golang.org/doc/install) 1.14+
 
+---
+
+## Motivations
+
+### *I thought ArgoCD already allowed for 100% declarative configuration?*
+
+While that is true through the use of ArgoCD Kubernetes Custom Resources, 
+there are some resources that simply cannot be managed using Kubernetes manifests,
+such as project roles JWTs whose respective lifecycles are better handled by a tool like Terraform.
+Even more so when you need to export these JWTs to another external system using Terraform, like a CI platform.
+
+### *Wouldn't using a Kubernetes provider to handle ArgoCD configuration be enough?*
+
+Using Terraform to manage Kubernetes Custom Resource becomes increasingly difficult 
+the further you use HCL2 DSL to merge different data structures *and* want to preserve type safety.
+
+Whatever the Kubernetes CRD provider you are using, you will probably end up using `locals` and the `yamlencode` function **which does not preserve the values' type**.
+In these cases, not only the readability of your Terraform plan will worsen, but you will also be losing some safeties that Terraform provides in the process.
+
+---
+
 ## Building
 
 Clone the repository within your `GOPATH`

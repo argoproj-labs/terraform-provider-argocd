@@ -20,162 +20,17 @@ func resourceArgoCDProject() *schema.Resource {
 		// TODO: add an importer
 
 		Schema: map[string]*schema.Schema{
-			"metadata": metadataSchema(),
-			"spec": {
-				Type:        schema.TypeList,
-				MinItems:    1,
-				MaxItems:    1,
-				Description: "ArgoCD App project resource specs. Required attributes: destinations, source_repos.",
-				Required:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"cluster_resource_whitelist": {
-							Type:     schema.TypeSet,
-							Set:      schema.HashSchema(&schema.Schema{Type: schema.TypeMap}),
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeMap},
-							// TODO: add a validatefunc to ensure group and kind only are present
-						},
-						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"destinations": {
-							Type:     schema.TypeList,
-							Required: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"server": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"namespace": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-								},
-							},
-							// TODO: add a validatefunc
-						},
-						"namespace_resource_blacklist": {
-							Type:     schema.TypeSet,
-							Set:      schema.HashSchema(&schema.Schema{Type: schema.TypeMap}),
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeMap,
-								Elem: &schema.Schema{
-									Type: schema.TypeString,
-								},
-							},
-							// TODO: add a validatefunc to ensure group and kind only are present
-						},
-						"orphaned_resources": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeBool,
-							},
-							// TODO: add a validatefunc to ensure only warn is present
-						},
-						"roles": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"description": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"groups": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-									"name": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"jwt_tokens": {
-										Type:     schema.TypeList,
-										Optional: true,
-										// TODO: add a Diffsuppressfunc to allow for argocd_project_token resources, and future named tokens to coexist
-										//DiffSuppressFunc:
-										// TODO: add a validatefunc to ensure issued_at, expires_at (and name?) only are present.
-										Elem: &schema.Schema{
-											Type: schema.TypeMap,
-											Elem: &schema.Schema{Type: schema.TypeString},
-										},
-									},
-									"policies": {
-										Type:     schema.TypeList,
-										Optional: true,
-										// TODO: add a validatefunc
-										Elem: &schema.Schema{Type: schema.TypeString},
-									},
-								},
-							},
-						},
-						"source_repos": {
-							Type:     schema.TypeSet,
-							Required: true,
-							Set:      schema.HashString,
-							// TODO: add a validatefunc
-							Elem: &schema.Schema{Type: schema.TypeString},
-						},
-						"sync_windows": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"applications": {
-										Type:     schema.TypeSet,
-										Set:      schema.HashString,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-									"clusters": {
-										Type:     schema.TypeSet,
-										Set:      schema.HashString,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-									"duration": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"kind": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"manual_sync": {
-										Type:     schema.TypeBool,
-										Optional: true,
-									},
-									"namespaces": {
-										Type:     schema.TypeSet,
-										Set:      schema.HashString,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-									"schedule": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
+			"metadata": metadataSchema("appprojects.argoproj.io"),
+			"spec":     projectSpecSchema(),
 		},
 	}
 }
 
-func storeArgoCDProjectToState(d *schema.ResourceData, p *argoCDAppv1.AppProject) error {
+func storeArgoCDProjectToState(p *argoCDAppv1.AppProject, d *schema.ResourceData) error {
 	if p == nil {
 		return fmt.Errorf("project NPE")
 	}
-	f := flattenProject(p)
+	f := flattenProject(p, d)
 	if err := d.Set("metadata", f["metadata"]); err != nil {
 		e, _ := json.MarshalIndent(f["metadata"], "", "\t")
 		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
@@ -229,7 +84,7 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	return storeArgoCDProjectToState(d, p)
+	return storeArgoCDProjectToState(p, d)
 }
 
 func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -253,7 +108,7 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return err
 		}
-		if err := storeArgoCDProjectToState(d, p); err != nil {
+		if err := storeArgoCDProjectToState(p, d); err != nil {
 			return err
 		}
 	}
