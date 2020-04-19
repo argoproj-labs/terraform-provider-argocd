@@ -200,10 +200,7 @@ func storeArgoCDProjectToState(d *schema.ResourceData, p *argoCDAppv1.AppProject
 	if p == nil {
 		return fmt.Errorf("project NPE")
 	}
-	f, err := flattenArgoCDProject(p)
-	if err != nil {
-		return err
-	}
+	f := flattenProject(p)
 	if err := d.Set("metadata", f["metadata"]); err != nil {
 		e, _ := json.MarshalIndent(f["metadata"], "", "\t")
 		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
@@ -216,7 +213,7 @@ func storeArgoCDProjectToState(d *schema.ResourceData, p *argoCDAppv1.AppProject
 }
 
 func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error {
-	objectMeta, spec, err := expandArgoCDProject(d)
+	objectMeta, spec, err := expandProject(d)
 	if err != nil {
 		return err
 	}
@@ -262,7 +259,7 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error {
 	if ok := d.HasChanges("metadata", "spec"); ok {
-		objectMeta, spec, err := expandArgoCDProject(d)
+		objectMeta, spec, err := expandProject(d)
 		if err != nil {
 			return err
 		}

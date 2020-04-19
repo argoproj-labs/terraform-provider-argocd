@@ -16,7 +16,7 @@ func flattenK8SGroupKinds(gks []metav1.GroupKind) (
 	return
 }
 
-func flattenArgoCDDestinations(ds []argoCDAppv1.ApplicationDestination) (
+func flattenDestinations(ds []argoCDAppv1.ApplicationDestination) (
 	result []map[string]string) {
 	for _, d := range ds {
 		result = append(result, map[string]string{
@@ -27,7 +27,7 @@ func flattenArgoCDDestinations(ds []argoCDAppv1.ApplicationDestination) (
 	return
 }
 
-func flattenArgoCDOrphanedResources(ors *argoCDAppv1.OrphanedResourcesMonitorSettings) (
+func flattenOrphanedResources(ors *argoCDAppv1.OrphanedResourcesMonitorSettings) (
 	result map[string]bool) {
 	if ors != nil {
 		result = map[string]bool{
@@ -37,7 +37,7 @@ func flattenArgoCDOrphanedResources(ors *argoCDAppv1.OrphanedResourcesMonitorSet
 	return
 }
 
-func flattenArgoCDRoleJWTTokens(jwts []argoCDAppv1.JWTToken) (
+func flattenRoleJWTTokens(jwts []argoCDAppv1.JWTToken) (
 	result []map[string]string) {
 	for _, jwt := range jwts {
 		result = append(result, map[string]string{
@@ -48,21 +48,21 @@ func flattenArgoCDRoleJWTTokens(jwts []argoCDAppv1.JWTToken) (
 	return
 }
 
-func flattenArgoCDRoles(rs []argoCDAppv1.ProjectRole) (
+func flattenRoles(rs []argoCDAppv1.ProjectRole) (
 	result []map[string]interface{}) {
 	for _, r := range rs {
 		result = append(result, map[string]interface{}{
 			"name":        r.Name,
 			"description": r.Description,
 			"groups":      r.Groups,
-			"jwt_tokens":  flattenArgoCDRoleJWTTokens(r.JWTTokens),
+			"jwt_tokens":  flattenRoleJWTTokens(r.JWTTokens),
 			"policies":    r.Policies,
 		})
 	}
 	return
 }
 
-func flattenArgoCDSyncWindows(sws argoCDAppv1.SyncWindows) (
+func flattenSyncWindows(sws argoCDAppv1.SyncWindows) (
 	result []map[string]interface{}) {
 	for _, sw := range sws {
 		result = append(result, map[string]interface{}{
@@ -77,10 +77,7 @@ func flattenArgoCDSyncWindows(sws argoCDAppv1.SyncWindows) (
 	return
 }
 
-func flattenArgoCDProject(p *argoCDAppv1.AppProject) (
-	map[string]interface{},
-	error) {
-
+func flattenProject(p *argoCDAppv1.AppProject) map[string]interface{} {
 	result := map[string]interface{}{
 		"metadata": []map[string]interface{}{
 			{
@@ -99,15 +96,18 @@ func flattenArgoCDProject(p *argoCDAppv1.AppProject) (
 					p.Spec.ClusterResourceWhitelist),
 				"namespace_resource_blacklist": flattenK8SGroupKinds(
 					p.Spec.NamespaceResourceBlacklist),
-
-				"description":        p.Spec.Description,
-				"destinations":       flattenArgoCDDestinations(p.Spec.Destinations),
-				"orphaned_resources": flattenArgoCDOrphanedResources(p.Spec.OrphanedResources),
-				"roles":              flattenArgoCDRoles(p.Spec.Roles),
-				"source_repos":       p.Spec.SourceRepos,
-				"sync_windows":       flattenArgoCDSyncWindows(p.Spec.SyncWindows),
+				"destinations": flattenDestinations(
+					p.Spec.Destinations),
+				"orphaned_resources": flattenOrphanedResources(
+					p.Spec.OrphanedResources),
+				"roles": flattenRoles(
+					p.Spec.Roles),
+				"sync_windows": flattenSyncWindows(
+					p.Spec.SyncWindows),
+				"description":  p.Spec.Description,
+				"source_repos": p.Spec.SourceRepos,
 			},
 		},
 	}
-	return result, nil
+	return result
 }

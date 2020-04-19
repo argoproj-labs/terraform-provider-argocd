@@ -9,7 +9,7 @@ import (
 )
 
 // TODO: needs comprehensive unit tests
-func expandArgoCDProject(d *schema.ResourceData) (
+func expandProject(d *schema.ResourceData) (
 	objectMeta metav1.ObjectMeta,
 	spec argoCDAppv1.AppProjectSpec,
 	err error) {
