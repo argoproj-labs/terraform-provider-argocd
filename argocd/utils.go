@@ -30,3 +30,11 @@ func expandStringMap(m map[string]interface{}) map[string]string {
 	}
 	return result
 }
+
+func expandStringList(l []interface{}) (
+	result []string) {
+	for _, p := range l {
+		result = append(result, p.(string))
+	}
+	return
+}

@@ -40,8 +40,8 @@ func flattenRoleJWTTokens(jwts []argoCDAppv1.JWTToken) (
 	result []map[string]string) {
 	for _, jwt := range jwts {
 		result = append(result, map[string]string{
-			"issued_at":  convertInt64ToString(jwt.IssuedAt),
-			"expired_at": convertInt64ToString(jwt.ExpiresAt),
+			"iat": convertInt64ToString(jwt.IssuedAt),
+			"exp": convertInt64ToString(jwt.ExpiresAt),
 		})
 	}
 	return
@@ -54,7 +54,7 @@ func flattenRoles(rs []argoCDAppv1.ProjectRole) (
 			"name":        r.Name,
 			"description": r.Description,
 			"groups":      r.Groups,
-			"jwt_tokens":  flattenRoleJWTTokens(r.JWTTokens),
+			"jwt_token":   flattenRoleJWTTokens(r.JWTTokens),
 			"policies":    r.Policies,
 		})
 	}
@@ -71,6 +71,7 @@ func flattenSyncWindows(sws argoCDAppv1.SyncWindows) (
 			"kind":         sw.Kind,
 			"manual_sync":  sw.ManualSync,
 			"namespaces":   sw.Namespaces,
+			"schedule":     sw.Schedule,
 		})
 	}
 	return

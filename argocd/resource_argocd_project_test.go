@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccArgoCDProject(t *testing.T) {
-	name := "test-acc-" + acctest.RandString(50)
+	name := "test-acc-" + acctest.RandString(10)
 	// ensure generated iat is always in the past
 	iat := rand.Int63() % (time.Now().Unix() - 1)
 
@@ -25,8 +25,18 @@ func TestAccArgoCDProject(t *testing.T) {
 					"metadata.0.uid",
 				),
 			},
+			// Check with the same name for rapid project recreation robustness
 			{
-				Config: testAccArgoCDProjectCoexistenceWithTokenResource(name, iat),
+				Config: testAccArgoCDProjectSimple(name),
+				Check: resource.TestCheckResourceAttrSet(
+					"argocd_project.simple",
+					"metadata.0.uid",
+				),
+			},
+			{
+				Config: testAccArgoCDProjectCoexistenceWithTokenResource(
+					"test-acc-"+acctest.RandString(10),
+					iat),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"argocd_project.coexistence",
@@ -34,14 +44,15 @@ func TestAccArgoCDProject(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_project.coexistence",
-						"spec.0.roles.testrole.jwt_tokens.0.iat",
-						string(iat),
+						"spec.0.role.0.jwt_token.0.iat",
+						convertInt64ToString(iat),
 					),
 					resource.TestCheckResourceAttrPair(
 						"argocd_project.coexistence",
-						"spec.0.roles.testrole.jwt_tokens.1.iat",
+						"spec.0.role.0.jwt_token.1.iat",
 						"argocd_project_token.coexistence_testrole",
-						"issued_at"),
+						"issued_at",
+					),
 				),
 			},
 		},
@@ -54,6 +65,12 @@ resource "argocd_project" "simple" {
   metadata {
     name      = "%s"
     namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+    annotations = {
+      "this.is.a.really.long.nested.key" = "yes, really!"
+    }
   }
 
   spec {
@@ -69,16 +86,37 @@ resource "argocd_project" "simple" {
       namespace = "foo"
     }
     cluster_resource_whitelist {
-      group = ""
-      kind  = "Namespace"
+      group = "rbac.authorization.k8s.io"
+      kind  = "ClusterRoleBinding"
     }
     cluster_resource_whitelist {
       group = "rbac.authorization.k8s.io"
       kind  = "ClusterRole"
     }
+    namespace_resource_blacklist {
+      group = "networking.k8s.io"
+      kind  = "Ingress"
+    }
     orphaned_resources = {
       warn = true
-      foo = "bah"
+    }
+    sync_window {
+      kind = "allow"
+      applications = ["api-*"]
+      clusters = ["*"]
+      namespaces = ["*"]
+      duration = "3600s"
+      schedule = "10 1 * * *"
+      manual_sync = true
+    }
+    sync_window {
+      kind = "deny"
+      applications = ["foo"]
+      clusters = ["in-cluster"]
+      namespaces = ["default"]
+      duration = "12h"
+      schedule = "22 1 5 * *"
+      manual_sync = false
     }
   }
 }
@@ -100,12 +138,12 @@ resource "argocd_project" "coexistence" {
 	   namespace = "*"
     }
     source_repos = ["*"]
-    roles = {
+    role {
       name = "testrole"
       policies = [
         "p, proj:%s:testrole, applications, override, %s/*, allow",
       ]
-      jwt_tokens {
+      jwt_token {
         iat = %d
       }
     }
@@ -113,9 +151,8 @@ resource "argocd_project" "coexistence" {
 }
 
 resource "argocd_project_token" "coexistence_testrole" {
-  project = argocd_project.coexistence.name
+  project = argocd_project.coexistence.metadata.0.name
   role    = "testrole"
 }
-
 	`, name, name, name, iat)
 }

@@ -66,18 +66,11 @@ func projectSpecSchema() *schema.Schema {
 				"orphaned_resources": {
 					Type:     schema.TypeMap,
 					Optional: true,
-					Elem: &schema.Resource{
-						Schema: map[string]*schema.Schema{
-							"warn": {
-								Type:     schema.TypeBool,
-								Optional: true,
-							},
-						},
-					},
+					Elem:     &schema.Schema{Type: schema.TypeBool},
 					// TODO: add a validatefunc to ensure only warn is present
 				},
-				"roles": {
-					Type:     schema.TypeSet,
+				"role": {
+					Type:     schema.TypeList,
 					Optional: true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
@@ -86,7 +79,8 @@ func projectSpecSchema() *schema.Schema {
 								Optional: true,
 							},
 							"groups": {
-								Type:     schema.TypeList,
+								Type:     schema.TypeSet,
+								Set:      schema.HashString,
 								Optional: true,
 								Elem:     &schema.Schema{Type: schema.TypeString},
 							},
@@ -94,32 +88,27 @@ func projectSpecSchema() *schema.Schema {
 								Type:     schema.TypeString,
 								Required: true,
 							},
-							"jwt_tokens": {
+							"jwt_token": {
 								Type:     schema.TypeList,
 								Optional: true,
-								Computed: true,
 								// TODO: add a Diffsuppressfunc to allow for argocd_project_token resources, and future named tokens to coexist
 								//DiffSuppressFunc:
-								Elem: &schema.Schema{
-									Type: schema.TypeSet,
-									Elem: &schema.Resource{
-										Schema: map[string]*schema.Schema{
-											"issued_at": {
-												Type:     schema.TypeString,
-												Computed: true,
-												Optional: true,
-											},
-											"expires_at": {
-												Type:     schema.TypeString,
-												Computed: true,
-												Optional: true,
-											},
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"iat": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+										"exp": {
+											Type:     schema.TypeString,
+											Optional: true,
 										},
 									},
 								},
 							},
 							"policies": {
-								Type:     schema.TypeList,
+								Type:     schema.TypeSet,
+								Set:      schema.HashString,
 								Optional: true,
 								// TODO: add a validatefunc
 								Elem: &schema.Schema{Type: schema.TypeString},
@@ -128,26 +117,23 @@ func projectSpecSchema() *schema.Schema {
 					},
 				},
 				"source_repos": {
-					Type:     schema.TypeSet,
+					Type:     schema.TypeList,
 					Required: true,
-					Set:      schema.HashString,
 					// TODO: add a validatefunc
 					Elem: &schema.Schema{Type: schema.TypeString},
 				},
-				"sync_windows": {
-					Type:     schema.TypeSet,
+				"sync_window": {
+					Type:     schema.TypeList,
 					Optional: true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"applications": {
-								Type:     schema.TypeSet,
-								Set:      schema.HashString,
+								Type:     schema.TypeList,
 								Optional: true,
 								Elem:     &schema.Schema{Type: schema.TypeString},
 							},
 							"clusters": {
-								Type:     schema.TypeSet,
-								Set:      schema.HashString,
+								Type:     schema.TypeList,
 								Optional: true,
 								Elem:     &schema.Schema{Type: schema.TypeString},
 							},

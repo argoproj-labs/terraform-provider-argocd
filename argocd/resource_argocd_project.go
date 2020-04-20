@@ -9,6 +9,8 @@ import (
 	argoCDAppv1 "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/argo-cd/util"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"strings"
+	"time"
 )
 
 func resourceArgoCDProject() *schema.Resource {
@@ -54,7 +56,25 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	defer util.Close(closer)
 
-	p, err := c.Create(context.Background(), &argoCDProject.ProjectCreateRequest{
+	p, err := c.Get(context.Background(), &argoCDProject.ProjectQuery{
+		Name: objectMeta.Name,
+	},
+	)
+	if err != nil {
+		switch strings.Contains(err.Error(), "NotFound") {
+		case true:
+		default:
+			return fmt.Errorf("foo %s", err)
+		}
+	}
+	if p != nil {
+		switch p.DeletionTimestamp {
+		case nil:
+		default:
+			time.Sleep(time.Duration(*p.DeletionGracePeriodSeconds))
+		}
+	}
+	p, err = c.Create(context.Background(), &argoCDProject.ProjectCreateRequest{
 		Project: &argoCDAppv1.AppProject{
 			ObjectMeta: objectMeta,
 			Spec:       spec,
@@ -65,6 +85,9 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 	})
 	if err != nil {
 		return err
+	}
+	if p == nil {
+		return fmt.Errorf("something went wrong during project creation")
 	}
 	d.SetId(p.Name)
 	return resourceArgoCDProjectRead(d, meta)
@@ -84,6 +107,10 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+	if p == nil {
+		d.SetId("")
+		return nil
+	}
 	return storeArgoCDProjectToState(p, d)
 }
 
@@ -100,15 +127,12 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 		defer util.Close(closer)
 
-		p, err := c.Update(context.Background(), &argoCDProject.ProjectUpdateRequest{
+		_, err = c.Update(context.Background(), &argoCDProject.ProjectUpdateRequest{
 			Project: &argoCDAppv1.AppProject{
 				ObjectMeta: objectMeta,
 				Spec:       spec,
 			}})
 		if err != nil {
-			return err
-		}
-		if err := storeArgoCDProjectToState(p, d); err != nil {
 			return err
 		}
 	}
