@@ -2,14 +2,15 @@ package argocd
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"testing"
 )
 
 func TestAccArgoCDProjectToken(t *testing.T) {
-	project := "myproject"
-	role := "test-role1234"
+	project := acctest.RandomWithPrefix("test-acc")
+	role := acctest.RandomWithPrefix("test-role")
 	count := 20
 
 	resource.Test(t, resource.TestCase{
@@ -42,11 +43,32 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 
 func testAccArgoCDProjectTokenSingle(project string, role string) string {
 	return fmt.Sprintf(`
+resource "argocd_project" "single" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+  spec {
+    source_repos = ["*"]
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+    role {
+      name         = "%s"
+      policies     = [
+        "p, proj:%s:%s, applications, get, %s/*, allow",
+        "p, proj:%s:%s, applications, sync, %s/*, deny",
+      ]
+    }
+  }
+}
+
 resource "argocd_project_token" "single" {
-  project = "%s"
+  project = argocd_project.single.metadata.0.name
   role    = "%s"
 }
-	`, project, role)
+	`, project, role, project, role, project, project, role, project, role)
 }
 func testAccArgoCDProjectTokenMultiple(project string, role string, count int) string {
 	return fmt.Sprintf(`

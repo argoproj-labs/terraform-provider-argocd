@@ -28,22 +28,6 @@ func resourceArgoCDProject() *schema.Resource {
 	}
 }
 
-func storeArgoCDProjectToState(p *argoCDAppv1.AppProject, d *schema.ResourceData) error {
-	if p == nil {
-		return fmt.Errorf("project NPE")
-	}
-	f := flattenProject(p, d)
-	if err := d.Set("metadata", f["metadata"]); err != nil {
-		e, _ := json.MarshalIndent(f["metadata"], "", "\t")
-		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
-	}
-	if err := d.Set("spec", f["spec"]); err != nil {
-		e, _ := json.MarshalIndent(f["spec"], "", "\t")
-		return fmt.Errorf("error persisting spec: %s\n%s", err, e)
-	}
-	return nil
-}
-
 func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error {
 	objectMeta, spec, err := expandProject(d)
 	if err != nil {
@@ -111,7 +95,97 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 		d.SetId("")
 		return nil
 	}
-	return storeArgoCDProjectToState(p, d)
+
+	f := flattenProject(p, d)
+	fMetadata := f["metadata"]
+	fSpec := f["spec"]
+
+	if err := d.Set("metadata", fMetadata); err != nil {
+		e, _ := json.MarshalIndent(fMetadata, "", "\t")
+		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
+	}
+
+	// diffSupprFunc for roles' JWTTokens added out of Terraform
+	managedJwtIatMap := make(map[string]string)
+	currentJwtIatMap := make(map[string]string)
+	
+	// Merge old and new managed JWTs
+	_oldRoles, _newRoles := d.GetChange("spec.0.role")
+	_currentRoles := fSpec.([]map[string]interface{})[0]["role"]
+	
+	oldRoles := _oldRoles.(map[string]interface{})
+	newRoles := _newRoles.(map[string]interface{})
+	currentRoles := _currentRoles.(map[string]interface{})
+	
+	for rk, rv := range oldRoles {
+		role := rv.(map[string]interface{})
+		if rk == "jwt_token" {
+			roleJwts := role["jwt_token"].([]map[string]string)
+			for _, roleJwt := range roleJwts {
+				managedJwtIatMap[roleJwt["iat"]] = role["name"].(string)
+			}
+		}
+	}
+	for rk, rv := range newRoles {
+		role := rv.(map[string]interface{})
+		if rk == "jwt_token" {
+			roleJwts := role["jwt_token"].([]map[string]string)
+			for _, roleJwt := range roleJwts {
+				managedJwtIatMap[roleJwt["iat"]] = role["name"].(string)
+			}
+		}
+	}
+	
+	for rk, rv := range currentRoles {
+		role := rv.(map[string]interface{})
+		if rk == "jwt_token" {
+			roleJwts := role["jwt_token"].([]map[string]string)
+			for _, roleJwt := range roleJwts {
+				currentJwtIatMap[roleJwt["iat"]] = role["name"].(string)
+			}
+		}
+	}
+
+	for k, _ := range managedJwtIatMap {
+		if _, ok := currentJwtIatMap[k]; ok {
+			delete(currentJwtIatMap, k)
+		}
+	}
+
+	// Modify the jwt_token array in the to-be-persisted roles to remove the unmanaged jwts
+	
+	if len(currentJwtIatMap) > 0 {
+		currentJwtRoleNames := make(map[string]interface{})
+		for _, v := range currentJwtIatMap {
+			currentJwtRoleNames[v] = nil
+		}
+		
+		filteredfSpecRoles := make([]map[string][]map[string]interface{})
+		
+		for iat, roleName := range currentJwtIatMap {
+			 fs := fSpec.([]map[string]interface{})[0]
+			 fsRoles := fs["role"].([]map[string]interface{})
+			 
+			 for ri, r := range fsRoles {
+			 	
+			 	switch r["name"] == roleName {
+				case false:
+				default:
+			 		roleJwts := r["jwt_tokens"].([]map[string]string)
+			 		for jwti, jwt := range roleJwts {
+			 			if jwt["iat"] == iat {
+						}
+					}
+				}
+			 }
+		}
+	}
+
+	if err := d.Set("spec", fSpec); err != nil {
+		e, _ := json.MarshalIndent(fSpec, "", "\t")
+		return fmt.Errorf("error persisting spec: %s\n%s", err, e)
+	}
+	return nil
 }
 
 func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error {

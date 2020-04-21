@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccArgoCDProject(t *testing.T) {
-	name := "test-acc-" + acctest.RandString(10)
+	name := acctest.RandomWithPrefix("test-acc")
 	// ensure generated iat is always in the past
 	iat := rand.Int63() % (time.Now().Unix() - 1)
 
@@ -28,9 +28,12 @@ func TestAccArgoCDProject(t *testing.T) {
 			// Check with the same name for rapid project recreation robustness
 			{
 				Config: testAccArgoCDProjectSimple(name),
-				Check: resource.TestCheckResourceAttrSet(
-					"argocd_project.simple",
-					"metadata.0.uid",
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+					),
+					// TODO: check all possible attributes
 				),
 			},
 			{

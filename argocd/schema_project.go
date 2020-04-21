@@ -91,8 +91,6 @@ func projectSpecSchema() *schema.Schema {
 							"jwt_token": {
 								Type:     schema.TypeList,
 								Optional: true,
-								// TODO: add a Diffsuppressfunc to allow for argocd_project_token resources, and future named tokens to coexist
-								//DiffSuppressFunc:
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{
 										"iat": {
@@ -109,7 +107,7 @@ func projectSpecSchema() *schema.Schema {
 							"policies": {
 								Type:     schema.TypeSet,
 								Set:      schema.HashString,
-								Optional: true,
+								Required: true,
 								// TODO: add a validatefunc
 								Elem: &schema.Schema{Type: schema.TypeString},
 							},
