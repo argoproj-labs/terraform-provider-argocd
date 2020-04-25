@@ -54,6 +54,32 @@ func expandProjectJWTTokens(jwts []interface{}) (
 	return
 }
 
+func expandProjectRoles(roles []interface{}) (
+	projectRoles []argoCDAppv1.ProjectRole,
+	err error) {
+	for _, _r := range roles {
+		r := _r.(map[string]interface{})
+
+		rolePolicies := expandStringList(r["policies"].(*schema.Set).List())
+		roleGroups := expandStringList(r["groups"].(*schema.Set).List())
+		roleJWTTokens, err := expandProjectJWTTokens(r["jwt_token"].([]interface{}))
+		if err != nil {
+			return projectRoles, err
+		}
+		projectRoles = append(
+			projectRoles,
+			argoCDAppv1.ProjectRole{
+				Name:        r["name"].(string),
+				Description: r["description"].(string),
+				Policies:    rolePolicies,
+				Groups:      roleGroups,
+				JWTTokens:   roleJWTTokens,
+			},
+		)
+	}
+	return
+}
+
 func expandProjectSpec(projectSpec []interface{}) (
 	spec argoCDAppv1.AppProjectSpec,
 	err error) {
@@ -74,7 +100,7 @@ func expandProjectSpec(projectSpec []interface{}) (
 			}
 		}
 	}
-	// TODO: refactor
+	// TODO: refactor as expandProjectClusterResourceWhitelist
 	if v, ok := s["cluster_resource_whitelist"]; ok {
 		for _, _gk := range v.(*schema.Set).List() {
 			gk := _gk.(map[string]interface{})
@@ -84,7 +110,8 @@ func expandProjectSpec(projectSpec []interface{}) (
 			})
 		}
 	}
-	// TODO: refactor
+	// TODO: refactor as expandProjectNamespaceResourceBlacklist
+	// ( == expandApplicationClusterResourceWhitelist)
 	if v, ok := s["namespace_resource_blacklist"]; ok {
 		for _, _gk := range v.(*schema.Set).List() {
 			gk := _gk.(map[string]interface{})
@@ -94,6 +121,7 @@ func expandProjectSpec(projectSpec []interface{}) (
 			})
 		}
 	}
+	// TODO: refactor as expandApplicationDestination
 	if v, ok := s["destination"]; ok {
 		for _, _dest := range v.(*schema.Set).List() {
 			dest := _dest.(map[string]interface{})
@@ -107,28 +135,12 @@ func expandProjectSpec(projectSpec []interface{}) (
 		}
 	}
 	if v, ok := s["role"]; ok {
-		for _, _r := range v.([]interface{}) {
-			r := _r.(map[string]interface{})
-
-			rolePolicies := expandStringList(r["policies"].(*schema.Set).List())
-			roleGroups := expandStringList(r["groups"].(*schema.Set).List())
-			roleJWTTokens, err := expandProjectJWTTokens(r["jwt_token"].([]interface{}))
-			if err != nil {
-				return spec, err
-			}
-
-			spec.Roles = append(
-				spec.Roles,
-				argoCDAppv1.ProjectRole{
-					Name:        r["name"].(string),
-					Description: r["description"].(string),
-					Policies:    rolePolicies,
-					Groups:      roleGroups,
-					JWTTokens:   roleJWTTokens,
-				},
-			)
+		spec.Roles, err = expandProjectRoles(v.([]interface{}))
+		if err != nil {
+			return spec, err
 		}
 	}
+	// TODO: refactor as expandProjectSyncWindow
 	if v, ok := s["sync_window"]; ok {
 		for _, _sw := range v.([]interface{}) {
 			sw := _sw.(map[string]interface{})
@@ -149,27 +161,29 @@ func expandProjectSpec(projectSpec []interface{}) (
 	return spec, nil
 }
 
-func flattenProject(p *argoCDAppv1.AppProject, d *schema.ResourceData) map[string]interface{} {
-	result := map[string]interface{}{
-		"metadata": flattenMetadata(p.ObjectMeta, d),
-		"spec": []map[string]interface{}{
-			{
-				"cluster_resource_whitelist": flattenK8SGroupKinds(
-					p.Spec.ClusterResourceWhitelist),
-				"namespace_resource_blacklist": flattenK8SGroupKinds(
-					p.Spec.NamespaceResourceBlacklist),
-				"destination": flattenDestinations(
-					p.Spec.Destinations),
-				"orphaned_resources": flattenOrphanedResources(
-					p.Spec.OrphanedResources),
-				"role": flattenRoles(
-					p.Spec.Roles),
-				"sync_window": flattenSyncWindows(
-					p.Spec.SyncWindows),
-				"description":  p.Spec.Description,
-				"source_repos": p.Spec.SourceRepos,
-			},
-		},
+func flattenProjectSpec(s argoCDAppv1.AppProjectSpec, d *schema.ResourceData) (
+	result []map[string]interface{},
+	err error) {
+
+	roles := s.Roles
+
+	if allow, ok := d.GetOk("allow_external_jwt_tokens"); ok && allow.(bool) {
+		roles, err = strategicMergePatchJWTs(roles, d)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return result
+
+	spec := map[string]interface{}{
+		"cluster_resource_whitelist":   flattenK8SGroupKinds(s.ClusterResourceWhitelist),
+		"namespace_resource_blacklist": flattenK8SGroupKinds(s.NamespaceResourceBlacklist),
+		"destination":                  flattenDestinations(s.Destinations),
+		"orphaned_resources":           flattenOrphanedResources(s.OrphanedResources),
+		"role":                         flattenRoles(roles),
+		"sync_window":                  flattenSyncWindows(s.SyncWindows),
+		"description":                  s.Description,
+		"source_repos":                 s.SourceRepos,
+	}
+
+	return []map[string]interface{}{spec}, nil
 }

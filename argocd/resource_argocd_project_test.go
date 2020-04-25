@@ -134,6 +134,8 @@ resource "argocd_project" "coexistence" {
     namespace   = "argocd"
   }
 
+  allow_external_jwt_tokens = true
+
   spec {
     description = "coexistence"
     destination {

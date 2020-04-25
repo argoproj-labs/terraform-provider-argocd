@@ -24,6 +24,12 @@ func resourceArgoCDProject() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("appprojects.argoproj.io"),
 			"spec":     projectSpecSchema(),
+			"allow_external_jwt_tokens": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "If true, externally created JWT tokens (through the web UI for example) will not be overwritten by the tokens declared within `spec.role.X.jwt_token`.",
+			},
 		},
 	}
 }
@@ -96,89 +102,15 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	f := flattenProject(p, d)
-	fMetadata := f["metadata"]
-	fSpec := f["spec"]
+	fMetadata := flattenMetadata(p.ObjectMeta, d)
+	fSpec, err := flattenProjectSpec(p.Spec, d)
+	if err != nil {
+		return err
+	}
 
 	if err := d.Set("metadata", fMetadata); err != nil {
 		e, _ := json.MarshalIndent(fMetadata, "", "\t")
 		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
-	}
-
-	// diffSupprFunc for roles' JWTTokens added out of Terraform
-	managedJwtIatMap := make(map[string]string)
-	currentJwtIatMap := make(map[string]string)
-	
-	// Merge old and new managed JWTs
-	_oldRoles, _newRoles := d.GetChange("spec.0.role")
-	_currentRoles := fSpec.([]map[string]interface{})[0]["role"]
-	
-	oldRoles := _oldRoles.(map[string]interface{})
-	newRoles := _newRoles.(map[string]interface{})
-	currentRoles := _currentRoles.(map[string]interface{})
-	
-	for rk, rv := range oldRoles {
-		role := rv.(map[string]interface{})
-		if rk == "jwt_token" {
-			roleJwts := role["jwt_token"].([]map[string]string)
-			for _, roleJwt := range roleJwts {
-				managedJwtIatMap[roleJwt["iat"]] = role["name"].(string)
-			}
-		}
-	}
-	for rk, rv := range newRoles {
-		role := rv.(map[string]interface{})
-		if rk == "jwt_token" {
-			roleJwts := role["jwt_token"].([]map[string]string)
-			for _, roleJwt := range roleJwts {
-				managedJwtIatMap[roleJwt["iat"]] = role["name"].(string)
-			}
-		}
-	}
-	
-	for rk, rv := range currentRoles {
-		role := rv.(map[string]interface{})
-		if rk == "jwt_token" {
-			roleJwts := role["jwt_token"].([]map[string]string)
-			for _, roleJwt := range roleJwts {
-				currentJwtIatMap[roleJwt["iat"]] = role["name"].(string)
-			}
-		}
-	}
-
-	for k, _ := range managedJwtIatMap {
-		if _, ok := currentJwtIatMap[k]; ok {
-			delete(currentJwtIatMap, k)
-		}
-	}
-
-	// Modify the jwt_token array in the to-be-persisted roles to remove the unmanaged jwts
-	
-	if len(currentJwtIatMap) > 0 {
-		currentJwtRoleNames := make(map[string]interface{})
-		for _, v := range currentJwtIatMap {
-			currentJwtRoleNames[v] = nil
-		}
-		
-		filteredfSpecRoles := make([]map[string][]map[string]interface{})
-		
-		for iat, roleName := range currentJwtIatMap {
-			 fs := fSpec.([]map[string]interface{})[0]
-			 fsRoles := fs["role"].([]map[string]interface{})
-			 
-			 for ri, r := range fsRoles {
-			 	
-			 	switch r["name"] == roleName {
-				case false:
-				default:
-			 		roleJwts := r["jwt_tokens"].([]map[string]string)
-			 		for jwti, jwt := range roleJwts {
-			 			if jwt["iat"] == iat {
-						}
-					}
-				}
-			 }
-		}
 	}
 
 	if err := d.Set("spec", fSpec); err != nil {
