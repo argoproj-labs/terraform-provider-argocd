@@ -27,7 +27,6 @@ func resourceArgoCDProject() *schema.Resource {
 			"allow_external_jwt_tokens": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
 				Description: "If true, externally created JWT tokens (through the web UI for example) will not be overwritten by the tokens declared within `spec.role.X.jwt_token`.",
 			},
 		},

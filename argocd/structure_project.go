@@ -1,10 +1,12 @@
 package argocd
 
 import (
+	"encoding/json"
 	"fmt"
 	argoCDAppv1 "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/strategicpatch"
 )
 
 func expandProject(d *schema.ResourceData) (
@@ -161,17 +163,118 @@ func expandProjectSpec(projectSpec []interface{}) (
 	return spec, nil
 }
 
-func flattenProjectSpec(s argoCDAppv1.AppProjectSpec, d *schema.ResourceData) (
-	result []map[string]interface{},
+// Returns a role that matches the provided name,
+// along with a boolean indicating whether there was a match.
+func GetProjectRoleOk(name string, roles []argoCDAppv1.ProjectRole) (
+	result argoCDAppv1.ProjectRole,
+	ok bool) {
+	for _, r := range roles {
+		if r.Name == name {
+			return r, true
+		}
+	}
+	return
+}
+
+func strategicMergePatchJWTTokenSlice(overwrite bool, original, modified, current []argoCDAppv1.JWTToken) (
+	result []argoCDAppv1.JWTToken,
 	err error) {
 
-	roles := s.Roles
+	// Convert roles to []byte for use in strategic merge patch
+	ob, err := json.Marshal(original)
+	if err != nil {
+		return nil, err
+	}
+	mb, err := json.Marshal(modified)
+	if err != nil {
+		return nil, err
+	}
+	cb, err := json.Marshal(current)
+	if err != nil {
+		return nil, err
+	}
 
-	if allow, ok := d.GetOk("allow_external_jwt_tokens"); ok && allow.(bool) {
-		roles, err = strategicMergePatchJWTs(roles, d)
+	patchMetaFromStruct, err := strategicpatch.NewPatchMetaFromStruct(argoCDAppv1.JWTToken{})
+	if err != nil {
+		return nil, err
+	}
+	lpmeta, pmeta, err := patchMetaFromStruct.LookupPatchMetadataForStruct("iat")
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(pmeta)
+
+	// TODO: investigate json marshalling error
+	// TODO: on a perfectly valid json document
+	//
+	// TODO: found: need to iterate over each JWT document
+	// TODO: or better, find the method to handle slices merges (if it exists..)
+	patch, err := strategicpatch.CreateThreeWayMergePatch(ob, mb, cb, lpmeta, overwrite)
+	if err != nil {
+		return result, fmt.Errorf("%s\n\nmodified: %#v\n\nmodifiedb: %s ", err, modified, mb)
+		//return nil, err
+	}
+
+	rolesBytes, err := strategicpatch.StrategicMergePatch(
+		ob,
+		patch,
+		argoCDAppv1.JWTToken{},
+	)
+	if err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(rolesBytes, &result); err != nil {
+		eors, _ := json.MarshalIndent(original, "", "\t")
+		emrs, _ := json.MarshalIndent(modified, "", "\t")
+		ecrs, _ := json.MarshalIndent(current, "", "\t")
+		return result, fmt.Errorf("%s\n\npatchmeta: %s\n\nsmpatch: %s\n\npatched: %s\n\noriginal: %s\n\nmodified: %s\n\ncurrent: %s ", err, patchMetaFromStruct, patch, rolesBytes, eors, emrs, ecrs)
+	}
+	return
+}
+
+func flattenProjectSpec(s argoCDAppv1.AppProjectSpec, d *schema.ResourceData) (
+	[]map[string]interface{},
+	error) {
+
+	currentRoles := s.Roles
+
+	// Allow for external JWTs to coexist with managed JWTs
+	// by not persisting external JWTs to the state.
+	allow := d.Get("allow_external_jwt_tokens").(bool)
+	if allow {
+		var patchedRoles []argoCDAppv1.ProjectRole
+
+		oldRoles, modifiedRoles := d.GetChange("spec.0.role")
+		ors, err := expandProjectRoles(oldRoles.([]interface{}))
 		if err != nil {
 			return nil, err
 		}
+		mrs, err := expandProjectRoles(modifiedRoles.([]interface{}))
+		if err != nil {
+			return nil, err
+		}
+
+		// Iterate over the modified roles slice,
+		// since if old roles are missing from that slice,
+		// it means they will be removed anyways.
+		for _, mr := range mrs {
+			or, _ := GetProjectRoleOk(mr.Name, ors)
+			// No need to patch if the role does not currently exist.
+			if cr, ok := GetProjectRoleOk(mr.Name, currentRoles); ok {
+				roleJWTs, err := strategicMergePatchJWTTokenSlice(
+					false,
+					or.JWTTokens,
+					mr.JWTTokens,
+					cr.JWTTokens,
+				)
+				if err != nil {
+					return nil, err
+				}
+				mr.JWTTokens = roleJWTs
+			}
+			patchedRoles = append(patchedRoles, mr)
+		}
+		currentRoles = patchedRoles
 	}
 
 	spec := map[string]interface{}{
@@ -179,11 +282,14 @@ func flattenProjectSpec(s argoCDAppv1.AppProjectSpec, d *schema.ResourceData) (
 		"namespace_resource_blacklist": flattenK8SGroupKinds(s.NamespaceResourceBlacklist),
 		"destination":                  flattenDestinations(s.Destinations),
 		"orphaned_resources":           flattenOrphanedResources(s.OrphanedResources),
-		"role":                         flattenRoles(roles),
+		"role":                         flattenRoles(currentRoles),
 		"sync_window":                  flattenSyncWindows(s.SyncWindows),
 		"description":                  s.Description,
 		"source_repos":                 s.SourceRepos,
 	}
+	//crs, _ := json.MarshalIndent(roles, "", "\t")
+	//crcs, _ := json.MarshalIndent(s.Roles, "", "\t")
+	//return nil, fmt.Errorf("computed: %s\n\ncurrent: %s ", crs, crcs)
 
 	return []map[string]interface{}{spec}, nil
 }
