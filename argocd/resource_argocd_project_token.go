@@ -11,6 +11,7 @@ import (
 	jwtGo "github.com/square/go-jose/jwt"
 	"strconv"
 	"sync"
+	"time"
 )
 
 var tokenMutex sync.RWMutex
@@ -90,6 +91,8 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 
 	tokenMutex.Lock()
 	resp, err := c.CreateToken(context.Background(), opts)
+	// ensure issuedAt (in seconds) is unique upon multiple simultaneous resource creation invocations
+	time.Sleep(1 * time.Second)
 	tokenMutex.Unlock()
 	if err != nil {
 		return err
