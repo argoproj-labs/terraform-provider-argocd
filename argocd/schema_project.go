@@ -17,8 +17,9 @@ func projectSpecSchema() *schema.Schema {
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"group": {
-								Type:     schema.TypeString,
-								Optional: true,
+								Type:         schema.TypeString,
+								ValidateFunc: validateGroupName,
+								Optional:     true,
 							},
 							"kind": {
 								Type:     schema.TypeString,
@@ -67,7 +68,6 @@ func projectSpecSchema() *schema.Schema {
 					Type:     schema.TypeMap,
 					Optional: true,
 					Elem:     &schema.Schema{Type: schema.TypeBool},
-					// TODO: add a validatefunc to ensure only warn is present
 				},
 				"role": {
 					Type:     schema.TypeList,
@@ -79,37 +79,19 @@ func projectSpecSchema() *schema.Schema {
 								Optional: true,
 							},
 							"groups": {
-								Type:     schema.TypeSet,
-								Set:      schema.HashString,
+								Type:     schema.TypeList,
 								Optional: true,
 								Elem:     &schema.Schema{Type: schema.TypeString},
 							},
 							"name": {
-								Type:     schema.TypeString,
-								Required: true,
-							},
-							"jwt_token": {
-								Type:     schema.TypeList,
-								Optional: true,
-								Elem: &schema.Resource{
-									Schema: map[string]*schema.Schema{
-										"iat": {
-											Type:     schema.TypeString,
-											Optional: true,
-										},
-										"exp": {
-											Type:     schema.TypeString,
-											Optional: true,
-										},
-									},
-								},
+								Type:         schema.TypeString,
+								ValidateFunc: validateRoleName,
+								Required:     true,
 							},
 							"policies": {
-								Type:     schema.TypeSet,
-								Set:      schema.HashString,
+								Type:     schema.TypeList,
 								Required: true,
-								// TODO: add a validatefunc
-								Elem: &schema.Schema{Type: schema.TypeString},
+								Elem:     &schema.Schema{Type: schema.TypeString},
 							},
 						},
 					},
@@ -117,8 +99,7 @@ func projectSpecSchema() *schema.Schema {
 				"source_repos": {
 					Type:     schema.TypeList,
 					Required: true,
-					// TODO: add a validatefunc
-					Elem: &schema.Schema{Type: schema.TypeString},
+					Elem:     &schema.Schema{Type: schema.TypeString},
 				},
 				"sync_window": {
 					Type:     schema.TypeList,
@@ -136,12 +117,14 @@ func projectSpecSchema() *schema.Schema {
 								Elem:     &schema.Schema{Type: schema.TypeString},
 							},
 							"duration": {
-								Type:     schema.TypeString,
-								Optional: true,
+								Type:         schema.TypeString,
+								ValidateFunc: validateSyncWindowDuration,
+								Optional:     true,
 							},
 							"kind": {
-								Type:     schema.TypeString,
-								Optional: true,
+								Type:         schema.TypeString,
+								ValidateFunc: validateSyncWindowKind,
+								Optional:     true,
 							},
 							"manual_sync": {
 								Type:     schema.TypeBool,
@@ -153,8 +136,9 @@ func projectSpecSchema() *schema.Schema {
 								Elem:     &schema.Schema{Type: schema.TypeString},
 							},
 							"schedule": {
-								Type:     schema.TypeString,
-								Optional: true,
+								Type:         schema.TypeString,
+								ValidateFunc: validateSyncWindowSchedule,
+								Optional:     true,
 							},
 						},
 					},

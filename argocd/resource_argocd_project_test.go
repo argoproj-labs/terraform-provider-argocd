@@ -4,15 +4,12 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"math/rand"
+	"regexp"
 	"testing"
-	"time"
 )
 
 func TestAccArgoCDProject(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
-	// ensure generated iat is always in the past
-	iat := rand.Int63() % (time.Now().Unix() - 1)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -37,23 +34,67 @@ func TestAccArgoCDProject(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccArgoCDProjectPolicyError(
+					"test-acc-" + acctest.RandString(10),
+				),
+				ExpectError: regexp.MustCompile("invalid policy rule"),
+			},
+			{
+				Config: testAccArgoCDProjectRoleNameError(
+					"test-acc-" + acctest.RandString(10),
+				),
+				ExpectError: regexp.MustCompile("invalid role name"),
+			},
+			{
+				Config: testAccArgoCDProjectSyncWindowKindError(
+					"test-acc-" + acctest.RandString(10),
+				),
+				ExpectError: regexp.MustCompile("mismatch: can only be allow or deny"),
+			},
+			{
+				Config: testAccArgoCDProjectSyncWindowDurationError(
+					"test-acc-" + acctest.RandString(10),
+				),
+				ExpectError: regexp.MustCompile("cannot parse duration"),
+			},
+			{
+				Config: testAccArgoCDProjectSyncWindowScheduleError(
+					"test-acc-" + acctest.RandString(10),
+				),
+				ExpectError: regexp.MustCompile("cannot parse schedule"),
+			},
+			{
 				Config: testAccArgoCDProjectCoexistenceWithTokenResource(
 					"test-acc-"+acctest.RandString(10),
-					iat),
+					4,
+				),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					//resource.TestCheckResourceAttrSet(
-					//	"argocd_project.coexistence",
-					//	"metadata.0.uid",
-					//),
-					//resource.TestCheckResourceAttr(
-					//	"argocd_project.coexistence",
-					//	"spec.0.role.0.jwt_token.0.iat",
-					//	convertInt64ToString(iat),
-					//),
-					resource.TestCheckResourceAttrPair(
+					resource.TestCheckResourceAttrSet(
 						"argocd_project.coexistence",
-						"spec.0.role.0.jwt_token.1.iat",
-						"argocd_project_token.coexistence_testrole",
+						"metadata.0.uid",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_project.coexistence",
+						"spec.0.role.0.jwt_tokens",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_project_token.coexistence_testrole_exp",
+						"issued_at",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_project_token.multiple.0",
+						"issued_at",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_project_token.multiple.1",
+						"issued_at",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_project_token.multiple.2",
+						"issued_at",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_project_token.multiple.3",
 						"issued_at",
 					),
 				),
@@ -126,7 +167,7 @@ resource "argocd_project" "simple" {
 	`, name)
 }
 
-func testAccArgoCDProjectCoexistenceWithTokenResource(name string, iat int64) string {
+func testAccArgoCDProjectCoexistenceWithTokenResource(name string, count int) string {
 	return fmt.Sprintf(`
 resource "argocd_project" "coexistence" {
   metadata {
@@ -144,19 +185,178 @@ resource "argocd_project" "coexistence" {
     role {
       name = "testrole"
       policies = [
-        "p, proj:%s:testrole, applications, override, %s/*, allow",
+        "p, proj:%s:testrole, applications, override, %s/foo, allow",
       ]
-      jwt_token {
-        iat = %d
-      }
     }
   }
-  allow_external_jwt_tokens = true
 }
 
-resource "argocd_project_token" "coexistence_testrole" {
+resource "argocd_project_token" "multiple" {
+  count   = %d
   project = argocd_project.coexistence.metadata.0.name
   role    = "testrole"
 }
-	`, name, name, name, iat)
+resource "argocd_project_token" "coexistence_testrole_exp" {
+  project = argocd_project.coexistence.metadata.0.name
+  role    = "testrole"
+  expires_in = 20000
+}
+	`, name, name, name, count)
+}
+
+func testAccArgoCDProjectPolicyError(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "failure" {
+  metadata {
+    name        = "%s"
+    namespace   = "argocd"
+  }
+
+  spec {
+    description = "expected policy failures"
+    destination {
+	   server    = "https://kubernetes.default.svc"
+	   namespace = "*"
+    }
+    source_repos = ["*"]
+    role {
+      name = "incorrect-policy"
+      policies = [
+        "p, proj:%s:bar, applicat, foo, %s/*, whatever",
+      ]
+    }
+  }
+}
+	`, name, name, name)
+}
+
+func testAccArgoCDProjectRoleNameError(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "failure" {
+  metadata {
+    name        = "%s"
+    namespace   = "argocd"
+  }
+
+  spec {
+    description = "expected role name failure"
+    destination {
+	   server    = "https://kubernetes.default.svc"
+	   namespace = "*"
+    }
+    source_repos = ["*"]
+    role {
+      name = "incorrect role name"
+      policies = [
+        "p, proj:%s:testrole, applications, override, %s/foo, allow",
+      ]
+    }
+  }
+}
+	`, name, name, name)
+}
+
+func testAccArgoCDProjectSyncWindowScheduleError(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "failure" {
+  metadata {
+    name        = "%s"
+    namespace   = "argocd"
+  }
+
+  spec {
+    description = "expected policy failures"
+    destination {
+	   server    = "https://kubernetes.default.svc"
+	   namespace = "*"
+    }
+    source_repos = ["*"]
+    role {
+      name = "incorrect-syncwindow"
+      policies = [
+        "p, proj:%s:testrole, applications, override, %s/foo, allow",
+      ]
+    }
+	sync_window {
+      kind = "allow"
+      applications = ["api-*"]
+      clusters = ["*"]
+      namespaces = ["*"]
+      duration = "3600s"
+      schedule = "10 1 * * * 5"
+      manual_sync = true
+    }
+  }
+}
+	`, name, name, name)
+}
+
+func testAccArgoCDProjectSyncWindowDurationError(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "failure" {
+  metadata {
+    name        = "%s"
+    namespace   = "argocd"
+  }
+
+  spec {
+    description = "expected duration failure"
+    destination {
+	   server    = "https://kubernetes.default.svc"
+	   namespace = "*"
+    }
+    source_repos = ["*"]
+    role {
+      name = "incorrect-syncwindow"
+      policies = [
+        "p, proj:%s:testrole, applications, override, %s/foo, allow",
+      ]
+    }
+	sync_window {
+      kind = "allow"
+      applications = ["api-*"]
+      clusters = ["*"]
+      namespaces = ["*"]
+      duration = "123"
+      schedule = "10 1 * * *"
+      manual_sync = true
+    }
+  }
+}
+	`, name, name, name)
+}
+
+func testAccArgoCDProjectSyncWindowKindError(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "failure" {
+  metadata {
+    name        = "%s"
+    namespace   = "argocd"
+  }
+
+  spec {
+    description = "expected kind failure"
+    destination {
+	   server    = "https://kubernetes.default.svc"
+	   namespace = "*"
+    }
+    source_repos = ["*"]
+    role {
+      name = "incorrect-syncwindow"
+      policies = [
+        "p, proj:%s:testrole, applications, override, %s/foo, allow",
+      ]
+    }
+	sync_window {
+      kind = "whatever"
+      applications = ["api-*"]
+      clusters = ["*"]
+      namespaces = ["*"]
+      duration = "600s"
+      schedule = "10 1 * * *"
+      manual_sync = true
+    }
+  }
+}
+	`, name, name, name)
 }

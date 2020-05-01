@@ -24,11 +24,6 @@ func resourceArgoCDProject() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("appprojects.argoproj.io"),
 			"spec":     projectSpecSchema(),
-			"allow_external_jwt_tokens": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "If true, externally created JWT tokens (through the web UI for example) will not be overwritten by the tokens declared within `spec.role.X.jwt_token`.",
-			},
 		},
 	}
 }
@@ -53,13 +48,14 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
 		default:
-			return fmt.Errorf("foo %s", err)
+			return err
 		}
 	}
 	if p != nil {
 		switch p.DeletionTimestamp {
 		case nil:
 		default:
+			// Pre-existing project is still in Kubernetes soft deletion queue
 			time.Sleep(time.Duration(*p.DeletionGracePeriodSeconds))
 		}
 	}
@@ -102,20 +98,20 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	fMetadata := flattenMetadata(p.ObjectMeta, d)
-	fSpec, err := flattenProjectSpec(p.Spec, d)
+	fSpec, err := flattenProjectSpec(p.Spec)
 	if err != nil {
 		return err
-	}
-
-	if err := d.Set("metadata", fMetadata); err != nil {
-		e, _ := json.MarshalIndent(fMetadata, "", "\t")
-		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
 	}
 
 	if err := d.Set("spec", fSpec); err != nil {
 		e, _ := json.MarshalIndent(fSpec, "", "\t")
 		return fmt.Errorf("error persisting spec: %s\n%s", err, e)
 	}
+	if err := d.Set("metadata", fMetadata); err != nil {
+		e, _ := json.MarshalIndent(fMetadata, "", "\t")
+		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
+	}
+
 	return nil
 }
 
@@ -142,6 +138,7 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 	return resourceArgoCDProjectRead(d, meta)
+	return nil
 }
 
 func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error {

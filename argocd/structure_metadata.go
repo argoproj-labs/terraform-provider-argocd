@@ -8,10 +8,11 @@ import (
 	"strings"
 )
 
-// Accepts a single-element list of metadata
-func expandMetadata(metadata []interface{}) (
+func expandMetadata(d *schema.ResourceData) (
 	meta metav1.ObjectMeta) {
-	m := metadata[0].(map[string]interface{})
+
+	m := d.Get("metadata.0").(map[string]interface{})
+
 	if v, ok := m["annotations"].(map[string]interface{}); ok && len(v) > 0 {
 		meta.Annotations = expandStringMap(m["annotations"].(map[string]interface{}))
 	}

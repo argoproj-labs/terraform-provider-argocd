@@ -76,11 +76,7 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 		opts.Description = d.(string)
 	}
 	if d, ok := d.GetOk("expires_in"); ok {
-		exp, err := strconv.ParseInt(d.(string), 10, 64)
-		if err != nil {
-			return err
-		}
-		opts.ExpiresIn = exp
+		opts.ExpiresIn = int64(d.(int))
 	}
 
 	closer, c, err := client.NewProjectClient()

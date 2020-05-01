@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/argoproj/argo-cd v1.5.2
-	github.com/argoproj/pkg v0.0.0-20200319004004-f46beff7cd54 // indirect
+	github.com/argoproj/pkg v0.0.0-20200319004004-f46beff7cd54
 	github.com/coreos/go-oidc v2.2.1+incompatible // indirect
 	github.com/go-openapi/spec v0.19.7 // indirect
 	github.com/go-redis/cache v6.4.0+incompatible // indirect
@@ -20,7 +20,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
-	github.com/robfig/cron v1.2.0 // indirect
+	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.5.0 // indirect
 	github.com/spf13/cobra v1.0.0 // indirect
 	github.com/square/go-jose v2.5.0+incompatible
