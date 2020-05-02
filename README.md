@@ -22,6 +22,8 @@ Even more so when you need to export these JWTs to another external system using
 
 ### *Wouldn't using a Kubernetes provider to handle ArgoCD configuration be enough?*
 
+This is actually the main point of this provider, as existing Kubernetes providers do not patch arrays of objects, I often ended up losing project role JWTs when doing small project changes.
+ 
 Using Terraform to manage Kubernetes Custom Resource becomes increasingly difficult 
 the further you use HCL2 DSL to merge different data structures *and* want to preserve type safety.
 
