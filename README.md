@@ -58,7 +58,7 @@ provider "argocd" {
   auth_token  = "1234..."          # env ARGOCD_AUTH_TOKEN
   # username  = "admin"            # env ARGOCD_AUTH_USERNAME
   # password  = "foo"              # env ARGOCD_AUTH_PASSWORD
-  insecure    = false              # env ARGOCD_INSECURE                 
+  insecure = false # env ARGOCD_INSECURE
 }
 
 resource "argocd_project" "myproject" {
@@ -115,22 +115,22 @@ resource "argocd_project" "myproject" {
       ]
     }
     sync_window {
-      kind = "allow"
+      kind         = "allow"
       applications = ["api-*"]
-      clusters = ["*"]
-      namespaces = ["*"]
-      duration = "3600s"
-      schedule = "10 1 * * *"
-      manual_sync = true
+      clusters     = ["*"]
+      namespaces   = ["*"]
+      duration     = "3600s"
+      schedule     = "10 1 * * *"
+      manual_sync  = true
     }
     sync_window {
-      kind = "deny"
+      kind         = "deny"
       applications = ["foo"]
-      clusters = ["in-cluster"]
-      namespaces = ["default"]
-      duration = "12h"
-      schedule = "22 1 5 * *"
-      manual_sync = false
+      clusters     = ["in-cluster"]
+      namespaces   = ["default"]
+      duration     = "12h"
+      schedule     = "22 1 5 * *"
+      manual_sync  = false
     }
   }
 }
