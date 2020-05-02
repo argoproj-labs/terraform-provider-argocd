@@ -100,6 +100,20 @@ resource "argocd_project" "myproject" {
     orphaned_resources = {
       warn = true
     }
+    role {
+      name = "testrole"
+      policies = [
+        "p, proj:%s:testrole, applications, override, %s/*, allow",
+        "p, proj:%s:testrole, applications, sync, %s/*, allow",
+      ]
+    }
+    role {
+      name = "anotherrole"
+      policies = [
+        "p, proj:%s:testrole, applications, get, %s/*, allow",
+        "p, proj:%s:testrole, applications, sync, %s/*, deny",
+      ]
+    }
     sync_window {
       kind = "allow"
       applications = ["api-*"]
