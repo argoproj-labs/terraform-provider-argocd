@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	jwtGo "github.com/square/go-jose/jwt"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -76,11 +77,7 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 		opts.Description = d.(string)
 	}
 	if d, ok := d.GetOk("expires_in"); ok {
-		exp, err := strconv.ParseInt(d.(string), 10, 64)
-		if err != nil {
-			return err
-		}
-		opts.ExpiresIn = exp
+		opts.ExpiresIn = int64(d.(int))
 	}
 
 	closer, c, err := client.NewProjectClient()
@@ -138,7 +135,13 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 		Name: d.Get("project").(string),
 	})
 	if err != nil {
-		return err
+		switch strings.Contains(err.Error(), "NotFound") {
+		case true:
+			d.SetId("")
+			return nil
+		default:
+			return err
+		}
 	}
 	_iat, ok := d.GetOk("issued_at")
 	switch ok {

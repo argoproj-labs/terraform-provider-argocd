@@ -35,6 +35,7 @@ func Provider() terraform.ResourceProvider {
 				},
 				AtLeastOneOf: []string{
 					"password",
+					"auth_token",
 				},
 			},
 			"password": {
@@ -46,6 +47,7 @@ func Provider() terraform.ResourceProvider {
 				},
 				AtLeastOneOf: []string{
 					"username",
+					"auth_token",
 				},
 			},
 			"cert_file": {
@@ -58,8 +60,9 @@ func Provider() terraform.ResourceProvider {
 				Default:  false,
 			},
 			"context": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_CONTEXT", nil),
 			},
 			"user_agent": {
 				Type:     schema.TypeString,
@@ -90,6 +93,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"argocd_project":       resourceArgoCDProject(),
 			"argocd_project_token": resourceArgoCDProjectToken(),
 		},
 
