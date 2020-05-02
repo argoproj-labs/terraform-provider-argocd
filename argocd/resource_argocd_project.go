@@ -19,8 +19,10 @@ func resourceArgoCDProject() *schema.Resource {
 		Read:   resourceArgoCDProjectRead,
 		Update: resourceArgoCDProjectUpdate,
 		Delete: resourceArgoCDProjectDelete,
-		// TODO: add an importer
-
+		// TODO: add importer acceptance tests
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("appprojects.argoproj.io"),
 			"spec":     projectSpecSchema(),
@@ -104,7 +106,6 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-
 	if err := d.Set("spec", fSpec); err != nil {
 		e, _ := json.MarshalIndent(fSpec, "", "\t")
 		return fmt.Errorf("error persisting spec: %s\n%s", err, e)
@@ -113,7 +114,6 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 		e, _ := json.MarshalIndent(fMetadata, "", "\t")
 		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
 	}
-
 	return nil
 }
 
@@ -130,11 +130,35 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 		defer util.Close(closer)
 
-		_, err = c.Update(context.Background(), &argoCDProject.ProjectUpdateRequest{
+		projectRequest := &argoCDProject.ProjectUpdateRequest{
 			Project: &argoCDAppv1.AppProject{
 				ObjectMeta: objectMeta,
 				Spec:       spec,
-			}})
+			}}
+
+		p, err := c.Get(context.Background(), &argoCDProject.ProjectQuery{
+			Name: d.Id(),
+		})
+
+		if p != nil {
+			// Kubernetes API requires providing the up-to-date correct ResourceVersion for updates
+			projectRequest.Project.ResourceVersion = p.ResourceVersion
+
+			// Preserve preexisting JWTs for managed roles
+			roles, err := expandProjectRoles(d.Get("spec.0.role").([]interface{}))
+			if err != nil {
+				return err
+			}
+			for _, r := range roles {
+				pr, i, err := p.GetRoleByName(r.Name)
+				if err != nil {
+					return err
+				}
+				projectRequest.Project.Spec.Roles[i].JWTTokens = pr.JWTTokens
+			}
+		}
+
+		_, err = c.Update(context.Background(), projectRequest)
 		if err != nil {
 			return err
 		}

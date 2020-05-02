@@ -35,6 +35,7 @@ func Provider() terraform.ResourceProvider {
 				},
 				AtLeastOneOf: []string{
 					"password",
+					"auth_token",
 				},
 			},
 			"password": {
@@ -46,6 +47,7 @@ func Provider() terraform.ResourceProvider {
 				},
 				AtLeastOneOf: []string{
 					"username",
+					"auth_token",
 				},
 			},
 			"cert_file": {

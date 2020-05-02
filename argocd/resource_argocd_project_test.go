@@ -11,28 +11,10 @@ import (
 func TestAccArgoCDProject(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			{
-				Config: testAccArgoCDProjectSimple(name),
-				Check: resource.TestCheckResourceAttrSet(
-					"argocd_project.simple",
-					"metadata.0.uid",
-				),
-			},
-			// Check with the same name for rapid project recreation robustness
-			{
-				Config: testAccArgoCDProjectSimple(name),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet(
-						"argocd_project.simple",
-						"metadata.0.uid",
-					),
-					// TODO: check all possible attributes
-				),
-			},
 			{
 				Config: testAccArgoCDProjectPolicyError(
 					"test-acc-" + acctest.RandString(10),
@@ -63,6 +45,34 @@ func TestAccArgoCDProject(t *testing.T) {
 				),
 				ExpectError: regexp.MustCompile("cannot parse schedule"),
 			},
+			{
+				Config: testAccArgoCDProjectSimple(name),
+				Check: resource.TestCheckResourceAttrSet(
+					"argocd_project.simple",
+					"metadata.0.uid",
+				),
+			},
+			// Check with the same name for rapid project recreation robustness
+			{
+				Config: testAccArgoCDProjectSimple(name),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+					),
+					// TODO: check all possible attributes
+				),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDProject_tokensCoexistence(t *testing.T) {
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDProjectCoexistenceWithTokenResource(
 					"test-acc-"+acctest.RandString(10),

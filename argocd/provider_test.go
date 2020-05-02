@@ -8,7 +8,9 @@ import (
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
+var testAccProviderFactories func(providers *[]*schema.Provider) map[string]terraform.ResourceProviderFactory
 var testAccProvider *schema.Provider
+var testAccProviderFunc func() *schema.Provider
 
 func init() {
 	testAccProvider = Provider().(*schema.Provider)
