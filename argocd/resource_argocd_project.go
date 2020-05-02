@@ -90,11 +90,13 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 		Name: d.Id(),
 	})
 	if err != nil {
-		return err
-	}
-	if p == nil {
-		d.SetId("")
-		return nil
+		switch strings.Contains(err.Error(), "NotFound") {
+		case true:
+			d.SetId("")
+			return nil
+		default:
+			return err
+		}
 	}
 
 	fMetadata := flattenMetadata(p.ObjectMeta, d)
@@ -138,7 +140,6 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 	return resourceArgoCDProjectRead(d, meta)
-	return nil
 }
 
 func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error {

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	jwtGo "github.com/square/go-jose/jwt"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -134,7 +135,13 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 		Name: d.Get("project").(string),
 	})
 	if err != nil {
-		return err
+		switch strings.Contains(err.Error(), "NotFound") {
+		case true:
+			d.SetId("")
+			return nil
+		default:
+			return err
+		}
 	}
 	_iat, ok := d.GetOk("issued_at")
 	switch ok {
