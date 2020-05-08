@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccArgoCDProjectToken(t *testing.T) {
-	count := 4 + rand.Intn(8)
+	count := 3 + rand.Intn(7)
 	expiresIn := rand.Int63n(100000)
 
 	resource.ParallelTest(t, resource.TestCase{
