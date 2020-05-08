@@ -16,7 +16,7 @@ kubectl get services --all-namespaces -o wide
 
 echo '--- Install ArgoCD ${ARGOCD_VERSION:-v1.5.4}\n\n'
 kustomize build manifests/install | kubectl apply -f - &&
-kubectl apply -f testdata/ &&
+kubectl apply -f manifests/testdata/ &&
 
 echo '--- Wait for ArgoCD server to be ready...'
 kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd
