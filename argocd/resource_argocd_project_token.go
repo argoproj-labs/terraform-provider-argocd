@@ -9,14 +9,13 @@ import (
 	"github.com/argoproj/argo-cd/util"
 	"github.com/cristalhq/jwt/v2"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
 
 // For each project, implement a sync.RWMutex
-var tokenMutexProjectMap map[string]*sync.RWMutex
+var tokenMutexProjectMap = make(map[string]*sync.RWMutex, 0)
 
 func resourceArgoCDProjectToken() *schema.Resource {
 	return &schema.Resource{
@@ -83,8 +82,9 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 	if d, ok := d.GetOk("description"); ok {
 		opts.Description = d.(string)
 	}
-	if d, ok := d.GetOk("expires_in"); ok {
-		opts.ExpiresIn = int64(d.(int))
+	expiresIn, expiresInOk := d.GetOk("expires_in")
+	if expiresInOk {
+		opts.ExpiresIn = int64(expiresIn.(int))
 	}
 
 	closer, c, err := apiClient.NewProjectClient()
@@ -119,11 +119,21 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 	if err := json.Unmarshal(token.RawClaims(), &claims); err != nil {
 		return err
 	}
-
+	if claims.IssuedAt == nil {
+		return fmt.Errorf("returned issued_at is nil")
+	}
 	_ = d.Set("issued_at", claims.IssuedAt.String())
-	_ = d.Set("expires_at", claims.ExpiresAt.String())
 
-	if err := d.Set("jwt", resp.GetToken()); err != nil {
+	if expiresInOk {
+		switch claims.ExpiresAt {
+		case nil:
+			return fmt.Errorf("returned expires_at is nil")
+		default:
+			_ = d.Set("expires_at", claims.ExpiresAt.String())
+		}
+	}
+
+	if err := d.Set("jwt", token.String()); err != nil {
 		return err
 	}
 
@@ -177,9 +187,9 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 	if featureTokenIDSupported {
 		requestTokenID = d.Id()
 	} else {
-		_iat, ok := d.GetOk("issued_at")
+		iat, ok := d.GetOk("issued_at")
 		if ok {
-			requestTokenIAT, err = strconv.ParseInt(_iat.(string), 10, 64)
+			requestTokenIAT, err = convertStringToInt64(iat.(string))
 			if err != nil {
 				return err
 			}
@@ -200,9 +210,8 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 		d.SetId("")
 		return nil
 	}
-
-	_ = d.Set("issued_at", strconv.FormatInt(token.IssuedAt, 10))
-	_ = d.Set("expires_at", strconv.FormatInt(token.ExpiresAt, 10))
+	_ = d.Set("issued_at", convertInt64ToString(token.IssuedAt))
+	_ = d.Set("expires_at", convertInt64ToString(token.ExpiresAt))
 	return nil
 }
 
@@ -234,12 +243,11 @@ func resourceArgoCDProjectTokenDelete(d *schema.ResourceData, meta interface{}) 
 	if featureTokenIDSupported {
 		opts.Id = d.Id()
 	} else {
-		if _iat, ok := d.GetOk("issued_at"); ok {
-			iat, err := strconv.ParseInt(_iat.(string), 10, 64)
+		if iat, ok := d.GetOk("issued_at"); ok {
+			opts.Iat, err = convertStringToInt64(iat.(string))
 			if err != nil {
 				return err
 			}
-			opts.Iat = iat
 		}
 	}
 

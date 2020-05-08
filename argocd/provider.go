@@ -7,6 +7,7 @@ import (
 	argoCDApiClient "github.com/argoproj/argo-cd/pkg/apiclient"
 	"github.com/argoproj/argo-cd/pkg/apiclient/session"
 	"github.com/argoproj/argo-cd/util"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -178,7 +179,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 	defer util.Close(closer)
 
-	versionMessage, err := versionClient.Version(context.Background(), nil)
+	versionMessage, err := versionClient.Version(context.Background(), &empty.Empty{})
 	if err != nil {
 		return nil, err
 	}
