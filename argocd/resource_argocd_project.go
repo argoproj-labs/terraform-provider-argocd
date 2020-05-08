@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	argoCDProject "github.com/argoproj/argo-cd/pkg/apiclient/project"
-	argoCDAppv1 "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strings"
 	"time"
@@ -54,7 +54,7 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 	p, err = c.Create(context.Background(), &argoCDProject.ProjectCreateRequest{
-		Project: &argoCDAppv1.AppProject{
+		Project: &v1alpha1.AppProject{
 			ObjectMeta: objectMeta,
 			Spec:       spec,
 		},
@@ -112,7 +112,7 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		server := meta.(ServerInterface)
 		c := server.ProjectClient
 		projectRequest := &argoCDProject.ProjectUpdateRequest{
-			Project: &argoCDAppv1.AppProject{
+			Project: &v1alpha1.AppProject{
 				ObjectMeta: objectMeta,
 				Spec:       spec,
 			}}
