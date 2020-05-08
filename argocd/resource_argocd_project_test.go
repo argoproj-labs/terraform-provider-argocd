@@ -55,7 +55,7 @@ func TestAccArgoCDProject(t *testing.T) {
 			// Check with the same name for rapid project recreation robustness
 			{
 				Config: testAccArgoCDProjectSimple(name),
-				Check: resource.ComposeAggregateTestCheckFunc(
+				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"argocd_project.simple",
 						"metadata.0.uid",
@@ -78,7 +78,7 @@ func TestAccArgoCDProject_tokensCoexistence(t *testing.T) {
 					"test-acc-"+acctest.RandString(10),
 					4,
 				),
-				Check: resource.ComposeAggregateTestCheckFunc(
+				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"argocd_project.coexistence",
 						"metadata.0.uid",

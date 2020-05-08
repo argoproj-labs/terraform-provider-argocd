@@ -1,4 +1,4 @@
-name: Acceptance Tests
+name: Tests
 on:
   push:
     branches: ["master"]
@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        argocd_version: ["v1.5.2", "v1.4.3"]
+        argocd_version: ["v1.5.4", "v1.4.3"]
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-go@v1
@@ -26,13 +26,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Install Kind
-        run: GO111MODULE=on go get sigs.k8s.io/kind
+      - name: Install Kustomize
+        run: |
+          curl -sL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          chmod +x ./kustomize
+
+      - name: Install Kind 0.8.1
+        run: |
+          curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.8.1/kind-$(uname)-amd64
+          chmod +x ./kind
 
       - name: Set up ArgoCD ${{ matrix.argocd_version }}
         env:
           ARGOCD_VERSION: ${{ matrix.argocd_version }}
         run: |
+          curl https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml > manifests/install/install.yml
           sh scripts/testacc_prepare_env.sh
           kubectl port-forward -n argocd service/argocd-server --address 127.0.0.1 8080:443&
           until $(nc -z 127.0.0.1 8080); do sleep 2;done

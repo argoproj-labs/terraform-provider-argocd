@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	argoCDApiClient "github.com/argoproj/argo-cd/pkg/apiclient"
 	argoCDProject "github.com/argoproj/argo-cd/pkg/apiclient/project"
 	argoCDAppv1 "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/argo-cd/util"
@@ -35,8 +34,10 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	client := meta.(argoCDApiClient.Client)
-	closer, c, err := client.NewProjectClient()
+
+	server := meta.(ServerInterface)
+	apiClient := server.ApiClient
+	closer, c, err := apiClient.NewProjectClient()
 	if err != nil {
 		return err
 	}
@@ -81,8 +82,9 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(argoCDApiClient.Client)
-	closer, c, err := client.NewProjectClient()
+	server := meta.(ServerInterface)
+	apiClient := server.ApiClient
+	closer, c, err := apiClient.NewProjectClient()
 	if err != nil {
 		return err
 	}
@@ -123,8 +125,10 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return err
 		}
-		client := meta.(argoCDApiClient.Client)
-		closer, c, err := client.NewProjectClient()
+
+		server := meta.(ServerInterface)
+		apiClient := server.ApiClient
+		closer, c, err := apiClient.NewProjectClient()
 		if err != nil {
 			return err
 		}
@@ -167,8 +171,9 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(argoCDApiClient.Client)
-	closer, c, err := client.NewProjectClient()
+	server := meta.(ServerInterface)
+	apiClient := server.ApiClient
+	closer, c, err := apiClient.NewProjectClient()
 	if err != nil {
 		return err
 	}

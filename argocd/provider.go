@@ -2,9 +2,12 @@ package argocd
 
 import (
 	"context"
+	"fmt"
+	"github.com/Masterminds/semver"
 	argoCDApiClient "github.com/argoproj/argo-cd/pkg/apiclient"
 	"github.com/argoproj/argo-cd/pkg/apiclient/session"
 	"github.com/argoproj/argo-cd/util"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -165,6 +168,31 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		}
 	}
 
-	client, err := argoCDApiClient.NewClient(&opts)
-	return client, err
+	apiClient, err := argoCDApiClient.NewClient(&opts)
+	if err != nil {
+		return nil, err
+	}
+	// Get API version
+	acCloser, versionClient, err := apiClient.NewVersionClient()
+	if err != nil {
+		return nil, err
+	}
+	defer util.Close(acCloser)
+
+	serverVersionMessage, err := versionClient.Version(context.Background(), &empty.Empty{})
+	if err != nil {
+		return nil, err
+	}
+	if serverVersionMessage == nil {
+		return nil, fmt.Errorf("could not get server version information")
+	}
+	serverVersion, err := semver.NewVersion(serverVersionMessage.Version)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse server semantic version: %s", serverVersionMessage.Version)
+	}
+
+	return ServerInterface{
+		apiClient,
+		serverVersion,
+		serverVersionMessage}, err
 }

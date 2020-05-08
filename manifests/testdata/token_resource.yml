@@ -1,0 +1,66 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: myproject1
+  namespace: argocd
+spec:
+  description: myproject1
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  orphanedResources:
+    warn: false
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  roles:
+    - name: test-role1234
+      description: test role, waiting for a Terraform ArgoCD provider resource
+      policies:
+        - p, proj:myproject1:test-role1234, applications, override, myproject1/*, allow
+        - p, proj:myproject1:test-role1234, applications, sync, myproject1/*, allow
+        - p, proj:myproject1:test-role1234, applications, update, myproject1/*, allow
+        - p, proj:myproject1:test-role1234, applications, get, myproject1/*, allow
+    - name: test-role4321
+      description: test role, waiting for a Terraform ArgoCD provider resource
+      policies:
+        - p, proj:myproject1:test-role4321, applications, override, myproject1/*, allow
+        - p, proj:myproject1:test-role4321, applications, sync, myproject1/*, allow
+        - p, proj:myproject1:test-role4321, applications, update, myproject1/*, allow
+        - p, proj:myproject1:test-role4321, applications, get, myproject1/*, allow
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: myproject2
+  namespace: argocd
+spec:
+  description: myproject2
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  orphanedResources:
+    warn: false
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  roles:
+    - name: test-role1234
+      description: test role, waiting for a Terraform ArgoCD provider resource
+      policies:
+        - p, proj:myproject2:test-role1234, applications, override, myproject2/*, allow
+        - p, proj:myproject2:test-role1234, applications, sync, myproject2/*, allow
+        - p, proj:myproject2:test-role1234, applications, update, myproject2/*, allow
+        - p, proj:myproject2:test-role1234, applications, get, myproject2/*, allow
+    - name: test-role4321
+      description: test role, waiting for a Terraform ArgoCD provider resource
+      policies:
+        - p, proj:myproject2:test-role4321, applications, override, myproject2/*, allow
+        - p, proj:myproject2:test-role4321, applications, sync, myproject2/*, allow
+        - p, proj:myproject2:test-role4321, applications, update, myproject2/*, allow
+        - p, proj:myproject2:test-role4321, applications, get, myproject2/*, allow

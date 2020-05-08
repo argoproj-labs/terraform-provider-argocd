@@ -5,14 +5,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"math/rand"
-	"strconv"
 	"testing"
 )
 
 func TestAccArgoCDProjectToken(t *testing.T) {
-	//project := acctest.RandomWithPrefix("test-acc")
-	//role := acctest.RandomWithPrefix("test-role")
-	count := 2 + rand.Intn(8)
+	count := 3 + rand.Intn(7)
 	expiresIn := rand.Int63n(100000)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -21,9 +18,14 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDProjectTokenSimple(),
-				Check: resource.TestCheckResourceAttrSet(
-					"argocd_project_token.simple",
-					"issued_at",
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project_token.simple",
+						"issued_at",
+					),
+					testCheckTokenIssuedAt(
+						"argocd_project_token.simple",
+					),
 				),
 			},
 			{
@@ -35,10 +37,27 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 			},
 			{
 				Config: testAccArgoCDProjectTokenMultiple(count),
-				Check: testCheckMultipleResourceAttrSet(
-					"argocd_project_token.multiple",
-					"issued_at",
-					count,
+				Check: resource.ComposeTestCheckFunc(
+					testCheckMultipleResourceAttrSet(
+						"argocd_project_token.multiple1a",
+						"issued_at",
+						count,
+					),
+					testCheckMultipleResourceAttrSet(
+						"argocd_project_token.multiple1b",
+						"issued_at",
+						count,
+					),
+					testCheckMultipleResourceAttrSet(
+						"argocd_project_token.multiple2a",
+						"issued_at",
+						count,
+					),
+					testCheckMultipleResourceAttrSet(
+						"argocd_project_token.multiple2b",
+						"issued_at",
+						count,
+					),
 				),
 			},
 		},
@@ -48,7 +67,7 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 func testAccArgoCDProjectTokenSimple() string {
 	return `
 resource "argocd_project_token" "simple" {
-  project = "myproject"
+  project = "myproject1"
   role    = "test-role1234"
 }
 `
@@ -57,7 +76,7 @@ resource "argocd_project_token" "simple" {
 func testAccArgoCDProjectTokenExpiry(expiresIn int64) string {
 	return fmt.Sprintf(`
 resource "argocd_project_token" "expires" {
-  project = "myproject"
+  project = "myproject1"
   role    = "test-role1234"
   expires_in = %d
 }
@@ -66,12 +85,52 @@ resource "argocd_project_token" "expires" {
 
 func testAccArgoCDProjectTokenMultiple(count int) string {
 	return fmt.Sprintf(`
-resource "argocd_project_token" "multiple" {
+resource "argocd_project_token" "multiple1a" {
   count   = %d
-  project = "myproject"
+  project = "myproject1"
   role    = "test-role1234"
 }
-`, count)
+
+resource "argocd_project_token" "multiple1b" {
+  count   = %d
+  project = "myproject1"
+  role    = "test-role4321"
+}
+
+resource "argocd_project_token" "multiple2a" {
+  count   = %d
+  project = "myproject2"
+  role    = "test-role1234"
+}
+
+resource "argocd_project_token" "multiple2b" {
+  count   = %d
+  project = "myproject2"
+  role    = "test-role4321"
+}
+
+`, count, count, count, count)
+}
+
+func testCheckTokenIssuedAt(resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("not found: %s", resourceName)
+		}
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("token ID is not set")
+		}
+		_issuedAt, ok := rs.Primary.Attributes["issued_at"]
+		if !ok {
+			return fmt.Errorf("testCheckTokenExpiresAt: issued_at is not set")
+		}
+		_, err := convertStringToInt64(_issuedAt)
+		if err != nil {
+			return fmt.Errorf("testCheckTokenExpiresAt: string attribute 'issued_at' stored in state cannot be converted to int64: %s", err)
+		}
+		return nil
+	}
 }
 
 func testCheckTokenExpiresAt(resourceName string, expiresIn int64) resource.TestCheckFunc {
@@ -89,18 +148,18 @@ func testCheckTokenExpiresAt(resourceName string, expiresIn int64) resource.Test
 		}
 		_issuedAt, ok := rs.Primary.Attributes["issued_at"]
 		if !ok {
-			return fmt.Errorf("issued_at is not set")
+			return fmt.Errorf("testCheckTokenExpiresAt: issued_at is not set")
 		}
-		expiresAt, err := strconv.ParseInt(_expiresAt, 10, 64)
+		expiresAt, err := convertStringToInt64(_expiresAt)
 		if err != nil {
-			return err
+			return fmt.Errorf("testCheckTokenExpiresAt: string attribute 'expires_at' stored in state cannot be converted to int64: %s", err)
 		}
-		issuedAt, err := strconv.ParseInt(_issuedAt, 10, 64)
+		issuedAt, err := convertStringToInt64(_issuedAt)
 		if err != nil {
-			return err
+			return fmt.Errorf("testCheckTokenExpiresAt: string attribute 'issued_at' stored in state cannot be converted to int64: %s", err)
 		}
 		if issuedAt+expiresIn != expiresAt {
-			return fmt.Errorf("issuedAt + expiresIn != expiresAt : %d + %d != %d", issuedAt, expiresIn, expiresAt)
+			return fmt.Errorf("testCheckTokenExpiresAt: issuedAt + expiresIn != expiresAt : %d + %d != %d", issuedAt, expiresIn, expiresAt)
 		}
 		return nil
 	}
