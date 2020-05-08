@@ -1,11 +1,13 @@
 #!/bin/sh
 # shellcheck disable=SC2016,SC2028
 
+export PATH=$PATH:.
+
 echo '--- Kustomize sanity checks'
 kustomize version || exit 1
 
 echo '--- Create Kind cluster\n\n'
-PATH=$PATH:. kind create cluster --name argocd
+kind create cluster --name argocd
 
 echo '--- Kind sanity checks\n\n'
 kubectl get nodes -o wide
