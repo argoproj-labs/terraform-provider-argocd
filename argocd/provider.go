@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/Masterminds/semver"
-	argoCDApiClient "github.com/argoproj/argo-cd/pkg/apiclient"
+	"github.com/argoproj/argo-cd/pkg/apiclient"
+	"github.com/argoproj/argo-cd/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/pkg/apiclient/session"
 	"github.com/argoproj/argo-cd/util"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -12,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func Provider() terraform.ResourceProvider {
+func Provider(doneCh chan bool) terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"server_addr": {
@@ -99,13 +100,58 @@ func Provider() terraform.ResourceProvider {
 			"argocd_project":       resourceArgoCDProject(),
 			"argocd_project_token": resourceArgoCDProjectToken(),
 		},
+		ConfigureFunc: func(d *schema.ResourceData) (interface{}, error) {
+			apiClient, err := initApiClient(d)
+			if err != nil {
+				return nil, err
+			}
+			pcCloser, projectClient, err := apiClient.NewProjectClient()
+			if err != nil {
+				return nil, err
+			}
 
-		ConfigureFunc: providerConfigure,
+			// Clients connection pooling, close when the provider execution ends
+			go func(done chan bool) {
+				<-done
+				util.Close(pcCloser)
+			}(doneCh)
+			return initServerInterface(apiClient, projectClient)
+		},
 	}
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	opts := argoCDApiClient.ClientOptions{}
+func initServerInterface(apiClient apiclient.Client, projectClient project.ProjectServiceClient) (interface{}, error) {
+
+	acCloser, versionClient, err := apiClient.NewVersionClient()
+	if err != nil {
+		return nil, err
+	}
+	defer util.Close(acCloser)
+
+	serverVersionMessage, err := versionClient.Version(context.Background(), &empty.Empty{})
+	if err != nil {
+		return nil, err
+	}
+	if serverVersionMessage == nil {
+		return nil, fmt.Errorf("could not get server version information")
+	}
+	serverVersion, err := semver.NewVersion(serverVersionMessage.Version)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse server semantic version: %s", serverVersionMessage.Version)
+	}
+
+	return ServerInterface{
+		apiClient,
+		projectClient,
+		serverVersion,
+		serverVersionMessage}, err
+}
+
+func initApiClient(d *schema.ResourceData) (
+	apiClient apiclient.Client,
+	err error) {
+
+	var opts apiclient.ClientOptions
 
 	if d, ok := d.GetOk("server_addr"); ok {
 		opts.ServerAddr = d.(string)
@@ -147,13 +193,13 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		userName, userNameOk := d.GetOk("username")
 		password, passwordOk := d.GetOk("password")
 		if userNameOk && passwordOk {
-			c, err := argoCDApiClient.NewClient(&opts)
+			apiClient, err = apiclient.NewClient(&opts)
 			if err != nil {
-				return c, err
+				return apiClient, err
 			}
-			closer, sc, err := c.NewSessionClient()
+			closer, sc, err := apiClient.NewSessionClient()
 			if err != nil {
-				return c, err
+				return apiClient, err
 			}
 			defer util.Close(closer)
 			sessionOpts := session.SessionCreateRequest{
@@ -162,37 +208,10 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			}
 			resp, err := sc.Create(context.Background(), &sessionOpts)
 			if err != nil {
-				return c, err
+				return apiClient, err
 			}
 			opts.AuthToken = resp.Token
 		}
 	}
-
-	apiClient, err := argoCDApiClient.NewClient(&opts)
-	if err != nil {
-		return nil, err
-	}
-	// Get API version
-	acCloser, versionClient, err := apiClient.NewVersionClient()
-	if err != nil {
-		return nil, err
-	}
-	defer util.Close(acCloser)
-
-	serverVersionMessage, err := versionClient.Version(context.Background(), &empty.Empty{})
-	if err != nil {
-		return nil, err
-	}
-	if serverVersionMessage == nil {
-		return nil, fmt.Errorf("could not get server version information")
-	}
-	serverVersion, err := semver.NewVersion(serverVersionMessage.Version)
-	if err != nil {
-		return nil, fmt.Errorf("could not parse server semantic version: %s", serverVersionMessage.Version)
-	}
-
-	return ServerInterface{
-		apiClient,
-		serverVersion,
-		serverVersionMessage}, err
+	return apiclient.NewClient(&opts)
 }

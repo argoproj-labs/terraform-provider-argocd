@@ -6,7 +6,6 @@ import (
 	"fmt"
 	argoCDProject "github.com/argoproj/argo-cd/pkg/apiclient/project"
 	argoCDAppv1 "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
-	"github.com/argoproj/argo-cd/util"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strings"
 	"time"
@@ -34,19 +33,11 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-
 	server := meta.(ServerInterface)
-	apiClient := server.ApiClient
-	closer, c, err := apiClient.NewProjectClient()
-	if err != nil {
-		return err
-	}
-	defer util.Close(closer)
-
+	c := server.ProjectClient
 	p, err := c.Get(context.Background(), &argoCDProject.ProjectQuery{
 		Name: objectMeta.Name,
-	},
-	)
+	})
 	if err != nil {
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
@@ -83,13 +74,7 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
-	apiClient := server.ApiClient
-	closer, c, err := apiClient.NewProjectClient()
-	if err != nil {
-		return err
-	}
-	defer util.Close(closer)
-
+	c := server.ProjectClient
 	p, err := c.Get(context.Background(), &argoCDProject.ProjectQuery{
 		Name: d.Id(),
 	})
@@ -102,7 +87,6 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
-
 	fMetadata := flattenMetadata(p.ObjectMeta, d)
 	fSpec, err := flattenProjectSpec(p.Spec)
 	if err != nil {
@@ -125,25 +109,16 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return err
 		}
-
 		server := meta.(ServerInterface)
-		apiClient := server.ApiClient
-		closer, c, err := apiClient.NewProjectClient()
-		if err != nil {
-			return err
-		}
-		defer util.Close(closer)
-
+		c := server.ProjectClient
 		projectRequest := &argoCDProject.ProjectUpdateRequest{
 			Project: &argoCDAppv1.AppProject{
 				ObjectMeta: objectMeta,
 				Spec:       spec,
 			}}
-
 		p, err := c.Get(context.Background(), &argoCDProject.ProjectQuery{
 			Name: d.Id(),
 		})
-
 		if p != nil {
 			// Kubernetes API requires providing the up-to-date correct ResourceVersion for updates
 			projectRequest.Project.ResourceVersion = p.ResourceVersion
@@ -161,7 +136,6 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 				projectRequest.Project.Spec.Roles[i].JWTTokens = pr.JWTTokens
 			}
 		}
-
 		_, err = c.Update(context.Background(), projectRequest)
 		if err != nil {
 			return err
@@ -172,14 +146,8 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
-	apiClient := server.ApiClient
-	closer, c, err := apiClient.NewProjectClient()
-	if err != nil {
-		return err
-	}
-	defer util.Close(closer)
-
-	_, err = c.Delete(context.Background(), &argoCDProject.ProjectQuery{Name: d.Id()})
+	c := server.ProjectClient
+	_, err := c.Delete(context.Background(), &argoCDProject.ProjectQuery{Name: d.Id()})
 	if err != nil {
 		return err
 	}

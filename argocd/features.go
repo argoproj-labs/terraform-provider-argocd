@@ -3,7 +3,8 @@ package argocd
 import (
 	"fmt"
 	"github.com/Masterminds/semver"
-	argoCDApiClient "github.com/argoproj/argo-cd/pkg/apiclient"
+	"github.com/argoproj/argo-cd/pkg/apiclient"
+	"github.com/argoproj/argo-cd/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/pkg/apiclient/version"
 )
 
@@ -18,7 +19,8 @@ var (
 )
 
 type ServerInterface struct {
-	ApiClient            argoCDApiClient.Client
+	ApiClient            apiclient.Client
+	ProjectClient        project.ProjectServiceClient
 	ServerVersion        *semver.Version
 	ServerVersionMessage *version.VersionMessage
 }

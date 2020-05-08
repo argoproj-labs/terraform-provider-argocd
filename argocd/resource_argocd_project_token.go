@@ -6,7 +6,6 @@ import (
 	"fmt"
 	argoCDProject "github.com/argoproj/argo-cd/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
-	"github.com/argoproj/argo-cd/util"
 	"github.com/cristalhq/jwt/v2"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strings"
@@ -65,7 +64,7 @@ func resourceArgoCDProjectToken() *schema.Resource {
 
 func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
-	apiClient := server.ApiClient
+	c := server.ProjectClient
 
 	project := d.Get("project").(string)
 	role := d.Get("role").(string)
@@ -86,12 +85,6 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 	if expiresInOk {
 		opts.ExpiresIn = int64(expiresIn.(int))
 	}
-
-	closer, c, err := apiClient.NewProjectClient()
-	if err != nil {
-		return err
-	}
-	defer util.Close(closer)
 
 	featureTokenIDSupported, err := server.isFeatureSupported(featureTokenIDs)
 	if err != nil {
@@ -160,12 +153,7 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 	var requestTokenIAT int64 = 0
 
 	server := meta.(ServerInterface)
-	apiClient := server.ApiClient
-	closer, c, err := apiClient.NewProjectClient()
-	if err != nil {
-		return err
-	}
-	defer util.Close(closer)
+	c := server.ProjectClient
 
 	// Delete token from state if project has been deleted in an out-of-band fashion
 	project, err := c.Get(context.Background(), &argoCDProject.ProjectQuery{
@@ -228,12 +216,7 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceArgoCDProjectTokenDelete(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
-	apiClient := server.ApiClient
-	closer, c, err := apiClient.NewProjectClient()
-	if err != nil {
-		return err
-	}
-	defer util.Close(closer)
+	c := server.ProjectClient
 
 	project := d.Get("project").(string)
 	role := d.Get("role").(string)
