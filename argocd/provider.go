@@ -168,30 +168,31 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		}
 	}
 
-	client, err := argoCDApiClient.NewClient(&opts)
+	apiClient, err := argoCDApiClient.NewClient(&opts)
 	if err != nil {
 		return nil, err
 	}
 	// Get API version
-	closer, versionClient, err := client.NewVersionClient()
+	acCloser, versionClient, err := apiClient.NewVersionClient()
 	if err != nil {
 		return nil, err
 	}
-	defer util.Close(closer)
+	defer util.Close(acCloser)
 
-	versionMessage, err := versionClient.Version(context.Background(), &empty.Empty{})
+	serverVersionMessage, err := versionClient.Version(context.Background(), &empty.Empty{})
 	if err != nil {
 		return nil, err
 	}
-	if versionMessage == nil {
-		return nil, fmt.Errorf("could not get version information")
+	if serverVersionMessage == nil {
+		return nil, fmt.Errorf("could not get server version information")
 	}
-	semVersion, err := semver.NewVersion(versionMessage.Version)
+	serverVersion, err := semver.NewVersion(serverVersionMessage.Version)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse semantic version: %s", versionMessage.Version)
+		return nil, fmt.Errorf("could not parse server semantic version: %s", serverVersionMessage.Version)
 	}
+
 	return ServerInterface{
-		client,
-		semVersion,
-		versionMessage}, err
+		apiClient,
+		serverVersion,
+		serverVersionMessage}, err
 }

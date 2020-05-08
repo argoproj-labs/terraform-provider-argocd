@@ -26,13 +26,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
+      - name: Install Kustomize
+        run: GO111MODULE=on go get -u sigs.k8s.io/kustomize/kustomize/v3
+
       - name: Install Kind
-        run: GO111MODULE=on go get sigs.k8s.io/kind
+        run: GO111MODULE=on go get -u sigs.k8s.io/kind
 
       - name: Set up ArgoCD ${{ matrix.argocd_version }}
         env:
           ARGOCD_VERSION: ${{ matrix.argocd_version }}
         run: |
+          curl https://raw.githubusercontent.com/argoproj/argo-cd/{{ matrix.argocd_version }}/manifests/install.yaml > manifests/install/install.yml
           sh scripts/testacc_prepare_env.sh
           kubectl port-forward -n argocd service/argocd-server --address 127.0.0.1 8080:443&
           until $(nc -z 127.0.0.1 8080); do sleep 2;done

@@ -210,8 +210,13 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 		d.SetId("")
 		return nil
 	}
-	_ = d.Set("issued_at", convertInt64ToString(token.IssuedAt))
-	_ = d.Set("expires_at", convertInt64ToString(token.ExpiresAt))
+
+	if err = d.Set("issued_at", convertInt64ToString(token.IssuedAt)); err != nil {
+		return fmt.Errorf("could not persist 'issued_at' in state: %s", err)
+	}
+	if err = d.Set("expires_at", convertInt64ToString(token.ExpiresAt)); err != nil {
+		return fmt.Errorf("could not persist 'expires_at' in state: %s", err)
+	}
 	return nil
 }
 

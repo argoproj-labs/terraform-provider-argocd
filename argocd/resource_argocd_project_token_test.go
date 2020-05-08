@@ -123,18 +123,18 @@ func testCheckTokenExpiresAt(resourceName string, expiresIn int64) resource.Test
 		}
 		_issuedAt, ok := rs.Primary.Attributes["issued_at"]
 		if !ok {
-			return fmt.Errorf("issued_at is not set")
+			return fmt.Errorf("testCheckTokenExpiresAt: issued_at is not set")
 		}
 		expiresAt, err := strconv.ParseInt(_expiresAt, 10, 64)
 		if err != nil {
-			return err
+			return fmt.Errorf("testCheckTokenExpiresAt: string attribute 'expires_at' stored in state cannot be converted to int64: %s", err)
 		}
 		issuedAt, err := strconv.ParseInt(_issuedAt, 10, 64)
 		if err != nil {
-			return err
+			return fmt.Errorf("testCheckTokenExpiresAt: string attribute 'issued_at' stored in state cannot be converted to int64: %s", err)
 		}
 		if issuedAt+expiresIn != expiresAt {
-			return fmt.Errorf("issuedAt + expiresIn != expiresAt : %d + %d != %d", issuedAt, expiresIn, expiresAt)
+			return fmt.Errorf("testCheckTokenExpiresAt: issuedAt + expiresIn != expiresAt : %d + %d != %d", issuedAt, expiresIn, expiresAt)
 		}
 		return nil
 	}
