@@ -15,7 +15,7 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 	count := 2 + rand.Intn(8)
 	expiresIn := rand.Int63n(100000)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

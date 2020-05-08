@@ -2,6 +2,8 @@ package argocd
 
 import (
 	"context"
+	"fmt"
+	"github.com/Masterminds/semver"
 	argoCDApiClient "github.com/argoproj/argo-cd/pkg/apiclient"
 	"github.com/argoproj/argo-cd/pkg/apiclient/session"
 	"github.com/argoproj/argo-cd/util"
@@ -166,5 +168,29 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	client, err := argoCDApiClient.NewClient(&opts)
-	return client, err
+	if err != nil {
+		return nil, err
+	}
+	// Get API version
+	closer, versionClient, err := client.NewVersionClient()
+	if err != nil {
+		return nil, err
+	}
+	defer util.Close(closer)
+
+	versionMessage, err := versionClient.Version(context.Background(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if versionMessage == nil {
+		return nil, fmt.Errorf("could not get version information")
+	}
+	semVersion, err := semver.NewVersion(versionMessage.Version)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse semantic version: %s", versionMessage.Version)
+	}
+	return ServerInterface{
+		client,
+		semVersion,
+		versionMessage}, err
 }
