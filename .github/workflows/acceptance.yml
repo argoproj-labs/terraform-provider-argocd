@@ -1,4 +1,4 @@
-name: Acceptance Tests
+name: Tests
 on:
   push:
     branches: ["master"]
@@ -31,8 +31,9 @@ jobs:
           curl -sL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
           chmod +x ./kustomize
 
-      - name: Install Kind 0.8.0
-        run: curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.8.0/kind-$(uname)-amd64
+      - name: Install Kind 0.8.1
+        run: |
+          curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.8.1/kind-$(uname)-amd64
           chmod +x ./kind
 
       - name: Set up ArgoCD ${{ matrix.argocd_version }}
