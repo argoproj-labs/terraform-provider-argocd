@@ -122,14 +122,20 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 	if claims.IssuedAt == nil {
 		return fmt.Errorf("returned issued_at is nil")
 	}
-	_ = d.Set("issued_at", claims.IssuedAt.String())
+	err = d.Set("issued_at", convertInt64ToString(claims.IssuedAt.Unix()))
+	if err != nil {
+		return fmt.Errorf("error persisting 'issued_at' attribute to state: %s", err)
+	}
 
 	if expiresInOk {
 		switch claims.ExpiresAt {
 		case nil:
 			return fmt.Errorf("returned expires_at is nil")
 		default:
-			_ = d.Set("expires_at", claims.ExpiresAt.String())
+			err = d.Set("expires_at", convertInt64ToString(claims.ExpiresAt.Unix()))
+			if err != nil {
+				return fmt.Errorf("error persisting 'expires_at' attribute to state: %s", err)
+			}
 		}
 	}
 
@@ -143,7 +149,7 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 		}
 		d.SetId(claims.ID)
 	} else {
-		d.SetId(fmt.Sprintf("%s-%s-%s", project, role, claims.IssuedAt.String()))
+		d.SetId(fmt.Sprintf("%s-%s-%d", project, role, claims.IssuedAt.Unix()))
 	}
 	return resourceArgoCDProjectTokenRead(d, meta)
 }

@@ -5,7 +5,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"math/rand"
-	"strconv"
 	"testing"
 )
 
@@ -19,9 +18,14 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDProjectTokenSimple(),
-				Check: resource.TestCheckResourceAttrSet(
-					"argocd_project_token.simple",
-					"issued_at",
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project_token.simple",
+						"issued_at",
+					),
+					testCheckTokenIssuedAt(
+						"argocd_project_token.simple",
+					),
 				),
 			},
 			{
@@ -108,6 +112,27 @@ resource "argocd_project_token" "multiple2b" {
 `, count, count, count, count)
 }
 
+func testCheckTokenIssuedAt(resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("not found: %s", resourceName)
+		}
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("token ID is not set")
+		}
+		_issuedAt, ok := rs.Primary.Attributes["issued_at"]
+		if !ok {
+			return fmt.Errorf("testCheckTokenExpiresAt: issued_at is not set")
+		}
+		_, err := convertStringToInt64(_issuedAt)
+		if err != nil {
+			return fmt.Errorf("testCheckTokenExpiresAt: string attribute 'issued_at' stored in state cannot be converted to int64: %s", err)
+		}
+		return nil
+	}
+}
+
 func testCheckTokenExpiresAt(resourceName string, expiresIn int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
@@ -125,11 +150,11 @@ func testCheckTokenExpiresAt(resourceName string, expiresIn int64) resource.Test
 		if !ok {
 			return fmt.Errorf("testCheckTokenExpiresAt: issued_at is not set")
 		}
-		expiresAt, err := strconv.ParseInt(_expiresAt, 10, 64)
+		expiresAt, err := convertStringToInt64(_expiresAt)
 		if err != nil {
 			return fmt.Errorf("testCheckTokenExpiresAt: string attribute 'expires_at' stored in state cannot be converted to int64: %s", err)
 		}
-		issuedAt, err := strconv.ParseInt(_issuedAt, 10, 64)
+		issuedAt, err := convertStringToInt64(_issuedAt)
 		if err != nil {
 			return fmt.Errorf("testCheckTokenExpiresAt: string attribute 'issued_at' stored in state cannot be converted to int64: %s", err)
 		}
