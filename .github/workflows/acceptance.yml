@@ -28,8 +28,7 @@ jobs:
 
       - name: Install Kustomize
         run: |
-          curl -sL "https://raw.githubusercontent.com/\
-            kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+          curl -sL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
           chmod +x ./kustomize
 
       - name: Install Kind 0.8.0
