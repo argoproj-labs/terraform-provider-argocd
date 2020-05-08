@@ -5,7 +5,7 @@ echo '--- Kustomize sanity checks'
 kustomize version || exit 1
 
 echo '--- Create Kind cluster\n\n'
-PATH=$PATH:$(go env GOPATH)/bin kind create cluster --name argocd
+PATH=$PATH:. kind create cluster --name argocd
 
 echo '--- Kind sanity checks\n\n'
 kubectl get nodes -o wide
