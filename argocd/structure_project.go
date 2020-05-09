@@ -1,13 +1,13 @@
 package argocd
 
 import (
-	argoCDAppv1 "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func expandProjectRoles(roles []interface{}) (
-	projectRoles []argoCDAppv1.ProjectRole,
+	projectRoles []v1alpha1.ProjectRole,
 	err error) {
 	for _, _r := range roles {
 		r := _r.(map[string]interface{})
@@ -15,12 +15,9 @@ func expandProjectRoles(roles []interface{}) (
 		rolePolicies := expandStringList(r["policies"].([]interface{}))
 		roleGroups := expandStringList(r["groups"].([]interface{}))
 
-		if err != nil {
-			return projectRoles, err
-		}
 		projectRoles = append(
 			projectRoles,
-			argoCDAppv1.ProjectRole{
+			v1alpha1.ProjectRole{
 				Name:        r["name"].(string),
 				Description: r["description"].(string),
 				Policies:    rolePolicies,
@@ -31,7 +28,7 @@ func expandProjectRoles(roles []interface{}) (
 	return
 }
 
-func flattenProjectOrphanedResources(ors *argoCDAppv1.OrphanedResourcesMonitorSettings) (
+func flattenProjectOrphanedResources(ors *v1alpha1.OrphanedResourcesMonitorSettings) (
 	result map[string]bool) {
 	if ors != nil {
 		result = map[string]bool{
@@ -41,7 +38,7 @@ func flattenProjectOrphanedResources(ors *argoCDAppv1.OrphanedResourcesMonitorSe
 	return
 }
 
-func flattenProjectRoles(rs []argoCDAppv1.ProjectRole) (
+func flattenProjectRoles(rs []v1alpha1.ProjectRole) (
 	result []map[string]interface{}) {
 	for _, r := range rs {
 		result = append(result, map[string]interface{}{
@@ -55,7 +52,7 @@ func flattenProjectRoles(rs []argoCDAppv1.ProjectRole) (
 }
 
 func expandProjectSpec(d *schema.ResourceData) (
-	spec argoCDAppv1.AppProjectSpec,
+	spec v1alpha1.AppProjectSpec,
 	err error) {
 
 	s := d.Get("spec.0").(map[string]interface{})
@@ -71,7 +68,7 @@ func expandProjectSpec(d *schema.ResourceData) (
 	if v, ok := s["orphaned_resources"]; ok {
 		if _warn, ok := v.(map[string]interface{})["warn"]; ok {
 			warn := _warn.(bool)
-			spec.OrphanedResources = &argoCDAppv1.OrphanedResourcesMonitorSettings{
+			spec.OrphanedResources = &v1alpha1.OrphanedResourcesMonitorSettings{
 				Warn: &warn,
 			}
 		}
@@ -104,7 +101,7 @@ func expandProjectSpec(d *schema.ResourceData) (
 	return spec, nil
 }
 
-func flattenProjectSpec(s argoCDAppv1.AppProjectSpec) (
+func flattenProjectSpec(s v1alpha1.AppProjectSpec) (
 	[]map[string]interface{},
 	error) {
 	spec := map[string]interface{}{
@@ -121,8 +118,8 @@ func flattenProjectSpec(s argoCDAppv1.AppProjectSpec) (
 }
 
 func expandProject(d *schema.ResourceData) (
-	metadata metav1.ObjectMeta,
-	spec argoCDAppv1.AppProjectSpec,
+	metadata v1.ObjectMeta,
+	spec v1alpha1.AppProjectSpec,
 	err error) {
 	metadata = expandMetadata(d)
 	spec, err = expandProjectSpec(d)

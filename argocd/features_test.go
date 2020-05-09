@@ -101,11 +101,18 @@ func TestServerInterface_isFeatureSupported(t *testing.T) {
 			}
 			got, err := p.isFeatureSupported(tt.args.feature)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("isFeatureSupported() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("isFeatureSupported() error = %v, wantErr %v",
+					err,
+					tt.wantErr,
+				)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("isFeatureSupported() got = %v, want %v", got, tt.want)
+				t.Errorf("isFeatureSupported() got = %v, want %v, version %s",
+					got,
+					tt.want,
+					tt.fields.ServerVersion.String(),
+				)
 			}
 		})
 	}

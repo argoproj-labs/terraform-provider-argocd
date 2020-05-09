@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/Masterminds/semver"
-	argoCDApiClient "github.com/argoproj/argo-cd/pkg/apiclient"
+	"github.com/argoproj/argo-cd/pkg/apiclient"
+	"github.com/argoproj/argo-cd/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/pkg/apiclient/session"
 	"github.com/argoproj/argo-cd/util"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -12,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func Provider() terraform.ResourceProvider {
+var apiClientConnOpts apiclient.ClientOptions
+
+func Provider(doneCh chan bool) terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"server_addr": {
@@ -99,80 +102,27 @@ func Provider() terraform.ResourceProvider {
 			"argocd_project":       resourceArgoCDProject(),
 			"argocd_project_token": resourceArgoCDProjectToken(),
 		},
+		ConfigureFunc: func(d *schema.ResourceData) (interface{}, error) {
+			apiClient, err := initApiClient(d)
+			if err != nil {
+				return nil, err
+			}
+			pcCloser, projectClient, err := apiClient.NewProjectClient()
+			if err != nil {
+				return nil, err
+			}
 
-		ConfigureFunc: providerConfigure,
+			// Clients connection pooling, close when the provider execution ends
+			go func(done chan bool) {
+				<-done
+				util.Close(pcCloser)
+			}(doneCh)
+			return initServerInterface(apiClient, projectClient)
+		},
 	}
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	opts := argoCDApiClient.ClientOptions{}
-
-	if d, ok := d.GetOk("server_addr"); ok {
-		opts.ServerAddr = d.(string)
-	}
-	if d, ok := d.GetOk("plain_text"); ok {
-		opts.PlainText = d.(bool)
-	}
-	if d, ok := d.GetOk("insecure"); ok {
-		opts.Insecure = d.(bool)
-	}
-	if d, ok := d.GetOk("cert_file"); ok {
-		opts.CertFile = d.(string)
-	}
-	if d, ok := d.GetOk("context"); ok {
-		opts.Context = d.(string)
-	}
-	if d, ok := d.GetOk("user_agent"); ok {
-		opts.UserAgent = d.(string)
-	}
-	if d, ok := d.GetOk("grpc_web"); ok {
-		opts.GRPCWeb = d.(bool)
-	}
-	if d, ok := d.GetOk("port_forward"); ok {
-		opts.PortForward = d.(bool)
-	}
-	if d, ok := d.GetOk("port_forward_with_namespace"); ok {
-		opts.PortForwardNamespace = d.(string)
-	}
-	if d, ok := d.GetOk("headers"); ok {
-		opts.Headers = d.([]string)
-	}
-
-	authToken, authTokenOk := d.GetOk("auth_token")
-
-	switch authTokenOk {
-	case true:
-		opts.AuthToken = authToken.(string)
-	case false:
-		userName, userNameOk := d.GetOk("username")
-		password, passwordOk := d.GetOk("password")
-		if userNameOk && passwordOk {
-			c, err := argoCDApiClient.NewClient(&opts)
-			if err != nil {
-				return c, err
-			}
-			closer, sc, err := c.NewSessionClient()
-			if err != nil {
-				return c, err
-			}
-			defer util.Close(closer)
-			sessionOpts := session.SessionCreateRequest{
-				Username: userName.(string),
-				Password: password.(string),
-			}
-			resp, err := sc.Create(context.Background(), &sessionOpts)
-			if err != nil {
-				return c, err
-			}
-			opts.AuthToken = resp.Token
-		}
-	}
-
-	apiClient, err := argoCDApiClient.NewClient(&opts)
-	if err != nil {
-		return nil, err
-	}
-	// Get API version
+func initServerInterface(apiClient apiclient.Client, projectClient project.ProjectServiceClient) (interface{}, error) {
 	acCloser, versionClient, err := apiClient.NewVersionClient()
 	if err != nil {
 		return nil, err
@@ -193,6 +143,78 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	return ServerInterface{
 		apiClient,
+		projectClient,
 		serverVersion,
 		serverVersionMessage}, err
+}
+
+func initApiClient(d *schema.ResourceData) (
+	apiClient apiclient.Client,
+	err error) {
+
+	var opts apiclient.ClientOptions
+
+	if v, ok := d.GetOk("server_addr"); ok {
+		opts.ServerAddr = v.(string)
+	}
+	if v, ok := d.GetOk("plain_text"); ok {
+		opts.PlainText = v.(bool)
+	}
+	if v, ok := d.GetOk("insecure"); ok {
+		opts.Insecure = v.(bool)
+	}
+	if v, ok := d.GetOk("cert_file"); ok {
+		opts.CertFile = v.(string)
+	}
+	if v, ok := d.GetOk("context"); ok {
+		opts.Context = v.(string)
+	}
+	if v, ok := d.GetOk("user_agent"); ok {
+		opts.UserAgent = v.(string)
+	}
+	if v, ok := d.GetOk("grpc_web"); ok {
+		opts.GRPCWeb = v.(bool)
+	}
+	if v, ok := d.GetOk("port_forward"); ok {
+		opts.PortForward = v.(bool)
+	}
+	if v, ok := d.GetOk("port_forward_with_namespace"); ok {
+		opts.PortForwardNamespace = v.(string)
+	}
+	if v, ok := d.GetOk("headers"); ok {
+		opts.Headers = v.([]string)
+	}
+
+	// Export provider API client connections options for use in other spawned api clients
+	apiClientConnOpts = opts
+
+	authToken, authTokenOk := d.GetOk("auth_token")
+	switch authTokenOk {
+	case true:
+		opts.AuthToken = authToken.(string)
+	case false:
+		userName, userNameOk := d.GetOk("username")
+		password, passwordOk := d.GetOk("password")
+		if userNameOk && passwordOk {
+			apiClient, err = apiclient.NewClient(&opts)
+			if err != nil {
+				return apiClient, err
+			}
+			closer, sc, err := apiClient.NewSessionClient()
+			if err != nil {
+				return apiClient, err
+			}
+			defer util.Close(closer)
+			sessionOpts := session.SessionCreateRequest{
+				Username: userName.(string),
+				Password: password.(string),
+			}
+			resp, err := sc.Create(context.Background(), &sessionOpts)
+			if err != nil {
+				return apiClient, err
+			}
+			opts.AuthToken = resp.Token
+		}
+	}
+	return apiclient.NewClient(&opts)
 }

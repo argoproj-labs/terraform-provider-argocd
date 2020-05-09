@@ -8,25 +8,25 @@ import (
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
-var testAccProviderFactories func(providers *[]*schema.Provider) map[string]terraform.ResourceProviderFactory
 var testAccProvider *schema.Provider
-var testAccProviderFunc func() *schema.Provider
+var testDoneCh = make(chan bool, 1)
 
 func init() {
-	testAccProvider = Provider().(*schema.Provider)
+	testAccProvider = Provider(testDoneCh).(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
 		"argocd": testAccProvider,
 	}
+	testDoneCh <- true
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
+	if err := Provider(testDoneCh).(*schema.Provider).InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
 func TestProvider_impl(t *testing.T) {
-	var _ terraform.ResourceProvider = Provider()
+	var _ = Provider(testDoneCh)
 }
 
 func testAccPreCheck(t *testing.T) {
