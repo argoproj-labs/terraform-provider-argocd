@@ -25,7 +25,7 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 	expIn3 := expiresInDurationFunc(rand.Intn(100000))
 	expIn4 := expiresInDurationFunc(rand.Intn(100000))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
