@@ -209,7 +209,7 @@ resource "argocd_project_token" "multiple" {
 resource "argocd_project_token" "coexistence_testrole_exp" {
   project = argocd_project.coexistence.metadata.0.name
   role    = "testrole"
-  expires_in = 20000
+  expires_in = "30d""
 }
 	`, name, name, name, count)
 }
