@@ -13,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
+var apiClientConnOpts apiclient.ClientOptions
+
 func Provider(doneCh chan bool) terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
@@ -121,7 +123,6 @@ func Provider(doneCh chan bool) terraform.ResourceProvider {
 }
 
 func initServerInterface(apiClient apiclient.Client, projectClient project.ProjectServiceClient) (interface{}, error) {
-
 	acCloser, versionClient, err := apiClient.NewVersionClient()
 	if err != nil {
 		return nil, err
@@ -153,39 +154,41 @@ func initApiClient(d *schema.ResourceData) (
 
 	var opts apiclient.ClientOptions
 
-	if d, ok := d.GetOk("server_addr"); ok {
-		opts.ServerAddr = d.(string)
+	if v, ok := d.GetOk("server_addr"); ok {
+		opts.ServerAddr = v.(string)
 	}
-	if d, ok := d.GetOk("plain_text"); ok {
-		opts.PlainText = d.(bool)
+	if v, ok := d.GetOk("plain_text"); ok {
+		opts.PlainText = v.(bool)
 	}
-	if d, ok := d.GetOk("insecure"); ok {
-		opts.Insecure = d.(bool)
+	if v, ok := d.GetOk("insecure"); ok {
+		opts.Insecure = v.(bool)
 	}
-	if d, ok := d.GetOk("cert_file"); ok {
-		opts.CertFile = d.(string)
+	if v, ok := d.GetOk("cert_file"); ok {
+		opts.CertFile = v.(string)
 	}
-	if d, ok := d.GetOk("context"); ok {
-		opts.Context = d.(string)
+	if v, ok := d.GetOk("context"); ok {
+		opts.Context = v.(string)
 	}
-	if d, ok := d.GetOk("user_agent"); ok {
-		opts.UserAgent = d.(string)
+	if v, ok := d.GetOk("user_agent"); ok {
+		opts.UserAgent = v.(string)
 	}
-	if d, ok := d.GetOk("grpc_web"); ok {
-		opts.GRPCWeb = d.(bool)
+	if v, ok := d.GetOk("grpc_web"); ok {
+		opts.GRPCWeb = v.(bool)
 	}
-	if d, ok := d.GetOk("port_forward"); ok {
-		opts.PortForward = d.(bool)
+	if v, ok := d.GetOk("port_forward"); ok {
+		opts.PortForward = v.(bool)
 	}
-	if d, ok := d.GetOk("port_forward_with_namespace"); ok {
-		opts.PortForwardNamespace = d.(string)
+	if v, ok := d.GetOk("port_forward_with_namespace"); ok {
+		opts.PortForwardNamespace = v.(string)
 	}
-	if d, ok := d.GetOk("headers"); ok {
-		opts.Headers = d.([]string)
+	if v, ok := d.GetOk("headers"); ok {
+		opts.Headers = v.([]string)
 	}
+
+	// Export provider API client connections options for use in other spawned api clients
+	apiClientConnOpts = opts
 
 	authToken, authTokenOk := d.GetOk("auth_token")
-
 	switch authTokenOk {
 	case true:
 		opts.AuthToken = authToken.(string)

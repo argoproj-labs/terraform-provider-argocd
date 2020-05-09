@@ -99,3 +99,11 @@ func validateSyncWindowDuration(value interface{}, key string) (ws []string, es 
 	}
 	return
 }
+
+func validateDuration(value interface{}, key string) (ws []string, es []error) {
+	v := value.(string)
+	if _, err := time.ParseDuration(v); err != nil {
+		es = append(es, fmt.Errorf("%s: invalid duration '%s': %s", key, v, err))
+	}
+	return
+}

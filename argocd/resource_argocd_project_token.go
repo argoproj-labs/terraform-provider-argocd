@@ -21,6 +21,7 @@ func resourceArgoCDProjectToken() *schema.Resource {
 		Create: resourceArgoCDProjectTokenCreate,
 		Read:   resourceArgoCDProjectTokenRead,
 		Delete: resourceArgoCDProjectTokenDelete,
+		Update: resourceArgoCDProjectTokenUpdate,
 
 		Schema: map[string]*schema.Schema{
 			"project": {
@@ -34,9 +35,16 @@ func resourceArgoCDProjectToken() *schema.Resource {
 				ForceNew: true,
 			},
 			"expires_in": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateDuration,
+			},
+			"renew_before": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateDuration,
+				RequiredWith: []string{"expires_in"},
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -65,10 +73,11 @@ func resourceArgoCDProjectToken() *schema.Resource {
 func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
 	c := server.ProjectClient
+	var claims jwt.StandardClaims
+	var expiresIn int64
 
 	project := d.Get("project").(string)
 	role := d.Get("role").(string)
-
 	opts := &argoCDProject.ProjectTokenCreateRequest{
 		Project: project,
 		Role:    role,
@@ -77,13 +86,33 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 	if _, ok := tokenMutexProjectMap[project]; !ok {
 		tokenMutexProjectMap[project] = &sync.RWMutex{}
 	}
-
 	if d, ok := d.GetOk("description"); ok {
 		opts.Description = d.(string)
 	}
-	expiresIn, expiresInOk := d.GetOk("expires_in")
+	_expiresIn, expiresInOk := d.GetOk("expires_in")
 	if expiresInOk {
-		opts.ExpiresIn = int64(expiresIn.(int))
+		expiresInDuration, err := time.ParseDuration(_expiresIn.(string))
+		if err != nil {
+			return err
+		}
+		expiresIn = int64(expiresInDuration.Seconds())
+		opts.ExpiresIn = expiresIn
+	}
+
+	_renewBefore, renewBeforeOk := d.GetOk("renew_before")
+	if renewBeforeOk {
+		renewBeforeDuration, err := time.ParseDuration(_renewBefore.(string))
+		if err != nil {
+			return err
+		}
+		renewBefore := int64(renewBeforeDuration.Seconds())
+		if renewBefore > expiresIn {
+			return fmt.Errorf("renew_before (%d) cannot be greater than expires_in (%d)", renewBefore, expiresIn)
+		}
+		// Arbitrary protection against misconfiguration
+		if 300 > expiresIn-renewBefore {
+			return fmt.Errorf("token will expire within 5 minutes, check your settings")
+		}
 	}
 
 	featureTokenIDSupported, err := server.isFeatureSupported(featureTokenIDs)
@@ -102,24 +131,16 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-
 	token, err := jwt.ParseString(resp.GetToken())
 	if err != nil {
 		return err
 	}
-
-	var claims jwt.StandardClaims
 	if err := json.Unmarshal(token.RawClaims(), &claims); err != nil {
 		return err
 	}
 	if claims.IssuedAt == nil {
 		return fmt.Errorf("returned issued_at is nil")
 	}
-	err = d.Set("issued_at", convertInt64ToString(claims.IssuedAt.Unix()))
-	if err != nil {
-		return fmt.Errorf("error persisting 'issued_at' attribute to state: %s", err)
-	}
-
 	if expiresInOk {
 		switch claims.ExpiresAt {
 		case nil:
@@ -131,11 +152,12 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 			}
 		}
 	}
-
+	if err = d.Set("issued_at", convertInt64ToString(claims.IssuedAt.Unix())); err != nil {
+		return fmt.Errorf("error persisting 'issued_at' attribute to state: %s", err)
+	}
 	if err := d.Set("jwt", token.String()); err != nil {
 		return err
 	}
-
 	if featureTokenIDSupported {
 		if claims.ID == "" {
 			return fmt.Errorf("ID claim is empty")
@@ -149,6 +171,8 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 
 func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) error {
 	var token *v1alpha1.JWTToken
+	var expiresIn int64
+	var renewBefore int64
 	var requestTokenID string
 	var requestTokenIAT int64 = 0
 
@@ -168,16 +192,13 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 	}
-
 	if _, ok := tokenMutexProjectMap[project.Name]; !ok {
 		tokenMutexProjectMap[project.Name] = &sync.RWMutex{}
 	}
-
 	featureTokenIDSupported, err := server.isFeatureSupported(featureTokenIDs)
 	if err != nil {
 		return err
 	}
-
 	if featureTokenIDSupported {
 		requestTokenID = d.Id()
 	} else {
@@ -189,6 +210,7 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 			}
 		} else {
 			d.SetId("")
+			return nil
 		}
 	}
 
@@ -205,6 +227,11 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 		return nil
 	}
 
+	computedExpiresIn := expiresIn - renewBefore
+	if err := isValidToken(token, computedExpiresIn); err != nil {
+		d.SetId("")
+		return nil
+	}
 	if err = d.Set("issued_at", convertInt64ToString(token.IssuedAt)); err != nil {
 		return fmt.Errorf("could not persist 'issued_at' in state: %s", err)
 	}
@@ -212,6 +239,32 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("could not persist 'expires_at' in state: %s", err)
 	}
 	return nil
+}
+
+func resourceArgoCDProjectTokenUpdate(d *schema.ResourceData, meta interface{}) error {
+	var expiresIn int64
+
+	_expiresIn, expiresInOk := d.GetOk("expires_in")
+	if expiresInOk {
+		expiresInDuration, err := time.ParseDuration(_expiresIn.(string))
+		if err != nil {
+			return err
+		}
+		expiresIn = int64(expiresInDuration.Seconds())
+	}
+
+	_renewBefore, renewBeforeOk := d.GetOk("renew_before")
+	if renewBeforeOk {
+		renewBeforeDuration, err := time.ParseDuration(_renewBefore.(string))
+		if err != nil {
+			return err
+		}
+		renewBefore := int64(renewBeforeDuration.Seconds())
+		if renewBefore > expiresIn {
+			return fmt.Errorf("renew_before (%d) cannot be greater than expires_in (%d)", renewBefore, expiresIn)
+		}
+	}
+	return resourceArgoCDProjectRead(d, meta)
 }
 
 func resourceArgoCDProjectTokenDelete(d *schema.ResourceData, meta interface{}) error {

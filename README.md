@@ -136,11 +136,12 @@ resource "argocd_project" "myproject" {
 }
 
 resource "argocd_project_token" "secret" {
-  count       = 20
-  project     = argocd_project.myproject.metadata.0.name
-  role        = "foobar"
-  description = "short lived token"
-  expires_in  = 3600
+  count        = 20
+  project      = argocd_project.myproject.metadata.0.name
+  role         = "foobar"
+  description  = "short lived token"
+  expires_in   = "1h"
+  renew_before = "30m"
 }
 ```
 
