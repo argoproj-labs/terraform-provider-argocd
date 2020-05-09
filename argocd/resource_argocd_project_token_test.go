@@ -214,28 +214,6 @@ func testCheckTokenIssuedAt(resourceName string) resource.TestCheckFunc {
 	}
 }
 
-func testCheckTokenHasBeenRenewed(resourceName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("not found: %s", resourceName)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("token ID is not set")
-		}
-
-		_issuedAt, ok := rs.Primary.Attributes["issued_at"]
-		if !ok {
-			return fmt.Errorf("testCheckTokenExpiresAt: issued_at is not set")
-		}
-		_, err := convertStringToInt64(_issuedAt)
-		if err != nil {
-			return fmt.Errorf("testCheckTokenExpiresAt: string attribute 'issued_at' stored in state cannot be converted to int64: %s", err)
-		}
-		return nil
-	}
-}
-
 func testCheckTokenExpiresAt(resourceName string, expiresIn int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
