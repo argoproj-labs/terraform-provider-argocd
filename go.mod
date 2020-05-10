@@ -7,7 +7,7 @@ require (
 	github.com/argoproj/argo-cd v1.5.4
 	github.com/argoproj/pkg v0.0.0-20200424003221-9b858eff18a1
 	github.com/coreos/go-oidc v2.2.1+incompatible // indirect
-	github.com/cristalhq/jwt/v2 v2.0.0
+	github.com/cristalhq/jwt/v3 v3.0.0
 	github.com/docker/spdystream v0.0.0-20181023171402-6480d4af844c // indirect
 	github.com/emicklei/go-restful v2.12.0+incompatible // indirect
 	github.com/go-openapi/jsonreference v0.19.3 // indirect
