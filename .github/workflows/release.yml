@@ -67,7 +67,7 @@ jobs:
           GOLDFLAGS: "-s -w"
           GOARCH:  ${{ matrix.arch }}
           GOOS: ${{ matrix.goos }}
-        run: go build -o ${{ env.ASSET_NAME }}
+        run: go build
 
       - name: Upload Release Asset
         id: upload-release-asset
