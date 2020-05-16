@@ -65,7 +65,7 @@ jobs:
         env:
           GOBIN: ./${{ env.asset }}
           GOLDFLAGS: "-s -w"
-          GOARCH:  ${{ matrix.goos }}
+          GOARCH:  ${{ matrix.arch }}
           GOOS: ${{ matrix.goos }}
         run: go build -o ${{ env.ASSET_NAME }}
 
