@@ -63,11 +63,10 @@ jobs:
 
       - name: Build ${{ matrix.goos }}-${{ matrix.arch }}
         env:
-          GOBIN: ./${{ env.asset }}
           GOLDFLAGS: "-s -w"
           GOARCH:  ${{ matrix.arch }}
           GOOS: ${{ matrix.goos }}
-        run: go build
+        run: go build -o ${{ env.asset }}
 
       - name: debug
         run: ls -la .
