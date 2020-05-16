@@ -1,9 +1,14 @@
 ---
 name: Release
 
+#on:
+#  push:
+#    tags: ["v*"]
+
 on:
   push:
-    tags: ["v*"]
+    branches:
+      - 9-automated-releases
 
 jobs:
   release:
