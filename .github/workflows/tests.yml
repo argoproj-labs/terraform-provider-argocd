@@ -1,23 +1,26 @@
+---
 name: Tests
+
 on:
   push:
     branches: ["master"]
   pull_request:
     branches: ["master"]
+
 jobs:
   acceptance_tests:
     name: Acceptance Tests
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         argocd_version: ["v1.5.4", "v1.4.3"]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions/setup-go@v1
         with:
           go-version: 1.14
-
+        id: go
       - name: Restore Go cache
         uses: actions/cache@v1
         with:
