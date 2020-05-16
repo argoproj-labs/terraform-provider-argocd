@@ -45,7 +45,7 @@ jobs:
             goos: windows
     runs-on: ${{ matrix.os }}
     env:
-      asset: terraform-provider-argocd_${{ github.ref }}_${{ matrix.goos }}_${{ matrix.arch }}
+      asset: terraform-provider-argocd_${{ github.sha }}_${{ matrix.goos }}_${{ matrix.arch }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
