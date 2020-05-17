@@ -6,8 +6,7 @@
 
 ## Requirements
 
-- [Terraform](https://www.terraform.io/downloads.html) 0.12.x
-- [Go](https://golang.org/doc/install) 1.14+
+- [Terraform](https://www.terraform.io/downloads.html) 0.12.24+
 
 ---
 
@@ -34,21 +33,17 @@ In these cases, not only the readability of your Terraform plan will worsen, but
 
 ---
 
-## Building
+## Installation
 
-Clone the repository within your `GOPATH`
+* **From binary releases**:
+  Get the [latest release](https://github.com/oboukili/terraform-provider-argocd/releases/latest), or adapt and run the following:
+  ```shell script
+  curl -LO https://github.com/oboukili/terraform-provider-argocd/releases/download/v0.1.0/terraform-provider-argocd_v0.1.0_linux_amd64.gz
+  gunzip -N terraform-provider-argocd_v0.1.0_linux_amd64.gz
+  mv terraform-provider-argocd_v0.1.0 ~/.terraform.d/plugins/linux_amd64/
+  ```
 
-```sh
-mkdir -p $GOPATH/src/github.com/oboukili; cd $GOPATH/src/github.com/oboukili
-git clone git@github.com:oboukili/terraform-provider-argocd
-```
-
-Then build the provider
-
-```sh
-cd $GOPATH/src/github.com/oboukili/terraform-provider-argocd
-make build
-```
+* **From source**: Follow [the 'contributing' build instructions](https://github.com/oboukili/terraform-provider-argocd#building).
 
 ## Usage
 
@@ -145,15 +140,26 @@ resource "argocd_project_token" "secret" {
 }
 ```
 
-## Developing the Provider
+---
+
+## Contributing
 
 Contributions are welcome! You'll first need a working installation of [Go 1.14+](http://www.golang.org). Just as a reminder. you will also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH).
 
-To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
+### Building
+
+Clone the repository within your `GOPATH`
 
 ```sh
-make build
-$GOPATH/bin/terraform-provider-argocd
+mkdir -p $GOPATH/src/github.com/oboukili; cd $GOPATH/src/github.com/oboukili
+git clone git@github.com:oboukili/terraform-provider-argocd
+```
+
+Then build the provider
+
+```sh
+cd $GOPATH/src/github.com/oboukili/terraform-provider-argocd
+go build
 ```
 
 ### Running tests

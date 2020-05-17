@@ -6,70 +6,107 @@ on:
     tags: ["v*"]
 
 jobs:
-  release:
-    name: Release
+  draft_release:
+    name: Draft release
     runs-on: ubuntu-latest
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      tag: ${{ steps.get_tag.outputs.tag }}
+      release_id: ${{ steps.create_draft_release.outputs.release_id }}
+      upload_url: ${{ steps.create_draft_release.outputs.upload_url }}
     steps:
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Get tag
+        id: get_tag
+        shell: bash
+        # Github actions does not make getting the tag name easy...
+        run: echo "::set-output name=tag::${GITHUB_REF#refs\/tags\/}"
+
+      # actions/create_release official action returns 'untagged-XXX' as release tag (bug).
+      - name: Create draft Release
+        id: create_draft_release
+        shell: bash
         env:
+          tag: ${{ steps.get_tag.outputs.tag }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+        run: |
+          RESULT=$(curl -sfL -H "Authorization: token ${GITHUB_TOKEN}" -XPOST --data '{"tag_name":"${{ env.tag }}","name":"${{ env.tag }}","draft":true}' https://api.github.com/repos/${{ github.repository }}/releases)
+
+          RELEASE_ID=$(echo $RESULT | jq -r .id)
+          UPLOAD_URL=$(echo $RESULT | jq -r .upload_url)
+
+          echo "::set-output name=release_id::${RELEASE_ID}"
+          echo "::set-output name=upload_url::${UPLOAD_URL}"
 
   assets:
     name: Assets
-    needs: release
+    needs: draft_release
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        arch: [amd64]
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        include:
-          - os: ubuntu-latest
-            goos: linux
-          - os: macos-latest
-            goos: darwin
-          - os: windows-latest
-            goos: windows
-    runs-on: ${{ matrix.os }}
+        arch: [amd64, 386, arm]
+        os: [linux, darwin, windows, freebsd, openbsd]
+        exclude:
+          - os: darwin
+            arch: 386
+          - os: darwin
+            arch: arm
+          - os: windows
+            arch: arm
+          - os: openbsd
+            arch: arm
+    runs-on: ubuntu-latest
     env:
-      asset: terraform-provider-argocd_${{ github.ref }}_${{ matrix.goos }}_${{ matrix.arch }}
+      asset: terraform-provider-argocd_${{ needs.draft_release.outputs.tag }}_${{ matrix.os }}_${{ matrix.arch }}.gz
+      asset_build: terraform-provider-argocd_${{ needs.draft_release.outputs.tag }}
+      asset_gzip_suffix: _${{ matrix.os }}_${{ matrix.arch }}.gz
+      upload_url: ${{ needs.draft_release.outputs.upload_url }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - uses: actions/setup-go@v1
         with:
           go-version: 1.14
-        id: go
+
       - name: Restore Go cache
         uses: actions/cache@v1
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          key: ${{ matrix.os }}-${{ matrix.arch }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-
+            ${{ matrix.os }}-${{ matrix.arch }}-go-
 
-      - name: Build ${{ matrix.goos }}-${{ matrix.arch }}
+      - name: Build ${{ matrix.os }}-${{ matrix.arch }}
         env:
           GOLDFLAGS: "-s -w"
           GOARCH:  ${{ matrix.arch }}
-          GOOS: ${{ matrix.goos }}
-        run: go build -o ${{ env.asset }}
+          GOOS: ${{ matrix.os }}
+        run: |
+          go build -o ${{ env.asset_build }}
+          gzip --name --suffix ${{ env.asset_gzip_suffix }} ${{ env.asset_build }}
 
       - name: Upload Release Asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
+          upload_url: ${{ env.upload_url }}
           asset_path: ./${{ env.asset }}
           asset_name: ${{ env.asset }}
-          asset_content_type: application/octet-stream
+          asset_content_type: application/gzip
+
+  publish_release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    needs:
+      - assets
+      - draft_release
+    env:
+      release_id: ${{ needs.draft_release.outputs.release_id }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Publish release
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -sfL -H "Authorization: token ${GITHUB_TOKEN}" -XPATCH --data '{"draft":false}' https://api.github.com/repos/${{ github.repository }}/releases/${{ env.release_id }}
