@@ -41,6 +41,7 @@ In these cases, not only the readability of your Terraform plan will worsen, but
   curl -LO https://github.com/oboukili/terraform-provider-argocd/releases/download/v0.1.0/terraform-provider-argocd_v0.1.0_linux_amd64.gz
   gunzip -N terraform-provider-argocd_v0.1.0_linux_amd64.gz
   mv terraform-provider-argocd_v0.1.0 ~/.terraform.d/plugins/linux_amd64/
+  chmod +x ~/.terraform.d/plugins/linux_amd64/terraform-provider-argocd_v0.1.0
   ```
 
 * **From source**: Follow [the 'contributing' build instructions](https://github.com/oboukili/terraform-provider-argocd#building).
