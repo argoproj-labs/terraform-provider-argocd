@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	argoCDProject "github.com/argoproj/argo-cd/pkg/apiclient/project"
-	"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	projectClient "github.com/argoproj/argo-cd/pkg/apiclient/project"
+	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strings"
 	"time"
@@ -35,7 +35,7 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	server := meta.(ServerInterface)
 	c := server.ProjectClient
-	p, err := c.Get(context.Background(), &argoCDProject.ProjectQuery{
+	p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
 		Name: objectMeta.Name,
 	})
 	if err != nil {
@@ -53,8 +53,8 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 			time.Sleep(time.Duration(*p.DeletionGracePeriodSeconds))
 		}
 	}
-	p, err = c.Create(context.Background(), &argoCDProject.ProjectCreateRequest{
-		Project: &v1alpha1.AppProject{
+	p, err = c.Create(context.Background(), &projectClient.ProjectCreateRequest{
+		Project: &application.AppProject{
 			ObjectMeta: objectMeta,
 			Spec:       spec,
 		},
@@ -75,7 +75,7 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
 	c := server.ProjectClient
-	p, err := c.Get(context.Background(), &argoCDProject.ProjectQuery{
+	p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
 		Name: d.Id(),
 	})
 	if err != nil {
@@ -111,12 +111,12 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 		server := meta.(ServerInterface)
 		c := server.ProjectClient
-		projectRequest := &argoCDProject.ProjectUpdateRequest{
-			Project: &v1alpha1.AppProject{
+		projectRequest := &projectClient.ProjectUpdateRequest{
+			Project: &application.AppProject{
 				ObjectMeta: objectMeta,
 				Spec:       spec,
 			}}
-		p, err := c.Get(context.Background(), &argoCDProject.ProjectQuery{
+		p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
 			Name: d.Id(),
 		})
 		if p != nil {
@@ -147,7 +147,7 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
 	c := server.ProjectClient
-	_, err := c.Delete(context.Background(), &argoCDProject.ProjectQuery{Name: d.Id()})
+	_, err := c.Delete(context.Background(), &projectClient.ProjectQuery{Name: d.Id()})
 	if err != nil {
 		return err
 	}

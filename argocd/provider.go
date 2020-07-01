@@ -112,7 +112,7 @@ func Provider(doneCh chan bool) terraform.ResourceProvider {
 			if err != nil {
 				return nil, err
 			}
-			
+
 			acCloser, applicationClient, err := apiClient.NewApplicationClient()
 			if err != nil {
 				return nil, err
@@ -132,7 +132,7 @@ func initServerInterface(
 	apiClient apiclient.Client,
 	projectClient project.ProjectServiceClient,
 	applicationClient application.ApplicationServiceClient,
-	) (interface{}, error) {
+) (interface{}, error) {
 	acCloser, versionClient, err := apiClient.NewVersionClient()
 	if err != nil {
 		return nil, err

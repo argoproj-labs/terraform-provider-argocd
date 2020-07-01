@@ -3,7 +3,7 @@ package argocd
 import (
 	"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func expandApplicationDestination(ds *schema.Set) (
@@ -42,10 +42,10 @@ func expandSyncWindows(sws []interface{}) (
 }
 
 func expandK8SGroupKind(groupKinds *schema.Set) (
-	result []v1.GroupKind) {
+	result []meta.GroupKind) {
 	for _, _gk := range groupKinds.List() {
 		gk := _gk.(map[string]interface{})
-		result = append(result, v1.GroupKind{
+		result = append(result, meta.GroupKind{
 			Group: gk["group"].(string),
 			Kind:  gk["kind"].(string),
 		})
@@ -64,7 +64,7 @@ func flattenApplicationDestinations(ds []v1alpha1.ApplicationDestination) (
 	return
 }
 
-func flattenK8SGroupKinds(gks []v1.GroupKind) (
+func flattenK8SGroupKinds(gks []meta.GroupKind) (
 	result []map[string]string) {
 	for _, gk := range gks {
 		result = append(result, map[string]string{
