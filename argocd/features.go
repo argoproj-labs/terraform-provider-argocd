@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/argoproj/argo-cd/pkg/apiclient"
+	"github.com/argoproj/argo-cd/pkg/apiclient/application"
 	"github.com/argoproj/argo-cd/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/pkg/apiclient/version"
 )
@@ -20,6 +21,7 @@ var (
 
 type ServerInterface struct {
 	ApiClient            apiclient.Client
+	ApplicationClient    application.ApplicationServiceClient
 	ProjectClient        project.ProjectServiceClient
 	ServerVersion        *semver.Version
 	ServerVersionMessage *version.VersionMessage
