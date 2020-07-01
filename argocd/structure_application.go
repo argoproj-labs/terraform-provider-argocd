@@ -16,8 +16,56 @@ func expandApplicationSpec(d *schema.ResourceData) (
 	if v, ok := s["project"]; ok {
 		spec.Project = v.(string)
 	}
-
+	if v, ok := s["revision_history_limit"]; ok {
+		pv := v.(int64)
+		spec.RevisionHistoryLimit = &pv
+	}
+	if v, ok := s["info"]; ok {
+		spec.Info = expandApplicationInfo(v.(*schema.Set))
+	}
+	if v, ok := s["ignore_differences"]; ok {
+		spec.IgnoreDifferences = expandApplicationIgnoreDifferences(v.([]map[string]interface{}))
+	}
+	// TODO
 	return spec, nil
+}
+
+func expandApplicationIgnoreDifferences(ids []map[string]interface{}) (
+	result []application.ResourceIgnoreDifferences) {
+	for _, id := range ids {
+		var elem = application.ResourceIgnoreDifferences{}
+		if v, ok := id["group"]; ok {
+			elem.Group = v.(string)
+		}
+		if v, ok := id["kind"]; ok {
+			elem.Kind = v.(string)
+		}
+		if v, ok := id["name"]; ok {
+			elem.Name = v.(string)
+		}
+		if v, ok := id["namespace"]; ok {
+			elem.Namespace = v.(string)
+		}
+		if v, ok := id["json_pointers"]; ok {
+			jps := v.(*schema.Set).List()
+			for _, jp := range jps {
+				elem.JSONPointers = append(elem.JSONPointers, jp.(string))
+			}
+		}
+		result = append(result, elem)
+	}
+	return
+}
+
+func expandApplicationInfo(infos *schema.Set) (
+	result []application.Info) {
+	for _, i := range infos.List() {
+		result = append(result, application.Info{
+			Name:  i.(map[string]string)["name"],
+			Value: i.(map[string]string)["value"],
+		})
+	}
+	return
 }
 
 func expandApplicationDestination(dest interface{}) (
@@ -26,7 +74,6 @@ func expandApplicationDestination(dest interface{}) (
 	if !ok {
 		panic(fmt.Errorf("could not expand application destination"))
 	}
-	// TODO
 	return application.ApplicationDestination{
 		Server:    d["server"].(string),
 		Namespace: d["namespace"].(string),
