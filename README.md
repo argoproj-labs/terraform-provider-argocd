@@ -172,3 +172,9 @@ make testacc_prepare_env
 make testacc
 make testacc_clean_env
 ```
+
+---
+
+## Credits
+
+Thanks to [Keplr](https://www.welcometothejungle.com/fr/companies/keplr) for allowing me to contribute to this side-project of mine during paid work hours.
