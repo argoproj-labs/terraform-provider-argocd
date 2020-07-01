@@ -80,7 +80,7 @@ func expandProjectSpec(d *schema.ResourceData) (
 		spec.NamespaceResourceBlacklist = expandK8SGroupKind(v.(*schema.Set))
 	}
 	if v, ok := s["destination"]; ok {
-		spec.Destinations = expandApplicationDestination(v.(*schema.Set))
+		spec.Destinations = expandApplicationDestinations(v.(*schema.Set))
 	}
 	if v, ok := s["sync_window"]; ok {
 		spec.SyncWindows = expandSyncWindows(v.([]interface{}))
