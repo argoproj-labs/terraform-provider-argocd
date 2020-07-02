@@ -2,7 +2,6 @@ package argocd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	projectClient "github.com/argoproj/argo-cd/pkg/apiclient/project"
 	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
@@ -87,20 +86,8 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
-	fMetadata := flattenMetadata(p.ObjectMeta, d)
-	fSpec, err := flattenProjectSpec(p.Spec)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("spec", fSpec); err != nil {
-		e, _ := json.MarshalIndent(fSpec, "", "\t")
-		return fmt.Errorf("error persisting spec: %s\n%s", err, e)
-	}
-	if err := d.Set("metadata", fMetadata); err != nil {
-		e, _ := json.MarshalIndent(fMetadata, "", "\t")
-		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
-	}
-	return nil
+	err = flattenProject(p, d)
+	return err
 }
 
 func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error {

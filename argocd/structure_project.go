@@ -1,10 +1,23 @@
 package argocd
 
 import (
+	"encoding/json"
+	"fmt"
 	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+// Expand
+
+func expandProject(d *schema.ResourceData) (
+	metadata meta.ObjectMeta,
+	spec application.AppProjectSpec,
+	err error) {
+	metadata = expandMetadata(d)
+	spec, err = expandProjectSpec(d)
+	return
+}
 
 func expandProjectRoles(roles []interface{}) (
 	projectRoles []application.ProjectRole,
@@ -24,29 +37,6 @@ func expandProjectRoles(roles []interface{}) (
 				Groups:      roleGroups,
 			},
 		)
-	}
-	return
-}
-
-func flattenProjectOrphanedResources(ors *application.OrphanedResourcesMonitorSettings) (
-	result map[string]bool) {
-	if ors != nil {
-		result = map[string]bool{
-			"warn": *ors.Warn,
-		}
-	}
-	return
-}
-
-func flattenProjectRoles(rs []application.ProjectRole) (
-	result []map[string]interface{}) {
-	for _, r := range rs {
-		result = append(result, map[string]interface{}{
-			"name":        r.Name,
-			"description": r.Description,
-			"groups":      r.Groups,
-			"policies":    r.Policies,
-		})
 	}
 	return
 }
@@ -101,6 +91,25 @@ func expandProjectSpec(d *schema.ResourceData) (
 	return spec, nil
 }
 
+// Flatten
+
+func flattenProject(p *application.AppProject, d *schema.ResourceData) error {
+	fMetadata := flattenMetadata(p.ObjectMeta, d)
+	fSpec, err := flattenProjectSpec(p.Spec)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("spec", fSpec); err != nil {
+		e, _ := json.MarshalIndent(fSpec, "", "\t")
+		return fmt.Errorf("error persisting spec: %s\n%s", err, e)
+	}
+	if err := d.Set("metadata", fMetadata); err != nil {
+		e, _ := json.MarshalIndent(fMetadata, "", "\t")
+		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
+	}
+	return nil
+}
+
 func flattenProjectSpec(s application.AppProjectSpec) (
 	[]map[string]interface{},
 	error) {
@@ -117,11 +126,25 @@ func flattenProjectSpec(s application.AppProjectSpec) (
 	return []map[string]interface{}{spec}, nil
 }
 
-func expandProject(d *schema.ResourceData) (
-	metadata meta.ObjectMeta,
-	spec application.AppProjectSpec,
-	err error) {
-	metadata = expandMetadata(d)
-	spec, err = expandProjectSpec(d)
+func flattenProjectOrphanedResources(ors *application.OrphanedResourcesMonitorSettings) (
+	result map[string]bool) {
+	if ors != nil {
+		result = map[string]bool{
+			"warn": *ors.Warn,
+		}
+	}
+	return
+}
+
+func flattenProjectRoles(rs []application.ProjectRole) (
+	result []map[string]interface{}) {
+	for _, r := range rs {
+		result = append(result, map[string]interface{}{
+			"name":        r.Name,
+			"description": r.Description,
+			"groups":      r.Groups,
+			"policies":    r.Policies,
+		})
+	}
 	return
 }

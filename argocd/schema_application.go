@@ -190,6 +190,8 @@ func applicationSpecSchema() *schema.Schema {
 										"jsonnet": {
 											Type:     schema.TypeList,
 											Optional: true,
+											MaxItems: 1,
+											MinItems: 1,
 											Elem: schema.Resource{
 												Schema: map[string]*schema.Schema{
 													"ext_vars": {
@@ -212,7 +214,7 @@ func applicationSpecSchema() *schema.Schema {
 																	},
 																},
 																"code": {
-																	Type: schema.TypeString,
+																	Type: schema.TypeBool,
 																	RequiredWith: []string{
 																		"name",
 																		"value",
@@ -222,7 +224,7 @@ func applicationSpecSchema() *schema.Schema {
 														},
 													},
 													"tlas": {
-														Type:     schema.TypeList,
+														Type:     schema.TypeSet,
 														Optional: true,
 														Elem: schema.Resource{
 															Schema: map[string]*schema.Schema{
@@ -241,7 +243,7 @@ func applicationSpecSchema() *schema.Schema {
 																	},
 																},
 																"code": {
-																	Type: schema.TypeString,
+																	Type: schema.TypeBool,
 																	RequiredWith: []string{
 																		"name",
 																		"value",
@@ -272,12 +274,14 @@ func applicationSpecSchema() *schema.Schema {
 											Elem: &schema.Resource{
 												Schema: map[string]*schema.Schema{
 													"name": {
-														Type:     schema.TypeString,
-														Optional: true,
+														Type:         schema.TypeString,
+														Optional:     true,
+														RequiredWith: []string{"value"},
 													},
 													"value": {
-														Type:     schema.TypeString,
-														Optional: true,
+														Type:         schema.TypeString,
+														Optional:     true,
+														RequiredWith: []string{"name"},
 													},
 												},
 											},

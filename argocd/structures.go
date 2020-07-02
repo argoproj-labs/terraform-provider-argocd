@@ -46,14 +46,6 @@ func expandK8SGroupKind(groupKinds *schema.Set) (
 	return
 }
 
-func flattenApplicationDestinations(ds []application.ApplicationDestination) (
-	result []map[string]string) {
-	for _, d := range ds {
-		result = append(result, flattenApplicationDestination(d))
-	}
-	return
-}
-
 func flattenK8SGroupKinds(gks []meta.GroupKind) (
 	result []map[string]string) {
 	for _, gk := range gks {
