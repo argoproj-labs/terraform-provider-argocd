@@ -12,11 +12,10 @@ func applicationSpecSchema() *schema.Schema {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"destination": {
-					Type:         schema.TypeSet,
-					Required:     true,
-					RequiredWith: []string{"source"},
-					MinItems:     1,
-					MaxItems:     1,
+					Type:     schema.TypeSet,
+					Required: true,
+					MinItems: 1,
+					MaxItems: 1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"server": {
@@ -31,11 +30,10 @@ func applicationSpecSchema() *schema.Schema {
 					},
 				},
 				"source": {
-					Type:         schema.TypeList,
-					Required:     true,
-					RequiredWith: []string{"destination"},
-					MinItems:     1,
-					MaxItems:     1,
+					Type:     schema.TypeList,
+					Required: true,
+					MinItems: 1,
+					MaxItems: 1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"repo_url": {
@@ -51,14 +49,14 @@ func applicationSpecSchema() *schema.Schema {
 								Optional: true,
 							},
 							"chart": {
-								Type:         schema.TypeString,
-								RequiredWith: []string{"helm"},
+								Type:     schema.TypeString,
+								Optional: true,
 							},
 							"helm": {
-								Type:         schema.TypeList,
-								RequiredWith: []string{"chart"},
-								MaxItems:     1,
-								MinItems:     1,
+								Type:     schema.TypeList,
+								MaxItems: 1,
+								MinItems: 1,
+								Optional: true,
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{
 										"value_files": {
@@ -78,17 +76,17 @@ func applicationSpecSchema() *schema.Schema {
 											Elem: &schema.Resource{
 												Schema: map[string]*schema.Schema{
 													"name": {
-														Type:         schema.TypeString,
-														RequiredWith: []string{"value"},
+														Type:     schema.TypeString,
+														Optional: true,
 													},
 													"value": {
-														Type:         schema.TypeString,
-														RequiredWith: []string{"name"},
+														Type:     schema.TypeString,
+														Optional: true,
 													},
 													"force_string": {
 														Type:        schema.TypeBool,
-														Description: "ForceString determines whether to tell Helm to interpret booleans and numbers as strings",
 														Optional:    true,
+														Description: "force_string determines whether to tell Helm to interpret booleans and numbers as strings",
 													},
 												},
 											},
@@ -105,6 +103,7 @@ func applicationSpecSchema() *schema.Schema {
 								Type:     schema.TypeList,
 								MaxItems: 1,
 								MinItems: 1,
+								Optional: true,
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{
 										"name_prefix": {
@@ -122,7 +121,7 @@ func applicationSpecSchema() *schema.Schema {
 										"images": {
 											Type:     schema.TypeSet,
 											Optional: true,
-											Elem: schema.Schema{
+											Elem: &schema.Schema{
 												Type: schema.TypeString,
 											},
 										},
@@ -139,6 +138,7 @@ func applicationSpecSchema() *schema.Schema {
 								Type:     schema.TypeList,
 								MaxItems: 1,
 								MinItems: 1,
+								Optional: true,
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{
 										"environment": {
@@ -148,28 +148,19 @@ func applicationSpecSchema() *schema.Schema {
 										"parameters": {
 											Type:     schema.TypeSet,
 											Optional: true,
-											Elem: schema.Resource{
+											Elem: &schema.Resource{
 												Schema: map[string]*schema.Schema{
 													"component": {
-														Type: schema.TypeString,
-														RequiredWith: []string{
-															"name",
-															"value",
-														},
+														Type:     schema.TypeString,
+														Optional: true,
 													},
 													"name": {
-														Type: schema.TypeString,
-														RequiredWith: []string{
-															"value",
-															"component",
-														},
+														Type:     schema.TypeString,
+														Optional: true,
 													},
 													"value": {
-														Type: schema.TypeString,
-														RequiredWith: []string{
-															"name",
-															"component",
-														},
+														Type:     schema.TypeString,
+														Optional: true,
 													},
 												},
 											},
@@ -181,6 +172,7 @@ func applicationSpecSchema() *schema.Schema {
 								Type:     schema.TypeList,
 								MaxItems: 1,
 								MinItems: 1,
+								Optional: true,
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{
 										"recurse": {
@@ -192,33 +184,24 @@ func applicationSpecSchema() *schema.Schema {
 											Optional: true,
 											MaxItems: 1,
 											MinItems: 1,
-											Elem: schema.Resource{
+											Elem: &schema.Resource{
 												Schema: map[string]*schema.Schema{
 													"ext_vars": {
 														Type:     schema.TypeList,
 														Optional: true,
-														Elem: schema.Resource{
+														Elem: &schema.Resource{
 															Schema: map[string]*schema.Schema{
 																"name": {
-																	Type: schema.TypeString,
-																	RequiredWith: []string{
-																		"value",
-																		"code",
-																	},
+																	Type:     schema.TypeString,
+																	Optional: true,
 																},
 																"value": {
-																	Type: schema.TypeString,
-																	RequiredWith: []string{
-																		"name",
-																		"code",
-																	},
+																	Type:     schema.TypeString,
+																	Optional: true,
 																},
 																"code": {
-																	Type: schema.TypeBool,
-																	RequiredWith: []string{
-																		"name",
-																		"value",
-																	},
+																	Type:     schema.TypeBool,
+																	Optional: true,
 																},
 															},
 														},
@@ -226,28 +209,19 @@ func applicationSpecSchema() *schema.Schema {
 													"tlas": {
 														Type:     schema.TypeSet,
 														Optional: true,
-														Elem: schema.Resource{
+														Elem: &schema.Resource{
 															Schema: map[string]*schema.Schema{
 																"name": {
-																	Type: schema.TypeString,
-																	RequiredWith: []string{
-																		"value",
-																		"code",
-																	},
+																	Type:     schema.TypeString,
+																	Optional: true,
 																},
 																"value": {
-																	Type: schema.TypeString,
-																	RequiredWith: []string{
-																		"name",
-																		"code",
-																	},
+																	Type:     schema.TypeString,
+																	Optional: true,
 																},
 																"code": {
-																	Type: schema.TypeBool,
-																	RequiredWith: []string{
-																		"name",
-																		"value",
-																	},
+																	Type:     schema.TypeBool,
+																	Optional: true,
 																},
 															},
 														},
@@ -262,6 +236,7 @@ func applicationSpecSchema() *schema.Schema {
 								Type:     schema.TypeList,
 								MaxItems: 1,
 								MinItems: 1,
+								Optional: true,
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{
 										"name": {
@@ -274,14 +249,12 @@ func applicationSpecSchema() *schema.Schema {
 											Elem: &schema.Resource{
 												Schema: map[string]*schema.Schema{
 													"name": {
-														Type:         schema.TypeString,
-														Optional:     true,
-														RequiredWith: []string{"value"},
+														Type:     schema.TypeString,
+														Optional: true,
 													},
 													"value": {
-														Type:         schema.TypeString,
-														Optional:     true,
-														RequiredWith: []string{"name"},
+														Type:     schema.TypeString,
+														Optional: true,
 													},
 												},
 											},
@@ -293,8 +266,10 @@ func applicationSpecSchema() *schema.Schema {
 					},
 				},
 				"project": {
-					Type:     schema.TypeString,
-					Optional: true,
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "The application project, defaults to 'default'",
+					Default:     "default",
 				},
 				"sync_policy": {
 					Type:     schema.TypeList,
@@ -322,7 +297,7 @@ func applicationSpecSchema() *schema.Schema {
 							"sync_options": {
 								Type:     schema.TypeSet,
 								Optional: true,
-								Elem: schema.Schema{
+								Elem: &schema.Schema{
 									Type: schema.TypeString,
 									// TODO: add a validator
 								},
@@ -354,7 +329,7 @@ func applicationSpecSchema() *schema.Schema {
 							"json_pointers": {
 								Type:     schema.TypeSet,
 								Optional: true,
-								Elem: schema.Schema{
+								Elem: &schema.Schema{
 									Type: schema.TypeString,
 								},
 							},

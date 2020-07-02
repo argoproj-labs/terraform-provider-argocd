@@ -34,7 +34,9 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	server := meta.(ServerInterface)
 	c := server.ApplicationClient
-	app, err := c.Get(context.Background(), &applicationClient.ApplicationQuery{})
+	app, err := c.Get(context.Background(), &applicationClient.ApplicationQuery{
+		Name: &objectMeta.Name,
+	})
 	if err != nil {
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:

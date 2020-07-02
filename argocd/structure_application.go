@@ -29,29 +29,30 @@ func expandApplicationSpec(d *schema.ResourceData) (
 		spec.Project = v.(string)
 	}
 	if v, ok := s["revision_history_limit"]; ok {
-		pv := v.(int64)
+		pv := int64(v.(int))
 		spec.RevisionHistoryLimit = &pv
 	}
 	if v, ok := s["info"]; ok {
 		spec.Info = expandApplicationInfo(v.(*schema.Set))
 	}
 	if v, ok := s["ignore_differences"]; ok {
-		spec.IgnoreDifferences = expandApplicationIgnoreDifferences(v.([]map[string]interface{}))
+		spec.IgnoreDifferences = expandApplicationIgnoreDifferences(v.([]interface{}))
 	}
 	if v, ok := s["sync_policy"]; ok {
-		spec.SyncPolicy = expandApplicationSyncPolicy(v.([]map[string]interface{})[0])
+		spec.SyncPolicy = expandApplicationSyncPolicy(v.([]interface{}))
 	}
 	if v, ok := s["destination"]; ok {
-		spec.Destination = expandApplicationDestination(v.(*schema.Set))
+		spec.Destination = expandApplicationDestination(v.(*schema.Set).List()[0])
 	}
 	if v, ok := s["source"]; ok {
-		spec.Source = expandApplicationSource(v.([]map[string]interface{})[0])
+		spec.Source = expandApplicationSource(v.([]interface{})[0])
 	}
 	return spec, nil
 }
 
-func expandApplicationSource(as map[string]interface{}) (
+func expandApplicationSource(_as interface{}) (
 	result application.ApplicationSource) {
+	as := _as.(map[string]interface{})
 	if v, ok := as["repo_url"]; ok {
 		result.RepoURL = v.(string)
 	}
@@ -65,24 +66,28 @@ func expandApplicationSource(as map[string]interface{}) (
 		result.Chart = v.(string)
 	}
 	if v, ok := as["helm"]; ok {
-		result.Helm = expandApplicationSourceHelm(v.([]map[string]interface{})[0])
+		result.Helm = expandApplicationSourceHelm(v.([]interface{}))
 	}
 	if v, ok := as["kustomize"]; ok {
-		result.Kustomize = expandApplicationSourceKustomize(v.([]map[string]interface{})[0])
+		result.Kustomize = expandApplicationSourceKustomize(v.([]interface{}))
 	}
 	if v, ok := as["ksonnet"]; ok {
-		result.Ksonnet = expandApplicationSourceKsonnet(v.([]map[string]interface{})[0])
+		result.Ksonnet = expandApplicationSourceKsonnet(v.([]interface{}))
 	}
 	if v, ok := as["directory"]; ok {
-		result.Directory = expandApplicationSourceDirectory(v.([]map[string]interface{})[0])
+		result.Directory = expandApplicationSourceDirectory(v.([]interface{}))
 	}
 	if v, ok := as["plugin"]; ok {
-		result.Plugin = expandApplicationSourcePlugin(v.([]map[string]interface{})[0])
+		result.Plugin = expandApplicationSourcePlugin(v.([]interface{}))
 	}
 	return
 }
 
-func expandApplicationSourcePlugin(a map[string]interface{}) *application.ApplicationSourcePlugin {
+func expandApplicationSourcePlugin(in []interface{}) *application.ApplicationSourcePlugin {
+	if len(in) == 0 {
+		return nil
+	}
+	a := in[0].(map[string]interface{})
 	result := &application.ApplicationSourcePlugin{}
 	if v, ok := a["name"]; ok {
 		result.Name = v.(string)
@@ -100,7 +105,11 @@ func expandApplicationSourcePlugin(a map[string]interface{}) *application.Applic
 	return result
 }
 
-func expandApplicationSourceDirectory(a map[string]interface{}) *application.ApplicationSourceDirectory {
+func expandApplicationSourceDirectory(in []interface{}) *application.ApplicationSourceDirectory {
+	if len(in) == 0 {
+		return nil
+	}
+	a := in[0].(map[string]interface{})
 	result := &application.ApplicationSourceDirectory{}
 	if v, ok := a["recurse"]; ok {
 		result.Recurse = v.(bool)
@@ -136,7 +145,11 @@ func expandApplicationSourceDirectory(a map[string]interface{}) *application.App
 	return result
 }
 
-func expandApplicationSourceKsonnet(a map[string]interface{}) *application.ApplicationSourceKsonnet {
+func expandApplicationSourceKsonnet(in []interface{}) *application.ApplicationSourceKsonnet {
+	if len(in) == 0 {
+		return nil
+	}
+	a := in[0].(map[string]interface{})
 	result := &application.ApplicationSourceKsonnet{}
 	if v, ok := a["environment"]; ok {
 		result.Environment = v.(string)
@@ -160,7 +173,11 @@ func expandApplicationSourceKsonnet(a map[string]interface{}) *application.Appli
 	return result
 }
 
-func expandApplicationSourceKustomize(a map[string]interface{}) *application.ApplicationSourceKustomize {
+func expandApplicationSourceKustomize(in []interface{}) *application.ApplicationSourceKustomize {
+	if len(in) == 0 {
+		return nil
+	}
+	a := in[0].(map[string]interface{})
 	result := &application.ApplicationSourceKustomize{}
 	if v, ok := a["name_prefix"]; ok {
 		result.NamePrefix = v.(string)
@@ -187,7 +204,11 @@ func expandApplicationSourceKustomize(a map[string]interface{}) *application.App
 	return result
 }
 
-func expandApplicationSourceHelm(a map[string]interface{}) *application.ApplicationSourceHelm {
+func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourceHelm {
+	if len(in) == 0 {
+		return nil
+	}
+	a := in[0].(map[string]interface{})
 	result := &application.ApplicationSourceHelm{}
 	if v, ok := a["values"]; ok {
 		result.Values = v.(string)
@@ -196,7 +217,8 @@ func expandApplicationSourceHelm(a map[string]interface{}) *application.Applicat
 		result.ReleaseName = v.(string)
 	}
 	if parameters, ok := a["parameters"]; ok {
-		for _, p := range parameters.([]map[string]interface{}) {
+		for _, _p := range parameters.([]interface{}) {
+			p := _p.(map[string]interface{})
 			parameter := application.HelmParameter{}
 			if v, ok := p["name"]; ok {
 				parameter.Name = v.(string)
@@ -213,11 +235,15 @@ func expandApplicationSourceHelm(a map[string]interface{}) *application.Applicat
 	return result
 }
 
-func expandApplicationSyncPolicy(sp map[string]interface{}) *application.SyncPolicy {
+func expandApplicationSyncPolicy(_sp []interface{}) *application.SyncPolicy {
+	if len(_sp) == 0 {
+		return nil
+	}
+	sp := _sp[0]
 	var automated = &application.SyncPolicyAutomated{}
 	var syncOptions application.SyncOptions
 
-	if v, ok := sp["automated"]; ok {
+	if v, ok := sp.(map[string]interface{})["automated"]; ok {
 		a := v.(map[string]bool)
 		if prune, ok := a["prune"]; ok {
 			automated.Prune = prune
@@ -226,7 +252,7 @@ func expandApplicationSyncPolicy(sp map[string]interface{}) *application.SyncPol
 			automated.SelfHeal = selfHeal
 		}
 	}
-	if v, ok := sp["sync_options"]; ok {
+	if v, ok := sp.(map[string]interface{})["sync_options"]; ok {
 		sOpts := v.(*schema.Set).List()
 		for _, sOpt := range sOpts {
 			syncOptions = append(syncOptions, sOpt.(string))
@@ -238,9 +264,10 @@ func expandApplicationSyncPolicy(sp map[string]interface{}) *application.SyncPol
 	}
 }
 
-func expandApplicationIgnoreDifferences(ids []map[string]interface{}) (
+func expandApplicationIgnoreDifferences(ids []interface{}) (
 	result []application.ResourceIgnoreDifferences) {
-	for _, id := range ids {
+	for _, _id := range ids {
+		id := _id.(map[string]interface{})
 		var elem = application.ResourceIgnoreDifferences{}
 		if v, ok := id["group"]; ok {
 			elem.Group = v.(string)
@@ -382,17 +409,19 @@ func flattenApplicationSource(source []application.ApplicationSource) (
 func flattenApplicationSourcePlugin(as []*application.ApplicationSourcePlugin) (
 	result []map[string]interface{}) {
 	for _, a := range as {
-		var env []map[string]string
-		for _, e := range a.Env {
-			env = append(env, map[string]string{
-				"name":  e.Name,
-				"value": e.Value,
+		if a != nil {
+			var env []map[string]string
+			for _, e := range a.Env {
+				env = append(env, map[string]string{
+					"name":  e.Name,
+					"value": e.Value,
+				})
+			}
+			result = append(result, map[string]interface{}{
+				"name": a.Name,
+				"env":  env,
 			})
 		}
-		result = append(result, map[string]interface{}{
-			"name": a.Name,
-			"env":  env,
-		})
 	}
 	return
 }
@@ -400,20 +429,22 @@ func flattenApplicationSourcePlugin(as []*application.ApplicationSourcePlugin) (
 func flattenApplicationSourceKsonnet(as []*application.ApplicationSourceKsonnet) (
 	result []map[string]interface{}) {
 	for _, a := range as {
-		var parameters []map[string]string
-		for _, p := range a.Parameters {
-			parameters = append(parameters,
-				map[string]string{
-					"component": p.Component,
-					"name":      p.Name,
-					"value":     p.Value,
-				},
-			)
+		if a != nil {
+			var parameters []map[string]string
+			for _, p := range a.Parameters {
+				parameters = append(parameters,
+					map[string]string{
+						"component": p.Component,
+						"name":      p.Name,
+						"value":     p.Value,
+					},
+				)
+			}
+			result = append(result, map[string]interface{}{
+				"environment": a.Environment,
+				"parameters":  parameters,
+			})
 		}
-		result = append(result, map[string]interface{}{
-			"environment": a.Environment,
-			"parameters":  parameters,
-		})
 	}
 	return
 }
@@ -421,25 +452,27 @@ func flattenApplicationSourceKsonnet(as []*application.ApplicationSourceKsonnet)
 func flattenApplicationSourceDirectory(as []*application.ApplicationSourceDirectory) (
 	result []map[string]interface{}) {
 	for _, a := range as {
-		jsonnet := make(map[string][]interface{}, 0)
-		for _, jev := range a.Jsonnet.ExtVars {
-			jsonnet["ext_vars"] = append(jsonnet["ext_vars"], map[string]interface{}{
-				"code":  jev.Code,
-				"name":  jev.Name,
-				"value": jev.Value,
+		if a != nil {
+			jsonnet := make(map[string][]interface{}, 0)
+			for _, jev := range a.Jsonnet.ExtVars {
+				jsonnet["ext_vars"] = append(jsonnet["ext_vars"], map[string]interface{}{
+					"code":  jev.Code,
+					"name":  jev.Name,
+					"value": jev.Value,
+				})
+			}
+			for _, jtla := range a.Jsonnet.TLAs {
+				jsonnet["tlas"] = append(jsonnet["tlas"], map[string]interface{}{
+					"code":  jtla.Code,
+					"name":  jtla.Name,
+					"value": jtla.Value,
+				})
+			}
+			result = append(result, map[string]interface{}{
+				"jsonnet": []map[string][]interface{}{jsonnet},
+				"recurse": a.Recurse,
 			})
 		}
-		for _, jtla := range a.Jsonnet.TLAs {
-			jsonnet["tlas"] = append(jsonnet["tlas"], map[string]interface{}{
-				"code":  jtla.Code,
-				"name":  jtla.Name,
-				"value": jtla.Value,
-			})
-		}
-		result = append(result, map[string]interface{}{
-			"jsonnet": []map[string][]interface{}{jsonnet},
-			"recurse": a.Recurse,
-		})
 	}
 	return
 }
@@ -447,17 +480,19 @@ func flattenApplicationSourceDirectory(as []*application.ApplicationSourceDirect
 func flattenApplicationSourceKustomize(as []*application.ApplicationSourceKustomize) (
 	result []map[string]interface{}) {
 	for _, a := range as {
-		var images []string
-		for _, i := range a.Images {
-			images = append(images, string(i))
+		if a != nil {
+			var images []string
+			for _, i := range a.Images {
+				images = append(images, string(i))
+			}
+			result = append(result, map[string]interface{}{
+				"common_labels": a.CommonLabels,
+				"images":        images,
+				"name_prefix":   a.NamePrefix,
+				"name_suffix":   a.NameSuffix,
+				"version":       a.Version,
+			})
 		}
-		result = append(result, map[string]interface{}{
-			"common_labels": a.CommonLabels,
-			"images":        images,
-			"name_prefix":   a.NamePrefix,
-			"name_suffix":   a.NameSuffix,
-			"version":       a.Version,
-		})
 	}
 	return
 }
@@ -465,20 +500,22 @@ func flattenApplicationSourceKustomize(as []*application.ApplicationSourceKustom
 func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (
 	result []map[string]interface{}) {
 	for _, a := range as {
-		var parameters []map[string]interface{}
-		for _, p := range a.Parameters {
-			parameters = append(parameters, map[string]interface{}{
-				"force_string": p.ForceString,
-				"name":         p.Name,
-				"value":        p.Value,
+		if a != nil {
+			var parameters []map[string]interface{}
+			for _, p := range a.Parameters {
+				parameters = append(parameters, map[string]interface{}{
+					"force_string": p.ForceString,
+					"name":         p.Name,
+					"value":        p.Value,
+				})
+			}
+			result = append(result, map[string]interface{}{
+				"parameters":   parameters,
+				"release_name": a.ReleaseName,
+				"value_files":  a.ValueFiles,
+				"values":       a.Values,
 			})
 		}
-		result = append(result, map[string]interface{}{
-			"parameters":   parameters,
-			"release_name": a.ReleaseName,
-			"value_files":  a.ValueFiles,
-			"values":       a.Values,
-		})
 	}
 	return
 }
