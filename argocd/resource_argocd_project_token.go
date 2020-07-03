@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	argoCDProject "github.com/argoproj/argo-cd/pkg/apiclient/project"
-	"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/cristalhq/jwt/v3"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strings"
@@ -170,7 +170,7 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) error {
-	var token *v1alpha1.JWTToken
+	var token *application.JWTToken
 	var expiresIn int64
 	var renewBefore int64
 	var requestTokenID string

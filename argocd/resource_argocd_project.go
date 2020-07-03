@@ -2,10 +2,9 @@ package argocd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	argoCDProject "github.com/argoproj/argo-cd/pkg/apiclient/project"
-	"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	projectClient "github.com/argoproj/argo-cd/pkg/apiclient/project"
+	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strings"
 	"time"
@@ -35,7 +34,7 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	server := meta.(ServerInterface)
 	c := server.ProjectClient
-	p, err := c.Get(context.Background(), &argoCDProject.ProjectQuery{
+	p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
 		Name: objectMeta.Name,
 	})
 	if err != nil {
@@ -53,8 +52,8 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 			time.Sleep(time.Duration(*p.DeletionGracePeriodSeconds))
 		}
 	}
-	p, err = c.Create(context.Background(), &argoCDProject.ProjectCreateRequest{
-		Project: &v1alpha1.AppProject{
+	p, err = c.Create(context.Background(), &projectClient.ProjectCreateRequest{
+		Project: &application.AppProject{
 			ObjectMeta: objectMeta,
 			Spec:       spec,
 		},
@@ -75,7 +74,7 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
 	c := server.ProjectClient
-	p, err := c.Get(context.Background(), &argoCDProject.ProjectQuery{
+	p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
 		Name: d.Id(),
 	})
 	if err != nil {
@@ -87,20 +86,8 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
-	fMetadata := flattenMetadata(p.ObjectMeta, d)
-	fSpec, err := flattenProjectSpec(p.Spec)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("spec", fSpec); err != nil {
-		e, _ := json.MarshalIndent(fSpec, "", "\t")
-		return fmt.Errorf("error persisting spec: %s\n%s", err, e)
-	}
-	if err := d.Set("metadata", fMetadata); err != nil {
-		e, _ := json.MarshalIndent(fMetadata, "", "\t")
-		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
-	}
-	return nil
+	err = flattenProject(p, d)
+	return err
 }
 
 func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -111,12 +98,12 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 		server := meta.(ServerInterface)
 		c := server.ProjectClient
-		projectRequest := &argoCDProject.ProjectUpdateRequest{
-			Project: &v1alpha1.AppProject{
+		projectRequest := &projectClient.ProjectUpdateRequest{
+			Project: &application.AppProject{
 				ObjectMeta: objectMeta,
 				Spec:       spec,
 			}}
-		p, err := c.Get(context.Background(), &argoCDProject.ProjectQuery{
+		p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
 			Name: d.Id(),
 		})
 		if p != nil {
@@ -147,7 +134,7 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
 	c := server.ProjectClient
-	_, err := c.Delete(context.Background(), &argoCDProject.ProjectQuery{Name: d.Id()})
+	_, err := c.Delete(context.Background(), &projectClient.ProjectQuery{Name: d.Id()})
 	if err != nil {
 		return err
 	}

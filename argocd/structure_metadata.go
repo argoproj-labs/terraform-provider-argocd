@@ -3,13 +3,13 @@ package argocd
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"net/url"
 	"strings"
 )
 
 func expandMetadata(d *schema.ResourceData) (
-	meta v1.ObjectMeta) {
+	meta meta.ObjectMeta) {
 
 	m := d.Get("metadata.0").(map[string]interface{})
 
@@ -28,7 +28,7 @@ func expandMetadata(d *schema.ResourceData) (
 	return meta
 }
 
-func flattenMetadata(meta v1.ObjectMeta, d *schema.ResourceData) []interface{} {
+func flattenMetadata(meta meta.ObjectMeta, d *schema.ResourceData) []interface{} {
 	m := map[string]interface{}{
 		"generation":       meta.Generation,
 		"name":             meta.Name,

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/argoproj/argo-cd/pkg/apiclient"
 	"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
-	"github.com/argoproj/argo-cd/util"
+	util "github.com/argoproj/gitops-engine/pkg/utils/io"
 	"regexp"
 	"strconv"
 	"strings"

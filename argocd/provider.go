@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/argoproj/argo-cd/pkg/apiclient"
+	"github.com/argoproj/argo-cd/pkg/apiclient/application"
 	"github.com/argoproj/argo-cd/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/pkg/apiclient/session"
-	"github.com/argoproj/argo-cd/util"
+	util "github.com/argoproj/gitops-engine/pkg/utils/io"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -99,6 +100,7 @@ func Provider(doneCh chan bool) terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"argocd_application":   resourceArgoCDApplication(),
 			"argocd_project":       resourceArgoCDProject(),
 			"argocd_project_token": resourceArgoCDProjectToken(),
 		},
@@ -112,17 +114,26 @@ func Provider(doneCh chan bool) terraform.ResourceProvider {
 				return nil, err
 			}
 
+			acCloser, applicationClient, err := apiClient.NewApplicationClient()
+			if err != nil {
+				return nil, err
+			}
 			// Clients connection pooling, close when the provider execution ends
 			go func(done chan bool) {
 				<-done
 				util.Close(pcCloser)
+				util.Close(acCloser)
 			}(doneCh)
-			return initServerInterface(apiClient, projectClient)
+			return initServerInterface(apiClient, projectClient, applicationClient)
 		},
 	}
 }
 
-func initServerInterface(apiClient apiclient.Client, projectClient project.ProjectServiceClient) (interface{}, error) {
+func initServerInterface(
+	apiClient apiclient.Client,
+	projectClient project.ProjectServiceClient,
+	applicationClient application.ApplicationServiceClient,
+) (interface{}, error) {
 	acCloser, versionClient, err := apiClient.NewVersionClient()
 	if err != nil {
 		return nil, err
@@ -143,6 +154,7 @@ func initServerInterface(apiClient apiclient.Client, projectClient project.Proje
 
 	return ServerInterface{
 		apiClient,
+		applicationClient,
 		projectClient,
 		serverVersion,
 		serverVersionMessage}, err
