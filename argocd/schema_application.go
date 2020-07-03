@@ -1,6 +1,8 @@
 package argocd
 
-import "github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+import (
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+)
 
 func applicationSpecSchema() *schema.Schema {
 	return &schema.Schema{
@@ -170,7 +172,13 @@ func applicationSpecSchema() *schema.Schema {
 								},
 							},
 							"directory": {
-								Type:     schema.TypeList,
+								Type: schema.TypeList,
+								// TODO: ArgoCD API ApplicationQuery does not return Directory attributes, investigate?
+								// TODO: this provokes perpetual TF state drift as spec.0.source.0.directory cannot be read
+								// TODO: the Directory attributes are to be used with care until a fix is made upstream
+								DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+									return true
+								},
 								MaxItems: 1,
 								MinItems: 1,
 								Optional: true,
