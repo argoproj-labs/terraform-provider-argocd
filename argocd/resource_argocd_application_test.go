@@ -133,11 +133,6 @@ ingress:
 						"spec.0.sync_policy.0.automated.self_heal",
 						"true",
 					),
-					resource.TestCheckResourceAttr(
-						"argocd_application.sync_policy",
-						"spec.0.sync_policy.0.sync_options.0",
-						"Validate=false",
-					),
 				),
 			},
 			{
@@ -359,7 +354,6 @@ resource "argocd_application" "sync_policy" {
         prune     = true
         self_heal = true
       }
-      sync_options = ["Validate=false"]
     }
   }
 }

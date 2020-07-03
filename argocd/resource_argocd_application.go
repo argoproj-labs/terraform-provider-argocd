@@ -52,6 +52,17 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 			time.Sleep(time.Duration(*app.DeletionGracePeriodSeconds))
 		}
 	}
+
+	featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
+	if err != nil {
+		return err
+	}
+	if !featureApplicationLevelSyncOptionsSupported && spec.SyncPolicy.SyncOptions != nil {
+		return fmt.Errorf(
+			"application-level sync_options is only supported from ArgoCD %s onwards",
+			featureVersionConstraintsMap[featureApplicationLevelSyncOptions].String())
+	}
+
 	app, err = c.Create(context.Background(), &applicationClient.ApplicationCreateRequest{
 		Application: application.Application{
 			ObjectMeta: objectMeta,
@@ -104,6 +115,16 @@ func resourceArgoCDApplicationUpdate(d *schema.ResourceData, meta interface{}) e
 				ObjectMeta: objectMeta,
 				Spec:       spec,
 			}}
+
+		featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
+		if err != nil {
+			return err
+		}
+		if !featureApplicationLevelSyncOptionsSupported && spec.SyncPolicy.SyncOptions != nil {
+			return fmt.Errorf(
+				"application-level sync_options is only supported from ArgoCD %s onwards",
+				featureVersionConstraintsMap[featureApplicationLevelSyncOptions].String())
+		}
 
 		app, err := c.Get(context.Background(), &applicationClient.ApplicationQuery{
 			Name: &appName,

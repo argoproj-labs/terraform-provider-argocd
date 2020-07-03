@@ -179,6 +179,7 @@ resource "argocd_application" "kustomize" {
         prune     = true
         self_heal = true
       }
+      # Only available from ArgoCD 1.5.0 onwards
       sync_options = ["Validate=false"]
     }
 

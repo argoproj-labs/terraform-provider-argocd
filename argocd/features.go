@@ -10,12 +10,14 @@ import (
 )
 
 const (
-	featureTokenIDs = iota
+	featureApplicationLevelSyncOptions = iota
+	featureTokenIDs
 )
 
 var (
 	featureVersionConstraintsMap = map[int]*semver.Version{
-		featureTokenIDs: semver.MustParse("1.5.3"),
+		featureApplicationLevelSyncOptions: semver.MustParse("1.5.0"),
+		featureTokenIDs:                    semver.MustParse("1.5.3"),
 	}
 )
 
