@@ -14,6 +14,7 @@ func expandApplication(d *schema.ResourceData) (
 	metadata meta.ObjectMeta,
 	spec application.ApplicationSpec,
 	err error) {
+
 	metadata = expandMetadata(d)
 	spec, err = expandApplicationSpec(d)
 	return
@@ -114,33 +115,35 @@ func expandApplicationSourceDirectory(in []interface{}) *application.Application
 	if v, ok := a["recurse"]; ok {
 		result.Recurse = v.(bool)
 	}
-	if _j, ok := a["jsonnet"]; ok {
-		jsonnet := application.ApplicationSourceJsonnet{}
-		j := _j.([]map[string][]map[string]interface{})
+	if aj, ok := a["jsonnet"].([]interface{}); ok {
+		if len(aj) > 0 {
+			jsonnet := application.ApplicationSourceJsonnet{}
+			j := aj[0].(map[string]interface{})
+			if evs, ok := j["ext_var"].([]map[string]interface{}); ok && len(evs) > 0 {
+				for _, v := range evs {
+					jsonnet.ExtVars = append(jsonnet.ExtVars,
+						application.JsonnetVar{
+							Name:  v["name"].(string),
+							Value: v["value"].(string),
+							Code:  v["code"].(bool),
+						},
+					)
+				}
+			}
 
-		if evs, ok := j[0]["ext_vars"]; ok && len(evs) > 0 {
-			for _, v := range evs {
-				jsonnet.ExtVars = append(jsonnet.ExtVars,
-					application.JsonnetVar{
-						Name:  v["name"].(string),
-						Value: v["value"].(string),
-						Code:  v["code"].(bool),
-					},
-				)
+			if tlas, ok := j["tla"].([]map[string]interface{}); ok && len(tlas) > 0 {
+				for _, v := range tlas {
+					jsonnet.TLAs = append(jsonnet.TLAs,
+						application.JsonnetVar{
+							Name:  v["name"].(string),
+							Value: v["value"].(string),
+							Code:  v["code"].(bool),
+						},
+					)
+				}
 			}
+			result.Jsonnet = jsonnet
 		}
-		if tlas, ok := j[0]["tlas"]; ok && len(tlas) > 0 {
-			for _, v := range tlas {
-				jsonnet.TLAs = append(jsonnet.TLAs,
-					application.JsonnetVar{
-						Name:  v["name"].(string),
-						Value: v["value"].(string),
-						Code:  v["code"].(bool),
-					},
-				)
-			}
-		}
-		result.Jsonnet = jsonnet
 	}
 	return result
 }
@@ -197,8 +200,9 @@ func expandApplicationSourceKustomize(in []interface{}) *application.Application
 		}
 	}
 	if cls, ok := a["common_labels"]; ok {
-		for k, v := range cls.(map[string]string) {
-			result.CommonLabels[k] = v
+		result.CommonLabels = make(map[string]string, 0)
+		for k, v := range cls.(map[string]interface{}) {
+			result.CommonLabels[k] = v.(string)
 		}
 	}
 	return result
@@ -216,8 +220,8 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 	if v, ok := a["release_name"]; ok {
 		result.ReleaseName = v.(string)
 	}
-	if parameters, ok := a["parameters"]; ok {
-		for _, _p := range parameters.([]interface{}) {
+	if parameters, ok := a["parameter"]; ok {
+		for _, _p := range parameters.(*schema.Set).List() {
 			p := _p.(map[string]interface{})
 			parameter := application.HelmParameter{}
 			if v, ok := p["name"]; ok {
@@ -455,14 +459,14 @@ func flattenApplicationSourceDirectory(as []*application.ApplicationSourceDirect
 		if a != nil {
 			jsonnet := make(map[string][]interface{}, 0)
 			for _, jev := range a.Jsonnet.ExtVars {
-				jsonnet["ext_vars"] = append(jsonnet["ext_vars"], map[string]interface{}{
+				jsonnet["ext_var"] = append(jsonnet["ext_var"], map[string]interface{}{
 					"code":  jev.Code,
 					"name":  jev.Name,
 					"value": jev.Value,
 				})
 			}
 			for _, jtla := range a.Jsonnet.TLAs {
-				jsonnet["tlas"] = append(jsonnet["tlas"], map[string]interface{}{
+				jsonnet["tla"] = append(jsonnet["tla"], map[string]interface{}{
 					"code":  jtla.Code,
 					"name":  jtla.Name,
 					"value": jtla.Value,
@@ -510,7 +514,7 @@ func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (
 				})
 			}
 			result = append(result, map[string]interface{}{
-				"parameters":   parameters,
+				"parameter":    parameters,
 				"release_name": a.ReleaseName,
 				"value_files":  a.ValueFiles,
 				"values":       a.Values,

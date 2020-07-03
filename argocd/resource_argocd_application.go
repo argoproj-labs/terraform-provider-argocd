@@ -73,7 +73,8 @@ func resourceArgoCDApplicationRead(d *schema.ResourceData, meta interface{}) err
 	c := server.ApplicationClient
 	appName := d.Id()
 	app, err := c.Get(context.Background(), &applicationClient.ApplicationQuery{
-		Name: &appName},
+		Name: &appName,
+	},
 	)
 	if err != nil {
 		switch strings.Contains(err.Error(), "NotFound") {

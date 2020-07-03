@@ -43,6 +43,7 @@ func applicationSpecSchema() *schema.Schema {
 							"path": {
 								Type:     schema.TypeString,
 								Optional: true,
+								// TODO: add validator to test path is not absolute
 							},
 							"target_revision": {
 								Type:     schema.TypeString,
@@ -70,8 +71,8 @@ func applicationSpecSchema() *schema.Schema {
 											Type:     schema.TypeString,
 											Optional: true,
 										},
-										"parameters": {
-											Type:     schema.TypeList,
+										"parameter": {
+											Type:     schema.TypeSet,
 											Optional: true,
 											Elem: &schema.Resource{
 												Schema: map[string]*schema.Schema{
@@ -186,7 +187,7 @@ func applicationSpecSchema() *schema.Schema {
 											MinItems: 1,
 											Elem: &schema.Resource{
 												Schema: map[string]*schema.Schema{
-													"ext_vars": {
+													"ext_var": {
 														Type:     schema.TypeList,
 														Optional: true,
 														Elem: &schema.Resource{
@@ -206,7 +207,7 @@ func applicationSpecSchema() *schema.Schema {
 															},
 														},
 													},
-													"tlas": {
+													"tla": {
 														Type:     schema.TypeSet,
 														Optional: true,
 														Elem: &schema.Resource{
