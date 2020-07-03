@@ -36,7 +36,7 @@ func expandApplicationSpec(d *schema.ResourceData) (
 	if v, ok := s["info"]; ok {
 		spec.Info = expandApplicationInfo(v.(*schema.Set))
 	}
-	if v, ok := s["ignore_differences"]; ok {
+	if v, ok := s["ignore_difference"]; ok {
 		spec.IgnoreDifferences = expandApplicationIgnoreDifferences(v.([]interface{}))
 	}
 	if v, ok := s["sync_policy"]; ok {
@@ -214,6 +214,11 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 	}
 	a := in[0].(map[string]interface{})
 	result := &application.ApplicationSourceHelm{}
+	if v, ok := a["value_files"]; ok {
+		for _, vf := range v.([]interface{}) {
+			result.ValueFiles = append(result.ValueFiles, vf.(string))
+		}
+	}
 	if v, ok := a["values"]; ok {
 		result.Values = v.(string)
 	}
@@ -224,14 +229,14 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 		for _, _p := range parameters.(*schema.Set).List() {
 			p := _p.(map[string]interface{})
 			parameter := application.HelmParameter{}
+			if v, ok := p["force_string"]; ok {
+				parameter.ForceString = v.(bool)
+			}
 			if v, ok := p["name"]; ok {
 				parameter.Name = v.(string)
 			}
 			if v, ok := p["value"]; ok {
 				parameter.Value = v.(string)
-			}
-			if v, ok := p["force_string"]; ok {
-				parameter.ForceString = v.(bool)
 			}
 			result.Parameters = append(result.Parameters, parameter)
 		}
@@ -247,17 +252,18 @@ func expandApplicationSyncPolicy(_sp []interface{}) *application.SyncPolicy {
 	var automated = &application.SyncPolicyAutomated{}
 	var syncOptions application.SyncOptions
 
-	if v, ok := sp.(map[string]interface{})["automated"]; ok {
-		a := v.(map[string]bool)
-		if prune, ok := a["prune"]; ok {
-			automated.Prune = prune
-		}
-		if selfHeal, ok := a["self_heal"]; ok {
-			automated.SelfHeal = selfHeal
+	if a, ok := sp.(map[string]interface{})["automated"]; ok {
+		for k, v := range a.(map[string]interface{}) {
+			if k == "prune" {
+				automated.Prune = v.(bool)
+			}
+			if k == "self_heal" {
+				automated.SelfHeal = v.(bool)
+			}
 		}
 	}
 	if v, ok := sp.(map[string]interface{})["sync_options"]; ok {
-		sOpts := v.(*schema.Set).List()
+		sOpts := v.([]interface{})
 		for _, sOpt := range sOpts {
 			syncOptions = append(syncOptions, sOpt.(string))
 		}
@@ -345,16 +351,31 @@ func flattenApplicationSpec(s application.ApplicationSpec) (
 		"destination": flattenApplicationDestinations(
 			[]application.ApplicationDestination{s.Destination},
 		),
-		"ignore_differences":     flattenApplicationIgnoreDifferences(s.IgnoreDifferences),
+		"ignore_difference":      flattenApplicationIgnoreDifferences(s.IgnoreDifferences),
 		"info":                   flattenApplicationInfo(s.Info),
 		"project":                s.Project,
 		"revision_history_limit": *s.RevisionHistoryLimit,
 		"source": flattenApplicationSource(
 			[]application.ApplicationSource{s.Source},
 		),
-		"sync_policy": s.SyncPolicy,
+		"sync_policy": flattenApplicationSyncPolicy(s.SyncPolicy),
 	}
 	return []map[string]interface{}{spec}, nil
+}
+
+func flattenApplicationSyncPolicy(sp *application.SyncPolicy) []map[string]interface{} {
+	if sp == nil {
+		return nil
+	}
+	result := make(map[string]interface{}, 0)
+	if sp.Automated != nil {
+		result["automated"] = map[string]bool{
+			"prune":     sp.Automated.Prune,
+			"self_heal": sp.Automated.SelfHeal,
+		}
+	}
+	result["sync_options"] = []string(sp.SyncOptions)
+	return []map[string]interface{}{result}
 }
 
 func flattenApplicationInfo(infos []application.Info) (

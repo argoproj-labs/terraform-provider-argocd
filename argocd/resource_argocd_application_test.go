@@ -9,6 +9,21 @@ import (
 
 func TestAccArgoCDApplication(t *testing.T) {
 	commonName := acctest.RandomWithPrefix("test-acc")
+	helmValues := `
+ingress:
+  enabled: true
+  path: /
+  hosts:
+    - mydomain.example.com
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+  labels: {}
+  tls:
+    - secretName: mydomain-tls
+      hosts:
+        - mydomain.example.com
+`
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -21,7 +36,7 @@ func TestAccArgoCDApplication(t *testing.T) {
 					"metadata.0.uid",
 				),
 			},
-			// Check with the same name for rapid project recreation robustness
+			// Check with the same name for rapid application recreation robustness
 			{
 				Config: testAccArgoCDApplicationSimple(commonName),
 				Check: resource.ComposeTestCheckFunc(
@@ -33,6 +48,27 @@ func TestAccArgoCDApplication(t *testing.T) {
 						"argocd_application.simple",
 						"spec.0.source.0.target_revision",
 						"1.3.3",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationHelm(
+					acctest.RandomWithPrefix("test-acc"),
+					helmValues),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.helm",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.helm",
+						"spec.0.source.0.helm.0.values",
+						helmValues+"\n",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.helm",
+						"spec.0.source.0.helm.0.value_files.0",
+						"values.yaml",
 					),
 				),
 			},
@@ -79,6 +115,51 @@ func TestAccArgoCDApplication(t *testing.T) {
 					//),
 				),
 			},
+			{
+				Config: testAccArgoCDApplicationSyncPolicy(
+					acctest.RandomWithPrefix("test-acc")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.sync_policy",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.sync_policy",
+						"spec.0.sync_policy.0.automated.prune",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.sync_policy",
+						"spec.0.sync_policy.0.automated.self_heal",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.sync_policy",
+						"spec.0.sync_policy.0.sync_options.0",
+						"Validate=false",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationIgnoreDifferences(
+					acctest.RandomWithPrefix("test-acc")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.ignore_differences",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.ignore_differences",
+						"spec.0.ignore_difference.0.kind",
+						"Deployment",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.ignore_differences",
+						"spec.0.ignore_difference.1.group",
+						"apps",
+					),
+				),
+			},
 		},
 	})
 }
@@ -118,6 +199,51 @@ resource "argocd_application" "simple" {
   }
 }
 	`, name)
+}
+
+func testAccArgoCDApplicationHelm(name, helmValues string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "helm" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://kubernetes-charts.banzaicloud.com"
+      chart           = "vault-operator"
+      target_revision = "1.3.3"
+      helm {
+        release_name = "testing"
+        
+        parameter {
+          name  = "image.tag"
+          value = "1.3.3"
+        }
+        parameter {
+          name  = "banks-vaults.version"
+          value = "1.3.3"
+        }
+
+        value_files = ["values.yaml"]
+
+        values = <<EOT
+%s
+EOT
+      }
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name, helmValues)
 }
 
 func testAccArgoCDApplicationKustomize(name string) string {
@@ -187,6 +313,11 @@ resource "argocd_application" "directory" {
             value = "anothervalue"
             code  = true
           }
+          tla {
+            name  = "yetanothername"
+            value = "yetanothervalue"
+            code  = true
+          }
         }
       }
     }
@@ -194,6 +325,84 @@ resource "argocd_application" "directory" {
     destination {
       server    = "https://kubernetes.default.svc"
       namespace = "default"
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationSyncPolicy(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "sync_policy" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://kubernetes-charts.banzaicloud.com"
+      chart           = "vault-operator"
+      target_revision = "1.3.3"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+    
+    sync_policy {
+      automated = {
+        prune     = true
+        self_heal = true
+      }
+      sync_options = ["Validate=false"]
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationIgnoreDifferences(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "ignore_differences" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://kubernetes-charts.banzaicloud.com"
+      chart           = "vault-operator"
+      target_revision = "1.3.3"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+    
+    ignore_difference {
+      group         = "apps"
+      kind          = "Deployment"
+      json_pointers = ["/spec/replicas"]
+    }
+
+    ignore_difference {
+      group         = "apps"
+      kind          = "StatefulSet"
+      name          = "someStatefulSet"
+      json_pointers = [
+        "/spec/replicas",
+        "/spec/template/spec/metadata/labels/somelabel",
+      ]
     }
   }
 }

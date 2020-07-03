@@ -288,23 +288,12 @@ func applicationSpecSchema() *schema.Schema {
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"automated": {
-								Type:     schema.TypeList,
+								Type:     schema.TypeMap,
 								Optional: true,
-								Elem: &schema.Resource{
-									Schema: map[string]*schema.Schema{
-										"prune": {
-											Type:     schema.TypeBool,
-											Optional: true,
-										},
-										"self_heal": {
-											Type:     schema.TypeBool,
-											Optional: true,
-										},
-									},
-								},
+								Elem:     &schema.Schema{Type: schema.TypeBool},
 							},
 							"sync_options": {
-								Type:     schema.TypeSet,
+								Type:     schema.TypeList,
 								Optional: true,
 								Elem: &schema.Schema{
 									Type: schema.TypeString,
@@ -314,7 +303,7 @@ func applicationSpecSchema() *schema.Schema {
 						},
 					},
 				},
-				"ignore_differences": {
+				"ignore_difference": {
 					Type:     schema.TypeList,
 					Optional: true,
 					Elem: &schema.Resource{
@@ -337,6 +326,7 @@ func applicationSpecSchema() *schema.Schema {
 							},
 							"json_pointers": {
 								Type:     schema.TypeSet,
+								Set:      schema.HashString,
 								Optional: true,
 								Elem: &schema.Schema{
 									Type: schema.TypeString,
