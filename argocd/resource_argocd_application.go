@@ -57,7 +57,9 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	if !featureApplicationLevelSyncOptionsSupported && spec.SyncPolicy.SyncOptions != nil {
+	if !featureApplicationLevelSyncOptionsSupported &&
+		spec.SyncPolicy != nil &&
+		spec.SyncPolicy.SyncOptions != nil {
 		return fmt.Errorf(
 			"application-level sync_options is only supported from ArgoCD %s onwards",
 			featureVersionConstraintsMap[featureApplicationLevelSyncOptions].String())
@@ -120,7 +122,9 @@ func resourceArgoCDApplicationUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		if !featureApplicationLevelSyncOptionsSupported && spec.SyncPolicy.SyncOptions != nil {
+		if !featureApplicationLevelSyncOptionsSupported &&
+			spec.SyncPolicy != nil &&
+			spec.SyncPolicy.SyncOptions != nil {
 			return fmt.Errorf(
 				"application-level sync_options is only supported from ArgoCD %s onwards",
 				featureVersionConstraintsMap[featureApplicationLevelSyncOptions].String())
