@@ -95,10 +95,8 @@ func expandProjectSpec(d *schema.ResourceData) (
 
 func flattenProject(p *application.AppProject, d *schema.ResourceData) error {
 	fMetadata := flattenMetadata(p.ObjectMeta, d)
-	fSpec, err := flattenProjectSpec(p.Spec)
-	if err != nil {
-		return err
-	}
+	fSpec := flattenProjectSpec(p.Spec)
+
 	if err := d.Set("spec", fSpec); err != nil {
 		e, _ := json.MarshalIndent(fSpec, "", "\t")
 		return fmt.Errorf("error persisting spec: %s\n%s", err, e)
@@ -110,9 +108,7 @@ func flattenProject(p *application.AppProject, d *schema.ResourceData) error {
 	return nil
 }
 
-func flattenProjectSpec(s application.AppProjectSpec) (
-	[]map[string]interface{},
-	error) {
+func flattenProjectSpec(s application.AppProjectSpec) []map[string]interface{} {
 	spec := map[string]interface{}{
 		"cluster_resource_whitelist":   flattenK8SGroupKinds(s.ClusterResourceWhitelist),
 		"namespace_resource_blacklist": flattenK8SGroupKinds(s.NamespaceResourceBlacklist),
@@ -123,7 +119,7 @@ func flattenProjectSpec(s application.AppProjectSpec) (
 		"description":                  s.Description,
 		"source_repos":                 s.SourceRepos,
 	}
-	return []map[string]interface{}{spec}, nil
+	return []map[string]interface{}{spec}
 }
 
 func flattenProjectOrphanedResources(ors *application.OrphanedResourcesMonitorSettings) (

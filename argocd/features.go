@@ -6,17 +6,20 @@ import (
 	"github.com/argoproj/argo-cd/pkg/apiclient"
 	"github.com/argoproj/argo-cd/pkg/apiclient/application"
 	"github.com/argoproj/argo-cd/pkg/apiclient/project"
+	"github.com/argoproj/argo-cd/pkg/apiclient/repository"
 	"github.com/argoproj/argo-cd/pkg/apiclient/version"
 )
 
 const (
 	featureApplicationLevelSyncOptions = iota
+	featureRepositoryGet
 	featureTokenIDs
 )
 
 var (
 	featureVersionConstraintsMap = map[int]*semver.Version{
 		featureApplicationLevelSyncOptions: semver.MustParse("1.5.0"),
+		featureRepositoryGet:               semver.MustParse("1.6.0"),
 		featureTokenIDs:                    semver.MustParse("1.5.3"),
 	}
 )
@@ -25,6 +28,7 @@ type ServerInterface struct {
 	ApiClient            apiclient.Client
 	ApplicationClient    application.ApplicationServiceClient
 	ProjectClient        project.ProjectServiceClient
+	RepositoryClient     repository.RepositoryServiceClient
 	ServerVersion        *semver.Version
 	ServerVersionMessage *version.VersionMessage
 }

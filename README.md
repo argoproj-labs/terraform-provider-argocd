@@ -54,7 +54,13 @@ provider "argocd" {
   auth_token  = "1234..."          # env ARGOCD_AUTH_TOKEN
   # username  = "admin"            # env ARGOCD_AUTH_USERNAME
   # password  = "foo"              # env ARGOCD_AUTH_PASSWORD
-  insecure = false # env ARGOCD_INSECURE
+  insecure    = false              # env ARGOCD_INSECURE
+}
+
+resource "argocd_repository" "nginx_helm" {
+  repo = "https://helm.nginx.com/stable"
+  name = "nginx-stable"
+  type = "helm"
 }
 
 resource "argocd_project" "myproject" {
@@ -157,15 +163,13 @@ resource "argocd_application" "kustomize" {
       path            = "examples/helloWorld"
       target_revision = "master"
       kustomize {
-  	    name_prefix  = "foo-"
-	  	name_suffix = "-bar"
-	  	images = [
-          "hashicorp/terraform:light",
-	    ]
-	  	common_labels = {
-		  "this.is.a.common" = "la-bel"
-		  "another.io/one"   = "true" 
-	    }
+        name_prefix = "foo-"
+        name_suffix = "-bar"
+        images      = ["hashicorp/terraform:light"]
+        common_labels = {
+          "this.is.a.common" = "la-bel"
+          "another.io/one"   = "true" 
+        }
       }
     }
 
