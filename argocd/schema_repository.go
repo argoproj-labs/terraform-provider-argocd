@@ -17,17 +17,17 @@ func repositorySchema() map[string]*schema.Schema {
 			Description: "Whether git-lfs support should be enabled for this repo",
 			Optional:    true,
 		},
-		"inherited_creds ": {
+		"inherited_creds": {
 			Type:        schema.TypeBool,
 			Description: "Whether credentials were inherited from a credential set",
 			Optional:    true,
 		},
-		"insecure ": {
+		"insecure": {
 			Type:        schema.TypeBool,
 			Description: "Whether the repo is insecure",
 			Optional:    true,
 		},
-		"name ": {
+		"name": {
 			Type:        schema.TypeString,
 			Description: "only for Helm repos",
 			Optional:    true,
@@ -75,6 +75,10 @@ func repositorySchema() map[string]*schema.Schema {
 				return
 			},
 			Optional: true,
+		},
+		"connection_state_status": {
+			Type:     schema.TypeString,
+			Computed: true,
 		},
 	}
 }

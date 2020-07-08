@@ -6,6 +6,7 @@ import (
 	"github.com/argoproj/argo-cd/pkg/apiclient"
 	"github.com/argoproj/argo-cd/pkg/apiclient/application"
 	"github.com/argoproj/argo-cd/pkg/apiclient/project"
+	"github.com/argoproj/argo-cd/pkg/apiclient/repository"
 	"github.com/argoproj/argo-cd/pkg/apiclient/version"
 )
 
@@ -25,6 +26,7 @@ type ServerInterface struct {
 	ApiClient            apiclient.Client
 	ApplicationClient    application.ApplicationServiceClient
 	ProjectClient        project.ProjectServiceClient
+	RepositoryClient     repository.RepositoryServiceClient
 	ServerVersion        *semver.Version
 	ServerVersionMessage *version.VersionMessage
 }

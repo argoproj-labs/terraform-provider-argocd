@@ -9,9 +9,8 @@ import (
 
 // Expand
 
-func expandRepository(d *schema.ResourceData) (
-	repository application.Repository) {
-
+func expandRepository(d *schema.ResourceData) *application.Repository {
+	repository := &application.Repository{}
 	if v, ok := d.GetOk("repo"); ok {
 		repository.Repo = v.(string)
 	}
@@ -45,24 +44,25 @@ func expandRepository(d *schema.ResourceData) (
 	if v, ok := d.GetOk("type"); ok {
 		repository.Type = v.(string)
 	}
-	return
+	return repository
 }
 
 // Flatten
 
 func flattenRepository(repository *application.Repository, d *schema.ResourceData) error {
 	r := map[string]interface{}{
-		"repo":                 repository.Repo,
-		"enable_lfs":           repository.EnableLFS,
-		"inherited_creds":      repository.InheritedCreds,
-		"insecure":             repository.Insecure,
-		"name":                 repository.Name,
-		"username":             repository.Username,
-		"password":             repository.Password,
-		"ssh_private_key":      repository.SSHPrivateKey,
-		"tls_client_cert_data": repository.TLSClientCertData,
-		"tls_client_cert_key":  repository.TLSClientCertKey,
-		"type":                 repository.Type,
+		"repo":                    repository.Repo,
+		"connection_state_status": repository.ConnectionState.Status,
+		"enable_lfs":              repository.EnableLFS,
+		"inherited_creds":         repository.InheritedCreds,
+		"insecure":                repository.Insecure,
+		"name":                    repository.Name,
+		"username":                repository.Username,
+		"password":                repository.Password,
+		"ssh_private_key":         repository.SSHPrivateKey,
+		"tls_client_cert_data":    repository.TLSClientCertData,
+		"tls_client_cert_key":     repository.TLSClientCertKey,
+		"type":                    repository.Type,
 	}
 
 	for k, v := range r {
