@@ -13,8 +13,8 @@ spec:
     listKind: ApplicationList
     plural: applications
     shortNames:
-    - app
-    - apps
+      - app
+      - apps
     singular: application
   scope: Namespaced
   validation:
@@ -36,6 +36,18 @@ spec:
         operation:
           description: Operation contains requested operation parameters.
           properties:
+            info:
+              items:
+                properties:
+                  name:
+                    type: string
+                  value:
+                    type: string
+                required:
+                  - name
+                  - value
+                type: object
+              type: array
             initiatedBy:
               description: OperationInitiator holds information about the operation
                 initiator
@@ -77,8 +89,8 @@ spec:
                       name:
                         type: string
                     required:
-                    - kind
-                    - name
+                      - kind
+                      - name
                     type: object
                   type: array
                 revision:
@@ -112,8 +124,8 @@ spec:
                                   value:
                                     type: string
                                 required:
-                                - name
-                                - value
+                                  - name
+                                  - value
                                 type: object
                               type: array
                             tlas:
@@ -128,8 +140,8 @@ spec:
                                   value:
                                     type: string
                                 required:
-                                - name
-                                - value
+                                  - name
+                                  - value
                                 type: object
                               type: array
                           type: object
@@ -206,8 +218,8 @@ spec:
                               value:
                                 type: string
                             required:
-                            - name
-                            - value
+                              - name
+                              - value
                             type: object
                           type: array
                       type: object
@@ -253,8 +265,8 @@ spec:
                                 description: the value
                                 type: string
                             required:
-                            - name
-                            - value
+                              - name
+                              - value
                             type: object
                           type: array
                         name:
@@ -270,7 +282,7 @@ spec:
                         to HEAD
                       type: string
                   required:
-                  - repoURL
+                    - repoURL
                   type: object
                 syncOptions:
                   description: SyncOptions provide per-sync sync-options, e.g. Validate=false
@@ -344,8 +356,8 @@ spec:
                   namespace:
                     type: string
                 required:
-                - jsonPointers
-                - kind
+                  - jsonPointers
+                  - kind
                 type: object
               type: array
             info:
@@ -358,8 +370,8 @@ spec:
                   value:
                     type: string
                 required:
-                - name
-                - value
+                  - name
+                  - value
                 type: object
               type: array
             project:
@@ -400,8 +412,8 @@ spec:
                               value:
                                 type: string
                             required:
-                            - name
-                            - value
+                              - name
+                              - value
                             type: object
                           type: array
                         tlas:
@@ -416,8 +428,8 @@ spec:
                               value:
                                 type: string
                             required:
-                            - name
-                            - value
+                              - name
+                              - value
                             type: object
                           type: array
                       type: object
@@ -493,8 +505,8 @@ spec:
                           value:
                             type: string
                         required:
-                        - name
-                        - value
+                          - name
+                          - value
                         type: object
                       type: array
                   type: object
@@ -540,8 +552,8 @@ spec:
                             description: the value
                             type: string
                         required:
-                        - name
-                        - value
+                          - name
+                          - value
                         type: object
                       type: array
                     name:
@@ -555,7 +567,7 @@ spec:
                     which to sync the application to. If omitted, will sync to HEAD
                   type: string
               required:
-              - repoURL
+                - repoURL
               type: object
             syncPolicy:
               description: SyncPolicy controls when a sync will be performed
@@ -573,15 +585,15 @@ spec:
                       type: boolean
                   type: object
                 syncOptions:
-                  description: Options allow youe to specify whole app sync-options
+                  description: Options allow you to specify whole app sync-options
                   items:
                     type: string
                   type: array
               type: object
           required:
-          - destination
-          - project
-          - source
+            - destination
+            - project
+            - source
           type: object
         status:
           description: ApplicationStatus contains information about application sync,
@@ -605,8 +617,8 @@ spec:
                     description: Type is an application condition type
                     type: string
                 required:
-                - message
-                - type
+                  - message
+                  - type
                 type: object
               type: array
             health:
@@ -614,6 +626,7 @@ spec:
                 message:
                   type: string
                 status:
+                  description: Represents resource health status
                   type: string
               type: object
             history:
@@ -658,8 +671,8 @@ spec:
                                     value:
                                       type: string
                                   required:
-                                  - name
-                                  - value
+                                    - name
+                                    - value
                                   type: object
                                 type: array
                               tlas:
@@ -674,8 +687,8 @@ spec:
                                     value:
                                       type: string
                                   required:
-                                  - name
-                                  - value
+                                    - name
+                                    - value
                                   type: object
                                 type: array
                             type: object
@@ -755,8 +768,8 @@ spec:
                                 value:
                                   type: string
                               required:
-                              - name
-                              - value
+                                - name
+                                - value
                               type: object
                             type: array
                         type: object
@@ -802,8 +815,8 @@ spec:
                                   description: the value
                                   type: string
                               required:
-                              - name
-                              - value
+                                - name
+                                - value
                               type: object
                             type: array
                           name:
@@ -819,12 +832,12 @@ spec:
                           to HEAD
                         type: string
                     required:
-                    - repoURL
+                      - repoURL
                     type: object
                 required:
-                - deployedAt
-                - id
-                - revision
+                  - deployedAt
+                  - id
+                  - revision
                 type: object
               type: array
             observedAt:
@@ -847,6 +860,18 @@ spec:
                 operation:
                   description: Operation is the original requested operation
                   properties:
+                    info:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                          - name
+                          - value
+                        type: object
+                      type: array
                     initiatedBy:
                       description: OperationInitiator holds information about the
                         operation initiator
@@ -889,8 +914,8 @@ spec:
                               name:
                                 type: string
                             required:
-                            - kind
-                            - name
+                              - kind
+                              - name
                             type: object
                           type: array
                         revision:
@@ -927,8 +952,8 @@ spec:
                                           value:
                                             type: string
                                         required:
-                                        - name
-                                        - value
+                                          - name
+                                          - value
                                         type: object
                                       type: array
                                     tlas:
@@ -944,8 +969,8 @@ spec:
                                           value:
                                             type: string
                                         required:
-                                        - name
-                                        - value
+                                          - name
+                                          - value
                                         type: object
                                       type: array
                                   type: object
@@ -1030,8 +1055,8 @@ spec:
                                       value:
                                         type: string
                                     required:
-                                    - name
-                                    - value
+                                      - name
+                                      - value
                                     type: object
                                   type: array
                               type: object
@@ -1080,8 +1105,8 @@ spec:
                                         description: the value
                                         type: string
                                     required:
-                                    - name
-                                    - value
+                                      - name
+                                      - value
                                     type: object
                                   type: array
                                 name:
@@ -1097,7 +1122,7 @@ spec:
                                 omitted, will sync to HEAD
                               type: string
                           required:
-                          - repoURL
+                            - repoURL
                           type: object
                         syncOptions:
                           description: SyncOptions provide per-sync sync-options,
@@ -1184,11 +1209,11 @@ spec:
                           version:
                             type: string
                         required:
-                        - group
-                        - kind
-                        - name
-                        - namespace
-                        - version
+                          - group
+                          - kind
+                          - name
+                          - namespace
+                          - version
                         type: object
                       type: array
                     revision:
@@ -1221,8 +1246,8 @@ spec:
                                       value:
                                         type: string
                                     required:
-                                    - name
-                                    - value
+                                      - name
+                                      - value
                                     type: object
                                   type: array
                                 tlas:
@@ -1238,8 +1263,8 @@ spec:
                                       value:
                                         type: string
                                     required:
-                                    - name
-                                    - value
+                                      - name
+                                      - value
                                     type: object
                                   type: array
                               type: object
@@ -1320,8 +1345,8 @@ spec:
                                   value:
                                     type: string
                                 required:
-                                - name
-                                - value
+                                  - name
+                                  - value
                                 type: object
                               type: array
                           type: object
@@ -1368,8 +1393,8 @@ spec:
                                     description: the value
                                     type: string
                                 required:
-                                - name
-                                - value
+                                  - name
+                                  - value
                                 type: object
                               type: array
                             name:
@@ -1385,15 +1410,15 @@ spec:
                             will sync to HEAD
                           type: string
                       required:
-                      - repoURL
+                        - repoURL
                       type: object
                   required:
-                  - revision
+                    - revision
                   type: object
               required:
-              - operation
-              - phase
-              - startedAt
+                - operation
+                - phase
+                - startedAt
               type: object
             reconciledAt:
               description: ReconciledAt indicates when the application state was reconciled
@@ -1412,6 +1437,7 @@ spec:
                       message:
                         type: string
                       status:
+                        description: Represents resource health status
                         type: string
                     type: object
                   hook:
@@ -1497,8 +1523,8 @@ spec:
                                       value:
                                         type: string
                                     required:
-                                    - name
-                                    - value
+                                      - name
+                                      - value
                                     type: object
                                   type: array
                                 tlas:
@@ -1514,8 +1540,8 @@ spec:
                                       value:
                                         type: string
                                     required:
-                                    - name
-                                    - value
+                                      - name
+                                      - value
                                     type: object
                                   type: array
                               type: object
@@ -1596,8 +1622,8 @@ spec:
                                   value:
                                     type: string
                                 required:
-                                - name
-                                - value
+                                  - name
+                                  - value
                                 type: object
                               type: array
                           type: object
@@ -1644,8 +1670,8 @@ spec:
                                     description: the value
                                     type: string
                                 required:
-                                - name
-                                - value
+                                  - name
+                                  - value
                                 type: object
                               type: array
                             name:
@@ -1661,11 +1687,11 @@ spec:
                             will sync to HEAD
                           type: string
                       required:
-                      - repoURL
+                        - repoURL
                       type: object
                   required:
-                  - destination
-                  - source
+                    - destination
+                    - source
                   type: object
                 revision:
                   type: string
@@ -1674,18 +1700,18 @@ spec:
                     comparison results
                   type: string
               required:
-              - status
+                - status
               type: object
           type: object
       required:
-      - metadata
-      - spec
+        - metadata
+        - spec
       type: object
   version: v1alpha1
   versions:
-  - name: v1alpha1
-    served: true
-    storage: true
+    - name: v1alpha1
+      served: true
+      storage: true
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -1701,8 +1727,8 @@ spec:
     listKind: AppProjectList
     plural: appprojects
     shortNames:
-    - appproj
-    - appprojs
+      - appproj
+      - appprojs
     singular: appproject
   scope: Namespaced
   validation:
@@ -1741,8 +1767,8 @@ spec:
                   kind:
                     type: string
                 required:
-                - group
-                - kind
+                  - group
+                  - kind
                 type: object
               type: array
             description:
@@ -1778,8 +1804,8 @@ spec:
                   kind:
                     type: string
                 required:
-                - group
-                - kind
+                  - group
+                  - kind
                 type: object
               type: array
             namespaceResourceWhitelist:
@@ -1795,8 +1821,8 @@ spec:
                   kind:
                     type: string
                 required:
-                - group
-                - kind
+                  - group
+                  - kind
                 type: object
               type: array
             orphanedResources:
@@ -1839,7 +1865,7 @@ spec:
                         id:
                           type: string
                       required:
-                      - iat
+                        - iat
                       type: object
                     type: array
                   name:
@@ -1852,7 +1878,7 @@ spec:
                       type: string
                     type: array
                 required:
-                - name
+                  - name
                 type: object
               type: array
             sourceRepos:
@@ -1905,14 +1931,14 @@ spec:
               type: array
           type: object
       required:
-      - metadata
-      - spec
+        - metadata
+        - spec
       type: object
   version: v1alpha1
   versions:
-  - name: v1alpha1
-    served: true
-    storage: true
+    - name: v1alpha1
+      served: true
+      storage: true
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -1950,35 +1976,35 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-application-controller
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  - configmaps
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - argoproj.io
-  resources:
-  - applications
-  - appprojects
-  verbs:
-  - create
-  - get
-  - list
-  - watch
-  - update
-  - patch
-  - delete
-- apiGroups:
-  - ""
-  resources:
-  - events
-  verbs:
-  - create
-  - list
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+      - appprojects
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - list
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -1989,15 +2015,15 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-dex-server
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  - configmaps
-  verbs:
-  - get
-  - list
-  - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -2008,39 +2034,39 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-server
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  - configmaps
-  verbs:
-  - create
-  - get
-  - list
-  - watch
-  - update
-  - patch
-  - delete
-- apiGroups:
-  - argoproj.io
-  resources:
-  - applications
-  - appprojects
-  verbs:
-  - create
-  - get
-  - list
-  - watch
-  - update
-  - delete
-  - patch
-- apiGroups:
-  - ""
-  resources:
-  - events
-  verbs:
-  - create
-  - list
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - configmaps
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+      - appprojects
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+      - delete
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - list
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -2051,16 +2077,16 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-application-controller
 rules:
-- apiGroups:
-  - '*'
-  resources:
-  - '*'
-  verbs:
-  - '*'
-- nonResourceURLs:
-  - '*'
-  verbs:
-  - '*'
+  - apiGroups:
+      - '*'
+    resources:
+      - '*'
+    verbs:
+      - '*'
+  - nonResourceURLs:
+      - '*'
+    verbs:
+      - '*'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -2071,27 +2097,27 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-server
 rules:
-- apiGroups:
-  - '*'
-  resources:
-  - '*'
-  verbs:
-  - delete
-  - get
-  - patch
-- apiGroups:
-  - ""
-  resources:
-  - events
-  verbs:
-  - list
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  - pods/log
-  verbs:
-  - get
+  - apiGroups:
+      - '*'
+    resources:
+      - '*'
+    verbs:
+      - delete
+      - get
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/log
+    verbs:
+      - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -2106,8 +2132,8 @@ roleRef:
   kind: Role
   name: argocd-application-controller
 subjects:
-- kind: ServiceAccount
-  name: argocd-application-controller
+  - kind: ServiceAccount
+    name: argocd-application-controller
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -2122,8 +2148,8 @@ roleRef:
   kind: Role
   name: argocd-dex-server
 subjects:
-- kind: ServiceAccount
-  name: argocd-dex-server
+  - kind: ServiceAccount
+    name: argocd-dex-server
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -2138,8 +2164,8 @@ roleRef:
   kind: Role
   name: argocd-server
 subjects:
-- kind: ServiceAccount
-  name: argocd-server
+  - kind: ServiceAccount
+    name: argocd-server
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -2154,9 +2180,9 @@ roleRef:
   kind: ClusterRole
   name: argocd-application-controller
 subjects:
-- kind: ServiceAccount
-  name: argocd-application-controller
-  namespace: argocd
+  - kind: ServiceAccount
+    name: argocd-application-controller
+    namespace: argocd
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -2171,9 +2197,9 @@ roleRef:
   kind: ClusterRole
   name: argocd-server
 subjects:
-- kind: ServiceAccount
-  name: argocd-server
-  namespace: argocd
+  - kind: ServiceAccount
+    name: argocd-server
+    namespace: argocd
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -2236,18 +2262,18 @@ metadata:
   name: argocd-dex-server
 spec:
   ports:
-  - name: http
-    port: 5556
-    protocol: TCP
-    targetPort: 5556
-  - name: grpc
-    port: 5557
-    protocol: TCP
-    targetPort: 5557
-  - name: metrics
-    port: 5558
-    protocol: TCP
-    targetPort: 5558
+    - name: http
+      port: 5556
+      protocol: TCP
+      targetPort: 5556
+    - name: grpc
+      port: 5557
+      protocol: TCP
+      targetPort: 5557
+    - name: metrics
+      port: 5558
+      protocol: TCP
+      targetPort: 5558
   selector:
     app.kubernetes.io/name: argocd-dex-server
 ---
@@ -2261,10 +2287,10 @@ metadata:
   name: argocd-metrics
 spec:
   ports:
-  - name: metrics
-    port: 8082
-    protocol: TCP
-    targetPort: 8082
+    - name: metrics
+      port: 8082
+      protocol: TCP
+      targetPort: 8082
   selector:
     app.kubernetes.io/name: argocd-application-controller
 ---
@@ -2278,9 +2304,9 @@ metadata:
   name: argocd-redis
 spec:
   ports:
-  - name: tcp-redis
-    port: 6379
-    targetPort: 6379
+    - name: tcp-redis
+      port: 6379
+      targetPort: 6379
   selector:
     app.kubernetes.io/name: argocd-redis
 ---
@@ -2294,14 +2320,14 @@ metadata:
   name: argocd-repo-server
 spec:
   ports:
-  - name: server
-    port: 8081
-    protocol: TCP
-    targetPort: 8081
-  - name: metrics
-    port: 8084
-    protocol: TCP
-    targetPort: 8084
+    - name: server
+      port: 8081
+      protocol: TCP
+      targetPort: 8081
+    - name: metrics
+      port: 8084
+      protocol: TCP
+      targetPort: 8084
   selector:
     app.kubernetes.io/name: argocd-repo-server
 ---
@@ -2315,10 +2341,10 @@ metadata:
   name: argocd-server-metrics
 spec:
   ports:
-  - name: metrics
-    port: 8083
-    protocol: TCP
-    targetPort: 8083
+    - name: metrics
+      port: 8083
+      protocol: TCP
+      targetPort: 8083
   selector:
     app.kubernetes.io/name: argocd-server
 ---
@@ -2332,14 +2358,14 @@ metadata:
   name: argocd-server
 spec:
   ports:
-  - name: http
-    port: 80
-    protocol: TCP
-    targetPort: 8080
-  - name: https
-    port: 443
-    protocol: TCP
-    targetPort: 8080
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 8080
   selector:
     app.kubernetes.io/name: argocd-server
 ---
@@ -2363,29 +2389,29 @@ spec:
         app.kubernetes.io/name: argocd-application-controller
     spec:
       containers:
-      - command:
-        - argocd-application-controller
-        - --status-processors
-        - "20"
-        - --operation-processors
-        - "10"
-        image: argoproj/argocd:latest
-        imagePullPolicy: Always
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 8082
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        name: argocd-application-controller
-        ports:
-        - containerPort: 8082
-        readinessProbe:
-          httpGet:
-            path: /healthz
-            port: 8082
-          initialDelaySeconds: 5
-          periodSeconds: 10
+        - command:
+            - argocd-application-controller
+            - --status-processors
+            - "20"
+            - --operation-processors
+            - "10"
+          image: argoproj/argocd:v1.6.1
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8082
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          name: argocd-application-controller
+          ports:
+            - containerPort: 8082
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8082
+            initialDelaySeconds: 5
+            periodSeconds: 10
       serviceAccountName: argocd-application-controller
 ---
 apiVersion: apps/v1
@@ -2406,35 +2432,35 @@ spec:
         app.kubernetes.io/name: argocd-dex-server
     spec:
       containers:
-      - command:
-        - /shared/argocd-util
-        - rundex
-        image: quay.io/dexidp/dex:v2.22.0
-        imagePullPolicy: Always
-        name: dex
-        ports:
-        - containerPort: 5556
-        - containerPort: 5557
-        - containerPort: 5558
-        volumeMounts:
-        - mountPath: /shared
-          name: static-files
+        - command:
+            - /shared/argocd-util
+            - rundex
+          image: quay.io/dexidp/dex:v2.22.0
+          imagePullPolicy: Always
+          name: dex
+          ports:
+            - containerPort: 5556
+            - containerPort: 5557
+            - containerPort: 5558
+          volumeMounts:
+            - mountPath: /shared
+              name: static-files
       initContainers:
-      - command:
-        - cp
-        - -n
-        - /usr/local/bin/argocd-util
-        - /shared
-        image: argoproj/argocd:latest
-        imagePullPolicy: Always
-        name: copyutil
-        volumeMounts:
-        - mountPath: /shared
-          name: static-files
+        - command:
+            - cp
+            - -n
+            - /usr/local/bin/argocd-util
+            - /shared
+          image: argoproj/argocd:v1.6.1
+          imagePullPolicy: Always
+          name: copyutil
+          volumeMounts:
+            - mountPath: /shared
+              name: static-files
       serviceAccountName: argocd-dex-server
       volumes:
-      - emptyDir: {}
-        name: static-files
+        - emptyDir: {}
+          name: static-files
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -2454,16 +2480,16 @@ spec:
         app.kubernetes.io/name: argocd-redis
     spec:
       containers:
-      - args:
-        - --save
-        - ""
-        - --appendonly
-        - "no"
-        image: redis:5.0.3
-        imagePullPolicy: Always
-        name: redis
-        ports:
-        - containerPort: 6379
+        - args:
+            - --save
+            - ""
+            - --appendonly
+            - "no"
+          image: redis:5.0.3
+          imagePullPolicy: Always
+          name: redis
+          ports:
+            - containerPort: 6379
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -2484,39 +2510,39 @@ spec:
     spec:
       automountServiceAccountToken: false
       containers:
-      - command:
-        - uid_entrypoint.sh
-        - argocd-repo-server
-        - --redis
-        - argocd-redis:6379
-        image: argoproj/argocd:latest
-        imagePullPolicy: Always
-        livenessProbe:
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          tcpSocket:
-            port: 8081
-        name: argocd-repo-server
-        ports:
-        - containerPort: 8081
-        - containerPort: 8084
-        readinessProbe:
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          tcpSocket:
-            port: 8081
-        volumeMounts:
-        - mountPath: /app/config/ssh
-          name: ssh-known-hosts
-        - mountPath: /app/config/tls
-          name: tls-certs
+        - command:
+            - uid_entrypoint.sh
+            - argocd-repo-server
+            - --redis
+            - argocd-redis:6379
+          image: argoproj/argocd:v1.6.1
+          imagePullPolicy: Always
+          livenessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            tcpSocket:
+              port: 8081
+          name: argocd-repo-server
+          ports:
+            - containerPort: 8081
+            - containerPort: 8084
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            tcpSocket:
+              port: 8081
+          volumeMounts:
+            - mountPath: /app/config/ssh
+              name: ssh-known-hosts
+            - mountPath: /app/config/tls
+              name: tls-certs
       volumes:
-      - configMap:
-          name: argocd-ssh-known-hosts-cm
-        name: ssh-known-hosts
-      - configMap:
-          name: argocd-tls-certs-cm
-        name: tls-certs
+        - configMap:
+            name: argocd-ssh-known-hosts-cm
+          name: ssh-known-hosts
+        - configMap:
+            name: argocd-tls-certs-cm
+          name: tls-certs
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -2536,40 +2562,40 @@ spec:
         app.kubernetes.io/name: argocd-server
     spec:
       containers:
-      - command:
-        - argocd-server
-        - --staticassets
-        - /shared/app
-        image: argoproj/argocd:latest
-        imagePullPolicy: Always
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 8080
-          initialDelaySeconds: 3
-          periodSeconds: 30
-        name: argocd-server
-        ports:
-        - containerPort: 8080
-        - containerPort: 8083
-        readinessProbe:
-          httpGet:
-            path: /healthz
-            port: 8080
-          initialDelaySeconds: 3
-          periodSeconds: 30
-        volumeMounts:
-        - mountPath: /app/config/ssh
-          name: ssh-known-hosts
-        - mountPath: /app/config/tls
-          name: tls-certs
+        - command:
+            - argocd-server
+            - --staticassets
+            - /shared/app
+          image: argoproj/argocd:v1.6.1
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 30
+          name: argocd-server
+          ports:
+            - containerPort: 8080
+            - containerPort: 8083
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 30
+          volumeMounts:
+            - mountPath: /app/config/ssh
+              name: ssh-known-hosts
+            - mountPath: /app/config/tls
+              name: tls-certs
       serviceAccountName: argocd-server
       volumes:
-      - emptyDir: {}
-        name: static-files
-      - configMap:
-          name: argocd-ssh-known-hosts-cm
-        name: ssh-known-hosts
-      - configMap:
-          name: argocd-tls-certs-cm
-        name: tls-certs
+        - emptyDir: {}
+          name: static-files
+        - configMap:
+            name: argocd-ssh-known-hosts-cm
+          name: ssh-known-hosts
+        - configMap:
+            name: argocd-tls-certs-cm
+          name: tls-certs
