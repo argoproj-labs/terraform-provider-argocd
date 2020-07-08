@@ -33,7 +33,7 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 	server := meta.(ServerInterface)
-	c := server.ApplicationClient
+	c := *server.ApplicationClient
 	app, err := c.Get(context.Background(), &applicationClient.ApplicationQuery{
 		Name: &objectMeta.Name,
 	})
@@ -83,7 +83,7 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceArgoCDApplicationRead(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
-	c := server.ApplicationClient
+	c := *server.ApplicationClient
 	appName := d.Id()
 	app, err := c.Get(context.Background(), &applicationClient.ApplicationQuery{
 		Name: &appName,
@@ -111,7 +111,7 @@ func resourceArgoCDApplicationUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 		server := meta.(ServerInterface)
-		c := server.ApplicationClient
+		c := *server.ApplicationClient
 		appRequest := &applicationClient.ApplicationUpdateRequest{
 			Application: &application.Application{
 				ObjectMeta: objectMeta,
@@ -147,7 +147,7 @@ func resourceArgoCDApplicationUpdate(d *schema.ResourceData, meta interface{}) e
 
 func resourceArgoCDApplicationDelete(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
-	c := server.ApplicationClient
+	c := *server.ApplicationClient
 	appName := d.Id()
 	_, err := c.Delete(context.Background(), &applicationClient.ApplicationDeleteRequest{Name: &appName})
 	if err != nil {

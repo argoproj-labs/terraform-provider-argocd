@@ -168,10 +168,10 @@ func initServerInterface(
 	}
 
 	return ServerInterface{
-		apiClient,
-		applicationClient,
-		projectClient,
-		repositoryClient,
+		&apiClient,
+		&applicationClient,
+		&projectClient,
+		&repositoryClient,
 		serverVersion,
 		serverVersionMessage}, err
 }

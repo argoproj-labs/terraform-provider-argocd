@@ -33,7 +33,7 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	server := meta.(ServerInterface)
-	c := server.ProjectClient
+	c := *server.ProjectClient
 	p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
 		Name: objectMeta.Name,
 	})
@@ -73,7 +73,7 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
-	c := server.ProjectClient
+	c := *server.ProjectClient
 	p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
 		Name: d.Id(),
 	})
@@ -97,7 +97,7 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 			return err
 		}
 		server := meta.(ServerInterface)
-		c := server.ProjectClient
+		c := *server.ProjectClient
 		projectRequest := &projectClient.ProjectUpdateRequest{
 			Project: &application.AppProject{
 				ObjectMeta: objectMeta,
@@ -133,7 +133,7 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
-	c := server.ProjectClient
+	c := *server.ProjectClient
 	_, err := c.Delete(context.Background(), &projectClient.ProjectQuery{Name: d.Id()})
 	if err != nil {
 		return err

@@ -25,7 +25,7 @@ func resourceArgoCDRepository() *schema.Resource {
 
 func resourceArgoCDRepositoryCreate(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
-	c := server.RepositoryClient
+	c := *server.RepositoryClient
 	repo := expandRepository(d)
 	r, err := c.CreateRepository(
 		context.Background(),
@@ -51,7 +51,7 @@ func resourceArgoCDRepositoryCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceArgoCDRepositoryRead(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
-	c := server.RepositoryClient
+	c := *server.RepositoryClient
 	r := &application.Repository{}
 
 	featureRepositoryGetSupported, err := server.isFeatureSupported(featureRepositoryGet)
@@ -107,7 +107,7 @@ func resourceArgoCDRepositoryRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceArgoCDRepositoryUpdate(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
-	c := server.RepositoryClient
+	c := *server.RepositoryClient
 	repo := expandRepository(d)
 	r, err := c.UpdateRepository(
 		context.Background(),
@@ -136,7 +136,7 @@ func resourceArgoCDRepositoryUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceArgoCDRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
-	c := server.RepositoryClient
+	c := *server.RepositoryClient
 	_, err := c.DeleteRepository(
 		context.Background(),
 		&repository.RepoQuery{Repo: d.Id()},
