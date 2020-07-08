@@ -14,7 +14,7 @@ kubectl get nodes -o wide
 kubectl get pods --all-namespaces -o wide
 kubectl get services --all-namespaces -o wide
 
-echo '--- Install ArgoCD ${ARGOCD_VERSION:-v1.5.4}\n\n'
+echo '--- Install ArgoCD ${ARGOCD_VERSION:-v1.6.1}\n\n'
 kustomize build manifests/install | kubectl apply -f - &&
 kubectl apply -f manifests/testdata/ &&
 

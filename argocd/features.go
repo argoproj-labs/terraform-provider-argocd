@@ -25,10 +25,10 @@ var (
 )
 
 type ServerInterface struct {
-	ApiClient            apiclient.Client
-	ApplicationClient    application.ApplicationServiceClient
-	ProjectClient        project.ProjectServiceClient
-	RepositoryClient     repository.RepositoryServiceClient
+	ApiClient            *apiclient.Client
+	ApplicationClient    *application.ApplicationServiceClient
+	ProjectClient        *project.ProjectServiceClient
+	RepositoryClient     *repository.RepositoryServiceClient
 	ServerVersion        *semver.Version
 	ServerVersionMessage *version.VersionMessage
 }

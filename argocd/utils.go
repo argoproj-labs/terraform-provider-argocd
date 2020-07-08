@@ -3,7 +3,7 @@ package argocd
 import (
 	"fmt"
 	"github.com/argoproj/argo-cd/pkg/apiclient"
-	"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	util "github.com/argoproj/gitops-engine/pkg/utils/io"
 	"regexp"
 	"strconv"
@@ -108,7 +108,7 @@ func validatePolicy(project string, role string, policy string) error {
 	return nil
 }
 
-func isValidToken(token *v1alpha1.JWTToken, expiresIn int64) error {
+func isValidToken(token *application.JWTToken, expiresIn int64) error {
 	// Check token expiry
 	if expiresIn > 0 && token.ExpiresAt < time.Now().Unix() {
 		return fmt.Errorf("token has expired")
