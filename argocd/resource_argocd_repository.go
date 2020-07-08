@@ -52,19 +52,55 @@ func resourceArgoCDRepositoryCreate(d *schema.ResourceData, meta interface{}) er
 func resourceArgoCDRepositoryRead(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
 	c := server.RepositoryClient
-	r, err := c.Get(context.Background(), &repository.RepoQuery{
-		Repo:         d.Id(),
-		ForceRefresh: false,
-	})
+	r := &application.Repository{}
+
+	featureRepositoryGetSupported, err := server.isFeatureSupported(featureRepositoryGet)
 	if err != nil {
-		switch strings.Contains(err.Error(), "NotFound") {
-		// Repository has already been deleted in an out-of-band fashion
-		case true:
-			d.SetId("")
-			return nil
-		default:
+		panic(err)
+	}
+
+	switch featureRepositoryGetSupported {
+	case true:
+		r, err = c.Get(context.Background(), &repository.RepoQuery{
+			Repo:         d.Id(),
+			ForceRefresh: false,
+		})
+		if err != nil {
+			switch strings.Contains(err.Error(), "NotFound") {
+			// Repository has already been deleted in an out-of-band fashion
+			case true:
+				d.SetId("")
+				return nil
+			default:
+				return err
+			}
+		}
+	case false:
+		rl, err := c.ListRepositories(context.Background(), &repository.RepoQuery{
+			Repo:         d.Id(),
+			ForceRefresh: false,
+		})
+		if err != nil {
+			// TODO: check for NotFound condition?
 			return err
 		}
+		if rl == nil {
+			// Repository has already been deleted in an out-of-band fashion
+			d.SetId("")
+			return nil
+		}
+		for i, _r := range rl.Items {
+			if _r.Repo == d.Id() {
+				r = _r
+				break
+			}
+			// Repository has already been deleted in an out-of-band fashion
+			if i == len(rl.Items)-1 {
+				d.SetId("")
+				return nil
+			}
+		}
+
 	}
 	return flattenRepository(r, d)
 }
