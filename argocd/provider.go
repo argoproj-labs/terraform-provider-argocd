@@ -101,10 +101,11 @@ func Provider(doneCh chan bool) terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"argocd_application":   resourceArgoCDApplication(),
-			"argocd_project":       resourceArgoCDProject(),
-			"argocd_project_token": resourceArgoCDProjectToken(),
-			"argocd_repository":    resourceArgoCDRepository(),
+			"argocd_application":            resourceArgoCDApplication(),
+			"argocd_project":                resourceArgoCDProject(),
+			"argocd_project_token":          resourceArgoCDProjectToken(),
+			"argocd_repository":             resourceArgoCDRepository(),
+			"argocd_repository_credentials": resourceArgoCDRepositoryCredentials(),
 		},
 		ConfigureFunc: func(d *schema.ResourceData) (interface{}, error) {
 			apiClient, err := initApiClient(d)
