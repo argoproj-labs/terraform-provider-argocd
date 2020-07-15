@@ -7,6 +7,7 @@ import (
 	"github.com/argoproj/argo-cd/pkg/apiclient"
 	"github.com/argoproj/argo-cd/pkg/apiclient/application"
 	"github.com/argoproj/argo-cd/pkg/apiclient/project"
+	"github.com/argoproj/argo-cd/pkg/apiclient/repocreds"
 	"github.com/argoproj/argo-cd/pkg/apiclient/repository"
 	"github.com/argoproj/argo-cd/pkg/apiclient/session"
 	util "github.com/argoproj/gitops-engine/pkg/utils/io"
@@ -101,10 +102,11 @@ func Provider(doneCh chan bool) terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"argocd_application":   resourceArgoCDApplication(),
-			"argocd_project":       resourceArgoCDProject(),
-			"argocd_project_token": resourceArgoCDProjectToken(),
-			"argocd_repository":    resourceArgoCDRepository(),
+			"argocd_application":            resourceArgoCDApplication(),
+			"argocd_project":                resourceArgoCDProject(),
+			"argocd_project_token":          resourceArgoCDProjectToken(),
+			"argocd_repository":             resourceArgoCDRepository(),
+			"argocd_repository_credentials": resourceArgoCDRepositoryCredentials(),
 		},
 		ConfigureFunc: func(d *schema.ResourceData) (interface{}, error) {
 			apiClient, err := initApiClient(d)
@@ -126,18 +128,25 @@ func Provider(doneCh chan bool) terraform.ResourceProvider {
 				return nil, err
 			}
 
+			rcredsCloser, repoCredsClient, err := apiClient.NewRepoCredsClient()
+			if err != nil {
+				return nil, err
+			}
+
 			// Clients connection pooling, close when the provider execution ends
 			go func(done chan bool) {
 				<-done
 				util.Close(pcCloser)
 				util.Close(acCloser)
 				util.Close(rcCloser)
+				util.Close(rcredsCloser)
 			}(doneCh)
 			return initServerInterface(
 				apiClient,
 				projectClient,
 				applicationClient,
 				repositoryClient,
+				repoCredsClient,
 			)
 		},
 	}
@@ -148,6 +157,7 @@ func initServerInterface(
 	projectClient project.ProjectServiceClient,
 	applicationClient application.ApplicationServiceClient,
 	repositoryClient repository.RepositoryServiceClient,
+	repoCredsClient repocreds.RepoCredsServiceClient,
 ) (interface{}, error) {
 	acCloser, versionClient, err := apiClient.NewVersionClient()
 	if err != nil {
@@ -172,6 +182,7 @@ func initServerInterface(
 		&applicationClient,
 		&projectClient,
 		&repositoryClient,
+		&repoCredsClient,
 		serverVersion,
 		serverVersionMessage}, err
 }

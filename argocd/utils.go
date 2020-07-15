@@ -5,6 +5,7 @@ import (
 	"github.com/argoproj/argo-cd/pkg/apiclient"
 	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	util "github.com/argoproj/gitops-engine/pkg/utils/io"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"regexp"
 	"strconv"
 	"strings"
@@ -126,5 +127,12 @@ func isValidToken(token *application.JWTToken, expiresIn int64) error {
 		return err
 	}
 	defer util.Close(closer)
+	return nil
+}
+
+func persistToState(key string, data interface{}, d *schema.ResourceData) error {
+	if err := d.Set(key, data); err != nil {
+		return fmt.Errorf("error persisting %s: %s", key, err)
+	}
 	return nil
 }

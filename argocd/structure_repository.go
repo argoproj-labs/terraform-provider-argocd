@@ -1,7 +1,6 @@
 package argocd
 
 import (
-	"fmt"
 	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -64,18 +63,10 @@ func flattenRepository(repository *application.Repository, d *schema.ResourceDat
 		"tls_client_cert_key":     repository.TLSClientCertKey,
 		"type":                    repository.Type,
 	}
-
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {
 			return err
 		}
-	}
-	return nil
-}
-
-func persistToState(key string, data interface{}, d *schema.ResourceData) error {
-	if err := d.Set(key, data); err != nil {
-		return fmt.Errorf("error persisting %s: %s", key, err)
 	}
 	return nil
 }
