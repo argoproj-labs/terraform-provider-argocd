@@ -75,11 +75,10 @@ jobs:
 
       - name: Build ${{ matrix.os }}-${{ matrix.arch }}
         env:
-          GOLDFLAGS: "-s -w"
           GOARCH:  ${{ matrix.arch }}
           GOOS: ${{ matrix.os }}
         run: |
-          go build -o ${{ env.asset_build }}
+          CGO_ENABLED=0 go build -s -w --ldflags '-s -w -extldflags "-static"' --tags netgo -a -o ${{ env.asset_build }}
           gzip --name --suffix ${{ env.asset_gzip_suffix }} ${{ env.asset_build }}
 
       - name: Upload Release Asset
