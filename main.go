@@ -7,13 +7,9 @@ import (
 )
 
 func main() {
-	// ArgoCD services connection pool closing channel
-	var doneCh = make(chan bool, 1)
-
 	plugin.Serve(&plugin.ServeOpts{
 		ProviderFunc: func() terraform.ResourceProvider {
-			return argocd.Provider(doneCh)
+			return argocd.Provider()
 		},
 	})
-	doneCh <- true
 }
