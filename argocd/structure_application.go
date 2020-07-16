@@ -351,14 +351,16 @@ func flattenApplicationSpec(s application.ApplicationSpec) (
 		"destination": flattenApplicationDestinations(
 			[]application.ApplicationDestination{s.Destination},
 		),
-		"ignore_difference":      flattenApplicationIgnoreDifferences(s.IgnoreDifferences),
-		"info":                   flattenApplicationInfo(s.Info),
-		"project":                s.Project,
-		"revision_history_limit": *s.RevisionHistoryLimit,
+		"ignore_difference": flattenApplicationIgnoreDifferences(s.IgnoreDifferences),
+		"info":              flattenApplicationInfo(s.Info),
+		"project":           s.Project,
 		"source": flattenApplicationSource(
 			[]application.ApplicationSource{s.Source},
 		),
 		"sync_policy": flattenApplicationSyncPolicy(s.SyncPolicy),
+	}
+	if s.RevisionHistoryLimit != nil {
+		spec["revision_history_limit"] = int(*s.RevisionHistoryLimit)
 	}
 	return []map[string]interface{}{spec}, nil
 }
