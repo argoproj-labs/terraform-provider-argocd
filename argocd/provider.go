@@ -18,7 +18,7 @@ import (
 
 var apiClientConnOpts apiclient.ClientOptions
 
-func Provider(doneCh chan bool) terraform.ResourceProvider {
+func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"server_addr": {
@@ -113,34 +113,25 @@ func Provider(doneCh chan bool) terraform.ResourceProvider {
 			if err != nil {
 				return nil, err
 			}
-			pcCloser, projectClient, err := apiClient.NewProjectClient()
+			_, projectClient, err := apiClient.NewProjectClient()
 			if err != nil {
 				return nil, err
 			}
 
-			acCloser, applicationClient, err := apiClient.NewApplicationClient()
+			_, applicationClient, err := apiClient.NewApplicationClient()
 			if err != nil {
 				return nil, err
 			}
 
-			rcCloser, repositoryClient, err := apiClient.NewRepoClient()
+			_, repositoryClient, err := apiClient.NewRepoClient()
 			if err != nil {
 				return nil, err
 			}
 
-			rcredsCloser, repoCredsClient, err := apiClient.NewRepoCredsClient()
+			_, repoCredsClient, err := apiClient.NewRepoCredsClient()
 			if err != nil {
 				return nil, err
 			}
-
-			// Clients connection pooling, close when the provider execution ends
-			go func(done chan bool) {
-				<-done
-				util.Close(pcCloser)
-				util.Close(acCloser)
-				util.Close(rcCloser)
-				util.Close(rcredsCloser)
-			}(doneCh)
 			return initServerInterface(
 				apiClient,
 				projectClient,

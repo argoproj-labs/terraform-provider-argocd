@@ -9,24 +9,22 @@ import (
 
 var testAccProviders map[string]terraform.ResourceProvider
 var testAccProvider *schema.Provider
-var testDoneCh = make(chan bool, 1)
 
 func init() {
-	testAccProvider = Provider(testDoneCh).(*schema.Provider)
+	testAccProvider = Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
 		"argocd": testAccProvider,
 	}
-	testDoneCh <- true
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider(testDoneCh).(*schema.Provider).InternalValidate(); err != nil {
+	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
 func TestProvider_impl(t *testing.T) {
-	var _ = Provider(testDoneCh)
+	var _ = Provider()
 }
 
 func testAccPreCheck(t *testing.T) {
