@@ -26,14 +26,14 @@ func repositoryCredentialsSchema() map[string]*schema.Schema {
 			},
 		},
 		"ssh_private_key": {
-			Type:        schema.TypeString,
-			Sensitive:   true,
-			Description: "SSH private key data for authenticating at the repo server only for Git repos, cannot be managed once created!",
-			// TODO: add a validator
-			Optional: true,
+			Type:         schema.TypeString,
+			Sensitive:    true,
+			Description:  "SSH private key data for authenticating at the repo server only for Git repos, cannot be managed once created!",
+			ValidateFunc: validateSSHPrivateKey,
 			DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 				return true
 			},
+			Optional: true,
 		},
 		"tls_client_cert_data": {
 			Type:        schema.TypeString,

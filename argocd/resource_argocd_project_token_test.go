@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/stretchr/testify/assert"
 	"math"
 	"math/rand"
 	"regexp"
@@ -14,9 +15,7 @@ import (
 func TestAccArgoCDProjectToken(t *testing.T) {
 	expiresInDurationFunc := func(i int) time.Duration {
 		d, err := time.ParseDuration(fmt.Sprintf("%ds", i))
-		if err != nil {
-			panic(err)
-		}
+		assert.NoError(t, err)
 		return d
 	}
 	count := 3 + rand.Intn(7)

@@ -6,20 +6,17 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestAccArgoCDRepositoryCredentials(t *testing.T) {
-	repoUrl := fmt.Sprintf("https://git.local/%s/%s",
-		acctest.RandString(10),
-		acctest.RandString(10))
-	username := fmt.Sprintf(acctest.RandString(10))
+	repoUrl := "https://private-git-repository.argocd.svc.clusterlocal/project.git"
+	username := "git"
 	sshPrivateKey, err := generateSSHPrivateKey()
-	if err != nil {
-		panic(err)
-	}
+	assert.NoError(t, err)
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -64,4 +61,10 @@ func generateSSHPrivateKey() (privateKey string, err error) {
 		Bytes:   privDER,
 	}
 	return string(pem.EncodeToMemory(&privBlock)), nil
+}
+
+func mustGenerateSSHPrivateKey(t *testing.T) string {
+	pk, err := generateSSHPrivateKey()
+	assert.NoError(t, err)
+	return pk
 }

@@ -11,6 +11,8 @@ require (
 	github.com/golang/protobuf v1.3.4
 	github.com/hashicorp/terraform-plugin-sdk v1.14.0
 	github.com/robfig/cron v1.1.0
+	github.com/stretchr/testify v1.5.1
+	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
 	k8s.io/apimachinery v0.16.6
 )
 

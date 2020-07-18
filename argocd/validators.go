@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/argoproj/pkg/time"
 	"github.com/robfig/cron"
+	"golang.org/x/crypto/ssh"
 	apiValidation "k8s.io/apimachinery/pkg/api/validation"
 	utilValidation "k8s.io/apimachinery/pkg/util/validation"
 	"regexp"
@@ -104,6 +105,14 @@ func validateDuration(value interface{}, key string) (ws []string, es []error) {
 	v := value.(string)
 	if _, err := time.ParseDuration(v); err != nil {
 		es = append(es, fmt.Errorf("%s: invalid duration '%s': %s", key, v, err))
+	}
+	return
+}
+
+func validateSSHPrivateKey(value interface{}, key string) (ws []string, es []error) {
+	v := value.(string)
+	if _, err := ssh.ParsePrivateKey([]byte(v)); err != nil {
+		es = append(es, fmt.Errorf("%s: invalid ssh private key: %s", key, err))
 	}
 	return
 }

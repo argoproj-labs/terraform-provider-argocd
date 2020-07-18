@@ -20,7 +20,7 @@ func repositorySchema() map[string]*schema.Schema {
 		"inherited_creds": {
 			Type:        schema.TypeBool,
 			Description: "Whether credentials were inherited from a credential set",
-			Optional:    true,
+			Computed:    true,
 		},
 		"insecure": {
 			Type:        schema.TypeBool,
@@ -40,14 +40,20 @@ func repositorySchema() map[string]*schema.Schema {
 		"password": {
 			Type:        schema.TypeString,
 			Sensitive:   true,
-			Description: "Password for authenticating at the repo server",
+			Description: "Password for authenticating at the repo server, cannot be managed once created!",
 			Optional:    true,
+			DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+				return true
+			},
 		},
 		"ssh_private_key": {
-			Type:        schema.TypeString,
-			Sensitive:   true,
-			Description: "SSH private key data for authenticating at the repo server only for Git repos",
-			// TODO: add a validator
+			Type:         schema.TypeString,
+			Sensitive:    true,
+			Description:  "SSH private key data for authenticating at the repo server only for Git repos, cannot be managed once created!",
+			ValidateFunc: validateSSHPrivateKey,
+			//DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+			//	return true
+			//},
 			Optional: true,
 		},
 		"tls_client_cert_data": {
