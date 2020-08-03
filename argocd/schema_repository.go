@@ -10,6 +10,7 @@ func repositorySchema() map[string]*schema.Schema {
 		"repo": {
 			Type:        schema.TypeString,
 			Description: "URL of the repo",
+			ForceNew:    true,
 			Required:    true,
 		},
 		"enable_lfs": {
@@ -51,9 +52,9 @@ func repositorySchema() map[string]*schema.Schema {
 			Sensitive:    true,
 			Description:  "SSH private key data for authenticating at the repo server only for Git repos, cannot be managed once created!",
 			ValidateFunc: validateSSHPrivateKey,
-			//DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-			//	return true
-			//},
+			DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+				return true
+			},
 			Optional: true,
 		},
 		"tls_client_cert_data": {

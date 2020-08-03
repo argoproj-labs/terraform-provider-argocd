@@ -53,7 +53,7 @@ kGMIM7duG1Texl8uh5RmAAAAC3Rlc3RAYXJnb2NkAQI=
 				),
 			},
 			{
-				Config: testAccArgoCDRepositoryPrivateGitSSH(repoUrl, sshPrivateKey),
+				Config:             testAccArgoCDRepositoryPrivateGitSSH(repoUrl, sshPrivateKey),
 				ExpectNonEmptyPlan: true,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
