@@ -10,6 +10,7 @@ func repositorySchema() map[string]*schema.Schema {
 		"repo": {
 			Type:        schema.TypeString,
 			Description: "URL of the repo",
+			ForceNew:    true,
 			Required:    true,
 		},
 		"enable_lfs": {
@@ -20,7 +21,7 @@ func repositorySchema() map[string]*schema.Schema {
 		"inherited_creds": {
 			Type:        schema.TypeBool,
 			Description: "Whether credentials were inherited from a credential set",
-			Optional:    true,
+			Computed:    true,
 		},
 		"insecure": {
 			Type:        schema.TypeBool,
@@ -44,11 +45,11 @@ func repositorySchema() map[string]*schema.Schema {
 			Optional:    true,
 		},
 		"ssh_private_key": {
-			Type:        schema.TypeString,
-			Sensitive:   true,
-			Description: "SSH private key data for authenticating at the repo server only for Git repos",
-			// TODO: add a validator
-			Optional: true,
+			Type:         schema.TypeString,
+			Sensitive:    false,
+			Description:  "SSH private key data for authenticating at the repo server only for Git repos",
+			ValidateFunc: validateSSHPrivateKey,
+			Optional:     true,
 		},
 		"tls_client_cert_data": {
 			Type:        schema.TypeString,

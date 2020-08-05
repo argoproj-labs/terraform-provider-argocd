@@ -38,6 +38,9 @@ func resourceArgoCDRepositoryCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+	if r == nil {
+		return fmt.Errorf("ArgoCD did not return an error or a repository result")
+	}
 	if r.ConnectionState.Status == application.ConnectionStatusFailed {
 		return fmt.Errorf(
 			"could not connect to repository %s: %s",
@@ -56,7 +59,7 @@ func resourceArgoCDRepositoryRead(d *schema.ResourceData, meta interface{}) erro
 
 	featureRepositoryGetSupported, err := server.isFeatureSupported(featureRepositoryGet)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	switch featureRepositoryGetSupported {
@@ -100,7 +103,6 @@ func resourceArgoCDRepositoryRead(d *schema.ResourceData, meta interface{}) erro
 				return nil
 			}
 		}
-
 	}
 	return flattenRepository(r, d)
 }
@@ -122,6 +124,9 @@ func resourceArgoCDRepositoryUpdate(d *schema.ResourceData, meta interface{}) er
 		default:
 			return err
 		}
+	}
+	if r == nil {
+		return fmt.Errorf("ArgoCD did not return an error or a repository result")
 	}
 	if r.ConnectionState.Status == application.ConnectionStatusFailed {
 		return fmt.Errorf(

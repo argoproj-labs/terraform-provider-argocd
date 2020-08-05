@@ -31,9 +31,7 @@ func expandRepository(d *schema.ResourceData) *application.Repository {
 	if v, ok := d.GetOk("password"); ok {
 		repository.Password = v.(string)
 	}
-	if v, ok := d.GetOk("ssh_private_key"); ok {
-		repository.SSHPrivateKey = v.(string)
-	}
+	repository.SSHPrivateKey = d.Get("ssh_private_key").(string)
 	if v, ok := d.GetOk("tls_client_cert_data"); ok {
 		repository.TLSClientCertData = v.(string)
 	}
@@ -57,11 +55,12 @@ func flattenRepository(repository *application.Repository, d *schema.ResourceDat
 		"insecure":                repository.Insecure,
 		"name":                    repository.Name,
 		"username":                repository.Username,
-		"password":                repository.Password,
-		"ssh_private_key":         repository.SSHPrivateKey,
-		"tls_client_cert_data":    repository.TLSClientCertData,
-		"tls_client_cert_key":     repository.TLSClientCertKey,
-		"type":                    repository.Type,
+		// TODO: ArgoCD API does not return sensitive data!
+		//"password":                repository.Password,
+		//"ssh_private_key":         repository.SSHPrivateKey,
+		//"tls_client_cert_key":     repository.TLSClientCertKey,
+		"tls_client_cert_data": repository.TLSClientCertData,
+		"type":                 repository.Type,
 	}
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {

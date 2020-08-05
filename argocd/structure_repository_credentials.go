@@ -35,12 +35,13 @@ func expandRepositoryCredentials(d *schema.ResourceData) *application.RepoCreds 
 
 func flattenRepositoryCredentials(repository application.RepoCreds, d *schema.ResourceData) error {
 	r := map[string]interface{}{
-		"url":                  repository.URL,
-		"username":             repository.Username,
-		"password":             repository.Password,
-		"ssh_private_key":      repository.SSHPrivateKey,
+		"url":      repository.URL,
+		"username": repository.Username,
+		// TODO: ArgoCD API does not return sensitive data!
+		//"password":             repository.Password,
+		//"ssh_private_key":      repository.SSHPrivateKey,
+		//"tls_client_cert_key":  repository.TLSClientCertKey,
 		"tls_client_cert_data": repository.TLSClientCertData,
-		"tls_client_cert_key":  repository.TLSClientCertKey,
 	}
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {

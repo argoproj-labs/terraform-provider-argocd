@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/argoproj/argo-cd/pkg/apiclient/version"
+	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"testing"
 )
@@ -14,12 +15,10 @@ const (
 	semverLess
 )
 
-func serverInterfaceTestData(argocdVersion string, semverOperator int) ServerInterface {
-
+func serverInterfaceTestData(t *testing.T, argocdVersion string, semverOperator int) ServerInterface {
 	v, err := semver.NewVersion(argocdVersion)
-	if err != nil {
-		panic(err)
-	}
+	assert.NoError(t, err)
+
 	incPatch := rand.Int63n(100)
 	incMinor := rand.Int63n(100)
 	incMajor := rand.Int63n(100)
@@ -27,26 +26,23 @@ func serverInterfaceTestData(argocdVersion string, semverOperator int) ServerInt
 	switch semverOperator {
 	case semverEquals:
 	case semverGreater:
-		if v, err = semver.NewVersion(
+		v, err = semver.NewVersion(
 			fmt.Sprintf("%d.%d.%d",
 				v.Major()+incMajor,
 				v.Minor()+incMinor,
 				v.Patch()+incPatch,
-			)); err != nil {
-			panic(err)
-		}
-
+			))
+		assert.NoError(t, err)
 	case semverLess:
-		if v, err = semver.NewVersion(
+		v, err = semver.NewVersion(
 			fmt.Sprintf("%d.%d.%d",
 				v.Major()-incMajor%v.Major(),
 				v.Minor()-incMinor%v.Minor(),
 				v.Patch()-incPatch%v.Patch(),
-			)); err != nil {
-			panic(err)
-		}
+			))
+		assert.NoError(t, err)
 	default:
-		panic("unsupported semver test semverOperator")
+		t.Error("unsupported semver test semverOperator")
 	}
 
 	vm := &version.VersionMessage{
@@ -72,21 +68,21 @@ func TestServerInterface_isFeatureSupported(t *testing.T) {
 	}{
 		{
 			name:    "featureTokenID-1.5.3",
-			fields:  serverInterfaceTestData("1.5.3", semverEquals),
+			fields:  serverInterfaceTestData(t, "1.5.3", semverEquals),
 			args:    args{feature: featureTokenIDs},
 			want:    true,
 			wantErr: false,
 		},
 		{
 			name:    "featureTokenID-1.5.3+",
-			fields:  serverInterfaceTestData("1.5.3", semverGreater),
+			fields:  serverInterfaceTestData(t, "1.5.3", semverGreater),
 			args:    args{feature: featureTokenIDs},
 			want:    true,
 			wantErr: false,
 		},
 		{
 			name:    "featureTokenID-1.5.3-",
-			fields:  serverInterfaceTestData("1.5.3", semverLess),
+			fields:  serverInterfaceTestData(t, "1.5.3", semverLess),
 			args:    args{feature: featureTokenIDs},
 			want:    false,
 			wantErr: false,

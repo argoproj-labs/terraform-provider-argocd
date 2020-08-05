@@ -1,0 +1,108 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: git-authorized-ssh-keys
+  namespace: argocd
+type: Opaque
+stringData:
+  sshUsername: git
+  sshPublicKey: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIZ7pXHSBsqooIjTAimV+ArkkGMIM7duG1Texl8uh5Rm test@argocd"
+  sshPrivateKey: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+    QyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZgAAAJB9cNEifXDR
+    IgAAAAtzc2gtZWQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZg
+    AAAEAJeUrObjoTbGO1Sq4TXHl/j4RJ5aKMC1OemWuHmLK7XYZ7pXHSBsqooIjTAimV+Ark
+    kGMIM7duG1Texl8uh5RmAAAAC3Rlc3RAYXJnb2NkAQI=
+    -----END OPENSSH PRIVATE KEY-----
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: git-private-repository-contents
+  namespace: argocd
+data:
+  configmap.yml: |
+    apiVersion: v1
+    kind: Configmap
+    metadata:
+      name: testdata
+      namespace: default
+    data:
+      foo: bar
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: private-git-repository
+  namespace: argocd
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: private-git-repository
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: private-git-repository
+    spec:
+      volumes:
+        - name: repo-contents
+          configMap:
+            optional: false
+            name: git-private-repository-contents
+      containers:
+        - name: private-git-repository
+          image: alpine:3
+          volumeMounts:
+            - mountPath: /mnt/testdata
+              name: repo-contents
+              readOnly: true
+          ports:
+            - containerPort: 22
+              protocol: TCP
+              name: sshd
+          readinessProbe:
+            tcpSocket:
+              port: 22
+          command:
+            - sh
+            - -c
+          args:
+            - 'apk add --no-cache --update git sudo openssh &&
+              adduser git -D &&
+              echo "git:2S8RrPQgxGdAv3Wp2ALKsWQLT5WLj66R3JxuJU35dCemwqLVfd"|chpasswd &&
+              sudo -u git sh -c "
+                cd &&
+                mkdir .ssh &&
+                chmod 700 .ssh &&
+                echo ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIZ7pXHSBsqooIjTAimV+ArkkGMIM7duG1Texl8uh5Rm test@argocd > .ssh/authorized_keys &&
+                chmod 600 .ssh/authorized_keys &&
+                mkdir project.git &&
+                cd project.git &&
+                git config --global user.email \"test@argocd\" &&
+                git config --global user.name \"acctest\" &&
+                git init &&
+                cp /mnt/testdata/configmap.yml . &&
+                git add . &&
+                git commit -m init" &&
+              ssh-keygen -A &&
+              /usr/sbin/sshd -p 22 -D'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: private-git-repository
+  namespace: argocd
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: private-git-repository
+  ports:
+    - port: 22
+      targetPort: sshd
+      name: sshd
+      protocol: TCP
