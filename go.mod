@@ -4,10 +4,10 @@ go 1.14
 
 require (
 	github.com/Masterminds/semver v1.5.0
-	github.com/argoproj/argo-cd v1.6.1
-	github.com/argoproj/gitops-engine v0.1.2
+	github.com/argoproj/argo-cd v1.6.2
+	github.com/argoproj/gitops-engine v0.1.3
 	github.com/argoproj/pkg v0.0.0-20200319004004-f46beff7cd54
-	github.com/cristalhq/jwt/v3 v3.0.0
+	github.com/cristalhq/jwt/v3 v3.0.2
 	github.com/golang/protobuf v1.3.4
 	github.com/hashicorp/terraform-plugin-sdk v1.14.0
 	github.com/robfig/cron v1.1.0

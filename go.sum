@@ -63,10 +63,10 @@ github.com/apparentlymart/go-dump v0.0.0-20190214190832-042adf3cf4a0 h1:MzVXffFU
 github.com/apparentlymart/go-dump v0.0.0-20190214190832-042adf3cf4a0/go.mod h1:oL81AME2rN47vu18xqj1S1jPIPuN7afo62yKTNn3XMM=
 github.com/apparentlymart/go-textseg v1.0.0 h1:rRmlIsPEEhUTIKQb7T++Nz/A5Q6C9IuX2wFoYVvnCs0=
 github.com/apparentlymart/go-textseg v1.0.0/go.mod h1:z96Txxhf3xSFMPmb5X/1W05FF/Nj9VFpLOpjS5yuumk=
-github.com/argoproj/argo-cd v1.6.1 h1:xluKFCEBxzAkYzUHrqjYF3LPnityAzVQ9Qy9n1oChO8=
-github.com/argoproj/argo-cd v1.6.1/go.mod h1:qRyKHxh5BLUVheMoMU0uq1/wwRMgmbpEGc8Csd61MRI=
-github.com/argoproj/gitops-engine v0.1.2 h1:tUDt0DR3axmHLmEJwgqWnr+cHHSK6cJLJef3YTLkQ+E=
-github.com/argoproj/gitops-engine v0.1.2/go.mod h1:UmBGlQLT/MPNiMmbnouZRWhkk3slPuozMsENdXMkIMs=
+github.com/argoproj/argo-cd v1.6.2 h1:kpoS3TxMJYkUmtri6sXe1QbyjGkC9OaHT43K1B/8y6E=
+github.com/argoproj/argo-cd v1.6.2/go.mod h1:VHSJfpnOXUjtaDyb4C34YPO4pnZ79vRqa5nDeqh3PO8=
+github.com/argoproj/gitops-engine v0.1.3 h1:eQp1bfqaeaATcu4XErlxNb6aVsN4rC7suL/Fqx/9E+k=
+github.com/argoproj/gitops-engine v0.1.3/go.mod h1:UmBGlQLT/MPNiMmbnouZRWhkk3slPuozMsENdXMkIMs=
 github.com/argoproj/pkg v0.0.0-20200102163130-2dd1f3f6b4de/go.mod h1:2EZ44RG/CcgtPTwrRR0apOc7oU6UIw8GjCUJWZ8X3bM=
 github.com/argoproj/pkg v0.0.0-20200319004004-f46beff7cd54 h1:hDn02iEkh5EUl4TJfOo6AI9uSgh0vt/qh66ODuQl/YE=
 github.com/argoproj/pkg v0.0.0-20200319004004-f46beff7cd54/go.mod h1:2EZ44RG/CcgtPTwrRR0apOc7oU6UIw8GjCUJWZ8X3bM=
@@ -136,6 +136,8 @@ github.com/cpuguy83/go-md2man v1.0.10/go.mod h1:SmD6nW6nTyfqj6ABTjUi3V3JVMnlJmwc
 github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7DoTY=
 github.com/cristalhq/jwt/v3 v3.0.0 h1:0PtBLOa6XEZj6powOaneZCxU3+yiFSYwVeL2wmbavnY=
 github.com/cristalhq/jwt/v3 v3.0.0/go.mod h1:XOnIXst8ozq/esy5N1XOlSyQqBd+84fxJ99FK+1jgL8=
+github.com/cristalhq/jwt/v3 v3.0.2 h1:y5aYVOJysyPRZvRGblEAYfphqERNPgTGWOA9DUUK1t8=
+github.com/cristalhq/jwt/v3 v3.0.2/go.mod h1:XOnIXst8ozq/esy5N1XOlSyQqBd+84fxJ99FK+1jgL8=
 github.com/cyphar/filepath-securejoin v0.2.2/go.mod h1:FpkQEhXnPnOthhzymB7CGsFk2G9VLXONKD9G7QGMM+4=
 github.com/davecgh/go-spew v0.0.0-20151105211317-5215b55f46b2/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

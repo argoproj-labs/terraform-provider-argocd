@@ -2,59 +2,49 @@ package argocd
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
 )
 
 func TestAccArgoCDRepository(t *testing.T) {
 	repoUrl := "git@private-git-repository.argocd.svc.cluster.local:project.git"
-	sshPrivateKey := `
------BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-QyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZgAAAJB9cNEifXDR
-IgAAAAtzc2gtZWQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZg
-AAAEAJeUrObjoTbGO1Sq4TXHl/j4RJ5aKMC1OemWuHmLK7XYZ7pXHSBsqooIjTAimV+Ark
-kGMIM7duG1Texl8uh5RmAAAAC3Rlc3RAYXJnb2NkAQI=
------END OPENSSH PRIVATE KEY-----
-`
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
+			//{
+			//	Config: testAccArgoCDRepositorySimple(),
+			//	Check: resource.ComposeTestCheckFunc(
+			//		resource.TestCheckResourceAttr(
+			//			"argocd_repository.simple",
+			//			"connection_state_status",
+			//			"Successful",
+			//		),
+			//	),
+			//},
+			//{
+			//	Config: testAccArgoCDRepositoryHelm(),
+			//	Check: resource.ComposeTestCheckFunc(
+			//		resource.TestCheckResourceAttr(
+			//			"argocd_repository.helm",
+			//			"connection_state_status",
+			//			"Successful",
+			//		),
+			//	),
+			//},
+			//{
+			//	Config: testAccArgoCDRepositoryPublicUsageInApplication(acctest.RandString(10)),
+			//	Check: resource.ComposeTestCheckFunc(
+			//		resource.TestCheckResourceAttrSet(
+			//			"argocd_application.public",
+			//			"metadata.0.uid",
+			//		),
+			//	),
+			//},
 			{
-				Config: testAccArgoCDRepositorySimple(),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"argocd_repository.simple",
-						"connection_state_status",
-						"Successful",
-					),
-				),
-			},
-			{
-				Config: testAccArgoCDRepositoryHelm(),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"argocd_repository.helm",
-						"connection_state_status",
-						"Successful",
-					),
-				),
-			},
-			{
-				Config: testAccArgoCDRepositoryPublicUsageInApplication(acctest.RandString(10)),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(
-						"argocd_application.public",
-						"metadata.0.uid",
-					),
-				),
-			},
-			{
-				Config:             testAccArgoCDRepositoryPrivateGitSSH(repoUrl, sshPrivateKey),
-				ExpectNonEmptyPlan: true,
+				Config: testAccArgoCDRepositoryPrivateGitSSH(repoUrl),
+				//ExpectNonEmptyPlan: true,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"argocd_repository.private",
@@ -111,15 +101,13 @@ resource "argocd_application" "public" {
 `, name)
 }
 
-func testAccArgoCDRepositoryPrivateGitSSH(repoUrl, sshPrivateKey string) string {
+func testAccArgoCDRepositoryPrivateGitSSH(repoUrl string) string {
 	return fmt.Sprintf(`
 resource "argocd_repository" "private" {
   repo            = "%s"
+  type            = "git"
   insecure        = true
-  username        = "git"
-  ssh_private_key = <<EOL
-%s
-EOL
+  ssh_private_key = "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZgAAAJB9cNEifXDR\nIgAAAAtzc2gtZWQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZg\nAAAEAJeUrObjoTbGO1Sq4TXHl/j4RJ5aKMC1OemWuHmLK7XYZ7pXHSBsqooIjTAimV+Ark\nkGMIM7duG1Texl8uh5RmAAAAC3Rlc3RAYXJnb2NkAQI=\n-----END OPENSSH PRIVATE KEY-----"
 }
-`, repoUrl, sshPrivateKey)
+`, repoUrl)
 }
