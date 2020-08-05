@@ -2,6 +2,7 @@ package argocd
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
 )
@@ -13,35 +14,35 @@ func TestAccArgoCDRepository(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			//{
-			//	Config: testAccArgoCDRepositorySimple(),
-			//	Check: resource.ComposeTestCheckFunc(
-			//		resource.TestCheckResourceAttr(
-			//			"argocd_repository.simple",
-			//			"connection_state_status",
-			//			"Successful",
-			//		),
-			//	),
-			//},
-			//{
-			//	Config: testAccArgoCDRepositoryHelm(),
-			//	Check: resource.ComposeTestCheckFunc(
-			//		resource.TestCheckResourceAttr(
-			//			"argocd_repository.helm",
-			//			"connection_state_status",
-			//			"Successful",
-			//		),
-			//	),
-			//},
-			//{
-			//	Config: testAccArgoCDRepositoryPublicUsageInApplication(acctest.RandString(10)),
-			//	Check: resource.ComposeTestCheckFunc(
-			//		resource.TestCheckResourceAttrSet(
-			//			"argocd_application.public",
-			//			"metadata.0.uid",
-			//		),
-			//	),
-			//},
+			{
+				Config: testAccArgoCDRepositorySimple(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.simple",
+						"connection_state_status",
+						"Successful",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDRepositoryHelm(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.helm",
+						"connection_state_status",
+						"Successful",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDRepositoryPublicUsageInApplication(acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.public",
+						"metadata.0.uid",
+					),
+				),
+			},
 			{
 				Config: testAccArgoCDRepositoryPrivateGitSSH(repoUrl),
 				//ExpectNonEmptyPlan: true,
