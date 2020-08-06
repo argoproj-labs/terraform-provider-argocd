@@ -7,6 +7,7 @@ import (
 	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -34,9 +35,17 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	server := meta.(ServerInterface)
 	c := *server.ProjectClient
+	projectName := objectMeta.Name
+	if _, ok := tokenMutexProjectMap[projectName]; !ok {
+		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
+	}
+
+	tokenMutexProjectMap[projectName].RLock()
 	p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
-		Name: objectMeta.Name,
+		Name: projectName,
 	})
+	tokenMutexProjectMap[projectName].RUnlock()
+
 	if err != nil {
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
@@ -52,6 +61,8 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 			time.Sleep(time.Duration(*p.DeletionGracePeriodSeconds))
 		}
 	}
+
+	tokenMutexProjectMap[projectName].Lock()
 	p, err = c.Create(context.Background(), &projectClient.ProjectCreateRequest{
 		Project: &application.AppProject{
 			ObjectMeta: objectMeta,
@@ -61,6 +72,8 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 		// TODO: make that a resource flag with proper acceptance tests
 		Upsert: false,
 	})
+	tokenMutexProjectMap[projectName].Unlock()
+
 	if err != nil {
 		return err
 	}
@@ -74,9 +87,17 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
 	c := *server.ProjectClient
+	projectName := d.Id()
+	if _, ok := tokenMutexProjectMap[projectName]; !ok {
+		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
+	}
+
+	tokenMutexProjectMap[projectName].RLock()
 	p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
-		Name: d.Id(),
+		Name: projectName,
 	})
+	tokenMutexProjectMap[projectName].RUnlock()
+
 	if err != nil {
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
@@ -98,14 +119,23 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 		server := meta.(ServerInterface)
 		c := *server.ProjectClient
+		projectName := objectMeta.Name
+		if _, ok := tokenMutexProjectMap[projectName]; !ok {
+			tokenMutexProjectMap[projectName] = &sync.RWMutex{}
+		}
 		projectRequest := &projectClient.ProjectUpdateRequest{
 			Project: &application.AppProject{
 				ObjectMeta: objectMeta,
 				Spec:       spec,
-			}}
+			},
+		}
+
+		tokenMutexProjectMap[projectName].RLock()
 		p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
 			Name: d.Id(),
 		})
+		tokenMutexProjectMap[projectName].RUnlock()
+
 		if p != nil {
 			// Kubernetes API requires providing the up-to-date correct ResourceVersion for updates
 			projectRequest.Project.ResourceVersion = p.ResourceVersion
@@ -123,7 +153,11 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 				projectRequest.Project.Spec.Roles[i].JWTTokens = pr.JWTTokens
 			}
 		}
+
+		tokenMutexProjectMap[projectName].Lock()
 		_, err = c.Update(context.Background(), projectRequest)
+		tokenMutexProjectMap[projectName].Unlock()
+
 		if err != nil {
 			return err
 		}
@@ -134,7 +168,12 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
 	c := *server.ProjectClient
-	_, err := c.Delete(context.Background(), &projectClient.ProjectQuery{Name: d.Id()})
+	projectName := d.Id()
+
+	tokenMutexProjectMap[projectName].Lock()
+	_, err := c.Delete(context.Background(), &projectClient.ProjectQuery{Name: projectName})
+	tokenMutexProjectMap[projectName].Unlock()
+
 	if err != nil {
 		return err
 	}

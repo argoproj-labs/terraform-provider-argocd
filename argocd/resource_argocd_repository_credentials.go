@@ -26,6 +26,8 @@ func resourceArgoCDRepositoryCredentialsCreate(d *schema.ResourceData, meta inte
 	server := meta.(ServerInterface)
 	c := *server.RepoCredsClient
 	repoCreds := expandRepositoryCredentials(d)
+
+	tokenMutexConfiguration.Lock()
 	rc, err := c.CreateRepositoryCredentials(
 		context.Background(),
 		&repocreds.RepoCredsCreateRequest{
@@ -33,6 +35,8 @@ func resourceArgoCDRepositoryCredentialsCreate(d *schema.ResourceData, meta inte
 			Upsert: false,
 		},
 	)
+	tokenMutexConfiguration.Unlock()
+
 	if err != nil {
 		return err
 	}
@@ -44,9 +48,13 @@ func resourceArgoCDRepositoryCredentialsRead(d *schema.ResourceData, meta interf
 	server := meta.(ServerInterface)
 	c := *server.RepoCredsClient
 	rc := application.RepoCreds{}
+
+	tokenMutexConfiguration.RLock()
 	rcl, err := c.ListRepositoryCredentials(context.Background(), &repocreds.RepoCredsQuery{
 		Url: d.Id(),
 	})
+	tokenMutexConfiguration.RUnlock()
+
 	if err != nil {
 		// TODO: check for NotFound condition?
 		return err
@@ -74,11 +82,15 @@ func resourceArgoCDRepositoryCredentialsUpdate(d *schema.ResourceData, meta inte
 	server := meta.(ServerInterface)
 	c := *server.RepoCredsClient
 	repoCreds := expandRepositoryCredentials(d)
+
+	tokenMutexConfiguration.Lock()
 	r, err := c.UpdateRepositoryCredentials(
 		context.Background(),
 		&repocreds.RepoCredsUpdateRequest{
 			Creds: repoCreds},
 	)
+	tokenMutexConfiguration.Unlock()
+
 	if err != nil {
 		switch strings.Contains(err.Error(), "NotFound") {
 		// Repository credentials have already been deleted in an out-of-band fashion
@@ -96,10 +108,14 @@ func resourceArgoCDRepositoryCredentialsUpdate(d *schema.ResourceData, meta inte
 func resourceArgoCDRepositoryCredentialsDelete(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
 	c := *server.RepoCredsClient
+
+	tokenMutexConfiguration.Lock()
 	_, err := c.DeleteRepositoryCredentials(
 		context.Background(),
 		&repocreds.RepoCredsDeleteRequest{Url: d.Id()},
 	)
+	tokenMutexConfiguration.Unlock()
+
 	if err != nil {
 		return err
 	}

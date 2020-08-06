@@ -65,7 +65,19 @@ provider "argocd" {
   insecure    = false              # env ARGOCD_INSECURE
 }
 
-resource "argocd_repository" "nginx_helm" {
+resource "argocd_repository_credentials" "private" {
+  url             = "git@private-git-repository.local"
+  username        = "git"
+  ssh_private_key = "-----BEGIN OPENSSH PRIVATE KEY-----\nfoo\nbar\n-----END OPENSSH PRIVATE KEY-----"
+}
+
+// Uses previously defined repository credentials
+resource "argocd_repository" "private" {
+  repo     = "git@private-git-repository.local:somerepo.git"
+  // insecure = true
+}
+
+resource "argocd_repository" "public_nginx_helm" {
   repo = "https://helm.nginx.com/stable"
   name = "nginx-stable"
   type = "helm"

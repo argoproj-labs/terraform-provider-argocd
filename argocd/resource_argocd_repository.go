@@ -27,6 +27,8 @@ func resourceArgoCDRepositoryCreate(d *schema.ResourceData, meta interface{}) er
 	server := meta.(ServerInterface)
 	c := *server.RepositoryClient
 	repo := expandRepository(d)
+
+	tokenMutexConfiguration.Lock()
 	r, err := c.CreateRepository(
 		context.Background(),
 		&repository.RepoCreateRequest{
@@ -35,6 +37,8 @@ func resourceArgoCDRepositoryCreate(d *schema.ResourceData, meta interface{}) er
 			CredsOnly: false,
 		},
 	)
+	tokenMutexConfiguration.Unlock()
+
 	if err != nil {
 		return err
 	}
@@ -64,10 +68,13 @@ func resourceArgoCDRepositoryRead(d *schema.ResourceData, meta interface{}) erro
 
 	switch featureRepositoryGetSupported {
 	case true:
+		tokenMutexConfiguration.RLock()
 		r, err = c.Get(context.Background(), &repository.RepoQuery{
 			Repo:         d.Id(),
 			ForceRefresh: false,
 		})
+		tokenMutexConfiguration.RUnlock()
+
 		if err != nil {
 			switch strings.Contains(err.Error(), "NotFound") {
 			// Repository has already been deleted in an out-of-band fashion
@@ -79,10 +86,13 @@ func resourceArgoCDRepositoryRead(d *schema.ResourceData, meta interface{}) erro
 			}
 		}
 	case false:
+		tokenMutexConfiguration.RLock()
 		rl, err := c.ListRepositories(context.Background(), &repository.RepoQuery{
 			Repo:         d.Id(),
 			ForceRefresh: false,
 		})
+		tokenMutexConfiguration.RUnlock()
+
 		if err != nil {
 			// TODO: check for NotFound condition?
 			return err
@@ -111,10 +121,14 @@ func resourceArgoCDRepositoryUpdate(d *schema.ResourceData, meta interface{}) er
 	server := meta.(ServerInterface)
 	c := *server.RepositoryClient
 	repo := expandRepository(d)
+
+	tokenMutexConfiguration.Lock()
 	r, err := c.UpdateRepository(
 		context.Background(),
 		&repository.RepoUpdateRequest{Repo: repo},
 	)
+	tokenMutexConfiguration.Unlock()
+
 	if err != nil {
 		switch strings.Contains(err.Error(), "NotFound") {
 		// Repository has already been deleted in an out-of-band fashion
@@ -142,10 +156,14 @@ func resourceArgoCDRepositoryUpdate(d *schema.ResourceData, meta interface{}) er
 func resourceArgoCDRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
 	c := *server.RepositoryClient
+
+	tokenMutexConfiguration.Lock()
 	_, err := c.DeleteRepository(
 		context.Background(),
 		&repository.RepoQuery{Repo: d.Id()},
 	)
+	tokenMutexConfiguration.Unlock()
+
 	if err != nil {
 		return err
 	}

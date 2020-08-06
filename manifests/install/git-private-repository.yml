@@ -80,14 +80,17 @@ spec:
                 chmod 700 .ssh &&
                 echo ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIZ7pXHSBsqooIjTAimV+ArkkGMIM7duG1Texl8uh5Rm test@argocd > .ssh/authorized_keys &&
                 chmod 600 .ssh/authorized_keys &&
-                mkdir project.git &&
-                cd project.git &&
-                git config --global user.email \"test@argocd\" &&
-                git config --global user.name \"acctest\" &&
-                git init &&
-                cp /mnt/testdata/configmap.yml . &&
-                git add . &&
-                git commit -m init" &&
+                for P in \$(seq 1 10);do
+                  mkdir project-\${P}.git &&
+                  cd project-\${P}.git &&
+                  git config --global user.email \"test@argocd\" &&
+                  git config --global user.name \"acctest\" &&
+                  git init &&
+                  cp /mnt/testdata/configmap.yml . &&
+                  git add . &&
+                  git commit -m init-\${P} &&
+                  cd ..;
+                done" &&
               ssh-keygen -A &&
               /usr/sbin/sshd -p 22 -D'
 

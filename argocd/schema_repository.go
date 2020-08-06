@@ -46,7 +46,7 @@ func repositorySchema() map[string]*schema.Schema {
 		},
 		"ssh_private_key": {
 			Type:         schema.TypeString,
-			Sensitive:    false,
+			Sensitive:    true,
 			Description:  "SSH private key data for authenticating at the repo server only for Git repos",
 			ValidateFunc: validateSSHPrivateKey,
 			Optional:     true,
