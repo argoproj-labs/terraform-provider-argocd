@@ -13,9 +13,6 @@ import (
 	"time"
 )
 
-// For each project, implement a sync.RWMutex
-var tokenMutexProjectMap = make(map[string]*sync.RWMutex, 0)
-
 func resourceArgoCDProjectToken() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceArgoCDProjectTokenCreate,
@@ -76,15 +73,15 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 	var claims jwt.StandardClaims
 	var expiresIn int64
 
-	p := d.Get("project").(string)
+	projectName := d.Get("project").(string)
 	role := d.Get("role").(string)
 	opts := &project.ProjectTokenCreateRequest{
-		Project: p,
+		Project: projectName,
 		Role:    role,
 	}
 
-	if _, ok := tokenMutexProjectMap[p]; !ok {
-		tokenMutexProjectMap[p] = &sync.RWMutex{}
+	if _, ok := tokenMutexProjectMap[projectName]; !ok {
+		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
 	}
 	if d, ok := d.GetOk("description"); ok {
 		opts.Description = d.(string)
@@ -120,14 +117,14 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	tokenMutexProjectMap[p].Lock()
+	tokenMutexProjectMap[projectName].Lock()
 	resp, err := c.CreateToken(context.Background(), opts)
 	// ensure issuedAt is unique upon multiple simultaneous resource creation invocations
 	// as this is the unique ID for old tokens
 	if !featureTokenIDSupported {
 		time.Sleep(1 * time.Second)
 	}
-	tokenMutexProjectMap[p].Unlock()
+	tokenMutexProjectMap[projectName].Unlock()
 	if err != nil {
 		return err
 	}
@@ -164,7 +161,7 @@ func resourceArgoCDProjectTokenCreate(d *schema.ResourceData, meta interface{}) 
 		}
 		d.SetId(claims.ID)
 	} else {
-		d.SetId(fmt.Sprintf("%s-%s-%d", p, role, claims.IssuedAt.Unix()))
+		d.SetId(fmt.Sprintf("%s-%s-%d", projectName, role, claims.IssuedAt.Unix()))
 	}
 	return resourceArgoCDProjectTokenRead(d, meta)
 }
@@ -178,11 +175,18 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 
 	server := meta.(ServerInterface)
 	c := *server.ProjectClient
+	projectName := d.Get("project").(string)
+	if _, ok := tokenMutexProjectMap[projectName]; !ok {
+		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
+	}
 
 	// Delete token from state if project has been deleted in an out-of-band fashion
+	tokenMutexProjectMap[projectName].RLock()
 	p, err := c.Get(context.Background(), &project.ProjectQuery{
-		Name: d.Get("project").(string),
+		Name: projectName,
 	})
+	tokenMutexProjectMap[projectName].RUnlock()
+
 	if err != nil {
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
@@ -192,9 +196,7 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 	}
-	if _, ok := tokenMutexProjectMap[p.Name]; !ok {
-		tokenMutexProjectMap[p.Name] = &sync.RWMutex{}
-	}
+
 	featureTokenIDSupported, err := server.isFeatureSupported(featureTokenIDs)
 	if err != nil {
 		return err
@@ -214,13 +216,13 @@ func resourceArgoCDProjectTokenRead(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	tokenMutexProjectMap[p.Name].RLock()
+	tokenMutexProjectMap[projectName].RLock()
 	token, _, err = p.GetJWTToken(
 		d.Get("role").(string),
 		requestTokenIAT,
 		requestTokenID,
 	)
-	tokenMutexProjectMap[p.Name].RUnlock()
+	tokenMutexProjectMap[projectName].RUnlock()
 	if err != nil {
 		// Token has been deleted in an out-of-band fashion
 		d.SetId("")

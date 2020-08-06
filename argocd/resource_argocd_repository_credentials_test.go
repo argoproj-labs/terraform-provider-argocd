@@ -12,21 +12,32 @@ import (
 )
 
 func TestAccArgoCDRepositoryCredentials(t *testing.T) {
-	repoUrl := "https://private-git-repository.argocd.svc.clusterlocal/project.git"
-	username := "git"
 	sshPrivateKey, err := generateSSHPrivateKey()
 	assert.NoError(t, err)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDRepositoryCredentialsSimple(repoUrl, username, sshPrivateKey),
+				Config: testAccArgoCDRepositoryCredentialsSimple(
+					"https://private-git-repository.argocd.svc.clusterlocal/project-1.git",
+					"git",
+					sshPrivateKey,
+				),
 				Check: resource.TestCheckResourceAttr(
 					"argocd_repository_credentials.simple",
 					"username",
-					username,
+					"git",
+				),
+			},
+			{
+				Config: testAccArgoCDRepositoryCredentialsRepositoryCoexistence(),
+				Check: testCheckMultipleResourceAttr(
+					"argocd_repository.private",
+					"connection_state_status",
+					"Successful",
+					10,
 				),
 			},
 		},
@@ -43,6 +54,23 @@ resource "argocd_repository_credentials" "simple" {
 EOT
 }
 `, repoUrl, username, sshPrivateKey)
+}
+
+func testAccArgoCDRepositoryCredentialsRepositoryCoexistence() string {
+	return fmt.Sprintf(`
+resource "argocd_repository" "private" {
+  count      = 10
+  repo       = format("git@private-git-repository.argocd.svc.cluster.local:project-%%d.git", count.index+1)
+  insecure   = true
+  depends_on = [argocd_repository_credentials.private]
+}
+
+resource "argocd_repository_credentials" "private" {
+  url             = "git@private-git-repository.argocd.svc.cluster.local"
+  username        = "git"
+  ssh_private_key = "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZgAAAJB9cNEifXDR\nIgAAAAtzc2gtZWQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZg\nAAAEAJeUrObjoTbGO1Sq4TXHl/j4RJ5aKMC1OemWuHmLK7XYZ7pXHSBsqooIjTAimV+Ark\nkGMIM7duG1Texl8uh5RmAAAAC3Rlc3RAYXJnb2NkAQI=\n-----END OPENSSH PRIVATE KEY-----"
+}
+`)
 }
 
 func generateSSHPrivateKey() (privateKey string, err error) {

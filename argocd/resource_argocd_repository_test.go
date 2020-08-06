@@ -4,48 +4,40 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"testing"
 )
 
 func TestAccArgoCDRepository(t *testing.T) {
-	repoUrl := "git@private-git-repository.argocd.svc.cluster.local:project.git"
-
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositorySimple(),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"argocd_repository.simple",
-						"connection_state_status",
-						"Successful",
-					),
+				Check: resource.TestCheckResourceAttr(
+					"argocd_repository.simple",
+					"connection_state_status",
+					"Successful",
 				),
 			},
 			{
 				Config: testAccArgoCDRepositoryHelm(),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"argocd_repository.helm",
-						"connection_state_status",
-						"Successful",
-					),
+				Check: resource.TestCheckResourceAttr(
+					"argocd_repository.helm",
+					"connection_state_status",
+					"Successful",
 				),
 			},
 			{
 				Config: testAccArgoCDRepositoryPublicUsageInApplication(acctest.RandString(10)),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(
-						"argocd_application.public",
-						"metadata.0.uid",
-					),
+				Check: resource.TestCheckResourceAttrSet(
+					"argocd_application.public",
+					"metadata.0.uid",
 				),
 			},
 			{
-				Config: testAccArgoCDRepositoryPrivateGitSSH(repoUrl),
-				//ExpectNonEmptyPlan: true,
+				Config: testAccArgoCDRepositoryPrivateGitSSH("git@private-git-repository.argocd.svc.cluster.local:project-1.git"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"argocd_repository.private",
@@ -57,6 +49,15 @@ func TestAccArgoCDRepository(t *testing.T) {
 						"inherited_creds",
 						"false",
 					),
+				),
+			},
+			{
+				Config: testAccArgoCDRepositoryMultiplePrivateGitSSH(10),
+				Check: testCheckMultipleResourceAttr(
+					"argocd_repository.private",
+					"connection_state_status",
+					"Successful",
+					10,
 				),
 			},
 		},
@@ -111,4 +112,37 @@ resource "argocd_repository" "private" {
   ssh_private_key = "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZgAAAJB9cNEifXDR\nIgAAAAtzc2gtZWQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZg\nAAAEAJeUrObjoTbGO1Sq4TXHl/j4RJ5aKMC1OemWuHmLK7XYZ7pXHSBsqooIjTAimV+Ark\nkGMIM7duG1Texl8uh5RmAAAAC3Rlc3RAYXJnb2NkAQI=\n-----END OPENSSH PRIVATE KEY-----"
 }
 `, repoUrl)
+}
+
+func testAccArgoCDRepositoryMultiplePrivateGitSSH(repoCount int) string {
+	return fmt.Sprintf(`
+resource "argocd_repository" "private" {
+  count           = %d
+  repo            = format("git@private-git-repository.argocd.svc.cluster.local:project-%%d.git", count.index+1)
+  type            = "git"
+  insecure        = true
+  ssh_private_key = "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZgAAAJB9cNEifXDR\nIgAAAAtzc2gtZWQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZg\nAAAEAJeUrObjoTbGO1Sq4TXHl/j4RJ5aKMC1OemWuHmLK7XYZ7pXHSBsqooIjTAimV+Ark\nkGMIM7duG1Texl8uh5RmAAAAC3Rlc3RAYXJnb2NkAQI=\n-----END OPENSSH PRIVATE KEY-----"
+}
+`, repoCount)
+}
+
+func testCheckMultipleResourceAttr(name, key, value string, count int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for i := 0; i < count; i++ {
+			ms := s.RootModule()
+			_name := fmt.Sprintf("%s.%d", name, i)
+			rs, ok := ms.Resources[_name]
+			if !ok {
+				return fmt.Errorf("not found: %s in %s", _name, ms.Path)
+			}
+			is := rs.Primary
+			if is == nil {
+				return fmt.Errorf("no primary instance: %s in %s", _name, ms.Path)
+			}
+			if val, ok := is.Attributes[key]; !ok || val != value {
+				return fmt.Errorf("%s: Attribute '%s' expected to be set and have value '%s': %s", _name, key, value, val)
+			}
+		}
+		return nil
+	}
 }

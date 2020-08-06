@@ -14,9 +14,16 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"sync"
 )
 
 var apiClientConnOpts apiclient.ClientOptions
+
+// Used to handle concurrent access to ArgoCD common configuration
+var tokenMutexConfiguration = &sync.RWMutex{}
+
+// Used to handle concurrent access to each ArgoCD project
+var tokenMutexProjectMap = make(map[string]*sync.RWMutex, 0)
 
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{

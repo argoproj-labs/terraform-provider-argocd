@@ -54,7 +54,8 @@ func flattenRepository(repository *application.Repository, d *schema.ResourceDat
 		"inherited_creds":         repository.InheritedCreds,
 		"insecure":                repository.Insecure,
 		"name":                    repository.Name,
-		"username":                repository.Username,
+		// TODO: in case of repositoryCredentials existence, will perma-diff
+		//"username":                repository.Username,
 		// TODO: ArgoCD API does not return sensitive data!
 		//"password":                repository.Password,
 		//"ssh_private_key":         repository.SSHPrivateKey,
