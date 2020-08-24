@@ -8,16 +8,13 @@ builds:
     ldflags:
       - '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}}'
     goos:
-#      - windows
+      - windows
       - linux
-#      - darwin
+      - darwin
     goarch:
       - amd64
-#      - arm
-#      - arm64
-#    ignore:
-#      - goos: darwin
-#        goarch: '386'
+      - arm
+      - arm64
     binary: '{{ .ProjectName }}_v{{ .Version }}'
 archives:
   - format: zip
@@ -37,6 +34,7 @@ signs:
       - "${artifact}"
 release:
   draft: true
+  disable: false
   github:
     owner: oboukili
     name: terraform-provider-argocd
