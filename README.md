@@ -125,15 +125,15 @@ resource "argocd_project" "myproject" {
     role {
       name = "testrole"
       policies = [
-        "p, proj:%s:testrole, applications, override, %s/*, allow",
-        "p, proj:%s:testrole, applications, sync, %s/*, allow",
+        "p, proj:myproject:testrole, applications, override, myproject/*, allow",
+        "p, proj:myproject:testrole, applications, sync, myproject/*, allow",
       ]
     }
     role {
       name = "anotherrole"
       policies = [
-        "p, proj:%s:testrole, applications, get, %s/*, allow",
-        "p, proj:%s:testrole, applications, sync, %s/*, deny",
+        "p, proj:myproject:testrole, applications, get, myproject/*, allow",
+        "p, proj:myproject:testrole, applications, sync, myproject/*, deny",
       ]
     }
     sync_window {
