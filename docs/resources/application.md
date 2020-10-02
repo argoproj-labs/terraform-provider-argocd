@@ -15,7 +15,7 @@ resource "argocd_application" "kustomize" {
   }
 
   spec {
-    project = argocd_project.myproject.metadata.0.name
+    project = "myproject"
 
     source {
       repo_url        = "https://github.com/kubernetes-sigs/kustomize"
@@ -137,8 +137,12 @@ The `destination` block has the following attributes:
 * `namespace` - (Required) The namespace to deploy the application to.
 
 The `sync_policy` block has the following attributes:
-* `automated` - (Optional)
-* `sync_options` - (Optional) (Only available from ArgoCD 1.5.0 onwards), only `["Validate=false"]` is supported.
+* `automated` - (Optional) map(string) of strings, will keep an application synced to the target revision. Structure is documented below
+* `sync_options` - (Optional) list of sync options, allow you to specify whole app sync-options (only available from ArgoCD 1.5.0 onwards).
+
+The `sync_policy/automated` map has the following attributes:
+* `prune` - (Optional), boolean, will prune resources automatically as part of automated sync. Defaults to `false`.
+* `self_heal` - (Optional), boolean, enables auto-syncing if the live resources differ from the targeted revision manifests. Defaults to `false`.
 
 Each `ignore_difference` block can have the following attributes:
 * `group` - (Optional) The targeted Kubernetes resource kind.
@@ -200,3 +204,9 @@ Each `directory/jsonnet/ext_var` and `directory/jsonnet/tla` can have the follow
 * `Code` - (Optional) boolean.
 
 The `plugin` block has the following attributes:
+* `name` - (Optional) string.
+* `env` - (Optional) Can be repeated multiple times. Structure is documented below.
+
+Each `plugin/env` block has the following attributes:
+* `name` - (Optional) string.
+* `value` - (Optional) string.
