@@ -5,7 +5,7 @@ Creates an ArgoCD repository.
 ## Example Usage
 
 ```hcl
-// Helm repository
+// Public Helm repository
 resource "argocd_repository" "public_nginx_helm" {
   repo = "https://helm.nginx.com/stable"
   name = "nginx-stable"
@@ -17,16 +17,12 @@ resource "argocd_repository" "public_git" {
   repo = "git@github.com:user/somerepo.git"
 }
 
-// Private repository credentials
-resource "argocd_repository_credentials" "private" {
-  url             = "git@private-git-repository.local"
+// Private Git repository
+resource "argocd_repository" "private" {
+  repo            = "git@private-git-repository.local:somerepo.git"
   username        = "git"
   ssh_private_key = "-----BEGIN OPENSSH PRIVATE KEY-----\nfoo\nbar\n-----END OPENSSH PRIVATE KEY-----"
-}
-
-// Uses previously defined argocd_repository_credentials credentials
-resource "argocd_repository" "private" {
-  repo = "git@private-git-repository.local:somerepo.git"
+  insecure        = true
 }
 ```
 
