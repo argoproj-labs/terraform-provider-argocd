@@ -71,7 +71,7 @@ func resourceArgoCDRepositoryRead(d *schema.ResourceData, meta interface{}) erro
 		tokenMutexConfiguration.RLock()
 		r, err = c.Get(context.Background(), &repository.RepoQuery{
 			Repo:         d.Id(),
-			ForceRefresh: false,
+			ForceRefresh: true,
 		})
 		tokenMutexConfiguration.RUnlock()
 
@@ -89,7 +89,7 @@ func resourceArgoCDRepositoryRead(d *schema.ResourceData, meta interface{}) erro
 		tokenMutexConfiguration.RLock()
 		rl, err := c.ListRepositories(context.Background(), &repository.RepoQuery{
 			Repo:         d.Id(),
-			ForceRefresh: false,
+			ForceRefresh: true,
 		})
 		tokenMutexConfiguration.RUnlock()
 
@@ -165,7 +165,14 @@ func resourceArgoCDRepositoryDelete(d *schema.ResourceData, meta interface{}) er
 	tokenMutexConfiguration.Unlock()
 
 	if err != nil {
-		return err
+		switch strings.Contains(err.Error(), "NotFound") {
+		// Repository has already been deleted in an out-of-band fashion
+		case true:
+			d.SetId("")
+			return nil
+		default:
+			return err
+		}
 	}
 	d.SetId("")
 	return nil
