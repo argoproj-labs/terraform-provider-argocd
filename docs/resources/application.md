@@ -210,3 +210,10 @@ The `plugin` block has the following attributes:
 Each `plugin/env` block has the following attributes:
 * `name` - (Optional) string.
 * `value` - (Optional) string.
+
+## Import
+
+ArgoCD applications can be imported using an id consisting of `{name}`, e.g.
+```
+$ terraform import argocd_application.myapp myapp
+```

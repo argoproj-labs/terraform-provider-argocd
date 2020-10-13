@@ -128,3 +128,10 @@ Each `sync_window` block can have the following attributes:
 * `manual_sync` - (Optional) Boolean, enables manual syncs when they would otherwise be blocked.
 * `namespaces` - (Optional) List of namespaces that the window will apply to.
 * `schedule` - (Optional) Time the window will begin, specified in cron format.
+
+## Import
+
+ArgoCD projects can be imported using an id consisting of `{name}`, e.g.
+```
+$ terraform import argocd_project.myproject myproject
+```
