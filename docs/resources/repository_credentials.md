@@ -26,3 +26,12 @@ resource "argocd_repository" "private" {
 * `ssh_private_key` - (Optional), string, SSH private key data to authenticate against the repository server. **Only for Git repositories**.
 * `tls_client_cert_data` - (Optional), TLS client cert data to authenticate against the repository server.
 * `tls_client_cert_key` - (Optional), TLS client cert key to authenticate against the repository server.
+
+## Import
+
+ArgoCD repository credentials can be imported using an id consisting of `{url}`, e.g.
+```
+$ terraform import argocd_repository_credemtials.myrepocreds git@private-git-repository.local:somerepo.git
+```
+
+**NOTE**: as ArgoCD API does not return any sensitive information, a subsequent _terraform apply_ should be executed to make the password, ssh_private_key and tls_client_cert_key attr

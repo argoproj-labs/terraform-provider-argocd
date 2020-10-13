@@ -43,3 +43,12 @@ resource "argocd_repository" "private" {
 
 * `connection_state_status` - string, repository connection state status.
 * `inherited_creds` - boolean, whether credentials wre inherited fron a credential set.
+
+## Import
+
+ArgoCD repositories can be imported using an id consisting of `{repo}`, e.g.
+```
+$ terraform import argocd_repository.myrepo git@private-git-repository.local:somerepo.git
+```
+
+**NOTE**: as ArgoCD API does not return any sensitive information, a subsequent _terraform apply_ should be executed to make the password, ssh_private_key and tls_client_cert_key attributes converge to their expected values defined within the plan.
