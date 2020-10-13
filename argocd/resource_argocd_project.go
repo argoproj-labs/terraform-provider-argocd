@@ -174,7 +174,7 @@ func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error
 	_, err := c.Delete(context.Background(), &projectClient.ProjectQuery{Name: projectName})
 	tokenMutexProjectMap[projectName].Unlock()
 
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "NotFound") {
 		return err
 	}
 	d.SetId("")
