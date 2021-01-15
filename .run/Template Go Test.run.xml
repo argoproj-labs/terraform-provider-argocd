@@ -1,0 +1,21 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+    <module name="terraform-provider-argocd" />
+    <working_directory value="$PROJECT_DIR$" />
+    <go_parameters value="-i" />
+    <envs>
+      <env name="ARGOCD_INSECURE" value="true" />
+      <env name="ARGOCD_SERVER" value="127.0.0.1:8080" />
+      <env name="ARGOCD_AUTH_USERNAME" value="admin" />
+      <env name="ARGOCD_AUTH_PASSWORD" value="acceptancetesting" />
+      <env name="ARGOCD_CONTEXT" value="kind-argocd" />
+      <env name="TF_ACC" value="1" />
+    </envs>
+    <framework value="gotest" />
+    <kind value="DIRECTORY" />
+    <package value="github.com/oboukili/terraform-provider-argocd" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$" />
+    <method v="2" />
+  </configuration>
+</component>

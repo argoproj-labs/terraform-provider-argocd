@@ -1,0 +1,21 @@
+---
+# Access to argocd service port without the need to proxy through kubectl proxy
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-server-proxy
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      nodePort: 30124
+      targetPort: 8080
+    - name: https
+      port: 443
+      protocol: TCP
+      nodePort: 30123
+      targetPort: 8080
+  selector:
+    app.kubernetes.io/name: argocd-server

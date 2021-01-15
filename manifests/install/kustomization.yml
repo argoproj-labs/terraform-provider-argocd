@@ -6,6 +6,7 @@ resources:
   - namespace.yml
   - install.yml
   - git-private-repository.yml
+  - proxy-service.yml
 patchesStrategicMerge:
   - patches/deployment.yml
   - patches/secret.yml
