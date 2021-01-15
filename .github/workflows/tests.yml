@@ -34,9 +34,9 @@ jobs:
           curl -sL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
           chmod +x ./kustomize
 
-      - name: Install Kind 0.8.1
+      - name: Install Kind 0.9.0
         run: |
-          curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.8.1/kind-$(uname)-amd64
+          curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.9.0/kind-$(uname)-amd64
           chmod +x ./kind
 
       - name: Set up ArgoCD ${{ matrix.argocd_version }}
@@ -45,7 +45,6 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml > manifests/install/install.yml
           sh scripts/testacc_prepare_env.sh
-          kubectl port-forward -n argocd service/argocd-server --address 127.0.0.1 8080:443&
           until $(nc -z 127.0.0.1 8080); do sleep 2;done
           netstat -tulpn
 
