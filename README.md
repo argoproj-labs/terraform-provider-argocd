@@ -43,7 +43,26 @@ In these cases, not only the readability of your Terraform plan will worsen, but
 
 ## Installation
 
-* **From binary releases**:
+* **From Terraform Public Registry (TF >= 0.13.0)**
+
+  https://registry.terraform.io/providers/oboukili/argocd/latest
+  ```hcl
+    terraform {
+      required_providers {
+        argocd = {
+          source = "oboukili/argocd"
+          version = "0.4.7"
+        }
+      }
+    }
+
+    provider "argocd" {
+      # Configuration options
+    }
+  ```
+
+
+* **From binary releases (TF >= 0.12.0, < 0.13)**:
   Get the [latest release](https://github.com/oboukili/terraform-provider-argocd/releases/latest), or adapt and run the following:
   ```shell script
   curl -LO https://github.com/oboukili/terraform-provider-argocd/releases/download/v0.1.0/terraform-provider-argocd_v0.1.0_linux_amd64.gz
@@ -181,7 +200,7 @@ resource "argocd_application" "kustomize" {
     source {
       repo_url        = "https://github.com/kubernetes-sigs/kustomize"
       path            = "examples/helloWorld"
-      target_revision = "master"
+      target_revision = "release-kustomize-v3.7"
       kustomize {
         name_prefix = "foo-"
         name_suffix = "-bar"
