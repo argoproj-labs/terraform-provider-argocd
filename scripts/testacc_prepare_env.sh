@@ -26,6 +26,5 @@ kubectl apply -f manifests/testdata/ &&
 echo '--- Wait for ArgoCD components to be ready...'
 kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd
 kubectl wait --for=condition=available --timeout=30s deployment/argocd-repo-server -n argocd
-kubectl wait --for=condition=available --timeout=30s deployment/argocd-application-controller -n argocd
 kubectl wait --for=condition=available --timeout=30s deployment/argocd-dex-server -n argocd
 kubectl wait --for=condition=available --timeout=30s deployment/argocd-redis -n argocd
