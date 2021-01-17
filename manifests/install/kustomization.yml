@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: argocd
 resources:
   - namespace.yml
-  - install.yml
+  - https://raw.githubusercontent.com/argoproj/argo-cd/v1.8.2/manifests/install.yaml
   - git-private-repository.yml
   - proxy-service.yml
 patchesStrategicMerge:
