@@ -319,6 +319,19 @@ make testacc
 make testacc_clean_env
 ```
 
+**Note:** to speed up testing environment setup, it is highly recommended you pull all needed container images into your local registry first, as the setup tries to sideload the images within the Kind cluster upon cluster creation.
+
+For example if you use Docker as your local container runtime:
+```shell
+docker pull argoproj/argocd:v1.8.2
+docker pull ghcr.io/dexidp/dex:v2.27.0
+docker pull redis:5.0.10-alpine
+```
+
+#### Troubleshooting during local development
+
+* **"too many open files":** Running all acceptance tests in parallel (the default) may open a lot of files and sockets, therefore ensure your local workstation [open files/sockets limits are tuned accordingly](https://k6.io/docs/misc/fine-tuning-os).
+
 ---
 
 ## Credits
