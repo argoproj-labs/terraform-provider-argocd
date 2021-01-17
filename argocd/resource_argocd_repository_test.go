@@ -91,8 +91,9 @@ resource "argocd_application" "public" {
   }
   spec {
     source {
-      repo_url = argocd_repository.simple.repo
-      path     = "examples/helloWorld"
+      repo_url        = argocd_repository.simple.repo
+      path            = "examples/helloWorld"
+      target_revision = "release-kustomize-v3.7"
     }
     destination {
       server    = "https://kubernetes.default.svc"

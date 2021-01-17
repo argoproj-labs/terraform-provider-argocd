@@ -6,6 +6,7 @@ import (
 	"github.com/argoproj/argo-cd/pkg/apiclient/version"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
+	"modernc.org/mathutil"
 	"testing"
 )
 
@@ -36,9 +37,9 @@ func serverInterfaceTestData(t *testing.T, argocdVersion string, semverOperator 
 	case semverLess:
 		v, err = semver.NewVersion(
 			fmt.Sprintf("%d.%d.%d",
-				v.Major()-incMajor%v.Major(),
-				v.Minor()-incMinor%v.Minor(),
-				v.Patch()-incPatch%v.Patch(),
+				mathutil.MinInt64(v.Major(), v.Major()-incMajor%v.Major()),
+				mathutil.MinInt64(v.Minor(), v.Minor()-incMinor%v.Minor()),
+				mathutil.MinInt64(v.Patch(), v.Patch()-incPatch%v.Patch()),
 			))
 		assert.NoError(t, err)
 	default:

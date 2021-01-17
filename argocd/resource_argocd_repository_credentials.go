@@ -117,7 +117,14 @@ func resourceArgoCDRepositoryCredentialsDelete(d *schema.ResourceData, meta inte
 	tokenMutexConfiguration.Unlock()
 
 	if err != nil {
-		return err
+		switch strings.Contains(err.Error(), "NotFound") {
+		// Repository credentials have already been deleted in an out-of-band fashion
+		case true:
+			d.SetId("")
+			return nil
+		default:
+			return err
+		}
 	}
 	d.SetId("")
 	return nil

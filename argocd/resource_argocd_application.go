@@ -150,7 +150,7 @@ func resourceArgoCDApplicationDelete(d *schema.ResourceData, meta interface{}) e
 	c := *server.ApplicationClient
 	appName := d.Id()
 	_, err := c.Delete(context.Background(), &applicationClient.ApplicationDeleteRequest{Name: &appName})
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "NotFound") {
 		return err
 	}
 	d.SetId("")

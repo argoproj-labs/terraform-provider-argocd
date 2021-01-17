@@ -83,7 +83,7 @@ ingress:
 					resource.TestCheckResourceAttr(
 						"argocd_application.kustomize",
 						"spec.0.source.0.target_revision",
-						"master",
+						"release-kustomize-v3.7",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.kustomize",
@@ -256,7 +256,7 @@ resource "argocd_application" "kustomize" {
     source {
       repo_url        = "https://github.com/kubernetes-sigs/kustomize"
       path            = "examples/helloWorld"
-      target_revision = "master"
+      target_revision = "release-kustomize-v3.7"
       kustomize {
   	    name_prefix  = "foo-"
 	  	name_suffix = "-bar"

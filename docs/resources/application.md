@@ -15,7 +15,7 @@ resource "argocd_application" "kustomize" {
   }
 
   spec {
-    project = argocd_project.myproject.metadata.0.name
+    project = "myproject"
 
     source {
       repo_url        = "https://github.com/kubernetes-sigs/kustomize"
@@ -124,7 +124,7 @@ The `spec` block can have the following attributes:
 * `source` - (Required) Contains information about Git repository, path within repository and target application environment. Structure is documented below.
 * `project` - (Optional) The ArgoCD project where the application will reside. Empty name means that application belongs to `default` project. Defaults to `default`. 
 * `sync_policy` - (Optional) Controls when a sync will be performed. Structure is documented below.
-* `ignore_difference` - (Optional) Controls resources fields which should be ignored during comparison. Can be repeated multiple times. Structure is documented below.
+* `ignore_difference` - (Optional) Controls resources' fields which should be ignored during comparison with live state. Can be repeated multiple times. Structure is documented below.
 * `info` - (Optional) Contains a list of useful information (URLs, email addresses, and plain text) that relates to the application. Can be repeated multiple times. Structure is documented below.
 * `revision_history_limit` -  (Optional) This limits the number of items kept in the apps revision history. This should only be changed in exceptional circumstances. Setting to zero will store no history. This will reduce storage used. Increasing will increase the space used to store the history, so we do not recommend increasing it. Default is `10`.
 
@@ -137,5 +137,83 @@ The `destination` block has the following attributes:
 * `namespace` - (Required) The namespace to deploy the application to.
 
 The `sync_policy` block has the following attributes:
-* `automated` - (Optional)
-* `sync_options` - (Optional) (Only available from ArgoCD 1.5.0 onwards), only `["Validate=false"]` is supported.
+* `automated` - (Optional) map(string) of strings, will keep an application synced to the target revision. Structure is documented below
+* `sync_options` - (Optional) list of sync options, allow you to specify whole app sync-options (only available from ArgoCD 1.5.0 onwards).
+
+The `sync_policy/automated` map has the following attributes:
+* `prune` - (Optional), boolean, will prune resources automatically as part of automated sync. Defaults to `false`.
+* `self_heal` - (Optional), boolean, enables auto-syncing if the live resources differ from the targeted revision manifests. Defaults to `false`.
+
+Each `ignore_difference` block can have the following attributes:
+* `group` - (Optional) The targeted Kubernetes resource kind.
+* `kind` - (Optional) The targeted Kubernetes resource kind.
+* `name` - (Optional) The targeted Kubernetes resource name.
+* `namespace` - (Optional) The targeted Kubernetes resource namespace.
+* `json_pointers` - (Optional) List of JSONPaths strings targeting the field(s) to ignore.
+
+The `source` block has the following attributes:
+* `repo_url` - (Required) string, repository URL of the application manifests.
+* `path` - (Optional) string, directory path within the Git repository.
+* `target_revision` - (Optional) string, defines the commit, tag, or branch in which to sync the application to.
+* `chart` - (Optional) Helm chart name, only applicable when the application manifests are a Helm chart.
+Only one of the following `source` attributes can be defined at a time:
+* `helm` - (Optional) holds Helm specific options. Structure is documented below.
+* `kustomize` - (Optional) holds Kustomize specific options. Structure is documented below.
+* `ksonnet` - (Optional) holds Ksonnet specific options. Structure is documented below.
+* `directory` - (Optional) holds path/directory specific options (native Kubernetes manifests or **Jsonnet** manifests). Structure is documented below.
+* `plugin` - (Optional) holds config management plugin specific options. Structure is documented below.
+
+The `helm` block has the following attributes:
+* `value_files` - (Optional) list of Helm value files to use when generating a template.
+* `values` - (Optional) Helm values, typically defined as a block.
+* `release_name` - (Optional) the Helm release name. If omitted it will use the application name.
+* `parameter` - (Optional) parameter to the Helm template. Can be repeated multiple times. Structure is documented below.
+
+Each `helm/parameter` block has the following attributes:
+* `name` - (Optional) string, name of the helm parameter.
+* `value` - (Optional) string, value of the helm parameter.
+* `force_string` - (Optional) boolean, determines whether to tell Helm to interpret booleans and numbers as strings.
+
+The `kustomize` block has the following attributes:
+* `name_prefix` - (Optional) string, prefix appended to resources for kustomize apps.
+* `name_suffix` - (Optional) string, suffix appended to resources for kustomize apps.
+* `version` - (Optional) string, contains optional Kustomize version.
+* `images` - (Optional) set of strings, kustomize image overrides.
+* `common_labels` - (Optional) map(string) of strings, adds additional kustomize commonLabels.
+
+The `ksonnet` block has the following attributes:
+* `environment` - (Optional) string, Ksonnet application environment name.
+* `parameters` - (Optional) Set of ksonnet component parameter overrides. Can be repeated multiple times. Structure is documented below.
+
+Each `ksonnet/parameters` block has the following attributes:
+* `name` - (Optional) string, name of the Ksonnet parameter.
+* `value` - (Optional) string, value of the Ksonnet parameter.
+* `component` - (Optional) string, value of the component parameter.
+
+The `directory` block has the following attributes:
+* `recurse` - (Optional) boolean, determines whether to recursively look for manifests in specified path.
+* `jsonnet` - (Optional), Jsonnet parameters. Structure is documented below.
+
+The `directory/jsonnet` block can have the following attributes:
+* `ext_var` - (Optional) Jsonnet External Variable. Can be repeated multiple times. Structure is documented below.
+* `tla` - (Optional) Jsonnet Top-level Arguments. Can be repeated multiple times. Structure is documented below.
+
+Each `directory/jsonnet/ext_var` and `directory/jsonnet/tla` can have the following attributes:
+* `name` - (Optional) string.
+* `value` - (Optional) string.
+* `Code` - (Optional) boolean.
+
+The `plugin` block has the following attributes:
+* `name` - (Optional) string.
+* `env` - (Optional) Can be repeated multiple times. Structure is documented below.
+
+Each `plugin/env` block has the following attributes:
+* `name` - (Optional) string.
+* `value` - (Optional) string.
+
+## Import
+
+ArgoCD applications can be imported using an id consisting of `{name}`, e.g.
+```
+$ terraform import argocd_application.myapp myapp
+```
