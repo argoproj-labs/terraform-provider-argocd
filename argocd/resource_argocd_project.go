@@ -169,6 +169,9 @@ func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error
 	server := meta.(ServerInterface)
 	c := *server.ProjectClient
 	projectName := d.Id()
+	if _, ok := tokenMutexProjectMap[projectName]; !ok {
+		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
+	}
 
 	tokenMutexProjectMap[projectName].Lock()
 	_, err := c.Delete(context.Background(), &projectClient.ProjectQuery{Name: projectName})
