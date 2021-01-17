@@ -14,6 +14,7 @@ require (
 	github.com/stretchr/testify v1.5.1
 	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
 	k8s.io/apimachinery v0.16.6
+	modernc.org/mathutil v1.0.0
 )
 
 replace (
