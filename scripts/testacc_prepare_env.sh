@@ -17,9 +17,9 @@ kubectl get services --all-namespaces -o wide
 echo '--- Load already available container images from local registry into Kind (local development only)'
 kind load docker-image redis:5.0.10-alpine --name argocd
 kind load docker-image ghcr.io/dexidp/dex:v2.27.0 --name argocd
-kind load docker-image argoproj/argocd:${ARGOCD_VERSION:-v1.8.2} --name argocd
+kind load docker-image argoproj/argocd:${ARGOCD_VERSION:-v1.8.3} --name argocd
 
-echo '--- Install ArgoCD ${ARGOCD_VERSION:-v1.8.2}\n\n'
+echo '--- Install ArgoCD ${ARGOCD_VERSION:-v1.8.3}\n\n'
 kustomize build manifests/install | kubectl apply -f - &&
 kubectl apply -f manifests/testdata/ &&
 

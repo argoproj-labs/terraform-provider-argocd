@@ -323,7 +323,7 @@ make testacc_clean_env
 
 For example if you use Docker as your local container runtime:
 ```shell
-docker pull argoproj/argocd:v1.8.2
+docker pull argoproj/argocd:v1.8.3
 docker pull ghcr.io/dexidp/dex:v2.27.0
 docker pull redis:5.0.10-alpine
 ```
