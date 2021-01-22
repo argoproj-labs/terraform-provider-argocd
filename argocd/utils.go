@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/argoproj/argo-cd/pkg/apiclient"
 	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
-	util "github.com/argoproj/gitops-engine/pkg/utils/io"
+	"github.com/argoproj/argo-cd/util/io"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"regexp"
 	"strconv"
@@ -126,7 +126,7 @@ func isValidToken(token *application.JWTToken, expiresIn int64) error {
 	if err != nil {
 		return err
 	}
-	defer util.Close(closer)
+	defer io.Close(closer)
 	return nil
 }
 
