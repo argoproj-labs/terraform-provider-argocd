@@ -300,6 +300,26 @@ func applicationSpecSchema() *schema.Schema {
 									// TODO: add a validator
 								},
 							},
+							"retry": {
+								Type:     schema.TypeList,
+								MinItems: 1,
+								MaxItems: 1,
+								Optional: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"limit": {
+											Type:        schema.TypeString,
+											Description: "Max number of allowed sync retries, as a string",
+											Optional:    true,
+										},
+										"backoff": {
+											Type:     schema.TypeMap,
+											Optional: true,
+											Elem:     &schema.Schema{Type: schema.TypeString},
+										},
+									},
+								},
+							},
 						},
 					},
 				},

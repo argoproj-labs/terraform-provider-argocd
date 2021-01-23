@@ -133,6 +133,26 @@ ingress:
 						"spec.0.sync_policy.0.automated.self_heal",
 						"true",
 					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.sync_policy",
+						"spec.0.sync_policy.0.retry.0.backoff.duration",
+						"30s",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.sync_policy",
+						"spec.0.sync_policy.0.retry.0.backoff.max_duration",
+						"2m",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.sync_policy",
+						"spec.0.sync_policy.0.retry.0.backoff.factor",
+						"2",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.sync_policy",
+						"spec.0.sync_policy.0.retry.0.limit",
+						"5",
+					),
 				),
 			},
 			{
@@ -353,6 +373,14 @@ resource "argocd_application" "sync_policy" {
       automated = {
         prune     = true
         self_heal = true
+      }
+      retry {
+        limit   = "5"
+        backoff = {
+          duration     = "30s"
+          max_duration = "2m"
+          factor       = "2"
+        }
       }
     }
   }
