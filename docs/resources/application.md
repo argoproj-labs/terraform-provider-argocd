@@ -139,10 +139,20 @@ The `destination` block has the following attributes:
 The `sync_policy` block has the following attributes:
 * `automated` - (Optional) map(string) of strings, will keep an application synced to the target revision. Structure is documented below
 * `sync_options` - (Optional) list of sync options, allow you to specify whole app sync-options (only available from ArgoCD 1.5.0 onwards).
+* `retry` - (Optional) controls failed sync retry behavior, structure is documented below
 
 The `sync_policy/automated` map has the following attributes:
 * `prune` - (Optional), boolean, will prune resources automatically as part of automated sync. Defaults to `false`.
 * `self_heal` - (Optional), boolean, enables auto-syncing if the live resources differ from the targeted revision manifests. Defaults to `false`.
+
+The `sync_policy/retry` block has the following attributes:
+* `limit` - (Optional), max number of allowed sync retries, as a string.
+* `backoff` - (Optional), retry backoff strategy, structure is documented below
+
+The `sync_policy/retry/backoff` map has the following attributes:
+* `duration` - (Optional), Duration is the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h"), as a string.
+* `factor` - (Optional), Factor is a factor to multiply the base duration after each failed retry, as a string.
+* `max_duration` - (Optional), is the maximum amount of time allowed for the backoff strategy. Default unit is seconds, but could also be a duration (e.g. "2m", "1h"), as a string.
 
 Each `ignore_difference` block can have the following attributes:
 * `group` - (Optional) The targeted Kubernetes resource kind.
