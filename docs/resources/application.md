@@ -142,8 +142,9 @@ Each `info` block can have the following attributes:
 * `value` - (Optional).
 
 The `destination` block has the following attributes:
-* `server` - (Required) The cluster URL to deploy the application to.
+* `server` - (Optional) The cluster URL to deploy the application to. At most one of `server` or `name` is required.
 * `namespace` - (Required) The namespace to deploy the application to.
+* `name` - (Optional) Name of the destination cluster which can be used instead of server (url) field. At most one of `server` or `name` is required.
 
 The `sync_policy` block has the following attributes:
 * `automated` - (Optional) map(string) of strings, will keep an application synced to the target revision. Structure is documented below

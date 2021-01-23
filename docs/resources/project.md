@@ -29,6 +29,10 @@ resource "argocd_project" "myproject" {
       server    = "https://kubernetes.default.svc"
       namespace = "foo"
     }
+    destination {
+      name      = "anothercluster"
+      namespace = "bar"
+    }
     cluster_resource_whitelist {
       group = "rbac.authorization.k8s.io"
       kind  = "ClusterRoleBinding"

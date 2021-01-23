@@ -366,6 +366,7 @@ func expandApplicationDestination(dest interface{}) (
 	return application.ApplicationDestination{
 		Server:    d["server"].(string),
 		Namespace: d["namespace"].(string),
+		Name:      d["name"].(string),
 	}
 }
 
@@ -618,6 +619,7 @@ func flattenApplicationDestinations(ds []application.ApplicationDestination) (
 		result = append(result, map[string]string{
 			"namespace": d.Namespace,
 			"server":    d.Server,
+			"name":      d.Name,
 		})
 	}
 	return
