@@ -10,7 +10,7 @@ import (
 	"github.com/argoproj/argo-cd/pkg/apiclient/repocreds"
 	"github.com/argoproj/argo-cd/pkg/apiclient/repository"
 	"github.com/argoproj/argo-cd/pkg/apiclient/session"
-	util "github.com/argoproj/gitops-engine/pkg/utils/io"
+	"github.com/argoproj/argo-cd/util/io"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -161,7 +161,7 @@ func initServerInterface(
 	if err != nil {
 		return nil, err
 	}
-	defer util.Close(acCloser)
+	defer io.Close(acCloser)
 
 	serverVersionMessage, err := versionClient.Version(context.Background(), &empty.Empty{})
 	if err != nil {
@@ -241,7 +241,7 @@ func initApiClient(d *schema.ResourceData) (
 			if err != nil {
 				return apiClient, err
 			}
-			defer util.Close(closer)
+			defer io.Close(closer)
 			sessionOpts := session.SessionCreateRequest{
 				Username: userName.(string),
 				Password: password.(string),
