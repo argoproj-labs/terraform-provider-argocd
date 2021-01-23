@@ -205,6 +205,12 @@ func expandApplicationSourceKustomize(in []interface{}) *application.Application
 			result.CommonLabels[k] = v.(string)
 		}
 	}
+	if cas, ok := a["common_annotations"]; ok {
+		result.CommonLabels = make(map[string]string, 0)
+		for k, v := range cas.(map[string]interface{}) {
+			result.CommonAnnotations[k] = v.(string)
+		}
+	}
 	return result
 }
 
@@ -261,6 +267,9 @@ func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, er
 			}
 			if k == "self_heal" {
 				automated.SelfHeal = v.(bool)
+			}
+			if k == "allow_empty" {
+				automated.AllowEmpty = v.(bool)
 			}
 		}
 	}
@@ -408,8 +417,9 @@ func flattenApplicationSyncPolicy(sp *application.SyncPolicy) []map[string]inter
 	backoff := make(map[string]string, 0)
 	if sp.Automated != nil {
 		result["automated"] = map[string]bool{
-			"prune":     sp.Automated.Prune,
-			"self_heal": sp.Automated.SelfHeal,
+			"prune":       sp.Automated.Prune,
+			"self_heal":   sp.Automated.SelfHeal,
+			"allow_empty": sp.Automated.AllowEmpty,
 		}
 	}
 	result["sync_options"] = []string(sp.SyncOptions)
@@ -567,11 +577,12 @@ func flattenApplicationSourceKustomize(as []*application.ApplicationSourceKustom
 				images = append(images, string(i))
 			}
 			result = append(result, map[string]interface{}{
-				"common_labels": a.CommonLabels,
-				"images":        images,
-				"name_prefix":   a.NamePrefix,
-				"name_suffix":   a.NameSuffix,
-				"version":       a.Version,
+				"common_annotations": a.CommonAnnotations,
+				"common_labels":      a.CommonLabels,
+				"images":             images,
+				"name_prefix":        a.NamePrefix,
+				"name_suffix":        a.NameSuffix,
+				"version":            a.Version,
 			})
 		}
 	}

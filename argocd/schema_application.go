@@ -134,6 +134,12 @@ func applicationSpecSchema() *schema.Schema {
 											Elem:         &schema.Schema{Type: schema.TypeString},
 											ValidateFunc: validateMetadataLabels,
 										},
+										"common_annotations": {
+											Type:         schema.TypeMap,
+											Optional:     true,
+											Elem:         &schema.Schema{Type: schema.TypeString},
+											ValidateFunc: validateMetadataAnnotations,
+										},
 									},
 								},
 							},
