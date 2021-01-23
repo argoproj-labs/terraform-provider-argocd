@@ -55,6 +55,13 @@ func expandProjectSpec(d *schema.ResourceData) (
 			spec.SourceRepos = append(spec.SourceRepos, sr.(string))
 		}
 	}
+	if v, ok := s["signature_keys"]; ok {
+		for _, sk := range v.([]interface{}) {
+			spec.SignatureKeys = append(spec.SignatureKeys, application.SignatureKey{
+				KeyID: sk.(string),
+			})
+		}
+	}
 	if v, ok := s["orphaned_resources"]; ok {
 		spec.OrphanedResources = &application.OrphanedResourcesMonitorSettings{}
 		if _warn, _ok := v.(map[string]interface{})["warn"]; _ok {
@@ -134,8 +141,17 @@ func flattenProjectSpec(s application.AppProjectSpec) []map[string]interface{} {
 		"sync_window":                  flattenSyncWindows(s.SyncWindows),
 		"description":                  s.Description,
 		"source_repos":                 s.SourceRepos,
+		"signature_keys":               flattenProjectSignatureKeys(s.SignatureKeys),
 	}
 	return []map[string]interface{}{spec}
+}
+
+func flattenProjectSignatureKeys(keys []application.SignatureKey) (
+	result []string) {
+	for _, key := range keys {
+		result = append(result, key.KeyID)
+	}
+	return
 }
 
 func flattenProjectOrphanedResources(ors *application.OrphanedResourcesMonitorSettings) (
