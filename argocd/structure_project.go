@@ -64,7 +64,8 @@ func expandProjectSpec(d *schema.ResourceData) (
 	}
 	if v, ok := s["orphaned_resources"]; ok {
 		spec.OrphanedResources = &application.OrphanedResourcesMonitorSettings{}
-		if _warn, _ok := v.(map[string]interface{})["warn"]; _ok {
+		orphanedResources := v.(*schema.Set).List()[0]
+		if _warn, _ok := orphanedResources.(map[string]interface{})["warn"]; _ok {
 			warn := _warn.(bool)
 			spec.OrphanedResources.Warn = &warn
 		}
