@@ -135,6 +135,11 @@ ingress:
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.sync_policy",
+						"spec.0.sync_policy.0.automated.allow_empty",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.sync_policy",
 						"spec.0.sync_policy.0.retry.0.backoff.duration",
 						"30s",
 					),
@@ -287,6 +292,10 @@ resource "argocd_application" "kustomize" {
 		  "this.is.a.common" = "la-bel"
 		  "another.io/one"   = "true" 
 	    }
+        common_annotations = {
+		  "this.is.a.common" = "anno-tation"
+		  "another.io/one"   = "false"
+	    }
       }
     }
 
@@ -371,8 +380,9 @@ resource "argocd_application" "sync_policy" {
     
     sync_policy {
       automated = {
-        prune     = true
-        self_heal = true
+        prune       = true
+        self_heal   = true
+        allow_empty = true
       }
       retry {
         limit   = "5"

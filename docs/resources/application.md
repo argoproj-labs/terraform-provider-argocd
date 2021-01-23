@@ -39,11 +39,20 @@ resource "argocd_application" "kustomize" {
 
     sync_policy {
       automated = {
-        prune     = true
-        self_heal = true
+        prune       = true
+        self_heal   = true
+        allow_empty = true
       }
       # Only available from ArgoCD 1.5.0 onwards
       sync_options = ["Validate=false"]
+      retry {
+        limit   = "5"
+        backoff = {
+          duration     = "30s"
+          max_duration = "2m"
+          factor       = "2"
+        }
+      }
     }
 
     ignore_difference {
@@ -133,8 +142,9 @@ Each `info` block can have the following attributes:
 * `value` - (Optional).
 
 The `destination` block has the following attributes:
-* `server` - (Required) The cluster URL to deploy the application to.
+* `server` - (Optional) The cluster URL to deploy the application to. At most one of `server` or `name` is required.
 * `namespace` - (Required) The namespace to deploy the application to.
+* `name` - (Optional) Name of the destination cluster which can be used instead of server (url) field. At most one of `server` or `name` is required.
 
 The `sync_policy` block has the following attributes:
 * `automated` - (Optional) map(string) of strings, will keep an application synced to the target revision. Structure is documented below
@@ -144,6 +154,7 @@ The `sync_policy` block has the following attributes:
 The `sync_policy/automated` map has the following attributes:
 * `prune` - (Optional), boolean, will prune resources automatically as part of automated sync. Defaults to `false`.
 * `self_heal` - (Optional), boolean, enables auto-syncing if the live resources differ from the targeted revision manifests. Defaults to `false`.
+* `allow_empty` - (Optional), boolean, allows apps to have zero live resources. Defaults to `false`.
 
 The `sync_policy/retry` block has the following attributes:
 * `limit` - (Optional), max number of allowed sync retries, as a string.
@@ -190,6 +201,7 @@ The `kustomize` block has the following attributes:
 * `version` - (Optional) string, contains optional Kustomize version.
 * `images` - (Optional) set of strings, kustomize image overrides.
 * `common_labels` - (Optional) map(string) of strings, adds additional kustomize commonLabels.
+* `common_annotations` - (Optional) map(string) of strings, adds additional kustomize commonAnnotations.
 
 The `ksonnet` block has the following attributes:
 * `environment` - (Optional) string, Ksonnet application environment name.

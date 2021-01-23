@@ -22,11 +22,16 @@ func applicationSpecSchema() *schema.Schema {
 						Schema: map[string]*schema.Schema{
 							"server": {
 								Type:     schema.TypeString,
-								Required: true,
+								Optional: true,
 							},
 							"namespace": {
 								Type:     schema.TypeString,
 								Required: true,
+							},
+							"name": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								Description: "Name of the destination cluster which can be used instead of server.",
 							},
 						},
 					},
@@ -133,6 +138,12 @@ func applicationSpecSchema() *schema.Schema {
 											Optional:     true,
 											Elem:         &schema.Schema{Type: schema.TypeString},
 											ValidateFunc: validateMetadataLabels,
+										},
+										"common_annotations": {
+											Type:         schema.TypeMap,
+											Optional:     true,
+											Elem:         &schema.Schema{Type: schema.TypeString},
+											ValidateFunc: validateMetadataAnnotations,
 										},
 									},
 								},
