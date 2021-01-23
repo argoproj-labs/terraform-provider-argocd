@@ -40,7 +40,7 @@ func expandApplicationSpec(d *schema.ResourceData) (
 		spec.IgnoreDifferences = expandApplicationIgnoreDifferences(v.([]interface{}))
 	}
 	if v, ok := s["sync_policy"]; ok {
-		spec.SyncPolicy = expandApplicationSyncPolicy(v.([]interface{}))
+		spec.SyncPolicy, err = expandApplicationSyncPolicy(v.([]interface{}))
 	}
 	if v, ok := s["destination"]; ok {
 		spec.Destination = expandApplicationDestination(v.(*schema.Set).List()[0])
@@ -48,7 +48,7 @@ func expandApplicationSpec(d *schema.ResourceData) (
 	if v, ok := s["source"]; ok {
 		spec.Source = expandApplicationSource(v.([]interface{})[0])
 	}
-	return spec, nil
+	return spec, err
 }
 
 func expandApplicationSource(_as interface{}) (
@@ -244,13 +244,15 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 	return result
 }
 
-func expandApplicationSyncPolicy(_sp []interface{}) *application.SyncPolicy {
+func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, error) {
 	if len(_sp) == 0 {
-		return nil
+		return nil, nil
 	}
 	sp := _sp[0]
 	var automated = &application.SyncPolicyAutomated{}
 	var syncOptions application.SyncOptions
+	var retry = &application.RetryStrategy{}
+	var err error
 
 	if a, ok := sp.(map[string]interface{})["automated"]; ok {
 		for k, v := range a.(map[string]interface{}) {
@@ -268,10 +270,43 @@ func expandApplicationSyncPolicy(_sp []interface{}) *application.SyncPolicy {
 			syncOptions = append(syncOptions, sOpt.(string))
 		}
 	}
+	if _retry, ok := sp.(map[string]interface{})["retry"].([]interface{}); ok {
+		if len(_retry) > 0 {
+			r := _retry[0]
+			for k, v := range r.(map[string]interface{}) {
+				if k == "limit" {
+					retry.Limit, err = convertStringToInt64(v.(string))
+					if err != nil {
+						return nil, err
+					}
+				}
+				if k == "backoff" {
+					retry.Backoff = &application.Backoff{}
+					for kb, vb := range v.(map[string]interface{}) {
+						if kb == "duration" {
+							retry.Backoff.Duration = vb.(string)
+						}
+						if kb == "max_duration" {
+							retry.Backoff.MaxDuration = vb.(string)
+						}
+						if kb == "factor" {
+							var pFactor int64
+							pFactor, err = convertStringToInt64(vb.(string))
+							if err != nil {
+								return nil, fmt.Errorf("%s: not a valid int64: %s", kb, vb.(string))
+							}
+							retry.Backoff.Factor = &pFactor
+						}
+					}
+				}
+			}
+		}
+	}
 	return &application.SyncPolicy{
 		Automated:   automated,
 		SyncOptions: syncOptions,
-	}
+		Retry:       retry,
+	}, nil
 }
 
 func expandApplicationIgnoreDifferences(ids []interface{}) (
@@ -370,6 +405,7 @@ func flattenApplicationSyncPolicy(sp *application.SyncPolicy) []map[string]inter
 		return nil
 	}
 	result := make(map[string]interface{}, 0)
+	backoff := make(map[string]string, 0)
 	if sp.Automated != nil {
 		result["automated"] = map[string]bool{
 			"prune":     sp.Automated.Prune,
@@ -377,6 +413,24 @@ func flattenApplicationSyncPolicy(sp *application.SyncPolicy) []map[string]inter
 		}
 	}
 	result["sync_options"] = []string(sp.SyncOptions)
+	if sp.Retry != nil {
+		limit := convertInt64ToString(sp.Retry.Limit)
+		if sp.Retry.Backoff != nil {
+			backoff = map[string]string{
+				"duration":     sp.Retry.Backoff.Duration,
+				"max_duration": sp.Retry.Backoff.MaxDuration,
+			}
+			if sp.Retry.Backoff.Factor != nil {
+				backoff["factor"] = convertInt64PointerToString(sp.Retry.Backoff.Factor)
+			}
+		}
+		result["retry"] = []map[string]interface{}{
+			{
+				"limit":   limit,
+				"backoff": backoff,
+			},
+		}
+	}
 	return []map[string]interface{}{result}
 }
 

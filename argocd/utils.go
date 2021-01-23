@@ -21,6 +21,10 @@ func convertInt64ToString(i int64) string {
 	return strconv.FormatInt(i, 10)
 }
 
+func convertInt64PointerToString(i *int64) string {
+	return strconv.FormatInt(*i, 10)
+}
+
 func isKeyInMap(key string, d map[string]interface{}) bool {
 	if d == nil {
 		return false
