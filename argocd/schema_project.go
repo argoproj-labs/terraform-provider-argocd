@@ -38,19 +38,17 @@ func projectSpecSchema() *schema.Schema {
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"server": {
-								Type:          schema.TypeString,
-								Optional:      true,
-								AtLeastOneOf:  []string{"server", "name"},
+								Type:     schema.TypeString,
+								Optional: true,
 							},
 							"namespace": {
 								Type:     schema.TypeString,
 								Required: true,
 							},
 							"name": {
-								Type:          schema.TypeString,
-								Optional:      true,
-								Description:   "Name of the destination cluster which can be used instead of server.",
-								AtLeastOneOf:  []string{"server", "name"},
+								Type:        schema.TypeString,
+								Optional:    true,
+								Description: "Name of the destination cluster which can be used instead of server.",
 							},
 						},
 					},
