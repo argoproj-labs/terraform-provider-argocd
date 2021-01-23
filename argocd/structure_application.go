@@ -206,7 +206,7 @@ func expandApplicationSourceKustomize(in []interface{}) *application.Application
 		}
 	}
 	if cas, ok := a["common_annotations"]; ok {
-		result.CommonLabels = make(map[string]string, 0)
+		result.CommonAnnotations = make(map[string]string, 0)
 		for k, v := range cas.(map[string]interface{}) {
 			result.CommonAnnotations[k] = v.(string)
 		}
