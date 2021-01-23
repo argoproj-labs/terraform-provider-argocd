@@ -24,7 +24,6 @@ func applicationSpecSchema() *schema.Schema {
 								Type:          schema.TypeString,
 								Optional:      true,
 								AtLeastOneOf:  []string{"server", "name"},
-								ConflictsWith: []string{"name"},
 							},
 							"namespace": {
 								Type:     schema.TypeString,
@@ -34,7 +33,6 @@ func applicationSpecSchema() *schema.Schema {
 								Type:          schema.TypeString,
 								Optional:      true,
 								Description:   "Name of the destination cluster which can be used instead of server.",
-								ConflictsWith: []string{"server"},
 								AtLeastOneOf:  []string{"server", "name"},
 							},
 						},
