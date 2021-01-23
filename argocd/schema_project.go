@@ -46,9 +46,9 @@ func projectSpecSchema() *schema.Schema {
 								Required: true,
 							},
 							"name": {
-								Type:     schema.TypeString,
-								Optional: true,
-								Description: "Name of the destination cluster which can be used instead of server.",
+								Type:          schema.TypeString,
+								Optional:      true,
+								Description:   "Name of the destination cluster which can be used instead of server.",
 								ConflictsWith: []string{"server"},
 							},
 						},
