@@ -138,8 +138,19 @@ resource "argocd_project" "myproject" {
       group = "networking.k8s.io"
       kind  = "Ingress"
     }
-    orphaned_resources = {
+    orphaned_resources {
       warn = true
+
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored1"
+      }
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored2"
+      }
     }
     role {
       name = "testrole"

@@ -45,8 +45,20 @@ resource "argocd_project" "myproject" {
       group = "networking.k8s.io"
       kind  = "Ingress"
     }
-    orphaned_resources = {
+    orphaned_resources {
       warn = true
+
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored1"
+      }
+
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored2"
+      }
     }
     role {
       name = "testrole"
@@ -111,8 +123,14 @@ Each `cluster_resource_whitelist` block can have the following attributes:
 * `group` - (Optional) The Kubernetes resource Group to match for.
 * `kind` - (Optional) The Kubernetes resource Kind to match for.
 
-The `orphaned_resources` map can have the following attributes:
-* `warn` - Boolean, defaults to `false`.
+The `orphaned_resources` block can have the following attributes:
+* `warn` - (Optional) Boolean, defaults to `false`.
+* `ignore` - (Optional), set of map of strings, specifies which Group/Kind/Name resource(s) to ignore. Can be repeated multiple times. Structure is documented below.
+
+Each `orphaned_resources/ignore` block can have the following attributes:
+* `group` - (Optional) The Kubernetes resource Group to match for.
+* `kind` - (Optional) The Kubernetes resource Kind to match for.
+* `name` - (Optional) The Kubernetes resource name to match for.
 
 Each `namespace_resource_blacklist` block can have the following attributes:
 * `group` - (Optional) The Kubernetes resource Group to match for.

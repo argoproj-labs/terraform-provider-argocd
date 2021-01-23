@@ -56,11 +56,14 @@ func expandProjectSpec(d *schema.ResourceData) (
 		}
 	}
 	if v, ok := s["orphaned_resources"]; ok {
-		if _warn, ok := v.(map[string]interface{})["warn"]; ok {
+		spec.OrphanedResources = &application.OrphanedResourcesMonitorSettings{}
+		if _warn, _ok := v.(map[string]interface{})["warn"]; _ok {
 			warn := _warn.(bool)
-			spec.OrphanedResources = &application.OrphanedResourcesMonitorSettings{
-				Warn: &warn,
-			}
+			spec.OrphanedResources.Warn = &warn
+		}
+		if _ignore, _ok := v.(map[string]interface{})["ignore"]; _ok {
+			ignore := expandOrphanedResourcesIgnore(_ignore.(*schema.Set))
+			spec.OrphanedResources.Ignore = ignore
 		}
 	}
 	if v, ok := s["cluster_resource_whitelist"]; ok {
@@ -89,6 +92,19 @@ func expandProjectSpec(d *schema.ResourceData) (
 		}
 	}
 	return spec, nil
+}
+
+func expandOrphanedResourcesIgnore(ignore *schema.Set) (
+	result []application.OrphanedResourceKey) {
+	for _, _i := range ignore.List() {
+		i := _i.(map[string]interface{})
+		result = append(result, application.OrphanedResourceKey{
+			Group: i["group"].(string),
+			Kind:  i["kind"].(string),
+			Name:  i["name"].(string),
+		})
+	}
+	return
 }
 
 // Flatten
@@ -123,11 +139,26 @@ func flattenProjectSpec(s application.AppProjectSpec) []map[string]interface{} {
 }
 
 func flattenProjectOrphanedResources(ors *application.OrphanedResourcesMonitorSettings) (
-	result map[string]bool) {
+	result []map[string]interface{}) {
 	if ors != nil {
-		result = map[string]bool{
-			"warn": *ors.Warn,
+		result = []map[string]interface{}{
+			{
+				"warn":   *ors.Warn,
+				"ignore": flattenProjectOrphanedResourcesIgnore(ors.Ignore),
+			},
 		}
+	}
+	return
+}
+
+func flattenProjectOrphanedResourcesIgnore(ignore []application.OrphanedResourceKey) (
+	result []map[string]string) {
+	for _, i := range ignore {
+		result = append(result, map[string]string{
+			"group": i.Group,
+			"kind":  i.Kind,
+			"name":  i.Name,
+		})
 	}
 	return
 }

@@ -70,9 +70,39 @@ func projectSpecSchema() *schema.Schema {
 					},
 				},
 				"orphaned_resources": {
-					Type:     schema.TypeMap,
+					Type:     schema.TypeSet,
 					Optional: true,
-					Elem:     &schema.Schema{Type: schema.TypeBool},
+					MinItems: 1,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"warn": {
+								Type:     schema.TypeBool,
+								Optional: true,
+							},
+							"ignore": {
+								Type:     schema.TypeSet,
+								Optional: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"group": {
+											Type:         schema.TypeString,
+											ValidateFunc: validateGroupName,
+											Optional:     true,
+										},
+										"kind": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+										"name": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+									},
+								},
+							},
+						},
+					},
 				},
 				"role": {
 					Type:     schema.TypeList,
