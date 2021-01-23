@@ -64,14 +64,16 @@ func expandProjectSpec(d *schema.ResourceData) (
 	}
 	if v, ok := s["orphaned_resources"]; ok {
 		spec.OrphanedResources = &application.OrphanedResourcesMonitorSettings{}
-		orphanedResources := v.(*schema.Set).List()[0]
-		if _warn, _ok := orphanedResources.(map[string]interface{})["warn"]; _ok {
-			warn := _warn.(bool)
-			spec.OrphanedResources.Warn = &warn
-		}
-		if _ignore, _ok := v.(map[string]interface{})["ignore"]; _ok {
-			ignore := expandOrphanedResourcesIgnore(_ignore.(*schema.Set))
-			spec.OrphanedResources.Ignore = ignore
+		orphanedResources := v.(*schema.Set).List()
+		if len(orphanedResources) > 0 {
+			if _warn, _ok := orphanedResources[0].(map[string]interface{})["warn"]; _ok {
+				warn := _warn.(bool)
+				spec.OrphanedResources.Warn = &warn
+			}
+			if _ignore, _ok := orphanedResources[0].(map[string]interface{})["ignore"]; _ok {
+				ignore := expandOrphanedResourcesIgnore(_ignore.(*schema.Set))
+				spec.OrphanedResources.Ignore = ignore
+			}
 		}
 	}
 	if v, ok := s["cluster_resource_whitelist"]; ok {
