@@ -136,6 +136,11 @@ func projectSpecSchema() *schema.Schema {
 					Required: true,
 					Elem:     &schema.Schema{Type: schema.TypeString},
 				},
+				"signature_keys": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+				},
 				"sync_window": {
 					Type:     schema.TypeList,
 					Optional: true,
