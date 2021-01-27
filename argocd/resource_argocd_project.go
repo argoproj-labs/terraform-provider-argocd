@@ -148,6 +148,13 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 			for _, r := range roles {
 				pr, i, err := p.GetRoleByName(r.Name)
 				if err != nil {
+					switch i {
+					default:
+					// i == -1 means the role does not exist
+					// and was recently added within Terraform tf files
+					case -1:
+						continue
+					}
 					return err
 				}
 				projectRequest.Project.Spec.Roles[i].JWTTokens = pr.JWTTokens
