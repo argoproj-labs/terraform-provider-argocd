@@ -92,6 +92,10 @@ resource "argocd_project" "myproject" {
       schedule     = "22 1 5 * *"
       manual_sync  = false
     }
+    signature_keys = [
+      "4AEE18F83AFDEB23",
+      "07E34825A909B250"
+    ]
   }
 }
 
@@ -118,6 +122,7 @@ The `spec` block can have the following attributes:
 * `namespace_resource_blacklist` - (Optional) Namespaced-scoped resources allowed to be managed by the project applications, can be repeated multiple times. 
 * `role` - (Optional) can be repeated multiple times. 
 * `sync_window` - (Optional) can be repeated multiple times. 
+* `signature_keys` - (Optional) list of PGP key IDs strings that commits to be synced to must be signed with.
 
 Each `cluster_resource_whitelist` block can have the following attributes:
 * `group` - (Optional) The Kubernetes resource Group to match for.
@@ -150,6 +155,7 @@ Each `sync_window` block can have the following attributes:
 * `manual_sync` - (Optional) Boolean, enables manual syncs when they would otherwise be blocked.
 * `namespaces` - (Optional) List of namespaces that the window will apply to.
 * `schedule` - (Optional) Time the window will begin, specified in cron format.
+
 
 ## Import
 

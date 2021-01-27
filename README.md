@@ -184,6 +184,10 @@ resource "argocd_project" "myproject" {
       schedule     = "22 1 5 * *"
       manual_sync  = false
     }
+    signature_keys = [
+      "4AEE18F83AFDEB23",
+      "07E34825A909B250"
+    ]
   }
 }
 
