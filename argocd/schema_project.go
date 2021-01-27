@@ -70,9 +70,38 @@ func projectSpecSchema() *schema.Schema {
 					},
 				},
 				"orphaned_resources": {
-					Type:     schema.TypeMap,
+					Type:     schema.TypeSet,
 					Optional: true,
-					Elem:     &schema.Schema{Type: schema.TypeBool},
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"warn": {
+								Type:     schema.TypeBool,
+								Optional: true,
+							},
+							"ignore": {
+								Type:     schema.TypeSet,
+								Optional: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"group": {
+											Type:         schema.TypeString,
+											ValidateFunc: validateGroupName,
+											Optional:     true,
+										},
+										"kind": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+										"name": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+									},
+								},
+							},
+						},
+					},
 				},
 				"role": {
 					Type:     schema.TypeList,
@@ -104,6 +133,11 @@ func projectSpecSchema() *schema.Schema {
 				"source_repos": {
 					Type:     schema.TypeList,
 					Required: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+				},
+				"signature_keys": {
+					Type:     schema.TypeList,
+					Optional: true,
 					Elem:     &schema.Schema{Type: schema.TypeString},
 				},
 				"sync_window": {

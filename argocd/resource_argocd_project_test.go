@@ -151,8 +151,18 @@ resource "argocd_project" "simple" {
       group = "networking.k8s.io"
       kind  = "Ingress"
     }
-    orphaned_resources = {
+    orphaned_resources {
       warn = true
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored1"
+      }
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored2"
+      }
     }
     sync_window {
       kind = "allow"
@@ -172,6 +182,10 @@ resource "argocd_project" "simple" {
       schedule = "22 1 5 * *"
       manual_sync = false
     }
+    signature_keys = [
+      "4AEE18F83AFDEB23",
+      "07E34825A909B250"
+    ]
   }
 }
 	`, name)

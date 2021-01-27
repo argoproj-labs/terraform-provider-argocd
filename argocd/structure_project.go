@@ -55,11 +55,24 @@ func expandProjectSpec(d *schema.ResourceData) (
 			spec.SourceRepos = append(spec.SourceRepos, sr.(string))
 		}
 	}
+	if v, ok := s["signature_keys"]; ok {
+		for _, sk := range v.([]interface{}) {
+			spec.SignatureKeys = append(spec.SignatureKeys, application.SignatureKey{
+				KeyID: sk.(string),
+			})
+		}
+	}
 	if v, ok := s["orphaned_resources"]; ok {
-		if _warn, ok := v.(map[string]interface{})["warn"]; ok {
-			warn := _warn.(bool)
-			spec.OrphanedResources = &application.OrphanedResourcesMonitorSettings{
-				Warn: &warn,
+		spec.OrphanedResources = &application.OrphanedResourcesMonitorSettings{}
+		orphanedResources := v.(*schema.Set).List()
+		if len(orphanedResources) > 0 {
+			if _warn, _ok := orphanedResources[0].(map[string]interface{})["warn"]; _ok {
+				warn := _warn.(bool)
+				spec.OrphanedResources.Warn = &warn
+			}
+			if _ignore, _ok := orphanedResources[0].(map[string]interface{})["ignore"]; _ok {
+				ignore := expandOrphanedResourcesIgnore(_ignore.(*schema.Set))
+				spec.OrphanedResources.Ignore = ignore
 			}
 		}
 	}
@@ -91,6 +104,19 @@ func expandProjectSpec(d *schema.ResourceData) (
 	return spec, nil
 }
 
+func expandOrphanedResourcesIgnore(ignore *schema.Set) (
+	result []application.OrphanedResourceKey) {
+	for _, _i := range ignore.List() {
+		i := _i.(map[string]interface{})
+		result = append(result, application.OrphanedResourceKey{
+			Group: i["group"].(string),
+			Kind:  i["kind"].(string),
+			Name:  i["name"].(string),
+		})
+	}
+	return
+}
+
 // Flatten
 
 func flattenProject(p *application.AppProject, d *schema.ResourceData) error {
@@ -118,16 +144,42 @@ func flattenProjectSpec(s application.AppProjectSpec) []map[string]interface{} {
 		"sync_window":                  flattenSyncWindows(s.SyncWindows),
 		"description":                  s.Description,
 		"source_repos":                 s.SourceRepos,
+		"signature_keys":               flattenProjectSignatureKeys(s.SignatureKeys),
 	}
 	return []map[string]interface{}{spec}
 }
 
+func flattenProjectSignatureKeys(keys []application.SignatureKey) (
+	result []string) {
+	for _, key := range keys {
+		result = append(result, key.KeyID)
+	}
+	return
+}
+
 func flattenProjectOrphanedResources(ors *application.OrphanedResourcesMonitorSettings) (
-	result map[string]bool) {
+	result []map[string]interface{}) {
+	r := make(map[string]interface{}, 0)
 	if ors != nil {
-		result = map[string]bool{
-			"warn": *ors.Warn,
+		if ors.Warn != nil {
+			r["warn"] = *ors.Warn
 		}
+		if ors.Ignore != nil {
+			r["ignore"] = flattenProjectOrphanedResourcesIgnore(ors.Ignore)
+			result = append(result, r)
+		}
+	}
+	return
+}
+
+func flattenProjectOrphanedResourcesIgnore(ignore []application.OrphanedResourceKey) (
+	result []map[string]string) {
+	for _, i := range ignore {
+		result = append(result, map[string]string{
+			"group": i.Group,
+			"kind":  i.Kind,
+			"name":  i.Name,
+		})
 	}
 	return
 }

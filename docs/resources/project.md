@@ -45,8 +45,20 @@ resource "argocd_project" "myproject" {
       group = "networking.k8s.io"
       kind  = "Ingress"
     }
-    orphaned_resources = {
+    orphaned_resources {
       warn = true
+
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored1"
+      }
+
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored2"
+      }
     }
     role {
       name = "testrole"
@@ -80,6 +92,10 @@ resource "argocd_project" "myproject" {
       schedule     = "22 1 5 * *"
       manual_sync  = false
     }
+    signature_keys = [
+      "4AEE18F83AFDEB23",
+      "07E34825A909B250"
+    ]
   }
 }
 
@@ -106,13 +122,20 @@ The `spec` block can have the following attributes:
 * `namespace_resource_blacklist` - (Optional) Namespaced-scoped resources allowed to be managed by the project applications, can be repeated multiple times. 
 * `role` - (Optional) can be repeated multiple times. 
 * `sync_window` - (Optional) can be repeated multiple times. 
+* `signature_keys` - (Optional) list of PGP key IDs strings that commits to be synced to must be signed with.
 
 Each `cluster_resource_whitelist` block can have the following attributes:
 * `group` - (Optional) The Kubernetes resource Group to match for.
 * `kind` - (Optional) The Kubernetes resource Kind to match for.
 
-The `orphaned_resources` map can have the following attributes:
-* `warn` - Boolean, defaults to `false`.
+The `orphaned_resources` block can have the following attributes:
+* `warn` - (Optional) Boolean, defaults to `false`.
+* `ignore` - (Optional), set of map of strings, specifies which Group/Kind/Name resource(s) to ignore. Can be repeated multiple times. Structure is documented below.
+
+Each `orphaned_resources/ignore` block can have the following attributes:
+* `group` - (Optional) The Kubernetes resource Group to match for.
+* `kind` - (Optional) The Kubernetes resource Kind to match for.
+* `name` - (Optional) The Kubernetes resource name to match for.
 
 Each `namespace_resource_blacklist` block can have the following attributes:
 * `group` - (Optional) The Kubernetes resource Group to match for.
@@ -132,6 +155,7 @@ Each `sync_window` block can have the following attributes:
 * `manual_sync` - (Optional) Boolean, enables manual syncs when they would otherwise be blocked.
 * `namespaces` - (Optional) List of namespaces that the window will apply to.
 * `schedule` - (Optional) Time the window will begin, specified in cron format.
+
 
 ## Import
 
