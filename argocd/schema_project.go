@@ -72,7 +72,6 @@ func projectSpecSchema() *schema.Schema {
 				"orphaned_resources": {
 					Type:     schema.TypeSet,
 					Optional: true,
-					MinItems: 1,
 					MaxItems: 1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{

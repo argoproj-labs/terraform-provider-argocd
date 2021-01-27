@@ -157,15 +157,19 @@ func flattenProjectSignatureKeys(keys []application.SignatureKey) (
 	return
 }
 
-func flattenProjectOrphanedResources(ors *application.OrphanedResourcesMonitorSettings) []map[string]interface{} {
-	result := make(map[string]interface{}, 0)
+func flattenProjectOrphanedResources(ors *application.OrphanedResourcesMonitorSettings) (
+	result []map[string]interface{}) {
+	r := make(map[string]interface{}, 0)
 	if ors != nil {
 		if ors.Warn != nil {
-			result["warn"] = *ors.Warn
+			r["warn"] = *ors.Warn
 		}
-		result["ignore"] = flattenProjectOrphanedResourcesIgnore(ors.Ignore)
+		if ors.Ignore != nil {
+			r["ignore"] = flattenProjectOrphanedResourcesIgnore(ors.Ignore)
+			result = append(result, r)
+		}
 	}
-	return []map[string]interface{}{result}
+	return
 }
 
 func flattenProjectOrphanedResourcesIgnore(ignore []application.OrphanedResourceKey) (
