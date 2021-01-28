@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/argoproj/argo-cd v1.8.3
+	github.com/argoproj/gitops-engine v0.2.1
 	github.com/argoproj/pkg v0.2.0
 	github.com/cristalhq/jwt/v3 v3.0.8
 	github.com/golang/protobuf v1.4.3

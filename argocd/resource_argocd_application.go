@@ -5,6 +5,8 @@ import (
 	"fmt"
 	applicationClient "github.com/argoproj/argo-cd/pkg/apiclient/application"
 	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	"github.com/argoproj/gitops-engine/pkg/health"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strings"
 	"time"
@@ -23,6 +25,17 @@ func resourceArgoCDApplication() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("applications.argoproj.io"),
 			"spec":     applicationSpecSchema(),
+			"wait": {
+				Type:        schema.TypeBool,
+				Description: "Upon application creation or update, wait for application health/sync status to be healthy/Synced, upon application deletion, wait for application to be removed, when set to true.",
+				Optional:    true,
+				Default:     false,
+			},
+		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 	}
 }
@@ -78,6 +91,23 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("something went wrong during application creation")
 	}
 	d.SetId(app.Name)
+	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
+		return resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+			a, err := c.Get(context.Background(), &applicationClient.ApplicationQuery{
+				Name: &app.Name,
+			})
+			if err != nil {
+				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
+			}
+			if a.Status.Health.Status != health.HealthStatusHealthy {
+				return resource.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", a.Status.Health.Status))
+			}
+			if a.Status.Sync.Status != application.SyncStatusCodeSynced {
+				return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", a.Status.Sync.Status))
+			}
+			return resource.NonRetryableError(resourceArgoCDApplicationRead(d, meta))
+		})
+	}
 	return resourceArgoCDApplicationRead(d, meta)
 }
 
@@ -87,8 +117,7 @@ func resourceArgoCDApplicationRead(d *schema.ResourceData, meta interface{}) err
 	appName := d.Id()
 	app, err := c.Get(context.Background(), &applicationClient.ApplicationQuery{
 		Name: &appName,
-	},
-	)
+	})
 	if err != nil {
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
@@ -141,6 +170,23 @@ func resourceArgoCDApplicationUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
+		if wait, _ok := d.GetOk("wait"); _ok && wait.(bool) {
+			return resource.Retry(d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+				a, err := c.Get(context.Background(), &applicationClient.ApplicationQuery{
+					Name: &app.Name,
+				})
+				if err != nil {
+					return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
+				}
+				if a.Status.Health.Status != health.HealthStatusHealthy {
+					return resource.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", a.Status.Health.Status))
+				}
+				if a.Status.Sync.Status != application.SyncStatusCodeSynced {
+					return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", a.Status.Sync.Status))
+				}
+				return resource.NonRetryableError(resourceArgoCDApplicationRead(d, meta))
+			})
+		}
 	}
 	return resourceArgoCDApplicationRead(d, meta)
 }
@@ -152,6 +198,21 @@ func resourceArgoCDApplicationDelete(d *schema.ResourceData, meta interface{}) e
 	_, err := c.Delete(context.Background(), &applicationClient.ApplicationDeleteRequest{Name: &appName})
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
 		return err
+	}
+	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
+		return resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+			_, err = c.Get(context.Background(), &applicationClient.ApplicationQuery{
+				Name: &appName,
+			})
+			if err == nil {
+				return resource.RetryableError(fmt.Errorf("application %s is still present", appName))
+			}
+			if !strings.Contains(err.Error(), "NotFound") {
+				return resource.NonRetryableError(err)
+			}
+			d.SetId("")
+			return nil
+		})
 	}
 	d.SetId("")
 	return nil

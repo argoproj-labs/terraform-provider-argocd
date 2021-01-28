@@ -313,7 +313,6 @@ func applicationSpecSchema() *schema.Schema {
 							},
 							"retry": {
 								Type:     schema.TypeList,
-								MinItems: 1,
 								MaxItems: 1,
 								Optional: true,
 								Elem: &schema.Resource{

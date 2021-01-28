@@ -52,6 +52,15 @@ ingress:
 				),
 			},
 			{
+				Config:             testAccArgoCDApplicationSimpleWait(commonName),
+				ExpectNonEmptyPlan: true,
+				Check: resource.TestCheckResourceAttr(
+					"argocd_application.simple",
+					"wait",
+					"true",
+				),
+			},
+			{
 				Config: testAccArgoCDApplicationHelm(
 					acctest.RandomWithPrefix("test-acc"),
 					helmValues),
@@ -217,6 +226,48 @@ resource "argocd_application" "simple" {
       namespace = "default"
     }
   }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationSimpleWait(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "simple" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+    annotations = {
+      "this.is.a.really.long.nested.key" = "yes, really!"
+    }
+  }
+  spec {
+    source {
+      repo_url        = "https://kubernetes-charts.banzaicloud.com"
+      chart           = "vault-operator"
+      target_revision = "1.3.3"
+      helm {
+        parameter {
+          name  = "image.tag"
+          value = "1.3.3"
+        }
+        release_name = "testing"
+      }
+    }
+    sync_policy {
+      automated = {
+        prune     = true
+        self_heal = true
+      }
+    }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+  wait = true
 }
 	`, name)
 }
