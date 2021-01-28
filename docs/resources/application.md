@@ -82,6 +82,8 @@ resource "argocd_application" "helm" {
     }
   }
 
+  wait = true
+
   spec {
     source {
       repo_url        = "https://some.chart.repo.io"
@@ -120,6 +122,7 @@ EOT
 
 * `metadata` - (Required) Standard Kubernetes API service's metadata. For more info see the [Kubernetes reference](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#metadata).
 * `spec` - (Required) The application specification, the nested attributes are documented below.
+* `wait` - (Optional) boolean, wait for application to be synced and healthy upon creation and updates, also waits for Kubernetes resources to be truly deleted upon deletion. Wait timeouts are controlled by Terraform Create, Update and Delete resource timeouts (all default to 5 minutes). Default is `false`.
 
 The `metadata` block can have the following attributes:
 
