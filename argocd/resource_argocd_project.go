@@ -23,7 +23,15 @@ func resourceArgoCDProject() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("appprojects.argoproj.io"),
-			"spec":     projectSpecSchema(),
+			"spec":     projectSpecSchemaV1(),
+		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceArgoCDProjectV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceArgoCDProjectStateUpgradeV0,
+				Version: 0,
+			},
 		},
 	}
 }
