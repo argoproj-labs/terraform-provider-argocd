@@ -2,7 +2,6 @@ package argocd
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"reflect"
 	"testing"
 )
 
@@ -59,13 +58,14 @@ func testResourceArgoCDProjectStateDataV1() map[string]interface{} {
 }
 
 func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
-	expected := testResourceArgoCDProjectStateDataV1()
-	actual, err := resourceArgoCDProjectStateUpgradeV0(testResourceArgoCDProjectStateDataV0(), nil)
+	_expected := testResourceArgoCDProjectStateDataV1()
+	_actual, err := resourceArgoCDProjectStateUpgradeV0(testResourceArgoCDProjectStateDataV0(), nil)
 	if err != nil {
 		t.Fatalf("error migrating state: %s", err)
 	}
-
-	if !reflect.DeepEqual(expected, actual) {
+	expected := _expected["spec"].([]map[string]interface{})[0]["orphaned_resources"].(*schema.Set)
+	actual := _actual["spec"].([]map[string]interface{})[0]["orphaned_resources"].(*schema.Set)
+	if !expected.HashEqual(actual) {
 		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
 	}
 }
