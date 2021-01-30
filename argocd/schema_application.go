@@ -31,7 +31,7 @@ func applicationSpecSchema() *schema.Schema {
 							"name": {
 								Type:        schema.TypeString,
 								Optional:    true,
-								Description: "Name of the destination cluster which can be used instead of server.",
+								Description: "name of the destination cluster which can be used instead of server.",
 							},
 						},
 					},

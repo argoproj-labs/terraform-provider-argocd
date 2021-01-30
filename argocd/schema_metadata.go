@@ -40,7 +40,7 @@ func metadataFields(objectName string) map[string]*schema.Schema {
 		},
 		"name": {
 			Type:         schema.TypeString,
-			Description:  fmt.Sprintf("Name of the %s, must be unique. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names", objectName),
+			Description:  fmt.Sprintf("name of the %s, must be unique. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names", objectName),
 			Optional:     true,
 			ForceNew:     true,
 			Computed:     true,

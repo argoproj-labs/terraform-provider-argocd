@@ -51,7 +51,7 @@ func projectSpecSchemaV0() *schema.Schema {
 							"name": {
 								Type:        schema.TypeString,
 								Optional:    true,
-								Description: "Name of the destination cluster which can be used instead of server.",
+								Description: "name of the destination cluster which can be used instead of server.",
 							},
 						},
 					},
@@ -202,7 +202,7 @@ func projectSpecSchemaV1() *schema.Schema {
 							"name": {
 								Type:        schema.TypeString,
 								Optional:    true,
-								Description: "Name of the destination cluster which can be used instead of server.",
+								Description: "name of the destination cluster which can be used instead of server.",
 							},
 						},
 					},
@@ -351,51 +351,54 @@ func resourceArgoCDProjectV0() *schema.Resource {
 }
 
 func resourceArgoCDProjectStateUpgradeV0(rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
-	orphanedResources := rawState["spec"].([]map[string]interface{})[0]["orphaned_resources"]
+	spec := rawState["spec"].([]map[string]interface{})
+	if len(spec) > 0 {
+		if orphanedResources, ok := spec[0]["orphaned_resources"]; ok {
+			switch orphanedResources.(type) {
 
-	switch orphanedResources.(type) {
-
-	// <= v0.4.8
-	case map[string]bool:
-		warn := orphanedResources.(map[string]bool)["warn"]
-		newOrphanedResources := schema.NewSet(
-			schema.HashResource(&schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"warn": {
-						Type:     schema.TypeBool,
-						Optional: true,
-					},
-					"ignore": {
-						Type:     schema.TypeSet,
-						Optional: true,
-						Elem: &schema.Resource{
-							Schema: map[string]*schema.Schema{
-								"group": {
-									Type:         schema.TypeString,
-									ValidateFunc: validateGroupName,
-									Optional:     true,
-								},
-								"kind": {
-									Type:     schema.TypeString,
-									Optional: true,
-								},
-								"name": {
-									Type:     schema.TypeString,
-									Optional: true,
+			// <= v0.4.8
+			case map[string]bool:
+				warn := orphanedResources.(map[string]bool)["warn"]
+				newOrphanedResources := schema.NewSet(
+					schema.HashResource(&schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"warn": {
+								Type:     schema.TypeBool,
+								Optional: true,
+							},
+							"ignore": {
+								Type:     schema.TypeSet,
+								Optional: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"group": {
+											Type:         schema.TypeString,
+											ValidateFunc: validateGroupName,
+											Optional:     true,
+										},
+										"kind": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+										"name": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+									},
 								},
 							},
 						},
-					},
-				},
-			}),
-			[]interface{}{map[string]interface{}{"warn": warn}},
-		)
-		rawState["spec"].([]map[string]interface{})[0]["orphaned_resources"] = newOrphanedResources
+					}),
+					[]interface{}{map[string]interface{}{"warn": warn}},
+				)
+				rawState["spec"].([]map[string]interface{})[0]["orphaned_resources"] = newOrphanedResources
 
-	// >= v0.5.0 <= v1.1.0
-	case *schema.Set:
-	default:
-		return nil, fmt.Errorf("error during state migration v0 to v1, unsupported type for 'orphaned_resources': %s", orphanedResources)
+			// >= v0.5.0 <= v1.1.0
+			case *schema.Set:
+			default:
+				return nil, fmt.Errorf("error during state migration v0 to v1, unsupported type for 'orphaned_resources': %s", orphanedResources)
+			}
+		}
 	}
 	return rawState, nil
 }
