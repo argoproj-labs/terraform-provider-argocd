@@ -184,6 +184,12 @@ func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
 							t.Fatalf("\n\n[maps without set] expected:\n\n%#v\n\ngot:\n\n%#v\n\n", tc.expectedState, actualState)
 						}
 					}
+					for k, av := range actualState["spec"].([]map[string]interface{})[0] {
+						ev := tc.expectedState["spec"].([]map[string]interface{})[0][k]
+						if k != "orphaned_resources" && !reflect.DeepEqual(av, ev) {
+							t.Fatalf("\n\n[maps] expected:\n\n%#v\n\ngot:\n\n%#v\n\n", tc.expectedState, actualState)
+						}
+					}
 				}
 			}
 
