@@ -51,7 +51,7 @@ func projectSpecSchemaV0() *schema.Schema {
 							"name": {
 								Type:        schema.TypeString,
 								Optional:    true,
-								Description: "name of the destination cluster which can be used instead of server.",
+								Description: "Name of the destination cluster which can be used instead of server.",
 							},
 						},
 					},
@@ -202,7 +202,7 @@ func projectSpecSchemaV1() *schema.Schema {
 							"name": {
 								Type:        schema.TypeString,
 								Optional:    true,
-								Description: "name of the destination cluster which can be used instead of server.",
+								Description: "Name of the destination cluster which can be used instead of server.",
 							},
 						},
 					},
