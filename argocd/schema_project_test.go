@@ -44,7 +44,6 @@ func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
 		expectedState map[string]interface{}
 		sourceState   map[string]interface{}
 	}
-
 	cases := projectStateUpgradeTestCases{
 		{
 			name: "source_<_v0.5.0_with_warn",
@@ -108,22 +107,39 @@ func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
 			sourceState: map[string]interface{}{
 				"spec": []map[string]interface{}{
 					{
-						"orphaned_resources": schema.NewSet(
-							orphanedResourcesSchemaSetFuncV1(),
-							[]interface{}{map[string]interface{}{"warn": true}},
-						),
-						"source_repos": []string{"*"},
+						"cluster_resource_whitelist": []map[string]string{},
+						"description":                "test",
+						"destination": map[string]string{
+							"namespace": "*",
+							"server":    "https://testing.io",
+						},
+						"namespace_resource_blacklist": []map[string]string{},
+						"orphaned_resources": map[string]bool{
+							"warn": true,
+						},
+						"role":         []map[string]interface{}{},
+						"source_repos": []string{"git@github.com:testing/test.git"},
+						"sync_window":  []map[string]interface{}{},
 					},
 				},
 			},
 			expectedState: map[string]interface{}{
 				"spec": []map[string]interface{}{
 					{
+						"cluster_resource_whitelist": []map[string]string{},
+						"description":                "test",
+						"destination": map[string]string{
+							"namespace": "*",
+							"server":    "https://testing.io",
+						},
+						"namespace_resource_blacklist": []map[string]string{},
 						"orphaned_resources": schema.NewSet(
 							orphanedResourcesSchemaSetFuncV1(),
 							[]interface{}{map[string]interface{}{"warn": true}},
 						),
-						"source_repos": []string{"*"},
+						"role":         []map[string]interface{}{},
+						"source_repos": []string{"git@github.com:testing/test.git"},
+						"sync_window":  []map[string]interface{}{},
 					},
 				},
 			},
@@ -162,7 +178,7 @@ func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
 						t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expectedSet, actualSet)
 					}
 					// Cannot DeepEqual a pointer reference
-					for k, _ := range tc.expectedState["spec"].([]map[string]interface{})[0] {
+					for k := range tc.expectedState["spec"].([]map[string]interface{})[0] {
 						av := actualState["spec"].([]map[string]interface{})[0][k]
 						ev := tc.expectedState["spec"].([]map[string]interface{})[0][k]
 						if k != "orphaned_resources" && !reflect.DeepEqual(av, ev) {
@@ -177,14 +193,15 @@ func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
 					}
 				} else {
 					// Cannot DeepEqual a pointer reference
-					for k, _ := range tc.expectedState["spec"].([]map[string]interface{})[0] {
+					for k := range tc.expectedState["spec"].([]map[string]interface{})[0] {
 						av := actualState["spec"].([]map[string]interface{})[0][k]
 						ev := tc.expectedState["spec"].([]map[string]interface{})[0][k]
 						if k != "orphaned_resources" && !reflect.DeepEqual(av, ev) {
 							t.Fatalf("\n\n[maps without set] expected:\n\n%#v\n\ngot:\n\n%#v\n\n", tc.expectedState, actualState)
 						}
 					}
-					for k, av := range actualState["spec"].([]map[string]interface{})[0] {
+					for k := range tc.sourceState["spec"].([]map[string]interface{})[0] {
+						av := actualState["spec"].([]map[string]interface{})[0][k]
 						ev := tc.expectedState["spec"].([]map[string]interface{})[0][k]
 						if k != "orphaned_resources" && !reflect.DeepEqual(av, ev) {
 							t.Fatalf("\n\n[maps] expected:\n\n%#v\n\ngot:\n\n%#v\n\n", tc.expectedState, actualState)

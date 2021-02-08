@@ -3,6 +3,7 @@ package argocd
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"reflect"
 )
 
 func projectSpecSchemaV0() *schema.Schema {
@@ -355,8 +356,44 @@ func resourceArgoCDProjectStateUpgradeV0(rawState map[string]interface{}, _ inte
 	if len(spec) > 0 {
 		if orphanedResources, ok := spec[0]["orphaned_resources"]; ok {
 			switch orphanedResources.(type) {
+			// <= v0.4.8 with nil orphaned_resources map
+			case map[string]interface{}:
+				warn := orphanedResources.(map[string]interface{})["warn"]
+				newOrphanedResources := schema.NewSet(
+					schema.HashResource(&schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"warn": {
+								Type:     schema.TypeBool,
+								Optional: true,
+							},
+							"ignore": {
+								Type:     schema.TypeSet,
+								Optional: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"group": {
+											Type:         schema.TypeString,
+											ValidateFunc: validateGroupName,
+											Optional:     true,
+										},
+										"kind": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+										"name": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+									},
+								},
+							},
+						},
+					}),
+					[]interface{}{map[string]interface{}{"warn": warn}},
+				)
+				rawState["spec"].([]interface{})[0].(map[string]interface{})["orphaned_resources"] = newOrphanedResources
 
-			// <= v0.4.8
+			// <= v0.4.8 with non-nil orphaned_resources map
 			case map[string]bool:
 				warn := orphanedResources.(map[string]bool)["warn"]
 				newOrphanedResources := schema.NewSet(
@@ -395,8 +432,9 @@ func resourceArgoCDProjectStateUpgradeV0(rawState map[string]interface{}, _ inte
 
 			// >= v0.5.0 <= v1.1.0
 			case *schema.Set:
+				return nil, fmt.Errorf("error during state migration v0 to v1, unsupported type for 'orphaned_resources': %s", reflect.TypeOf(orphanedResources))
 			default:
-				return nil, fmt.Errorf("error during state migration v0 to v1, unsupported type for 'orphaned_resources': %s", orphanedResources)
+				return nil, fmt.Errorf("error during state migration v0 to v1, unsupported type for 'orphaned_resources': %s", reflect.TypeOf(orphanedResources))
 			}
 		}
 	}
