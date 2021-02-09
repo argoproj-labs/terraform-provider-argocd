@@ -68,12 +68,12 @@ func TestAccArgoCDProject(t *testing.T) {
 }
 
 func TestAccArgoCDProject_tokensCoexistence(t *testing.T) {
-
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
+				ExpectNonEmptyPlan: true,
 				Config: testAccArgoCDProjectCoexistenceWithTokenResource(
 					"test-acc-"+acctest.RandString(10),
 					4,
