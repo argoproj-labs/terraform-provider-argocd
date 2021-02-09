@@ -7,7 +7,7 @@ import (
 	"github.com/argoproj/argo-cd/pkg/apiclient/project"
 	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/cristalhq/jwt/v3"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"strings"
 	"sync"
 	"time"

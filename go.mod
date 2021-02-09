@@ -9,7 +9,8 @@ require (
 	github.com/argoproj/pkg v0.2.0
 	github.com/cristalhq/jwt/v3 v3.0.8
 	github.com/golang/protobuf v1.4.3
-	github.com/hashicorp/terraform-plugin-sdk v1.16.0
+	github.com/hashicorp/terraform-plugin-sdk v1.16.1
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.3
 	github.com/robfig/cron v1.1.0
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
