@@ -1,9 +1,11 @@
 package argocd
 
 import (
+	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"reflect"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func projectSpecSchemaV0() *schema.Schema {
@@ -545,7 +547,7 @@ func resourceArgoCDProjectV1() *schema.Resource {
 	}
 }
 
-func resourceArgoCDProjectStateUpgradeV0(rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceArgoCDProjectStateUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	_spec := rawState["spec"]
 	if len(_spec.([]interface{})) > 0 {
 		spec := _spec.([]interface{})[0]
@@ -574,7 +576,7 @@ func resourceArgoCDProjectStateUpgradeV0(rawState map[string]interface{}, _ inte
 	return rawState, nil
 }
 
-func resourceArgoCDProjectStateUpgradeV1(rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+func resourceArgoCDProjectStateUpgradeV1(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	_spec := rawState["spec"]
 	if len(_spec.([]interface{})) > 0 {
 		spec := _spec.([]interface{})[0]
