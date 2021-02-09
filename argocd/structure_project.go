@@ -64,7 +64,7 @@ func expandProjectSpec(d *schema.ResourceData) (
 	}
 	if v, ok := s["orphaned_resources"]; ok {
 		spec.OrphanedResources = &application.OrphanedResourcesMonitorSettings{}
-		orphanedResources := v.(*schema.Set).List()
+		orphanedResources := v.([]interface{})
 		if len(orphanedResources) > 0 {
 			if _warn, _ok := orphanedResources[0].(map[string]interface{})["warn"]; _ok {
 				warn := _warn.(bool)
@@ -166,8 +166,8 @@ func flattenProjectOrphanedResources(ors *application.OrphanedResourcesMonitorSe
 		}
 		if ors.Ignore != nil {
 			r["ignore"] = flattenProjectOrphanedResourcesIgnore(ors.Ignore)
-			result = append(result, r)
 		}
+		result = append(result, r)
 	}
 	return
 }
