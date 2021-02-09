@@ -1,3 +1,4 @@
 .idea
 terraform-provider-argocd
 ./manifests/install/install.yml
+.vscode
