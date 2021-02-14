@@ -37,11 +37,11 @@ func serverInterfaceTestData(t *testing.T, argocdVersion string, semverOperator 
 	case semverLess:
 		v, err = semver.NewVersion(
 			fmt.Sprintf("%d.%d.%d",
-				mathutil.MinInt64(v.Major(), v.Major()-incMajor%v.Major()),
-				mathutil.MinInt64(v.Minor(), v.Minor()-incMinor%v.Minor()),
-				mathutil.MinInt64(v.Patch(), v.Patch()-incPatch%v.Patch()),
+				mathutil.MaxInt64(v.Major()-incMajor,0),
+				mathutil.MaxInt64(v.Minor()-incMinor,0),
+				mathutil.MaxInt64(v.Patch()-incPatch,0),
 			))
-		assert.NoError(t, err)
+			assert.NoError(t, err)
 	default:
 		t.Error("unsupported semver test semverOperator")
 	}
