@@ -6,6 +6,7 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/argoproj/argo-cd/pkg/apiclient"
 	"github.com/argoproj/argo-cd/pkg/apiclient/application"
+	"github.com/argoproj/argo-cd/pkg/apiclient/cluster"
 	"github.com/argoproj/argo-cd/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/pkg/apiclient/repocreds"
 	"github.com/argoproj/argo-cd/pkg/apiclient/repository"
@@ -110,6 +111,7 @@ func Provider() terraform.ResourceProvider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"argocd_application":            resourceArgoCDApplication(),
+			"argocd_cluster":                resourceArgoCDCluster(),
 			"argocd_project":                resourceArgoCDProject(),
 			"argocd_project_token":          resourceArgoCDProjectToken(),
 			"argocd_repository":             resourceArgoCDRepository(),
@@ -120,16 +122,18 @@ func Provider() terraform.ResourceProvider {
 			if err != nil {
 				return nil, err
 			}
-			_, projectClient, err := apiClient.NewProjectClient()
+			_, clusterClient, err := apiClient.NewClusterClient()
 			if err != nil {
 				return nil, err
 			}
-
 			_, applicationClient, err := apiClient.NewApplicationClient()
 			if err != nil {
 				return nil, err
 			}
-
+			_, projectClient, err := apiClient.NewProjectClient()
+			if err != nil {
+				return nil, err
+			}
 			_, repositoryClient, err := apiClient.NewRepoClient()
 			if err != nil {
 				return nil, err
@@ -141,8 +145,9 @@ func Provider() terraform.ResourceProvider {
 			}
 			return initServerInterface(
 				apiClient,
-				projectClient,
 				applicationClient,
+				clusterClient,
+				projectClient,
 				repositoryClient,
 				repoCredsClient,
 			)
@@ -152,8 +157,9 @@ func Provider() terraform.ResourceProvider {
 
 func initServerInterface(
 	apiClient apiclient.Client,
-	projectClient project.ProjectServiceClient,
 	applicationClient application.ApplicationServiceClient,
+	clusterClient cluster.ClusterServiceClient,
+	projectClient project.ProjectServiceClient,
 	repositoryClient repository.RepositoryServiceClient,
 	repoCredsClient repocreds.RepoCredsServiceClient,
 ) (interface{}, error) {
@@ -178,6 +184,7 @@ func initServerInterface(
 	return ServerInterface{
 		&apiClient,
 		&applicationClient,
+		&clusterClient,
 		&projectClient,
 		&repositoryClient,
 		&repoCredsClient,
