@@ -103,6 +103,9 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 			})
 			if err != nil {
 				fmt.Printf("%v\n", err)
+				if strings.Contains(err.Error(), "NotFound") {
+					return resource.RetryableError(err)
+				}
 				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
 			}
 			if a.Status.Health.Status != health.HealthStatusHealthy {
