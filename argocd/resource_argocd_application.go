@@ -44,7 +44,6 @@ func resourceArgoCDApplication() *schema.Resource {
 func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) error {
 	objectMeta, spec, err := expandApplication(d)
 	if err != nil {
-		fmt.Printf("%v\n", err)
 		return err
 	}
 	server := meta.(ServerInterface)
@@ -53,7 +52,6 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 		Name: &objectMeta.Name,
 	})
 	if err != nil {
-		fmt.Printf("%v\n", err)
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
 		default:
@@ -71,7 +69,6 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 
 	featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
 	if err != nil {
-		fmt.Printf("%v\n", err)
 		return err
 	}
 	if !featureApplicationLevelSyncOptionsSupported &&
@@ -89,7 +86,6 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 		},
 	})
 	if err != nil {
-		fmt.Printf("%v\n", err)
 		return err
 	}
 	if app == nil {
@@ -97,7 +93,7 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(app.Name)
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
-		return resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+		err = resource.RetryContext(context.Background(), d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 			a, err := c.Get(context.Background(), &applicationClient.ApplicationQuery{
 				Name: &app.Name,
 			})
@@ -114,8 +110,11 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 			if a.Status.Sync.Status != application.SyncStatusCodeSynced {
 				return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", a.Status.Sync.Status))
 			}
-			return resource.NonRetryableError(resourceArgoCDApplicationRead(d, meta))
+			return nil
 		})
+		if err != nil {
+			return fmt.Errorf("something went wrong upon waiting for the application to be created: %s", err)
+		}
 	}
 	return resourceArgoCDApplicationRead(d, meta)
 }
@@ -128,7 +127,6 @@ func resourceArgoCDApplicationRead(d *schema.ResourceData, meta interface{}) err
 		Name: &appName,
 	})
 	if err != nil {
-		fmt.Printf("%v\n", err)
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
 			d.SetId("")
@@ -138,7 +136,6 @@ func resourceArgoCDApplicationRead(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 	err = flattenApplication(app, d)
-	fmt.Printf("%v\n", err)
 	return err
 }
 
@@ -182,7 +179,7 @@ func resourceArgoCDApplicationUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 		if wait, _ok := d.GetOk("wait"); _ok && wait.(bool) {
-			return resource.Retry(d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+			err = resource.RetryContext(context.Background(), d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
 				a, err := c.Get(context.Background(), &applicationClient.ApplicationQuery{
 					Name: &app.Name,
 				})
@@ -195,8 +192,11 @@ func resourceArgoCDApplicationUpdate(d *schema.ResourceData, meta interface{}) e
 				if a.Status.Sync.Status != application.SyncStatusCodeSynced {
 					return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", a.Status.Sync.Status))
 				}
-				return resource.NonRetryableError(resourceArgoCDApplicationRead(d, meta))
+				return nil
 			})
+			if err != nil {
+				return fmt.Errorf("something went wrong upon waiting for the application to be updated: %s", err)
+			}
 		}
 	}
 	return resourceArgoCDApplicationRead(d, meta)
@@ -211,7 +211,7 @@ func resourceArgoCDApplicationDelete(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
-		return resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+		return resource.RetryContext(context.Background(), d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 			_, err = c.Get(context.Background(), &applicationClient.ApplicationQuery{
 				Name: &appName,
 			})
