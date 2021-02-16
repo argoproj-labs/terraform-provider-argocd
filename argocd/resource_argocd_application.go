@@ -3,13 +3,14 @@ package argocd
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	applicationClient "github.com/argoproj/argo-cd/pkg/apiclient/application"
 	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/gitops-engine/pkg/health"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"strings"
-	"time"
 )
 
 func resourceArgoCDApplication() *schema.Resource {
@@ -43,6 +44,7 @@ func resourceArgoCDApplication() *schema.Resource {
 func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) error {
 	objectMeta, spec, err := expandApplication(d)
 	if err != nil {
+		fmt.Printf("%v\n", err)
 		return err
 	}
 	server := meta.(ServerInterface)
@@ -51,6 +53,7 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 		Name: &objectMeta.Name,
 	})
 	if err != nil {
+		fmt.Printf("%v\n", err)
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
 		default:
@@ -68,6 +71,7 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 
 	featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
 	if err != nil {
+		fmt.Printf("%v\n", err)
 		return err
 	}
 	if !featureApplicationLevelSyncOptionsSupported &&
@@ -85,6 +89,7 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 		},
 	})
 	if err != nil {
+		fmt.Printf("%v\n", err)
 		return err
 	}
 	if app == nil {
@@ -97,6 +102,7 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 				Name: &app.Name,
 			})
 			if err != nil {
+				fmt.Printf("%v\n", err)
 				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
 			}
 			if a.Status.Health.Status != health.HealthStatusHealthy {
@@ -119,6 +125,7 @@ func resourceArgoCDApplicationRead(d *schema.ResourceData, meta interface{}) err
 		Name: &appName,
 	})
 	if err != nil {
+		fmt.Printf("%v\n", err)
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
 			d.SetId("")
@@ -128,6 +135,7 @@ func resourceArgoCDApplicationRead(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 	err = flattenApplication(app, d)
+	fmt.Printf("%v\n", err)
 	return err
 }
 

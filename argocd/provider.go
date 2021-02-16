@@ -120,14 +120,17 @@ func Provider() *schema.Provider {
 		ConfigureFunc: func(d *schema.ResourceData) (interface{}, error) {
 			apiClient, err := initApiClient(d)
 			if err != nil {
+				fmt.Printf("%v\n", err)
 				return nil, err
 			}
 			_, clusterClient, err := apiClient.NewClusterClient()
 			if err != nil {
+				fmt.Printf("%v\n", err)
 				return nil, err
 			}
 			_, applicationClient, err := apiClient.NewApplicationClient()
 			if err != nil {
+				fmt.Printf("%v\n", err)
 				return nil, err
 			}
 			_, projectClient, err := apiClient.NewProjectClient()
@@ -136,11 +139,13 @@ func Provider() *schema.Provider {
 			}
 			_, repositoryClient, err := apiClient.NewRepoClient()
 			if err != nil {
+				fmt.Printf("%v\n", err)
 				return nil, err
 			}
 
 			_, repoCredsClient, err := apiClient.NewRepoCredsClient()
 			if err != nil {
+				fmt.Printf("%v\n", err)
 				return nil, err
 			}
 			return initServerInterface(
@@ -165,12 +170,14 @@ func initServerInterface(
 ) (interface{}, error) {
 	acCloser, versionClient, err := apiClient.NewVersionClient()
 	if err != nil {
+		fmt.Printf("%v\n", err)
 		return nil, err
 	}
 	defer io.Close(acCloser)
 
 	serverVersionMessage, err := versionClient.Version(context.Background(), &empty.Empty{})
 	if err != nil {
+		fmt.Printf("%v\n", err)
 		return nil, err
 	}
 	if serverVersionMessage == nil {
@@ -242,10 +249,12 @@ func initApiClient(d *schema.ResourceData) (
 		if userNameOk && passwordOk {
 			apiClient, err = apiclient.NewClient(&opts)
 			if err != nil {
+				fmt.Printf("%v\n", err)
 				return apiClient, err
 			}
 			closer, sc, err := apiClient.NewSessionClient()
 			if err != nil {
+				fmt.Printf("%v\n", err)
 				return apiClient, err
 			}
 			defer io.Close(closer)
@@ -255,6 +264,7 @@ func initApiClient(d *schema.ResourceData) (
 			}
 			resp, err := sc.Create(context.Background(), &sessionOpts)
 			if err != nil {
+				fmt.Printf("%v\n", err)
 				return apiClient, err
 			}
 			opts.AuthToken = resp.Token
