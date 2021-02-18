@@ -25,40 +25,13 @@ func resourceArgoCDCluster() *schema.Resource {
 func resourceArgoCDClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	server := meta.(ServerInterface)
 	client := *server.ClusterClient
-	cluster := expandCluster(d)
+	cluster, err := expandCluster(d)
+	if err != nil {
+		return fmt.Errorf("could not expand cluster attributes: %s", err)
+	}
 
 	c, err := client.Create(context.Background(), &clusterClient.ClusterCreateRequest{
-		Cluster: &application.Cluster{
-			Server: "",
-			Name:   "",
-			Config: application.ClusterConfig{
-				Username:    "",
-				Password:    "",
-				BearerToken: "",
-				TLSClientConfig: application.TLSClientConfig{
-					Insecure:   false,
-					ServerName: "",
-					CertData:   nil,
-					KeyData:    nil,
-					CAData:     nil,
-				},
-				AWSAuthConfig: &application.AWSAuthConfig{
-					ClusterName: "",
-					RoleARN:     "",
-				},
-				ExecProviderConfig: &application.ExecProviderConfig{
-					Command:     "",
-					Args:        nil,
-					Env:         nil,
-					APIVersion:  "",
-					InstallHint: "",
-				},
-			},
-			Namespaces: nil,
-			Shard:      nil,
-		},
-		Upsert: false,
-	})
+		Cluster: cluster})
 	if err != nil {
 		return fmt.Errorf("something went wrong during cluster resource creation")
 	}
