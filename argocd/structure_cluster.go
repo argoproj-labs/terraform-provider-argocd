@@ -154,12 +154,24 @@ func flattenClusterConfig(config application.ClusterConfig) []map[string]interfa
 
 func flattenClusterConfigTLSClientConfig(tls application.TLSClientConfig) []map[string]interface{} {
 	return []map[string]interface{}{
-		{},
+		{
+			"ca_data":     tls.CAData,
+			"cert_data":   tls.CertData,
+			"key_data":    tls.KeyData,
+			"insecure":    tls.Insecure,
+			"server_name": tls.ServerName,
+		},
 	}
 }
 
 func flattenClusterConfigExecProviderConfig(epc *application.ExecProviderConfig) []map[string]interface{} {
 	return []map[string]interface{}{
-		{},
+		{
+			"api_version":  epc.APIVersion,
+			"args":         epc.Args,
+			"command":      epc.Command,
+			"env":          epc.Env,
+			"install_hint": epc.InstallHint,
+		},
 	}
 }
