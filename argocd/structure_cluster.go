@@ -23,8 +23,10 @@ func expandCluster(d *schema.ResourceData) (*application.Cluster, error) {
 			return nil, err
 		}
 	}
-	if v, ok := d.GetOk("namespaces"); ok {
-		cluster.Namespaces = v.([]string)
+	if ns, ok := d.GetOk("namespaces"); ok {
+		for _, n := range ns.([]interface{}) {
+			cluster.Namespaces = append(cluster.Namespaces, n.(string))
+		}
 	}
 	if v, ok := d.GetOk("config"); ok {
 		cluster.Config = expandClusterConfig(v.([]interface{})[0])
@@ -35,9 +37,8 @@ func expandCluster(d *schema.ResourceData) (*application.Cluster, error) {
 func expandClusterConfig(config interface{}) (
 	clusterConfig application.ClusterConfig) {
 	c := config.(map[string]interface{})
-	if _aws, ok := c["aws_auth_config"]; ok {
-		aws := _aws.([]map[string]string)[0]
-		for k, v := range aws {
+	if aws, ok := c["aws_auth_config"].([]interface{}); ok && len(aws) > 0 {
+		for k, v := range aws[0].(map[string]string) {
 			if k == "cluster_name" {
 				clusterConfig.AWSAuthConfig.ClusterName = v
 			}
@@ -55,10 +56,9 @@ func expandClusterConfig(config interface{}) (
 	if v, ok := c["password"]; ok {
 		clusterConfig.Password = v.(string)
 	}
-	if _tls, ok := c["tls_client_config"]; ok {
+	if tls, ok := c["tls_client_config"].([]interface{}); ok && len(tls) > 0 {
 		clusterConfig.TLSClientConfig = application.TLSClientConfig{}
-		tls := _tls.([]map[string]interface{})[0]
-		for k, v := range tls {
+		for k, v := range tls[0].(map[string]interface{}) {
 			if k == "ca_data" {
 				clusterConfig.TLSClientConfig.CAData = []byte(v.(string))
 			}
@@ -76,10 +76,9 @@ func expandClusterConfig(config interface{}) (
 			}
 		}
 	}
-	if _epc, ok := c["exec_provider_config"]; ok {
+	if epc, ok := c["exec_provider_config"].([]interface{}); ok && len(epc) > 0 {
 		clusterConfig.ExecProviderConfig = &application.ExecProviderConfig{}
-		epc := _epc.([]map[string]interface{})[0]
-		for k, v := range epc {
+		for k, v := range epc[0].(map[string]interface{}) {
 			if k == "api_version" {
 				clusterConfig.ExecProviderConfig.APIVersion = v.(string)
 			}

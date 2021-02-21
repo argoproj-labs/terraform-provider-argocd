@@ -25,7 +25,9 @@ func clusterSchema() map[string]*schema.Schema {
 			Type:        schema.TypeList,
 			Description: "Holds list of namespaces which are accessible in that cluster. Cluster level resources would be ignored if namespace list is not empty.",
 			Optional:    true,
-			Elem:        schema.TypeString,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
 		},
 		"config": {
 			Type:     schema.TypeList,

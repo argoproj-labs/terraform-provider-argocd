@@ -31,7 +31,7 @@ func resourceArgoCDClusterCreate(d *schema.ResourceData, meta interface{}) error
 	c, err := client.Create(context.Background(), &clusterClient.ClusterCreateRequest{
 		Cluster: cluster, Upsert: false})
 	if err != nil {
-		return fmt.Errorf("something went wrong during cluster resource creation")
+		return fmt.Errorf("something went wrong during cluster resource creation: %s", err)
 	}
 	d.SetId(c.Server)
 	return resourceArgoCDClusterRead(d, meta)
