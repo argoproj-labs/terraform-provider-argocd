@@ -32,7 +32,7 @@ resource "argocd_cluster" "simple" {
   name   = "%s"
   namespaces = ["default", "foo"]
   config {
-    # Uses Kind's' bootstrap token
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
     bearer_token = "abcdef.0123456789abcdef"
     tls_client_config {
       insecure = true
