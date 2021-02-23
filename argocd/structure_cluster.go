@@ -105,10 +105,12 @@ func flattenCluster(cluster *application.Cluster, d *schema.ResourceData) error 
 	r := map[string]interface{}{
 		"name":       cluster.Name,
 		"server":     cluster.Server,
-		"shard":      *cluster.Shard,
 		"namespaces": cluster.Namespaces,
 		"info":       flattenClusterInfo(cluster.Info),
-		"config":     flattenClusterConfig(cluster.Config),
+		"config":     flattenClusterConfig(cluster.Config, d),
+	}
+	if cluster.Shard != nil {
+		r["shard"] = *cluster.Shard
 	}
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {
@@ -122,7 +124,7 @@ func flattenClusterInfo(info application.ClusterInfo) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"server_version":     info.ServerVersion,
-			"applications_count": info.ApplicationsCount,
+			"applications_count": convertInt64ToString(info.ApplicationsCount),
 			"connection_state": []map[string]string{
 				{
 					"message": info.ConnectionState.Message,
@@ -133,44 +135,51 @@ func flattenClusterInfo(info application.ClusterInfo) []map[string]interface{} {
 	}
 }
 
-func flattenClusterConfig(config application.ClusterConfig) []map[string]interface{} {
-	return []map[string]interface{}{
-		{
-			"aws_auth_config": []map[string]string{
-				{
-					"cluster_name": config.AWSAuthConfig.ClusterName,
-					"role_arn":     config.AWSAuthConfig.RoleARN,
-				},
-			},
-			"bearer_token":         config.BearerToken,
-			"username":             config.Username,
-			"password":             config.Password,
-			"exec_provider_config": flattenClusterConfigExecProviderConfig(config.ExecProviderConfig),
-			"tls_client_config":    flattenClusterConfigTLSClientConfig(config.TLSClientConfig),
-		},
+func flattenClusterConfig(config application.ClusterConfig, d *schema.ResourceData) []map[string]interface{} {
+	var scc application.ClusterConfig
+	r := map[string]interface{}{
+		"username":             config.Username,
+		"exec_provider_config": flattenClusterConfigExecProviderConfig(config.ExecProviderConfig),
 	}
+	if stateClusterConfig, ok := d.GetOk("config"); ok {
+		scc = expandClusterConfig(stateClusterConfig.([]interface{})[0])
+		r["password"] = scc.Password
+		r["bearer_token"] = scc.BearerToken
+		r["tls_client_config"] = flattenClusterConfigTLSClientConfig(config.TLSClientConfig, scc)
+	}
+	if config.AWSAuthConfig != nil {
+		r["aws_auth_config"] = map[string]string{
+			"cluster_name": config.AWSAuthConfig.ClusterName,
+			"role_arn":     config.AWSAuthConfig.RoleARN,
+		}
+	}
+	return []map[string]interface{}{r}
 }
 
-func flattenClusterConfigTLSClientConfig(tls application.TLSClientConfig) []map[string]interface{} {
+func flattenClusterConfigTLSClientConfig(tls application.TLSClientConfig, stateClusterConfig application.ClusterConfig) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"ca_data":     tls.CAData,
-			"cert_data":   tls.CertData,
-			"key_data":    tls.KeyData,
+			"ca_data":     string(tls.CAData),
+			"cert_data":   string(tls.CertData),
+			"key_data":    string(stateClusterConfig.KeyData),
 			"insecure":    tls.Insecure,
 			"server_name": tls.ServerName,
 		},
 	}
 }
 
-func flattenClusterConfigExecProviderConfig(epc *application.ExecProviderConfig) []map[string]interface{} {
-	return []map[string]interface{}{
-		{
-			"api_version":  epc.APIVersion,
-			"args":         epc.Args,
-			"command":      epc.Command,
-			"env":          epc.Env,
-			"install_hint": epc.InstallHint,
-		},
+func flattenClusterConfigExecProviderConfig(epc *application.ExecProviderConfig) (
+	result []map[string]interface{}) {
+	if epc != nil {
+		result = []map[string]interface{}{
+			{
+				"api_version":  epc.APIVersion,
+				"args":         epc.Args,
+				"command":      epc.Command,
+				"env":          epc.Env,
+				"install_hint": epc.InstallHint,
+			},
+		}
 	}
+	return
 }

@@ -2,6 +2,7 @@ package argocd
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,10 +14,10 @@ func TestAccArgoCDCluster(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDClusterSimple(),
+				Config: testAccArgoCDClusterSimple(acctest.RandString(10)),
 				Check: resource.TestCheckResourceAttr(
 					"argocd_cluster.simple",
-					"info.connection_state.status",
+					"info.0.connection_state.0.status",
 					"Successful",
 				),
 			},
@@ -24,17 +25,19 @@ func TestAccArgoCDCluster(t *testing.T) {
 	})
 }
 
-func testAccArgoCDClusterSimple() string {
+func testAccArgoCDClusterSimple(clusterName string) string {
 	return fmt.Sprintf(`
 resource "argocd_cluster" "simple" {
   server = "https://kubernetes.default.svc.cluster.local"
+  name   = "%s"
   namespaces = ["default", "foo"]
   config {
-    bearer_token = "0123456789abcdef"
+    # Uses Kind's' bootstrap token
+    bearer_token = "abcdef.0123456789abcdef"
     tls_client_config {
       insecure = true
     }
   }
 }
-`)
+`, clusterName)
 }
