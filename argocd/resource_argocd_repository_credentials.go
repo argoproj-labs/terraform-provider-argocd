@@ -2,10 +2,11 @@ package argocd
 
 import (
 	"context"
+	"strings"
+
 	"github.com/argoproj/argo-cd/pkg/apiclient/repocreds"
 	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"strings"
 )
 
 func resourceArgoCDRepositoryCredentials() *schema.Resource {
@@ -16,7 +17,7 @@ func resourceArgoCDRepositoryCredentials() *schema.Resource {
 		Delete: resourceArgoCDRepositoryCredentialsDelete,
 		// TODO: add importer acceptance tests
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: repositoryCredentialsSchema(),
 	}

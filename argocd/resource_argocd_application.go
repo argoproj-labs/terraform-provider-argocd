@@ -21,7 +21,7 @@ func resourceArgoCDApplication() *schema.Resource {
 		Delete: resourceArgoCDApplicationDelete,
 		// TODO: add importer acceptance tests
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("applications.argoproj.io"),

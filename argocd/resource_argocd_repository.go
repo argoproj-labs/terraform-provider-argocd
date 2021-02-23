@@ -3,10 +3,11 @@ package argocd
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/argoproj/argo-cd/pkg/apiclient/repository"
 	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"strings"
 )
 
 func resourceArgoCDRepository() *schema.Resource {
@@ -17,7 +18,7 @@ func resourceArgoCDRepository() *schema.Resource {
 		Delete: resourceArgoCDRepositoryDelete,
 		// TODO: add importer acceptance tests
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: repositorySchema(),
 	}

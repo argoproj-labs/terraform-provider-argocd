@@ -3,12 +3,13 @@ package argocd
 import (
 	"context"
 	"fmt"
-	projectClient "github.com/argoproj/argo-cd/pkg/apiclient/project"
-	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"strings"
 	"sync"
 	"time"
+
+	projectClient "github.com/argoproj/argo-cd/pkg/apiclient/project"
+	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceArgoCDProject() *schema.Resource {
@@ -19,7 +20,7 @@ func resourceArgoCDProject() *schema.Resource {
 		Delete: resourceArgoCDProjectDelete,
 		// TODO: add importer acceptance tests
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("appprojects.argoproj.io"),
