@@ -149,9 +149,11 @@ func flattenClusterConfig(config application.ClusterConfig, d *schema.ResourceDa
 		r["tls_client_config"] = flattenClusterConfigTLSClientConfig(config.TLSClientConfig, scc)
 	}
 	if config.AWSAuthConfig != nil {
-		r["aws_auth_config"] = map[string]string{
-			"cluster_name": config.AWSAuthConfig.ClusterName,
-			"role_arn":     config.AWSAuthConfig.RoleARN,
+		r["aws_auth_config"] = []map[string]string{
+			{
+				"cluster_name": config.AWSAuthConfig.ClusterName,
+				"role_arn":     config.AWSAuthConfig.RoleARN,
+			},
 		}
 	}
 	return []map[string]interface{}{r}
