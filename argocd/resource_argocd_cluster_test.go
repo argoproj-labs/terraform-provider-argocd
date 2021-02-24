@@ -2,9 +2,9 @@ package argocd
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -14,22 +14,45 @@ func TestAccArgoCDCluster(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDClusterSimple(acctest.RandString(10)),
-				Check: resource.TestCheckResourceAttr(
-					"argocd_cluster.simple",
-					"info.0.connection_state.0.status",
-					"Successful",
+				Config: testAccArgoCDClusterBearerToken(acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.simple",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.simple",
+						"shard",
+						"1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.simple",
+						"info.0.server_version",
+						"1.19",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.simple",
+						"info.0.applications_count",
+						"0",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.simple",
+						"config.0.tls_client_config.0.insecure",
+						"true",
+					),
 				),
 			},
 		},
 	})
 }
 
-func testAccArgoCDClusterSimple(clusterName string) string {
+func testAccArgoCDClusterBearerToken(clusterName string) string {
 	return fmt.Sprintf(`
 resource "argocd_cluster" "simple" {
   server = "https://kubernetes.default.svc.cluster.local"
   name   = "%s"
+  shard  = "1"
   namespaces = ["default", "foo"]
   config {
     # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
@@ -41,3 +64,26 @@ resource "argocd_cluster" "simple" {
 }
 `, clusterName)
 }
+
+func testAccArgoCDClusterTLSCertificate(clusterName string) string {
+	//c := getInternalKubeClientSet()
+
+	return fmt.Sprintf(`
+resource "argocd_cluster" "simple" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  name   = "%s"
+  namespaces = ["bar", "baz"]
+  config {
+    tls_client_config {
+      insecure = true
+      
+    }
+  }
+}
+`, clusterName)
+}
+
+//
+//func getInternalKubeClientSet() kubernetes.Clientset {
+//	return clientSet
+//}

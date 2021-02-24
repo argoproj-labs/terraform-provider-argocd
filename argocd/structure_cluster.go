@@ -111,7 +111,7 @@ func flattenCluster(cluster *application.Cluster, d *schema.ResourceData) error 
 		"config":     flattenClusterConfig(cluster.Config, d),
 	}
 	if cluster.Shard != nil {
-		r["shard"] = *cluster.Shard
+		r["shard"] = convertInt64PointerToString(cluster.Shard)
 	}
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {
@@ -146,7 +146,7 @@ func flattenClusterConfig(config application.ClusterConfig, d *schema.ResourceDa
 		scc = expandClusterConfig(stateClusterConfig.([]interface{})[0])
 		r["password"] = scc.Password
 		r["bearer_token"] = scc.BearerToken
-		r["tls_client_config"] = flattenClusterConfigTLSClientConfig(config.TLSClientConfig, scc)
+		r["tls_client_config"] = flattenClusterConfigTLSClientConfig(scc)
 	}
 	if config.AWSAuthConfig != nil {
 		r["aws_auth_config"] = []map[string]string{
@@ -159,14 +159,14 @@ func flattenClusterConfig(config application.ClusterConfig, d *schema.ResourceDa
 	return []map[string]interface{}{r}
 }
 
-func flattenClusterConfigTLSClientConfig(tls application.TLSClientConfig, stateClusterConfig application.ClusterConfig) []map[string]interface{} {
+func flattenClusterConfigTLSClientConfig(stateClusterConfig application.ClusterConfig) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"ca_data":     string(tls.CAData),
-			"cert_data":   string(tls.CertData),
+			"ca_data":     string(stateClusterConfig.CAData),
+			"cert_data":   string(stateClusterConfig.CertData),
 			"key_data":    string(stateClusterConfig.KeyData),
-			"insecure":    tls.Insecure,
-			"server_name": tls.ServerName,
+			"insecure":    stateClusterConfig.Insecure,
+			"server_name": stateClusterConfig.ServerName,
 		},
 	}
 }
