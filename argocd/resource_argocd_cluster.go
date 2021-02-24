@@ -47,7 +47,11 @@ func resourceArgoCDClusterRead(d *schema.ResourceData, meta interface{}) error {
 	client := *server.ClusterClient
 	c, err := client.Get(context.Background(), getClusterQueryFromID(d))
 	if err != nil {
-		return fmt.Errorf("could not get cluster information: %s", err)
+		switch strings.Contains(err.Error(), "NotFound") {
+		case true:
+		default:
+			return fmt.Errorf("could not get cluster information: %s", err)
+		}
 	}
 	err = flattenCluster(c, d)
 	return err
@@ -62,7 +66,11 @@ func resourceArgoCDClusterUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 	_, err = client.Update(context.Background(), &clusterClient.ClusterUpdateRequest{Cluster: cluster})
 	if err != nil {
-		return fmt.Errorf("something went wrong during cluster update: %s", err)
+		switch strings.Contains(err.Error(), "NotFound") {
+		case true:
+		default:
+			return fmt.Errorf("something went wrong during cluster update: %s", err)
+		}
 	}
 	return resourceArgoCDClusterRead(d, meta)
 }
@@ -72,7 +80,11 @@ func resourceArgoCDClusterDelete(d *schema.ResourceData, meta interface{}) error
 	client := *server.ClusterClient
 	_, err := client.Delete(context.Background(), getClusterQueryFromID(d))
 	if err != nil {
-		return fmt.Errorf("something went wrong during cluster deletion: %s", err)
+		switch strings.Contains(err.Error(), "NotFound") {
+		case true:
+		default:
+			return fmt.Errorf("something went wrong during cluster deletion: %s", err)
+		}
 	}
 	d.SetId("")
 	return nil
