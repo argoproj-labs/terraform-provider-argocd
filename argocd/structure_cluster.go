@@ -38,12 +38,13 @@ func expandClusterConfig(config interface{}) (
 	clusterConfig application.ClusterConfig) {
 	c := config.(map[string]interface{})
 	if aws, ok := c["aws_auth_config"].([]interface{}); ok && len(aws) > 0 {
-		for k, v := range aws[0].(map[string]string) {
+		clusterConfig.AWSAuthConfig = &application.AWSAuthConfig{}
+		for k, v := range aws[0].(map[string]interface{}) {
 			if k == "cluster_name" {
-				clusterConfig.AWSAuthConfig.ClusterName = v
+				clusterConfig.AWSAuthConfig.ClusterName = v.(string)
 			}
 			if k == "role_arn" {
-				clusterConfig.AWSAuthConfig.RoleARN = v
+				clusterConfig.AWSAuthConfig.RoleARN = v.(string)
 			}
 		}
 	}
