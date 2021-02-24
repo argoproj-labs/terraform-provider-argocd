@@ -49,6 +49,8 @@ func resourceArgoCDClusterRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
+			d.SetId("")
+			return nil
 		default:
 			return fmt.Errorf("could not get cluster information: %s", err)
 		}
@@ -68,6 +70,8 @@ func resourceArgoCDClusterUpdate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
+			d.SetId("")
+			return nil
 		default:
 			return fmt.Errorf("something went wrong during cluster update: %s", err)
 		}
@@ -82,6 +86,8 @@ func resourceArgoCDClusterDelete(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		switch strings.Contains(err.Error(), "NotFound") {
 		case true:
+			d.SetId("")
+			return nil
 		default:
 			return fmt.Errorf("something went wrong during cluster deletion: %s", err)
 		}
