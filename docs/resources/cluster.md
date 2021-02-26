@@ -109,3 +109,10 @@ The `config.tls_client_config` block can have the following attributes:
 * `info.0.applications_count` - How many ArgoCD applications the cluster currently holds.
 * `info.0.connection_state.0.message`
 * `info.0.connection_state.0.status`
+
+## Import
+
+ArgoCD clusters can be imported using an id consisting of `{server}`, e.g.
+```
+$ terraform import argocd_cluster.mycluster https://mycluster.io:443
+```
