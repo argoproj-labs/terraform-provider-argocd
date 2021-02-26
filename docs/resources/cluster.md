@@ -28,7 +28,7 @@ data "google_container_cluster" "cluster" {
 }
 
 resource "argocd_cluster" "gke" {
-  server = data.google_container_cluster.cluster.endpoint
+  server = format("https://%s", data.google_container_cluster.cluster.endpoint)
   name   = "gke"
 
   config {
@@ -49,7 +49,7 @@ data "aws_eks_cluster" "cluster" {
 }
 
 resource "argocd_cluster" "eks" {
-  server     = data.aws_eks_cluster.cluster.endpoint
+  server     = format("https://%s", data.aws_eks_cluster.cluster.endpoint)
   name       = "eks"
   namespaces = ["default", "optional"]
 
