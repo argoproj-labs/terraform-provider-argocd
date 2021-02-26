@@ -7,7 +7,7 @@ echo '--- Kustomize sanity checks'
 kustomize version || exit 1
 
 echo '--- Create Kind cluster\n\n'
-kind create cluster --name argocd --config scripts/kind-config.yml --image kindest/node:${ARGOCD_KUBERNETES_VERSION:-v1.18.8}
+kind create cluster --name argocd --config scripts/kind-config.yml --image kindest/node:${ARGOCD_KUBERNETES_VERSION:-v1.19.7}
 
 echo '--- Kind sanity checks\n\n'
 kubectl get nodes -o wide

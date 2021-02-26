@@ -42,7 +42,7 @@ resource "argocd_repository" "private" {
 # Exported Attributes
 
 * `connection_state_status` - string, repository connection state status.
-* `inherited_creds` - boolean, whether credentials wre inherited fron a credential set.
+* `inherited_creds` - boolean, whether credentials wre inherited from a credential set.
 
 ## Import
 

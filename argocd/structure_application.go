@@ -299,12 +299,11 @@ func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, er
 							retry.Backoff.MaxDuration = vb.(string)
 						}
 						if kb == "factor" {
-							var pFactor int64
-							pFactor, err = convertStringToInt64(vb.(string))
+							factor, err := convertStringToInt64Pointer(vb.(string))
 							if err != nil {
 								return nil, fmt.Errorf("%s: not a valid int64: %s", kb, vb.(string))
 							}
-							retry.Backoff.Factor = &pFactor
+							retry.Backoff.Factor = factor
 						}
 					}
 				}

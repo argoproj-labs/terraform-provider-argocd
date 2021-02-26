@@ -5,6 +5,7 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/argoproj/argo-cd/pkg/apiclient"
 	"github.com/argoproj/argo-cd/pkg/apiclient/application"
+	"github.com/argoproj/argo-cd/pkg/apiclient/cluster"
 	"github.com/argoproj/argo-cd/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/pkg/apiclient/repocreds"
 	"github.com/argoproj/argo-cd/pkg/apiclient/repository"
@@ -28,6 +29,7 @@ var (
 type ServerInterface struct {
 	ApiClient            *apiclient.Client
 	ApplicationClient    *application.ApplicationServiceClient
+	ClusterClient        *cluster.ClusterServiceClient
 	ProjectClient        *project.ProjectServiceClient
 	RepositoryClient     *repository.RepositoryServiceClient
 	RepoCredsClient      *repocreds.RepoCredsServiceClient

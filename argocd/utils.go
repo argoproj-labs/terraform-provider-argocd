@@ -25,6 +25,13 @@ func convertInt64PointerToString(i *int64) string {
 	return strconv.FormatInt(*i, 10)
 }
 
+func convertStringToInt64Pointer(s string) (*int64, error) {
+	i, err := convertStringToInt64(s)
+	if err != nil {
+		return nil, fmt.Errorf("not a valid int64: %s", s)
+	}
+	return &i, nil
+}
 func isKeyInMap(key string, d map[string]interface{}) bool {
 	if d == nil {
 		return false
