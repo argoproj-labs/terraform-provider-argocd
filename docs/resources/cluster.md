@@ -59,7 +59,7 @@ resource "argocd_cluster" "eks" {
       role_arn     = "arn:aws:iam::<123456789012>:role/<role-name>"
     }
     tls_client_config {
-      ca_cert_data = data.aws_eks_cluster.cluster.certificate_authority[0].data 
+      ca_cert_data = data.aws_eks_cluster.cluster.certificate_authority[0].data
     }
   }
 }
@@ -108,4 +108,4 @@ The `config.tls_client_config` block can have the following attributes:
 * `info.0.server_version` - The version of the remote Kubernetes cluster.
 * `info.0.applications_count` - How many ArgoCD applications the cluster currently holds.
 * `info.0.connection_state.0.message`
-* `info.0.connection_state.0.status` 
+* `info.0.connection_state.0.status`

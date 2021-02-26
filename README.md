@@ -84,6 +84,20 @@ provider "argocd" {
   insecure    = false              # env ARGOCD_INSECURE
 }
 
+resource "argocd_cluster" "kubernetes" {
+  server = "https://1.2.3.4:12345"
+  name   = "mycluster"
+
+  config {
+    bearer_token = "eyJhbGciOiJSUzI..."
+
+    tls_client_config {
+      ca_data = base64encode(file("path/to/ca.pem"))
+      // insecure = true
+    }
+  }
+}
+
 resource "argocd_repository_credentials" "private" {
   url             = "git@private-git-repository.local"
   username        = "git"
@@ -178,7 +192,10 @@ resource "argocd_project" "myproject" {
     sync_window {
       kind         = "deny"
       applications = ["foo"]
-      clusters     = ["in-cluster"]
+      clusters     = [
+        "in-cluster",
+        argocd_cluster.cluster.name,
+      ]
       namespaces   = ["default"]
       duration     = "12h"
       schedule     = "22 1 5 * *"
