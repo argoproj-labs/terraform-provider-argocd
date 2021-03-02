@@ -3,7 +3,9 @@ package argocd
 import (
 	"encoding/json"
 	"fmt"
+
 	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -13,16 +15,16 @@ import (
 func expandApplication(d *schema.ResourceData) (
 	metadata meta.ObjectMeta,
 	spec application.ApplicationSpec,
-	err error) {
+	diags diag.Diagnostics) {
 
 	metadata = expandMetadata(d)
-	spec, err = expandApplicationSpec(d)
+	spec, diags = expandApplicationSpec(d)
 	return
 }
 
 func expandApplicationSpec(d *schema.ResourceData) (
 	spec application.ApplicationSpec,
-	err error) {
+	diags diag.Diagnostics) {
 
 	s := d.Get("spec.0").(map[string]interface{})
 
@@ -40,7 +42,7 @@ func expandApplicationSpec(d *schema.ResourceData) (
 		spec.IgnoreDifferences = expandApplicationIgnoreDifferences(v.([]interface{}))
 	}
 	if v, ok := s["sync_policy"]; ok {
-		spec.SyncPolicy, err = expandApplicationSyncPolicy(v.([]interface{}))
+		spec.SyncPolicy, diags = expandApplicationSyncPolicy(v.([]interface{}))
 	}
 	if v, ok := s["destination"]; ok {
 		spec.Destination = expandApplicationDestination(v.(*schema.Set).List()[0])
@@ -48,7 +50,7 @@ func expandApplicationSpec(d *schema.ResourceData) (
 	if v, ok := s["source"]; ok {
 		spec.Source = expandApplicationSource(v.([]interface{})[0])
 	}
-	return spec, err
+	return spec, diags
 }
 
 func expandApplicationSource(_as interface{}) (
@@ -250,7 +252,7 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 	return result
 }
 
-func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, error) {
+func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, diag.Diagnostics) {
 	if len(_sp) == 0 {
 		return nil, nil
 	}
@@ -258,7 +260,6 @@ func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, er
 	var automated = &application.SyncPolicyAutomated{}
 	var syncOptions application.SyncOptions
 	var retry = &application.RetryStrategy{}
-	var err error
 
 	if a, ok := sp.(map[string]interface{})["automated"]; ok {
 		for k, v := range a.(map[string]interface{}) {
@@ -284,9 +285,16 @@ func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, er
 			r := _retry[0]
 			for k, v := range r.(map[string]interface{}) {
 				if k == "limit" {
+					var err error
 					retry.Limit, err = convertStringToInt64(v.(string))
 					if err != nil {
-						return nil, err
+						return nil, []diag.Diagnostic{
+							diag.Diagnostic{
+								Severity: diag.Error,
+								Summary:  "Error converting retry limit to integer",
+								Detail:   err.Error(),
+							},
+						}
 					}
 				}
 				if k == "backoff" {
@@ -301,7 +309,13 @@ func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, er
 						if kb == "factor" {
 							factor, err := convertStringToInt64Pointer(vb.(string))
 							if err != nil {
-								return nil, fmt.Errorf("%s: not a valid int64: %s", kb, vb.(string))
+								return nil, []diag.Diagnostic{
+									diag.Diagnostic{
+										Severity: diag.Error,
+										Summary:  "Error converting backoff factor to integer",
+										Detail:   err.Error(),
+									},
+								}
 							}
 							retry.Backoff.Factor = factor
 						}
