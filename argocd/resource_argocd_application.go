@@ -98,7 +98,6 @@ func resourceArgoCDApplicationCreate(d *schema.ResourceData, meta interface{}) e
 				Name: &app.Name,
 			})
 			if err != nil {
-				fmt.Printf("%v\n", err)
 				if strings.Contains(err.Error(), "NotFound") {
 					return resource.RetryableError(err)
 				}
