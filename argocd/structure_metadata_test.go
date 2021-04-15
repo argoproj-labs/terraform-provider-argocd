@@ -16,6 +16,7 @@ func TestMetadataIsInternalKey(t *testing.T) {
 		{"any.hostname.com/with/path", false},
 		{"any.kubernetes.io", true},
 		{"kubernetes.io", true},
+		{"notified.notifications.argoproj.io", true},
 	}
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
