@@ -6,9 +6,10 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestAccArgoCDRepositoryCredentials(t *testing.T) {
@@ -16,8 +17,8 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 	assert.NoError(t, err)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCredentialsSimple(
