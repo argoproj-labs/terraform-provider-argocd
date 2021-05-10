@@ -54,7 +54,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 			},
 		}
 	}
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
 	if err := server.initClients(); err != nil {
 		return []diag.Diagnostic{
 			diag.Diagnostic{
@@ -131,7 +131,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
 	if err := server.initClients(); err != nil {
 		return []diag.Diagnostic{
 			diag.Diagnostic{
@@ -191,7 +191,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 				},
 			}
 		}
-		server := meta.(ServerInterface)
+		server := meta.(*ServerInterface)
 		if err := server.initClients(); err != nil {
 			return []diag.Diagnostic{
 				diag.Diagnostic{
@@ -271,7 +271,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
 	if err := server.initClients(); err != nil {
 		return []diag.Diagnostic{
 			diag.Diagnostic{

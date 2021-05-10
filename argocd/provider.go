@@ -117,11 +117,8 @@ func Provider() *schema.Provider {
 			"argocd_repository_credentials": resourceArgoCDRepositoryCredentials(),
 		},
 		ConfigureFunc: func(d *schema.ResourceData) (interface{}, error) {
-			server := ServerInterface{}
-			server.ProviderData = d
-			// Ignore error
-			server.initClients()
-			return server, nil
+			server := ServerInterface{ProviderData: d}
+			return &server, nil
 		},
 	}
 }
@@ -135,6 +132,7 @@ func initApiClient(d *schema.ResourceData) (
 	if v, ok := d.GetOk("server_addr"); ok {
 		opts.ServerAddr = v.(string)
 	}
+
 	if v, ok := d.GetOk("plain_text"); ok {
 		opts.PlainText = v.(bool)
 	}

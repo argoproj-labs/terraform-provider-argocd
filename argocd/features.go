@@ -45,43 +45,56 @@ type ServerInterface struct {
 
 func (p *ServerInterface) initClients() error {
 	d := p.ProviderData
-	apiClient, err := initApiClient(d)
-	if err != nil {
-		return err
-	}
-	p.ApiClient = &apiClient
 
-	_, clusterClient, err := apiClient.NewClusterClient()
-	if err != nil {
-		return err
+	if p.ApiClient == nil {
+		apiClient, err := initApiClient(d)
+		if err != nil {
+			return err
+		}
+		p.ApiClient = &apiClient
 	}
-	p.ClusterClient = &clusterClient
 
-	_, applicationClient, err := apiClient.NewApplicationClient()
-	if err != nil {
-		return err
+	if p.ClusterClient == nil {
+		_, clusterClient, err := (*p.ApiClient).NewClusterClient()
+		if err != nil {
+			return err
+		}
+		p.ClusterClient = &clusterClient
 	}
-	p.ApplicationClient = &applicationClient
 
-	_, projectClient, err := apiClient.NewProjectClient()
-	if err != nil {
-		return err
+	if p.ApplicationClient == nil {
+		_, applicationClient, err := (*p.ApiClient).NewApplicationClient()
+		if err != nil {
+			return err
+		}
+		p.ApplicationClient = &applicationClient
 	}
-	p.ProjectClient = &projectClient
 
-	_, repositoryClient, err := apiClient.NewRepoClient()
-	if err != nil {
-		return err
+	if p.ProjectClient == nil {
+		_, projectClient, err := (*p.ApiClient).NewProjectClient()
+		if err != nil {
+			return err
+		}
+		p.ProjectClient = &projectClient
 	}
-	p.RepositoryClient = &repositoryClient
 
-	_, repoCredsClient, err := apiClient.NewRepoCredsClient()
-	if err != nil {
-		return err
+	if p.RepositoryClient == nil {
+		_, repositoryClient, err := (*p.ApiClient).NewRepoClient()
+		if err != nil {
+			return err
+		}
+		p.RepositoryClient = &repositoryClient
 	}
-	p.RepoCredsClient = &repoCredsClient
 
-	acCloser, versionClient, err := apiClient.NewVersionClient()
+	if p.RepoCredsClient == nil {
+		_, repoCredsClient, err := (*p.ApiClient).NewRepoCredsClient()
+		if err != nil {
+			return err
+		}
+		p.RepoCredsClient = &repoCredsClient
+	}
+
+	acCloser, versionClient, err := (*p.ApiClient).NewVersionClient()
 	if err != nil {
 		return err
 	}
