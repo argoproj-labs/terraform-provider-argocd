@@ -71,6 +71,15 @@ func resourceArgoCDProjectToken() *schema.Resource {
 
 func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.ProjectClient
 	var claims jwt.StandardClaims
 	var expiresIn int64
@@ -254,6 +263,15 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 	var requestTokenIAT int64 = 0
 
 	server := meta.(ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.ProjectClient
 	projectName := d.Get("project").(string)
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
@@ -399,6 +417,15 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 
 func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.ProjectClient
 
 	projectName := d.Get("project").(string)

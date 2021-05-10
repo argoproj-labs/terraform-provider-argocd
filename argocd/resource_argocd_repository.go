@@ -27,6 +27,16 @@ func resourceArgoCDRepository() *schema.Resource {
 
 func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
+
 	c := *server.RepositoryClient
 	repo := expandRepository(d)
 
@@ -75,6 +85,15 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 
 func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.RepositoryClient
 	r := &application.Repository{}
 
@@ -161,6 +180,15 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 
 func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.RepositoryClient
 	repo := expandRepository(d)
 
@@ -209,6 +237,15 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 
 func resourceArgoCDRepositoryDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.RepositoryClient
 
 	tokenMutexConfiguration.Lock()
