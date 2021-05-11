@@ -68,7 +68,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	tokenMutexProjectMap[projectName].RUnlock()
 
 	if err != nil {
-		if strings.Contains(err.Error(), "NotFound") {
+		if !strings.Contains(err.Error(), "NotFound") {
 			return []diag.Diagnostic{
 				diag.Diagnostic{
 					Severity: diag.Error,
