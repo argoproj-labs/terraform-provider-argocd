@@ -43,7 +43,7 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Repository %s not found", repo),
 				Detail:   err.Error(),
@@ -52,7 +52,7 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 	}
 	if r == nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("ArgoCD did not return an error or a repository result"),
 			},
@@ -60,7 +60,7 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 	}
 	if r.ConnectionState.Status == application.ConnectionStatusFailed {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary: fmt.Sprintf(
 					"could not connect to repository %s: %s",
@@ -82,7 +82,7 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 	featureRepositoryGetSupported, err := server.isFeatureSupported(featureRepositoryGet)
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  `support for feature "repositoryGet" could not be checked`,
 				Detail:   err.Error(),
@@ -104,7 +104,7 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 				return nil
 			}
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("repository %s could not be retrieved", d.Id()),
 					Detail:   err.Error(),
@@ -122,7 +122,7 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 		if err != nil {
 			// TODO: check for NotFound condition?
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("repository %s could not be listed", d.Id()),
 					Detail:   err.Error(),
@@ -149,7 +149,7 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 	err = flattenRepository(r, d)
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("repository %s could not be flattened", d.Id()),
 				Detail:   err.Error(),
@@ -178,7 +178,7 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 			return nil
 		}
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("repository %s could not be updated", d.Id()),
 				Detail:   err.Error(),
@@ -188,7 +188,7 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 	if r == nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("argoCD did not return an error or a repository result for ID %s", d.Id()),
 				Detail:   err.Error(),
@@ -197,7 +197,7 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 	if r.ConnectionState.Status == application.ConnectionStatusFailed {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("could not connect to repository %s: %s", repo.Repo, r.ConnectionState.Message),
 			},
@@ -225,7 +225,7 @@ func resourceArgoCDRepositoryDelete(ctx context.Context, d *schema.ResourceData,
 			return nil
 		}
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Repository %s not found", d.Id()),
 				Detail:   err.Error(),

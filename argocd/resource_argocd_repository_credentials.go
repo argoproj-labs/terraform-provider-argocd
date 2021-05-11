@@ -42,7 +42,7 @@ func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.Re
 
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("credentials for repository %s could not be created", repoCreds.URL),
 				Detail:   err.Error(),
@@ -67,7 +67,7 @@ func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.Reso
 	if err != nil {
 		// TODO: check for NotFound condition?
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("credentials for repository %s could not be listed", d.Id()),
 				Detail:   err.Error(),
@@ -113,7 +113,7 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 			return nil
 		} else {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("credentials for repository %s could not be updated", repoCreds.URL),
 					Detail:   err.Error(),
@@ -143,7 +143,7 @@ func resourceArgoCDRepositoryCredentialsDelete(ctx context.Context, d *schema.Re
 			return nil
 		} else {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("credentials for repository %s could not be deleted", d.Id()),
 					Detail:   err.Error(),

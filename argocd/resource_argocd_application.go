@@ -54,7 +54,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	})
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("application %s could not be created", objectMeta.Name),
 				Detail:   err.Error(),
@@ -73,7 +73,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  "feature not supported",
 				Detail:   err.Error(),
@@ -84,7 +84,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		spec.SyncPolicy != nil &&
 		spec.SyncPolicy.SyncOptions != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary: fmt.Sprintf(
 					"application-level sync_options is only supported from ArgoCD %s onwards",
@@ -102,7 +102,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	})
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("application %s could not be created", objectMeta.Name),
 				Detail:   err.Error(),
@@ -111,7 +111,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	}
 	if app == nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("application %s could not be created: unknown reason", objectMeta.Name),
 			},
@@ -136,7 +136,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		})
 		if err != nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("Error while waiting for application %s to be created", objectMeta.Name),
 					Detail:   err.Error(),
@@ -160,7 +160,7 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 			return diag.Diagnostics{}
 		}
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("application %s not found", appName),
 				Detail:   err.Error(),
@@ -170,7 +170,7 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 	err = flattenApplication(app, d)
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("application %s could not be flattened", appName),
 				Detail:   err.Error(),
@@ -197,7 +197,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
 		if err != nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  "Feature not supported",
 					Detail:   err.Error(),
@@ -208,7 +208,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 			spec.SyncPolicy != nil &&
 			spec.SyncPolicy.SyncOptions != nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary: fmt.Sprintf(
 						"application-level sync_options is only supported from ArgoCD %s onwards",
@@ -230,7 +230,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		})
 		if err != nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("application %s could not be updated", appName),
 					Detail:   err.Error(),
@@ -255,7 +255,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 			})
 			if err != nil {
 				return []diag.Diagnostic{
-					diag.Diagnostic{
+					{
 						Severity: diag.Error,
 						Summary:  fmt.Sprintf("something went wrong upon waiting for the application to be updated: %s", err),
 						Detail:   err.Error(),
@@ -276,7 +276,7 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 	})
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("application %s could not be deleted", appName),
 				Detail:   err.Error(),
@@ -299,7 +299,7 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 		})
 		if err != nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("application %s not be deleted", appName),
 					Detail:   err.Error(),

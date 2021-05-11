@@ -289,7 +289,7 @@ func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, di
 					retry.Limit, err = convertStringToInt64(v.(string))
 					if err != nil {
 						return nil, []diag.Diagnostic{
-							diag.Diagnostic{
+							{
 								Severity: diag.Error,
 								Summary:  "Error converting retry limit to integer",
 								Detail:   err.Error(),
@@ -310,7 +310,7 @@ func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, di
 							factor, err := convertStringToInt64Pointer(vb.(string))
 							if err != nil {
 								return nil, []diag.Diagnostic{
-									diag.Diagnostic{
+									{
 										Severity: diag.Error,
 										Summary:  "Error converting backoff factor to integer",
 										Detail:   err.Error(),

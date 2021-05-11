@@ -30,7 +30,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 	cluster, err := expandCluster(d)
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("could not expand cluster attributes: %s", err),
 				Detail:   err.Error(),
@@ -42,7 +42,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 		Cluster: cluster, Upsert: false})
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("something went wrong during cluster resource creation: %s", err),
 				Detail:   err.Error(),
@@ -67,7 +67,7 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 			return nil
 		} else {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("could not get cluster information: %s", err),
 					Detail:   err.Error(),
@@ -78,7 +78,7 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 	err = flattenCluster(c, d)
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  "could not flatten cluster",
 				Detail:   err.Error(),
@@ -94,7 +94,7 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 	cluster, err := expandCluster(d)
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("could not expand cluster attributes: %s", err),
 				Detail:   err.Error(),
@@ -108,7 +108,7 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 			return nil
 		} else {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("something went wrong during cluster update: %s", err),
 					Detail:   err.Error(),
@@ -129,7 +129,7 @@ func resourceArgoCDClusterDelete(ctx context.Context, d *schema.ResourceData, me
 			return nil
 		} else {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("something went wrong during cluster deletion: %s", err),
 					Detail:   err.Error(),

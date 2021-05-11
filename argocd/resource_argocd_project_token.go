@@ -93,7 +93,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 		expiresInDuration, err := time.ParseDuration(_expiresIn.(string))
 		if err != nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("token expiration duration for project %s could not be parsed", projectName),
 					Detail:   err.Error(),
@@ -109,7 +109,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 		renewBeforeDuration, err := time.ParseDuration(_renewBefore.(string))
 		if err != nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("token renewal duration for project %s could not be parsed", projectName),
 					Detail:   err.Error(),
@@ -119,7 +119,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 		renewBefore := int64(renewBeforeDuration.Seconds())
 		if renewBefore > expiresIn {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("token renewal duration (%d) cannot be greater than expiration duration (%d) for project %s", renewBefore, expiresIn, projectName),
 				},
@@ -128,7 +128,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 		// Arbitrary protection against misconfiguration
 		if 300 > expiresIn-renewBefore {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  "token will expire within 5 minutes, check your settings",
 				},
@@ -139,7 +139,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	featureTokenIDSupported, err := server.isFeatureSupported(featureTokenIDs)
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  "explicit token ID support could be not be checked",
 				Detail:   err.Error(),
@@ -157,7 +157,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	tokenMutexProjectMap[projectName].Unlock()
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("token for project %s could not be created", projectName),
 				Detail:   err.Error(),
@@ -167,7 +167,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	token, err := jwt.ParseString(resp.GetToken())
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("token for project %s is not a valid jwt", projectName),
 				Detail:   err.Error(),
@@ -176,7 +176,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	}
 	if err := json.Unmarshal(token.RawClaims(), &claims); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("token claims for project %s could not be parsed", projectName),
 				Detail:   err.Error(),
@@ -185,7 +185,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	}
 	if claims.IssuedAt == nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("token claims issue date for project %s is missing", projectName),
 			},
@@ -194,7 +194,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	if expiresInOk {
 		if claims.ExpiresAt == nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("token claims expiration date for project %s is missing", projectName),
 				},
@@ -203,7 +203,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 			err = d.Set("expires_at", convertInt64ToString(claims.ExpiresAt.Unix()))
 			if err != nil {
 				return []diag.Diagnostic{
-					diag.Diagnostic{
+					{
 						Severity: diag.Error,
 						Summary:  fmt.Sprintf("token claims expiration date for project %s could not be persisted to state", projectName),
 						Detail:   err.Error(),
@@ -214,7 +214,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	}
 	if err = d.Set("issued_at", convertInt64ToString(claims.IssuedAt.Unix())); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("token claims issue date for project %s could not be persisted to state", projectName),
 				Detail:   err.Error(),
@@ -223,7 +223,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	}
 	if err := d.Set("jwt", token.String()); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("token for project %s could not be persisted to state", projectName),
 				Detail:   err.Error(),
@@ -233,7 +233,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	if featureTokenIDSupported {
 		if claims.ID == "" {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("token claims ID for project %s is missing", projectName),
 				},
@@ -273,7 +273,7 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 			return nil
 		} else {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("token for project %s could not be read", projectName),
 					Detail:   err.Error(),
@@ -285,7 +285,7 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 	featureTokenIDSupported, err := server.isFeatureSupported(featureTokenIDs)
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  "explicit token ID support could be not be checked",
 				Detail:   err.Error(),
@@ -300,7 +300,7 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 			requestTokenIAT, err = convertStringToInt64(iat.(string))
 			if err != nil {
 				return []diag.Diagnostic{
-					diag.Diagnostic{
+					{
 						Severity: diag.Error,
 						Summary:  fmt.Sprintf("token issue date for project %s could not be parsed", projectName),
 						Detail:   err.Error(),
@@ -333,7 +333,7 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 	}
 	if err = d.Set("issued_at", convertInt64ToString(token.IssuedAt)); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("token claims issue date for project %s could not be persisted to state", projectName),
 				Detail:   err.Error(),
@@ -342,7 +342,7 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 	}
 	if err = d.Set("expires_at", convertInt64ToString(token.ExpiresAt)); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("token claims expiration date for project %s could not be persisted to state", projectName),
 				Detail:   err.Error(),
@@ -361,7 +361,7 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 		expiresInDuration, err := time.ParseDuration(_expiresIn.(string))
 		if err != nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("token expiration duration for project %s could not be parsed", projectName),
 					Detail:   err.Error(),
@@ -376,7 +376,7 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 		renewBeforeDuration, err := time.ParseDuration(_renewBefore.(string))
 		if err != nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("token renewal duration for project %s could not be parsed", projectName),
 					Detail:   err.Error(),
@@ -386,7 +386,7 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 		renewBefore := int64(renewBeforeDuration.Seconds())
 		if renewBefore > expiresIn {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("token renewal duration (%d) cannot be greater than expiration duration (%d) for project %s", renewBefore, expiresIn, projectName),
 					Detail:   err.Error(),
@@ -415,7 +415,7 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 	featureTokenIDSupported, err := server.isFeatureSupported(featureTokenIDs)
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  "explicit token ID support could be not be checked",
 				Detail:   err.Error(),
@@ -430,7 +430,7 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 			opts.Iat, err = convertStringToInt64(iat.(string))
 			if err != nil {
 				return []diag.Diagnostic{
-					diag.Diagnostic{
+					{
 						Severity: diag.Error,
 						Summary:  fmt.Sprintf("token issue date for project %s could not be parsed", projectName),
 						Detail:   err.Error(),
@@ -443,7 +443,7 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 	tokenMutexProjectMap[projectName].Lock()
 	if _, err := c.DeleteToken(context.Background(), opts); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("token for project %s could not be deleted", projectName),
 				Detail:   err.Error(),

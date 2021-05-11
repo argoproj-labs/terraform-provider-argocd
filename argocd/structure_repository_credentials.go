@@ -49,7 +49,7 @@ func flattenRepositoryCredentials(repository application.RepoCreds, d *schema.Re
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("credentials key (%s) and value for repository %s could not be persisted to state", k, repository.URL),
 					Detail:   err.Error(),

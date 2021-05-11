@@ -47,7 +47,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	objectMeta, spec, err := expandProject(d)
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("project %s could not be created", d.Id()),
 				Detail:   err.Error(),
@@ -70,7 +70,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	if err != nil {
 		if !strings.Contains(err.Error(), "NotFound") {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("Project %s could not be created", projectName),
 					Detail:   err.Error(),
@@ -101,7 +101,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Project %s could not be created", objectMeta.Name),
 				Detail:   err.Error(),
@@ -110,7 +110,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 	if p == nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("something went wrong during project creation with ID %s", d.Id()),
 				Detail:   err.Error(),
@@ -141,7 +141,7 @@ func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta
 			return diag.Diagnostics{}
 		}
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("project %s could not be found", projectName),
 				Detail:   err.Error(),
@@ -151,7 +151,7 @@ func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta
 	err = flattenProject(p, d)
 	if err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("project %s could not be flattened", d.Id()),
 				Detail:   err.Error(),
@@ -166,7 +166,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		objectMeta, spec, err := expandProject(d)
 		if err != nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("project %s could not be updated", d.Id()),
 					Detail:   err.Error(),
@@ -200,7 +200,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 			roles, err := expandProjectRoles(d.Get("spec.0.role").([]interface{}))
 			if err != nil {
 				return []diag.Diagnostic{
-					diag.Diagnostic{
+					{
 						Severity: diag.Error,
 						Summary:  fmt.Sprintf("roles for project %s could not be expanded", d.Id()),
 						Detail:   err.Error(),
@@ -214,7 +214,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 					// and was recently added within Terraform tf files
 					if i != -1 {
 						return []diag.Diagnostic{
-							diag.Diagnostic{
+							{
 								Severity: diag.Error,
 								Summary:  fmt.Sprintf("project role %s could not be retrieved", r.Name),
 								Detail:   err.Error(),
@@ -232,7 +232,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 
 		if err != nil {
 			return []diag.Diagnostic{
-				diag.Diagnostic{
+				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("Error while waiting for project %s to be created", projectName),
 					Detail:   err.Error(),
@@ -257,7 +257,7 @@ func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, me
 
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Project %s not found", projectName),
 				Detail:   err.Error(),
