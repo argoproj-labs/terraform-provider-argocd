@@ -2,9 +2,15 @@
 
 Creates an ArgoCD application.
 
-## Example Usage
+## Example Usages
 
 ```hcl
+resource "argocd_repository" "kustomize-repo" {
+  name            = "kustomize"
+  repo            = "https://github.com/kubernetes-sigs/kustomize"
+  # ...
+}
+
 resource "argocd_application" "kustomize" {
   metadata {
     name      = "kustomize-app"
@@ -71,6 +77,17 @@ resource "argocd_application" "kustomize" {
       ]
     }
   }
+
+  depends_on = [argocd_repository.kustomize-repo]
+
+}
+```
+
+```hcl
+resource "argocd_repository" "helm-chart-repo" {
+  name            = "mychart"
+  repo            = "https://some.chart.repo.io"
+  # ...
 }
 
 resource "argocd_application" "helm" {
@@ -115,6 +132,9 @@ EOT
       namespace = "default"
     }
   }
+
+  depends_on = [argocd_repository.helm-chart-repo]
+
 }
 ```
 
