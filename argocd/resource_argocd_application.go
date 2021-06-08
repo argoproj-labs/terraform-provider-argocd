@@ -183,16 +183,17 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	appName := d.Id()
 	if ok := d.HasChanges("metadata", "spec"); ok {
-		_, spec, diags := expandApplication(d)
+		objectMeta, spec, diags := expandApplication(d)
 		if diags != nil {
 			return diags
 		}
 		server := meta.(ServerInterface)
 		c := *server.ApplicationClient
-		appRequest, err := c.Get(ctx, &applicationClient.ApplicationQuery{
-			Name:     &appName,
-			Projects: []string{spec.Project},
-		})
+		appRequest := &applicationClient.ApplicationUpdateRequest{
+			Application: &application.Application{
+				ObjectMeta: objectMeta,
+				Spec:       spec,
+			}}
 
 		featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
 		if err != nil {
@@ -223,11 +224,10 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		})
 		if app != nil {
 			// Kubernetes API requires providing the up-to-date correct ResourceVersion for updates
-			appRequest.ResourceVersion = app.ResourceVersion
+			// FIXME ResourceVersion not available anymore
+			// appRequest.ResourceVersion = app.ResourceVersion
 		}
-		_, err = c.Update(ctx, &applicationClient.ApplicationUpdateRequest{
-			Application: appRequest,
-		})
+		_, err = c.Update(ctx, appRequest)
 		if err != nil {
 			return []diag.Diagnostic{
 				{
