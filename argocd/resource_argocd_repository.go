@@ -99,6 +99,7 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 		tokenMutexConfiguration.RUnlock()
 
 		if err != nil {
+			// Repository has already been deleted in an out-of-band fashion
 			if strings.Contains(err.Error(), "NotFound") {
 				d.SetId("")
 				return nil
