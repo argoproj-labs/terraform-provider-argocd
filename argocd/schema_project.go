@@ -15,6 +15,23 @@ func projectSpecSchemaV0() *schema.Schema {
 		Required:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
+				"cluster_resource_blacklist": {
+					Type:     schema.TypeSet,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"group": {
+								Type:         schema.TypeString,
+								ValidateFunc: validateGroupName,
+								Optional:     true,
+							},
+							"kind": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+						},
+					},
+				},
 				"cluster_resource_whitelist": {
 					Type:     schema.TypeSet,
 					Optional: true,
@@ -58,6 +75,22 @@ func projectSpecSchemaV0() *schema.Schema {
 					},
 				},
 				"namespace_resource_blacklist": {
+					Type:     schema.TypeSet,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"group": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"kind": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+						},
+					},
+				},
+				"namespace_resource_whitelist": {
 					Type:     schema.TypeSet,
 					Optional: true,
 					Elem: &schema.Resource{
@@ -166,6 +199,23 @@ func projectSpecSchemaV1() *schema.Schema {
 		Required:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
+				"cluster_resource_blacklist": {
+					Type:     schema.TypeSet,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"group": {
+								Type:         schema.TypeString,
+								ValidateFunc: validateGroupName,
+								Optional:     true,
+							},
+							"kind": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+						},
+					},
+				},
 				"cluster_resource_whitelist": {
 					Type:     schema.TypeSet,
 					Optional: true,
@@ -209,6 +259,22 @@ func projectSpecSchemaV1() *schema.Schema {
 					},
 				},
 				"namespace_resource_blacklist": {
+					Type:     schema.TypeSet,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"group": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"kind": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+						},
+					},
+				},
+				"namespace_resource_whitelist": {
 					Type:     schema.TypeSet,
 					Optional: true,
 					Elem: &schema.Resource{
@@ -351,6 +417,23 @@ func projectSpecSchemaV2() *schema.Schema {
 		Required:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
+				"cluster_resource_blacklist": {
+					Type:     schema.TypeSet,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"group": {
+								Type:         schema.TypeString,
+								ValidateFunc: validateGroupName,
+								Optional:     true,
+							},
+							"kind": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+						},
+					},
+				},
 				"cluster_resource_whitelist": {
 					Type:     schema.TypeSet,
 					Optional: true,
@@ -394,6 +477,22 @@ func projectSpecSchemaV2() *schema.Schema {
 					},
 				},
 				"namespace_resource_blacklist": {
+					Type:     schema.TypeSet,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"group": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"kind": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+						},
+					},
+				},
+				"namespace_resource_whitelist": {
 					Type:     schema.TypeSet,
 					Optional: true,
 					Elem: &schema.Resource{

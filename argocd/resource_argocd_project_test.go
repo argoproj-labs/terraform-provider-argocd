@@ -147,9 +147,17 @@ resource "argocd_project" "simple" {
       group = "rbac.authorization.k8s.io"
       kind  = "ClusterRole"
     }
+    cluster_resource_blacklist {
+      group = "*"
+      kind  = "*"
+    }
     namespace_resource_blacklist {
       group = "networking.k8s.io"
       kind  = "Ingress"
+    }
+    namespace_resource_whitelist {
+      group = "*"
+      kind  = "*"
     }
     orphaned_resources {
       warn = true
