@@ -76,11 +76,17 @@ func expandProjectSpec(d *schema.ResourceData) (
 			}
 		}
 	}
+	if v, ok := s["cluster_resource_blacklist"]; ok {
+		spec.ClusterResourceBlacklist = expandK8SGroupKind(v.(*schema.Set))
+	}
 	if v, ok := s["cluster_resource_whitelist"]; ok {
 		spec.ClusterResourceWhitelist = expandK8SGroupKind(v.(*schema.Set))
 	}
 	if v, ok := s["namespace_resource_blacklist"]; ok {
 		spec.NamespaceResourceBlacklist = expandK8SGroupKind(v.(*schema.Set))
+	}
+	if v, ok := s["namespace_resource_whitelist"]; ok {
+		spec.NamespaceResourceWhitelist = expandK8SGroupKind(v.(*schema.Set))
 	}
 	if v, ok := s["destination"]; ok {
 		spec.Destinations = expandApplicationDestinations(v.(*schema.Set))
@@ -136,8 +142,10 @@ func flattenProject(p *application.AppProject, d *schema.ResourceData) error {
 
 func flattenProjectSpec(s application.AppProjectSpec) []map[string]interface{} {
 	spec := map[string]interface{}{
+		"cluster_resource_blacklist":   flattenK8SGroupKinds(s.ClusterResourceBlacklist),
 		"cluster_resource_whitelist":   flattenK8SGroupKinds(s.ClusterResourceWhitelist),
 		"namespace_resource_blacklist": flattenK8SGroupKinds(s.NamespaceResourceBlacklist),
+		"namespace_resource_whitelist": flattenK8SGroupKinds(s.NamespaceResourceWhitelist),
 		"destination":                  flattenApplicationDestinations(s.Destinations),
 		"orphaned_resources":           flattenProjectOrphanedResources(s.OrphanedResources),
 		"role":                         flattenProjectRoles(s.Roles),

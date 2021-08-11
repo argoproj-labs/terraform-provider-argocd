@@ -140,6 +140,10 @@ resource "argocd_project" "myproject" {
       server    = "https://kubernetes.default.svc"
       namespace = "foo"
     }
+    cluster_resource_blacklist {
+      group = "*"
+      kind  = "*"
+    }
     cluster_resource_whitelist {
       group = "rbac.authorization.k8s.io"
       kind  = "ClusterRoleBinding"
@@ -151,6 +155,10 @@ resource "argocd_project" "myproject" {
     namespace_resource_blacklist {
       group = "networking.k8s.io"
       kind  = "Ingress"
+    }
+    namespace_resource_whitelist {
+      group = "*"
+      kind  = "*"
     }
     orphaned_resources {
       warn = true

@@ -51,6 +51,10 @@ resource "argocd_project" "foo" {
       group = "networking.k8s.io"
       kind  = "Ingress"
     }
+    namespace_resource_whitelist {
+      group = "*"
+      kind  = "*"
+    }
     orphaned_resources {
       warn = true
     }
