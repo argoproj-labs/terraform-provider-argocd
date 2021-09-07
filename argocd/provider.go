@@ -89,6 +89,10 @@ func Provider() *schema.Provider {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"grpc_web_root_path": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"port_forward": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -218,6 +222,9 @@ func initApiClient(d *schema.ResourceData) (
 	}
 	if v, ok := d.GetOk("grpc_web"); ok {
 		opts.GRPCWeb = v.(bool)
+	}
+	if v, ok := d.GetOk("grpc_web_root_path"); ok {
+		opts.GRPCWebRootPath = v.(string)
 	}
 	if v, ok := d.GetOk("port_forward"); ok {
 		opts.PortForward = v.(bool)

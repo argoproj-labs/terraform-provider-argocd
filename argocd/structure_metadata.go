@@ -59,5 +59,8 @@ func metadataIsInternalKey(annotationKey string) bool {
 	if err == nil && strings.HasSuffix(u.Hostname(), "kubernetes.io") {
 		return true
 	}
+	if err == nil && annotationKey == "notified.notifications.argoproj.io" {
+		return true
+	}
 	return false
 }

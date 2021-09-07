@@ -33,7 +33,7 @@ resource "argocd_cluster" "gke" {
 
   config {
     tls_client_config {
-      ca_cert_data = data.google_container_cluster.cluster.master_auth.0.cluster_ca_certificate
+      ca_data      = data.google_container_cluster.cluster.master_auth.0.cluster_ca_certificate
       cert_data    = data.google_container_cluster.cluster.master_auth.0.client_certificate
       key_data     = data.google_container_cluster.cluster.master_auth.0.client_key
     }
@@ -59,7 +59,7 @@ resource "argocd_cluster" "eks" {
       role_arn     = "arn:aws:iam::<123456789012>:role/<role-name>"
     }
     tls_client_config {
-      ca_cert_data = data.aws_eks_cluster.cluster.certificate_authority[0].data
+      ca_data = data.aws_eks_cluster.cluster.certificate_authority[0].data
     }
   }
 }

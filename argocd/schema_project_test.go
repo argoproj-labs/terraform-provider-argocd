@@ -69,6 +69,7 @@ func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
 			sourceState: map[string]interface{}{
 				"spec": []interface{}{
 					map[string]interface{}{
+						"cluster_resource_blacklist": []map[string]string{},
 						"cluster_resource_whitelist": []map[string]string{},
 						"description":                "test",
 						"destination": map[string]string{
@@ -76,6 +77,7 @@ func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
 							"server":    "https://testing.io",
 						},
 						"namespace_resource_blacklist": []map[string]string{},
+						"namespace_resource_whitelist": []map[string]string{},
 						"orphaned_resources":           map[string]bool{"warn": true},
 						"role":                         []map[string]interface{}{},
 						"source_repos":                 []string{"git@github.com:testing/test.git"},
@@ -86,6 +88,7 @@ func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
 			expectedState: map[string]interface{}{
 				"spec": []interface{}{
 					map[string]interface{}{
+						"cluster_resource_blacklist": []map[string]string{},
 						"cluster_resource_whitelist": []map[string]string{},
 						"description":                "test",
 						"destination": map[string]string{
@@ -93,6 +96,7 @@ func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
 							"server":    "https://testing.io",
 						},
 						"namespace_resource_blacklist": []map[string]string{},
+						"namespace_resource_whitelist": []map[string]string{},
 						"orphaned_resources":           []interface{}{map[string]bool{"warn": true}},
 						"role":                         []map[string]interface{}{},
 						"source_repos":                 []string{"git@github.com:testing/test.git"},

@@ -21,7 +21,8 @@ provider "argocd" {
 * `plain_text` - (Optional) Boolean, whether to initiate an unencrypted connection to ArgoCD server. 
 * `context` - (Optional) Kubernetes context to load from an existing `.kube/config` file. Can be set through `ARGOCD_CONTEXT` environment variable.
 * `user_agent` - (Optional)
-* `grpc_web` - (Optional) Whether to use gRPC web proxy client.
+* `grpc_web` - (Optional) Whether to use gRPC web proxy client. Useful if Argo CD server is behind proxy which does not support HTTP2.
+* `grpc_web_root_path` - (Optional) Use the gRPC web proxy client and set the web root, e.g. `argo-cd`. Useful if the Argo CD server is behind a proxy at a non-root path.
 * `port_forward` - (Optional)
 * `port_forward_with_namespace` - (Optional)
 * `headers` - (Optional) Additional headers to add to each request to the ArgoCD server.
