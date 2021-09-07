@@ -1,6 +1,6 @@
 module github.com/oboukili/terraform-provider-argocd
 
-go 1.15
+go 1.16
 
 require (
 	cloud.google.com/go/storage v1.14.0 // indirect
@@ -12,12 +12,12 @@ require (
 	github.com/aws/aws-sdk-go v1.38.65 // indirect
 	github.com/cristalhq/jwt/v3 v3.0.8
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.4.3
+	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/hashicorp/go-getter v1.5.4 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/hcl/v2 v2.8.2 // indirect
-	github.com/hashicorp/terraform-json v0.11.0 // indirect
+	github.com/hashicorp/terraform-json v0.12.0 // indirect
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.6.1
 	github.com/klauspost/compress v1.13.1 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
