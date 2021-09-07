@@ -3,7 +3,7 @@ package argocd
 import (
 	"fmt"
 	"github.com/Masterminds/semver"
-	"github.com/argoproj/argo-cd/pkg/apiclient/version"
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient/version"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"modernc.org/mathutil"

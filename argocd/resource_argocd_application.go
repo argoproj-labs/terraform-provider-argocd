@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	applicationClient "github.com/argoproj/argo-cd/pkg/apiclient/application"
-	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	applicationClient "github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
+	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/gitops-engine/pkg/health"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -96,6 +96,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 
 	app, err = c.Create(ctx, &applicationClient.ApplicationCreateRequest{
 		Application: application.Application{
+
 			ObjectMeta: objectMeta,
 			Spec:       spec,
 		},

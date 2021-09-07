@@ -1,7 +1,7 @@
 package argocd
 
 import (
-	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
