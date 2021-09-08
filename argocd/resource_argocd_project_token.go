@@ -121,7 +121,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token renewal duration (%d) cannot be greater than expiration duration (%d) for project %s", renewBefore, expiresIn, projectName),
+					Summary:  fmt.Sprintf("renew_before (%d) cannot be greater than expires_in (%d) for project %s", renewBefore, expiresIn, projectName),
 				},
 			}
 		}
@@ -388,7 +388,7 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token renewal duration (%d) cannot be greater than expiration duration (%d) for project %s", renewBefore, expiresIn, projectName),
+					Summary:  fmt.Sprintf("renew_before duration (%d) cannot be greater than expires_in (%d) for project %s", renewBefore, expiresIn, projectName),
 					Detail:   err.Error(),
 				},
 			}

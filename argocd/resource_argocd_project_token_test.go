@@ -179,9 +179,9 @@ resource "argocd_project_token" "renew" {
 
 func testAccArgoCDProjectTokenRenewBeforeFailure(expiresInDuration time.Duration) string {
 	expiresIn := int64(expiresInDuration.Seconds())
-	renewBefore := int64(math.Max(
-		expiresInDuration.Seconds()+1.0,
-		expiresInDuration.Seconds()+(rand.Float64()*expiresInDuration.Seconds()),
+	renewBefore := int64(math.Min(
+		expiresInDuration.Seconds()-1.0,
+		expiresInDuration.Seconds()-(rand.Float64()*expiresInDuration.Seconds()),
 	))
 	return fmt.Sprintf(`
 resource "argocd_project_token" "renew" {
