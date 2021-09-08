@@ -8,7 +8,7 @@
       <env name="ARGOCD_SERVER" value="127.0.0.1:8080" />
       <env name="ARGOCD_AUTH_USERNAME" value="admin" />
       <env name="ARGOCD_AUTH_PASSWORD" value="acceptancetesting" />
-      <env name="ARGOCD_CONTEXT" value="k3d-argocd" />
+      <env name="ARGOCD_CONTEXT" value="kind-argocd" />
       <env name="TF_ACC" value="1" />
     </envs>
     <framework value="gotest" />

@@ -18,6 +18,36 @@ func TestAccArgoCDCluster(t *testing.T) {
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
+				Config: testAccArgoCDClusterBearerToken(acctest.RandString(10)),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.simple",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.simple",
+						"shard",
+						"1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.simple",
+						"info.0.server_version",
+						"1.19",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.simple",
+						"info.0.applications_count",
+						"0",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.simple",
+						"config.0.tls_client_config.0.insecure",
+						"true",
+					),
+				),
+			},
+			{
 				Config: testAccArgoCDClusterTLSCertificate(t, acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -28,7 +58,7 @@ func TestAccArgoCDCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.tls",
 						"info.0.server_version",
-						"1.20",
+						"1.19",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.tls",
@@ -39,6 +69,24 @@ func TestAccArgoCDCluster(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccArgoCDClusterBearerToken(clusterName string) string {
+	return fmt.Sprintf(`
+resource "argocd_cluster" "simple" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  name   = "%s"
+  shard  = "1"
+  namespaces = ["default", "foo"]
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+`, clusterName)
 }
 
 func testAccArgoCDClusterTLSCertificate(t *testing.T, clusterName string) string {
@@ -86,8 +134,8 @@ func getInternalRestConfig() (*rest.Config, error) {
 		return nil, err
 	}
 	for key, cluster := range cfg.Clusters {
-		if key == "k3d-argocd" {
-			authInfo := cfg.AuthInfos["admin@k3d-argocd"]
+		if key == "kind-argocd" {
+			authInfo := cfg.AuthInfos[key]
 			rc.Host = cluster.Server
 			rc.ServerName = cluster.TLSServerName
 			rc.TLSClientConfig.CAData = cluster.CertificateAuthorityData
@@ -96,5 +144,5 @@ func getInternalRestConfig() (*rest.Config, error) {
 			return rc, nil
 		}
 	}
-	return nil, fmt.Errorf("could not find a k3d-argocd cluster from the current ~/.kube/config file")
+	return nil, fmt.Errorf("could not find a kind-argocd cluster from the current ~/.kube/config file")
 }

@@ -34,9 +34,10 @@ jobs:
           curl -sL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
           chmod +x ./kustomize
 
-      - name: Install k3d 4.4.8
+      - name: Install Kind 0.11.1
         run: |
-          curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | TAG=v4.4.8 bash
+          curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-$(uname)-amd64
+          chmod +x ./kind
 
       - name: Set up ArgoCD ${{ matrix.argocd_version }}
         env:

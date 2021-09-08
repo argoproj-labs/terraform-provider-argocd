@@ -97,6 +97,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 
 	app, err = c.Create(ctx, &applicationClient.ApplicationCreateRequest{
 		Application: application.Application{
+
 			ObjectMeta: objectMeta,
 			Spec:       spec,
 			TypeMeta: metav1.TypeMeta{
