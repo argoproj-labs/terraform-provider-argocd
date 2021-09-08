@@ -62,7 +62,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	tokenMutexProjectMap[projectName].RLock()
-	p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
+	p, err := c.Get(ctx, &projectClient.ProjectQuery{
 		Name: projectName,
 	})
 	tokenMutexProjectMap[projectName].RUnlock()
@@ -88,7 +88,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	tokenMutexProjectMap[projectName].Lock()
-	p, err = c.Create(context.Background(), &projectClient.ProjectCreateRequest{
+	p, err = c.Create(ctx, &projectClient.ProjectCreateRequest{
 		Project: &application.AppProject{
 			ObjectMeta: objectMeta,
 			Spec:       spec,
@@ -130,7 +130,7 @@ func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	tokenMutexProjectMap[projectName].RLock()
-	p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
+	p, err := c.Get(ctx, &projectClient.ProjectQuery{
 		Name: projectName,
 	})
 	tokenMutexProjectMap[projectName].RUnlock()
@@ -187,7 +187,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 
 		tokenMutexProjectMap[projectName].RLock()
-		p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
+		p, err := c.Get(ctx, &projectClient.ProjectQuery{
 			Name: d.Id(),
 		})
 		tokenMutexProjectMap[projectName].RUnlock()
@@ -227,7 +227,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 
 		tokenMutexProjectMap[projectName].Lock()
-		_, err = c.Update(context.Background(), projectRequest)
+		_, err = c.Update(ctx, projectRequest)
 		tokenMutexProjectMap[projectName].Unlock()
 
 		if err != nil {
@@ -252,7 +252,7 @@ func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	tokenMutexProjectMap[projectName].Lock()
-	_, err := c.Delete(context.Background(), &projectClient.ProjectQuery{Name: projectName})
+	_, err := c.Delete(ctx, &projectClient.ProjectQuery{Name: projectName})
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {

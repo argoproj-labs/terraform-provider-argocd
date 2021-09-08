@@ -38,7 +38,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 
 	}
-	c, err := client.Create(context.Background(), &clusterClient.ClusterCreateRequest{
+	c, err := client.Create(ctx, &clusterClient.ClusterCreateRequest{
 		Cluster: cluster, Upsert: false})
 	if err != nil {
 		return []diag.Diagnostic{
@@ -60,7 +60,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
 	client := *server.ClusterClient
-	c, err := client.Get(context.Background(), getClusterQueryFromID(d))
+	c, err := client.Get(ctx, getClusterQueryFromID(d))
 	if err != nil {
 		if strings.Contains(err.Error(), "NotFound") {
 			d.SetId("")

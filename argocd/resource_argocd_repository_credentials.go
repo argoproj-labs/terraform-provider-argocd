@@ -32,7 +32,7 @@ func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.Re
 
 	tokenMutexConfiguration.Lock()
 	rc, err := c.CreateRepositoryCredentials(
-		context.Background(),
+		ctx,
 		&repocreds.RepoCredsCreateRequest{
 			Creds:  repoCreds,
 			Upsert: false,
@@ -59,7 +59,7 @@ func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.Reso
 	rc := application.RepoCreds{}
 
 	tokenMutexConfiguration.RLock()
-	rcl, err := c.ListRepositoryCredentials(context.Background(), &repocreds.RepoCredsQuery{
+	rcl, err := c.ListRepositoryCredentials(ctx, &repocreds.RepoCredsQuery{
 		Url: d.Id(),
 	})
 	tokenMutexConfiguration.RUnlock()
@@ -100,7 +100,7 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 
 	tokenMutexConfiguration.Lock()
 	r, err := c.UpdateRepositoryCredentials(
-		context.Background(),
+		ctx,
 		&repocreds.RepoCredsUpdateRequest{
 			Creds: repoCreds},
 	)
@@ -131,7 +131,7 @@ func resourceArgoCDRepositoryCredentialsDelete(ctx context.Context, d *schema.Re
 
 	tokenMutexConfiguration.Lock()
 	_, err := c.DeleteRepositoryCredentials(
-		context.Background(),
+		ctx,
 		&repocreds.RepoCredsDeleteRequest{Url: d.Id()},
 	)
 	tokenMutexConfiguration.Unlock()

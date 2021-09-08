@@ -262,7 +262,7 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 
 	// Delete token from state if project has been deleted in an out-of-band fashion
 	tokenMutexProjectMap[projectName].RLock()
-	p, err := c.Get(context.Background(), &project.ProjectQuery{
+	p, err := c.Get(ctx, &project.ProjectQuery{
 		Name: projectName,
 	})
 	tokenMutexProjectMap[projectName].RUnlock()
@@ -441,7 +441,7 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 	}
 
 	tokenMutexProjectMap[projectName].Lock()
-	if _, err := c.DeleteToken(context.Background(), opts); err != nil {
+	if _, err := c.DeleteToken(ctx, opts); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,

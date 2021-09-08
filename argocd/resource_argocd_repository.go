@@ -34,9 +34,8 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 	r, err := c.CreateRepository(
 		ctx,
 		&repository.RepoCreateRequest{
-			Repo:      repo,
-			Upsert:    false,
-			CredsOnly: false,
+			Repo:   repo,
+			Upsert: false,
 		},
 	)
 	tokenMutexConfiguration.Unlock()
@@ -45,7 +44,7 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Repository %s not found", repo),
+				Summary:  fmt.Sprintf("Repository %s not found", repo.Repo),
 				Detail:   err.Error(),
 			},
 		}
@@ -214,7 +213,7 @@ func resourceArgoCDRepositoryDelete(ctx context.Context, d *schema.ResourceData,
 
 	tokenMutexConfiguration.Lock()
 	_, err := c.DeleteRepository(
-		context.Background(),
+		ctx,
 		&repository.RepoQuery{Repo: d.Id()},
 	)
 	tokenMutexConfiguration.Unlock()

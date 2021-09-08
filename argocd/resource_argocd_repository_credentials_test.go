@@ -22,7 +22,7 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCredentialsSimple(
-					"https://private-git-repository.argocd.svc.clusterlocal/project-1.git",
+					"https://private-git-repository.argocd.svc.cluster.local/project-1.git",
 					"git",
 					sshPrivateKey,
 				),
