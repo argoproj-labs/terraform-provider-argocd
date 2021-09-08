@@ -1,3 +1,7 @@
-.idea
 terraform-provider-argocd
 ./manifests/install/install.yml
+.idea
+.vscode
+# Env variables settings
+/scripts/testacc
+/scripts/testacc_prepare_env

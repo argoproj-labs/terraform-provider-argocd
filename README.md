@@ -365,8 +365,8 @@ For example if you use Docker as your local container runtime:
 ```shell
 docker pull argoproj/argocd:v1.8.3
 docker pull ghcr.io/dexidp/dex:v2.27.0
-docker pull redis:5.0.10-alpine
-docker pull banzaicloud/vault-operator:1.3.3
+docker pull redis:6.2.4-alpine
+docker pull bitnami/redis:6.2.5
 ```
 
 #### Troubleshooting during local development

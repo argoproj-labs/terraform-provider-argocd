@@ -14,12 +14,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        argocd_version: ["v.1.8.3", "v1.7.11"]
+        argocd_version: ["v2.1.2", "v2.0.5", "v.1.8.7"]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v1
         with:
-          go-version: 1.15
+          go-version: 1.16
         id: go
       - name: Restore Go cache
         uses: actions/cache@v1
@@ -34,9 +34,9 @@ jobs:
           curl -sL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
           chmod +x ./kustomize
 
-      - name: Install Kind 0.9.0
+      - name: Install Kind 0.11.1
         run: |
-          curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.9.0/kind-$(uname)-amd64
+          curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-$(uname)-amd64
           chmod +x ./kind
 
       - name: Set up ArgoCD ${{ matrix.argocd_version }}

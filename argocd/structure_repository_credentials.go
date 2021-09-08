@@ -1,9 +1,12 @@
 package argocd
 
 import (
-	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // Expand
@@ -33,7 +36,7 @@ func expandRepositoryCredentials(d *schema.ResourceData) *application.RepoCreds 
 
 // Flatten
 
-func flattenRepositoryCredentials(repository application.RepoCreds, d *schema.ResourceData) error {
+func flattenRepositoryCredentials(repository application.RepoCreds, d *schema.ResourceData) diag.Diagnostics {
 	r := map[string]interface{}{
 		"url":      repository.URL,
 		"username": repository.Username,
@@ -45,7 +48,13 @@ func flattenRepositoryCredentials(repository application.RepoCreds, d *schema.Re
 	}
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {
-			return err
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("credentials key (%s) and value for repository %s could not be persisted to state", k, repository.URL),
+					Detail:   err.Error(),
+				},
+			}
 		}
 	}
 	return nil

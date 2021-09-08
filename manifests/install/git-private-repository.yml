@@ -85,6 +85,7 @@ spec:
                   cd project-\${P}.git &&
                   git config --global user.email \"test@argocd\" &&
                   git config --global user.name \"acctest\" &&
+                  git config --global init.defaultBranch \"master\" &&
                   git init &&
                   cp /mnt/testdata/configmap.yml . &&
                   git add . &&

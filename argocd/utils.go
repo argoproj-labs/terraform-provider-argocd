@@ -2,10 +2,10 @@ package argocd
 
 import (
 	"fmt"
-	"github.com/argoproj/argo-cd/pkg/apiclient"
-	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
-	"github.com/argoproj/argo-cd/util/io"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
+	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	"github.com/argoproj/argo-cd/v2/util/io"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"regexp"
 	"strconv"
 	"strings"

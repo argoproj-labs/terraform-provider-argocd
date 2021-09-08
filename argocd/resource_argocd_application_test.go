@@ -2,9 +2,10 @@ package argocd
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccArgoCDApplication(t *testing.T) {
@@ -26,8 +27,8 @@ ingress:
 `
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDApplicationSimple(commonName),
@@ -47,7 +48,7 @@ ingress:
 					resource.TestCheckResourceAttr(
 						"argocd_application.simple",
 						"spec.0.source.0.target_revision",
-						"1.3.3",
+						"15.3.0",
 					),
 				),
 			},
@@ -209,13 +210,17 @@ resource "argocd_application" "simple" {
 
   spec {
     source {
-      repo_url        = "https://kubernetes-charts.banzaicloud.com"
-      chart           = "vault-operator"
-      target_revision = "1.3.3"
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "15.3.0"
       helm {
         parameter {
           name  = "image.tag"
-          value = "1.3.3"
+          value = "6.2.5"
+        }
+        parameter {
+          name  = "architecture"
+          value = "standalone"
         }
         release_name = "testing"
       }
@@ -245,13 +250,17 @@ resource "argocd_application" "simple" {
   }
   spec {
     source {
-      repo_url        = "https://kubernetes-charts.banzaicloud.com"
-      chart           = "vault-operator"
-      target_revision = "1.3.3"
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "15.3.0"
       helm {
         parameter {
           name  = "image.tag"
-          value = "1.3.3"
+          value = "6.2.5"
+        }
+        parameter {
+          name  = "architecture"
+          value = "standalone"
         }
         release_name = "testing"
       }
@@ -285,19 +294,19 @@ resource "argocd_application" "helm" {
 
   spec {
     source {
-      repo_url        = "https://kubernetes-charts.banzaicloud.com"
-      chart           = "vault-operator"
-      target_revision = "1.3.3"
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "15.3.0"
       helm {
         release_name = "testing"
         
         parameter {
           name  = "image.tag"
-          value = "1.3.3"
+          value = "6.2.5"
         }
         parameter {
-          name  = "banks-vaults.version"
-          value = "1.3.3"
+          name  = "architecture"
+          value = "standalone"
         }
 
         value_files = ["values.yaml"]
@@ -419,9 +428,9 @@ resource "argocd_application" "sync_policy" {
 
   spec {
     source {
-      repo_url        = "https://kubernetes-charts.banzaicloud.com"
-      chart           = "vault-operator"
-      target_revision = "1.3.3"
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "15.3.0"
     }
 
     destination {
@@ -462,9 +471,9 @@ resource "argocd_application" "ignore_differences" {
 
   spec {
     source {
-      repo_url        = "https://kubernetes-charts.banzaicloud.com"
-      chart           = "vault-operator"
-      target_revision = "1.3.3"
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "15.3.0"
     }
 
     destination {

@@ -3,23 +3,25 @@ package argocd
 import (
 	"context"
 	"fmt"
-	projectClient "github.com/argoproj/argo-cd/pkg/apiclient/project"
-	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strings"
 	"sync"
 	"time"
+
+	projectClient "github.com/argoproj/argo-cd/v2/pkg/apiclient/project"
+	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceArgoCDProject() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceArgoCDProjectCreate,
-		Read:   resourceArgoCDProjectRead,
-		Update: resourceArgoCDProjectUpdate,
-		Delete: resourceArgoCDProjectDelete,
+		CreateContext: resourceArgoCDProjectCreate,
+		ReadContext:   resourceArgoCDProjectRead,
+		UpdateContext: resourceArgoCDProjectUpdate,
+		DeleteContext: resourceArgoCDProjectDelete,
 		// TODO: add importer acceptance tests
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("appprojects.argoproj.io"),
@@ -41,10 +43,16 @@ func resourceArgoCDProject() *schema.Resource {
 	}
 }
 
-func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	objectMeta, spec, err := expandProject(d)
 	if err != nil {
-		return err
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("project %s could not be created", d.Id()),
+				Detail:   err.Error(),
+			},
+		}
 	}
 	server := meta.(ServerInterface)
 	c := *server.ProjectClient
@@ -54,16 +62,20 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	tokenMutexProjectMap[projectName].RLock()
-	p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
+	p, err := c.Get(ctx, &projectClient.ProjectQuery{
 		Name: projectName,
 	})
 	tokenMutexProjectMap[projectName].RUnlock()
 
 	if err != nil {
-		switch strings.Contains(err.Error(), "NotFound") {
-		case true:
-		default:
-			return err
+		if !strings.Contains(err.Error(), "NotFound") {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("Project %s could not be created", projectName),
+					Detail:   err.Error(),
+				},
+			}
 		}
 	}
 	if p != nil {
@@ -76,7 +88,7 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	tokenMutexProjectMap[projectName].Lock()
-	p, err = c.Create(context.Background(), &projectClient.ProjectCreateRequest{
+	p, err = c.Create(ctx, &projectClient.ProjectCreateRequest{
 		Project: &application.AppProject{
 			ObjectMeta: objectMeta,
 			Spec:       spec,
@@ -88,16 +100,28 @@ func resourceArgoCDProjectCreate(d *schema.ResourceData, meta interface{}) error
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil {
-		return err
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Project %s could not be created", objectMeta.Name),
+				Detail:   err.Error(),
+			},
+		}
 	}
 	if p == nil {
-		return fmt.Errorf("something went wrong during project creation")
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("something went wrong during project creation with ID %s", d.Id()),
+				Detail:   err.Error(),
+			},
+		}
 	}
 	d.SetId(p.Name)
-	return resourceArgoCDProjectRead(d, meta)
+	return resourceArgoCDProjectRead(ctx, d, meta)
 }
 
-func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
 	c := *server.ProjectClient
 	projectName := d.Id()
@@ -106,29 +130,48 @@ func resourceArgoCDProjectRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	tokenMutexProjectMap[projectName].RLock()
-	p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
+	p, err := c.Get(ctx, &projectClient.ProjectQuery{
 		Name: projectName,
 	})
 	tokenMutexProjectMap[projectName].RUnlock()
 
 	if err != nil {
-		switch strings.Contains(err.Error(), "NotFound") {
-		case true:
+		if strings.Contains(err.Error(), "NotFound") {
 			d.SetId("")
-			return nil
-		default:
-			return err
+			return diag.Diagnostics{}
+		}
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("project %s could not be found", projectName),
+				Detail:   err.Error(),
+			},
 		}
 	}
 	err = flattenProject(p, d)
-	return err
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("project %s could not be flattened", d.Id()),
+				Detail:   err.Error(),
+			},
+		}
+	}
+	return nil
 }
 
-func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	if ok := d.HasChanges("metadata", "spec"); ok {
 		objectMeta, spec, err := expandProject(d)
 		if err != nil {
-			return err
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("project %s could not be updated", d.Id()),
+					Detail:   err.Error(),
+				},
+			}
 		}
 		server := meta.(ServerInterface)
 		c := *server.ProjectClient
@@ -144,7 +187,7 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 
 		tokenMutexProjectMap[projectName].RLock()
-		p, err := c.Get(context.Background(), &projectClient.ProjectQuery{
+		p, err := c.Get(ctx, &projectClient.ProjectQuery{
 			Name: d.Id(),
 		})
 		tokenMutexProjectMap[projectName].RUnlock()
@@ -156,36 +199,51 @@ func resourceArgoCDProjectUpdate(d *schema.ResourceData, meta interface{}) error
 			// Preserve preexisting JWTs for managed roles
 			roles, err := expandProjectRoles(d.Get("spec.0.role").([]interface{}))
 			if err != nil {
-				return err
+				return []diag.Diagnostic{
+					{
+						Severity: diag.Error,
+						Summary:  fmt.Sprintf("roles for project %s could not be expanded", d.Id()),
+						Detail:   err.Error(),
+					},
+				}
 			}
 			for _, r := range roles {
 				pr, i, err := p.GetRoleByName(r.Name)
 				if err != nil {
-					switch i {
-					default:
 					// i == -1 means the role does not exist
 					// and was recently added within Terraform tf files
-					case -1:
-						continue
+					if i != -1 {
+						return []diag.Diagnostic{
+							{
+								Severity: diag.Error,
+								Summary:  fmt.Sprintf("project role %s could not be retrieved", r.Name),
+								Detail:   err.Error(),
+							},
+						}
 					}
-					return err
 				}
 				projectRequest.Project.Spec.Roles[i].JWTTokens = pr.JWTTokens
 			}
 		}
 
 		tokenMutexProjectMap[projectName].Lock()
-		_, err = c.Update(context.Background(), projectRequest)
+		_, err = c.Update(ctx, projectRequest)
 		tokenMutexProjectMap[projectName].Unlock()
 
 		if err != nil {
-			return err
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("Error while waiting for project %s to be created", projectName),
+					Detail:   err.Error(),
+				},
+			}
 		}
 	}
-	return resourceArgoCDProjectRead(d, meta)
+	return resourceArgoCDProjectRead(ctx, d, meta)
 }
 
-func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
 	c := *server.ProjectClient
 	projectName := d.Id()
@@ -194,11 +252,17 @@ func resourceArgoCDProjectDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	tokenMutexProjectMap[projectName].Lock()
-	_, err := c.Delete(context.Background(), &projectClient.ProjectQuery{Name: projectName})
+	_, err := c.Delete(ctx, &projectClient.ProjectQuery{Name: projectName})
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
-		return err
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Project %s not found", projectName),
+				Detail:   err.Error(),
+			},
+		}
 	}
 	d.SetId("")
 	return nil

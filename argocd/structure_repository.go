@@ -1,9 +1,9 @@
 package argocd
 
 import (
-	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
+	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // Expand
@@ -31,7 +31,9 @@ func expandRepository(d *schema.ResourceData) *application.Repository {
 	if v, ok := d.GetOk("password"); ok {
 		repository.Password = v.(string)
 	}
-	repository.SSHPrivateKey = d.Get("ssh_private_key").(string)
+	if v, ok := d.GetOk("ssh_private_key"); ok {
+		repository.SSHPrivateKey = v.(string)
+	}
 	if v, ok := d.GetOk("tls_client_cert_data"); ok {
 		repository.TLSClientCertData = v.(string)
 	}

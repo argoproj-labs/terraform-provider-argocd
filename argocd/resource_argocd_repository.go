@@ -3,91 +3,117 @@ package argocd
 import (
 	"context"
 	"fmt"
-	"github.com/argoproj/argo-cd/pkg/apiclient/repository"
-	application "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strings"
+
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repository"
+	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceArgoCDRepository() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceArgoCDRepositoryCreate,
-		Read:   resourceArgoCDRepositoryRead,
-		Update: resourceArgoCDRepositoryUpdate,
-		Delete: resourceArgoCDRepositoryDelete,
+		CreateContext: resourceArgoCDRepositoryCreate,
+		ReadContext:   resourceArgoCDRepositoryRead,
+		UpdateContext: resourceArgoCDRepositoryUpdate,
+		DeleteContext: resourceArgoCDRepositoryDelete,
 		// TODO: add importer acceptance tests
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: repositorySchema(),
 	}
 }
 
-func resourceArgoCDRepositoryCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
 	c := *server.RepositoryClient
 	repo := expandRepository(d)
 
 	tokenMutexConfiguration.Lock()
 	r, err := c.CreateRepository(
-		context.Background(),
+		ctx,
 		&repository.RepoCreateRequest{
-			Repo:      repo,
-			Upsert:    false,
-			CredsOnly: false,
+			Repo:   repo,
+			Upsert: false,
 		},
 	)
 	tokenMutexConfiguration.Unlock()
 
 	if err != nil {
-		return err
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Repository %s not found", repo.Repo),
+				Detail:   err.Error(),
+			},
+		}
 	}
 	if r == nil {
-		return fmt.Errorf("ArgoCD did not return an error or a repository result")
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("ArgoCD did not return an error or a repository result"),
+			},
+		}
 	}
 	if r.ConnectionState.Status == application.ConnectionStatusFailed {
-		return fmt.Errorf(
-			"could not connect to repository %s: %s",
-			repo.Repo,
-			r.ConnectionState.Message,
-		)
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"could not connect to repository %s: %s",
+					repo.Repo,
+					r.ConnectionState.Message,
+				),
+			},
+		}
 	}
 	d.SetId(r.Repo)
-	return resourceArgoCDRepositoryRead(d, meta)
+	return resourceArgoCDRepositoryRead(ctx, d, meta)
 }
 
-func resourceArgoCDRepositoryRead(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
 	c := *server.RepositoryClient
 	r := &application.Repository{}
 
 	featureRepositoryGetSupported, err := server.isFeatureSupported(featureRepositoryGet)
 	if err != nil {
-		return err
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  `support for feature "repositoryGet" could not be checked`,
+				Detail:   err.Error(),
+			},
+		}
 	}
 
-	switch featureRepositoryGetSupported {
-	case true:
+	if featureRepositoryGetSupported {
 		tokenMutexConfiguration.RLock()
-		r, err = c.Get(context.Background(), &repository.RepoQuery{
+		r, err = c.Get(ctx, &repository.RepoQuery{
 			Repo:         d.Id(),
 			ForceRefresh: true,
 		})
 		tokenMutexConfiguration.RUnlock()
 
 		if err != nil {
-			switch strings.Contains(err.Error(), "NotFound") {
 			// Repository has already been deleted in an out-of-band fashion
-			case true:
+			if strings.Contains(err.Error(), "NotFound") {
 				d.SetId("")
 				return nil
-			default:
-				return err
+			}
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("repository %s could not be retrieved", d.Id()),
+					Detail:   err.Error(),
+				},
 			}
 		}
-	case false:
+	} else {
 		tokenMutexConfiguration.RLock()
-		rl, err := c.ListRepositories(context.Background(), &repository.RepoQuery{
+		rl, err := c.ListRepositories(ctx, &repository.RepoQuery{
 			Repo:         d.Id(),
 			ForceRefresh: true,
 		})
@@ -95,7 +121,13 @@ func resourceArgoCDRepositoryRead(d *schema.ResourceData, meta interface{}) erro
 
 		if err != nil {
 			// TODO: check for NotFound condition?
-			return err
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("repository %s could not be listed", d.Id()),
+					Detail:   err.Error(),
+				},
+			}
 		}
 		if rl == nil {
 			// Repository has already been deleted in an out-of-band fashion
@@ -114,64 +146,90 @@ func resourceArgoCDRepositoryRead(d *schema.ResourceData, meta interface{}) erro
 			}
 		}
 	}
-	return flattenRepository(r, d)
+	err = flattenRepository(r, d)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("repository %s could not be flattened", d.Id()),
+				Detail:   err.Error(),
+			},
+		}
+	}
+	return nil
 }
 
-func resourceArgoCDRepositoryUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
 	c := *server.RepositoryClient
 	repo := expandRepository(d)
 
 	tokenMutexConfiguration.Lock()
 	r, err := c.UpdateRepository(
-		context.Background(),
+		ctx,
 		&repository.RepoUpdateRequest{Repo: repo},
 	)
 	tokenMutexConfiguration.Unlock()
 
 	if err != nil {
-		switch strings.Contains(err.Error(), "NotFound") {
-		// Repository has already been deleted in an out-of-band fashion
-		case true:
+		if strings.Contains(err.Error(), "NotFound") {
+			// Repository has already been deleted in an out-of-band fashion
 			d.SetId("")
 			return nil
-		default:
-			return err
 		}
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("repository %s could not be updated", d.Id()),
+				Detail:   err.Error(),
+			},
+		}
+
 	}
 	if r == nil {
-		return fmt.Errorf("ArgoCD did not return an error or a repository result")
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("argoCD did not return an error or a repository result for ID %s", d.Id()),
+				Detail:   err.Error(),
+			},
+		}
 	}
 	if r.ConnectionState.Status == application.ConnectionStatusFailed {
-		return fmt.Errorf(
-			"could not connect to repository %s: %s",
-			repo.Repo,
-			r.ConnectionState.Message,
-		)
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("could not connect to repository %s: %s", repo.Repo, r.ConnectionState.Message),
+			},
+		}
 	}
 	d.SetId(r.Repo)
-	return resourceArgoCDRepositoryRead(d, meta)
+	return resourceArgoCDRepositoryRead(ctx, d, meta)
 }
 
-func resourceArgoCDRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDRepositoryDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
 	c := *server.RepositoryClient
 
 	tokenMutexConfiguration.Lock()
 	_, err := c.DeleteRepository(
-		context.Background(),
+		ctx,
 		&repository.RepoQuery{Repo: d.Id()},
 	)
 	tokenMutexConfiguration.Unlock()
 
 	if err != nil {
-		switch strings.Contains(err.Error(), "NotFound") {
-		// Repository has already been deleted in an out-of-band fashion
-		case true:
+		if strings.Contains(err.Error(), "NotFound") {
+			// Repository has already been deleted in an out-of-band fashion
 			d.SetId("")
 			return nil
-		default:
-			return err
+		}
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Repository %s not found", d.Id()),
+				Detail:   err.Error(),
+			},
 		}
 	}
 	d.SetId("")

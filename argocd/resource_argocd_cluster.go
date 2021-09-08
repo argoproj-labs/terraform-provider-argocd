@@ -3,93 +3,138 @@ package argocd
 import (
 	"context"
 	"fmt"
-	clusterClient "github.com/argoproj/argo-cd/pkg/apiclient/cluster"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strings"
+
+	clusterClient "github.com/argoproj/argo-cd/v2/pkg/apiclient/cluster"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceArgoCDCluster() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceArgoCDClusterCreate,
-		Read:   resourceArgoCDClusterRead,
-		Update: resourceArgoCDClusterUpdate,
-		Delete: resourceArgoCDClusterDelete,
+		CreateContext: resourceArgoCDClusterCreate,
+		ReadContext:   resourceArgoCDClusterRead,
+		UpdateContext: resourceArgoCDClusterUpdate,
+		DeleteContext: resourceArgoCDClusterDelete,
 		// TODO: add importer tests
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: clusterSchema(),
 	}
 }
 
-func resourceArgoCDClusterCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
 	client := *server.ClusterClient
 	cluster, err := expandCluster(d)
 	if err != nil {
-		return fmt.Errorf("could not expand cluster attributes: %s", err)
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("could not expand cluster attributes: %s", err),
+				Detail:   err.Error(),
+			},
+		}
+
 	}
-	c, err := client.Create(context.Background(), &clusterClient.ClusterCreateRequest{
+	c, err := client.Create(ctx, &clusterClient.ClusterCreateRequest{
 		Cluster: cluster, Upsert: false})
 	if err != nil {
-		return fmt.Errorf("something went wrong during cluster resource creation: %s", err)
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("something went wrong during cluster resource creation: %s", err),
+				Detail:   err.Error(),
+			},
+		}
 	}
 	if c.Name != "" {
 		d.SetId(fmt.Sprintf("%s/%s", c.Server, c.Name))
 	} else {
 		d.SetId(c.Server)
 	}
-	return resourceArgoCDClusterRead(d, meta)
+	return resourceArgoCDClusterRead(ctx, d, meta)
 }
 
-func resourceArgoCDClusterRead(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
 	client := *server.ClusterClient
-	c, err := client.Get(context.Background(), getClusterQueryFromID(d))
+	c, err := client.Get(ctx, getClusterQueryFromID(d))
 	if err != nil {
-		switch strings.Contains(err.Error(), "NotFound") {
-		case true:
+		if strings.Contains(err.Error(), "NotFound") {
 			d.SetId("")
 			return nil
-		default:
-			return fmt.Errorf("could not get cluster information: %s", err)
+		} else {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("could not get cluster information: %s", err),
+					Detail:   err.Error(),
+				},
+			}
 		}
 	}
 	err = flattenCluster(c, d)
-	return err
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "could not flatten cluster",
+				Detail:   err.Error(),
+			},
+		}
+	}
+	return nil
 }
 
-func resourceArgoCDClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(ServerInterface)
 	client := *server.ClusterClient
 	cluster, err := expandCluster(d)
 	if err != nil {
-		return fmt.Errorf("could not expand cluster attributes: %s", err)
-	}
-	_, err = client.Update(context.Background(), &clusterClient.ClusterUpdateRequest{Cluster: cluster})
-	if err != nil {
-		switch strings.Contains(err.Error(), "NotFound") {
-		case true:
-			d.SetId("")
-			return nil
-		default:
-			return fmt.Errorf("something went wrong during cluster update: %s", err)
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("could not expand cluster attributes: %s", err),
+				Detail:   err.Error(),
+			},
 		}
 	}
-	return resourceArgoCDClusterRead(d, meta)
-}
-
-func resourceArgoCDClusterDelete(d *schema.ResourceData, meta interface{}) error {
-	server := meta.(ServerInterface)
-	client := *server.ClusterClient
-	_, err := client.Delete(context.Background(), getClusterQueryFromID(d))
+	_, err = client.Update(ctx, &clusterClient.ClusterUpdateRequest{Cluster: cluster})
 	if err != nil {
-		switch strings.Contains(err.Error(), "NotFound") {
-		case true:
+		if strings.Contains(err.Error(), "NotFound") {
 			d.SetId("")
 			return nil
-		default:
-			return fmt.Errorf("something went wrong during cluster deletion: %s", err)
+		} else {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("something went wrong during cluster update: %s", err),
+					Detail:   err.Error(),
+				},
+			}
+		}
+	}
+	return resourceArgoCDClusterRead(ctx, d, meta)
+}
+
+func resourceArgoCDClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	server := meta.(ServerInterface)
+	client := *server.ClusterClient
+	_, err := client.Delete(ctx, getClusterQueryFromID(d))
+	if err != nil {
+		if strings.Contains(err.Error(), "NotFound") {
+			d.SetId("")
+			return nil
+		} else {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("something went wrong during cluster deletion: %s", err),
+					Detail:   err.Error(),
+				},
+			}
 		}
 	}
 	d.SetId("")
