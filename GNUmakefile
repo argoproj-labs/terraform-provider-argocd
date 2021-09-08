@@ -21,6 +21,6 @@ testacc:
 	sh scripts/testacc.sh
 
 testacc_clean_env:
-	kind delete cluster --name argocd
+	sh scripts/testacc_clean_env.sh
 
 .PHONY: build test testacc_prepare_env testacc testacc_clean_env fmt

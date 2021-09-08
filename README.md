@@ -6,7 +6,7 @@
 
 ## Compatibility promise
 
-This provider is compatible with _at least_ the last 2 major releases of ArgoCD (e.g, ranging from 1.(n).m, to 1.(n-1).0, where `n` is the latest available major version).
+This provider is compatible with _at least_ the last 2 major releases of ArgoCD (e.g, ranging from 2.(n).m, to 2.(n-1).0, where `n` is the latest available major version).
 
 Older releases are not supported and some resources may not work as expected.
 
@@ -51,7 +51,7 @@ In these cases, not only the readability of your Terraform plan will worsen, but
       required_providers {
         argocd = {
           source = "oboukili/argocd"
-          version = "0.4.7"
+          version = "1.2.2"
         }
       }
     }
@@ -351,7 +351,7 @@ go build
 
 ### Running tests
 
-The acceptance tests run against a disposable ArgoCD installation within a [Kind](https://github.com/kubernetes-sigs/kind) cluster. You will only need to have a running Docker daemon running as an additional prerequisite.
+The acceptance tests run against a disposable ArgoCD installation within a [k3d](https://github.com/rancher/k3d) cluster. You will only need to have a running Docker daemon running as an additional prerequisite.
 
 ```sh
 make testacc_prepare_env
@@ -359,13 +359,13 @@ make testacc
 make testacc_clean_env
 ```
 
-**Note:** to speed up testing environment setup, it is highly recommended you pull all needed container images into your local registry first, as the setup tries to sideload the images within the Kind cluster upon cluster creation.
+**Note:** to speed up testing environment setup, it is highly recommended you pull all needed container images into your local registry first, as the setup tries to sideload the images within the Kubernetes cluster upon cluster creation.
 
 For example if you use Docker as your local container runtime:
 ```shell
-docker pull argoproj/argocd:v1.8.3
+docker pull quay.io/argoproj/argocd:v2.1.2
 docker pull ghcr.io/dexidp/dex:v2.27.0
-docker pull redis:5.0.10-alpine
+docker pull redis:6.2.4-alpine
 docker pull banzaicloud/vault-operator:1.3.3
 ```
 
@@ -378,6 +378,5 @@ docker pull banzaicloud/vault-operator:1.3.3
 ## Credits
 
 * Thanks to [JetBrains](https://www.jetbrains.com/?from=terraform-provider-argocd) for providing a GoLand open source license to support the development of this provider.
-* Thanks to [Keplr](https://www.welcometothejungle.com/fr/companies/keplr) for allowing me to contribute to this side-project of mine during paid work hours.
 
-![](sponsors/jetbrains.svg?display=inline-block) ![](sponsors/keplr.png?display=inline-block)
+![](sponsors/jetbrains.svg?display=inline-block)
