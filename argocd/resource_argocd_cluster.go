@@ -18,7 +18,7 @@ func resourceArgoCDCluster() *schema.Resource {
 		DeleteContext: resourceArgoCDClusterDelete,
 		// TODO: add importer tests
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: clusterSchema(),
 	}

@@ -16,8 +16,8 @@ kubectl get services --all-namespaces -o wide
 
 echo '--- Load already available container images from local registry into Kubernetes (local development only)'
 k3d image import -t -c argocd redis:6.2.4-alpine
+k3d image import -t -c argocd bitnami/redis:6.2.5
 k3d image import -t -c argocd ghcr.io/dexidp/dex:v2.27.0
-k3d image import -t -c argocd banzaicloud/vault-operator:1.3.3
 k3d image import -c argocd quay.io/argoproj/argocd:${ARGOCD_VERSION:-v2.1.2}
 
 echo '--- Install ArgoCD ${ARGOCD_VERSION:-v2.1.2}\n\n'

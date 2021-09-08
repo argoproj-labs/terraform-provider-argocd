@@ -3,6 +3,7 @@ package argocd
 import (
 	"context"
 	"fmt"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strings"
 	"time"
 
@@ -98,6 +99,10 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		Application: application.Application{
 			ObjectMeta: objectMeta,
 			Spec:       spec,
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "Application",
+				APIVersion: "argoproj.io/v1alpha1",
+			},
 		},
 	})
 	if err != nil {
@@ -193,6 +198,10 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 			Application: &application.Application{
 				ObjectMeta: objectMeta,
 				Spec:       spec,
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Application",
+					APIVersion: "argoproj.io/v1alpha1",
+				},
 			}}
 
 		featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
