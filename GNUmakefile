@@ -36,8 +36,14 @@ clean:
 test: fmtcheck
 	go test $(TEST) -timeout=30s -parallel=4
 
-testacc: fmtcheck
-	TF_ACC=1 go test $(TEST) -v -parallel 20 $(TESTARGS) -timeout 120m
+testacc_prepare_env:
+	sh scripts/testacc_prepare_env.sh
+
+testacc:
+	sh scripts/testacc.sh
+
+testacc_clean_env:
+	kind delete cluster --name argocd		￼
 
 fmt:
 	@echo "==> Fixing source code with gofmt..."
@@ -66,4 +72,4 @@ vendor:
 vet:
 	go vet $<
 
-.PHONY: build test testacc fmt fmtcheck lint test-compile vendor
+.PHONY: build test testacc_prepare_env testacc testacc_clean_env fmt fmtcheck lint test-compile vendor
