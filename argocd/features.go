@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/semver"
-	"github.com/argoproj/argo-cd/util/io"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/cluster"
@@ -13,6 +12,7 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repocreds"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repository"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/version"
+	"github.com/argoproj/argo-cd/v2/util/io"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
