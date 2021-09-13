@@ -29,7 +29,7 @@ func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.Re
 	server := meta.(*ServerInterface)
 	if err := server.initClients(); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Failed to init clients"),
 				Detail:   err.Error(),
@@ -66,7 +66,7 @@ func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.Reso
 	server := meta.(*ServerInterface)
 	if err := server.initClients(); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Failed to init clients"),
 				Detail:   err.Error(),
@@ -115,7 +115,7 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 	server := meta.(*ServerInterface)
 	if err := server.initClients(); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Failed to init clients"),
 				Detail:   err.Error(),
@@ -156,7 +156,7 @@ func resourceArgoCDRepositoryCredentialsDelete(ctx context.Context, d *schema.Re
 	server := meta.(*ServerInterface)
 	if err := server.initClients(); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Failed to init clients"),
 				Detail:   err.Error(),

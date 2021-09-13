@@ -73,7 +73,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	server := meta.(*ServerInterface)
 	if err := server.initClients(); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Failed to init clients"),
 				Detail:   err.Error(),
@@ -265,7 +265,7 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 	server := meta.(*ServerInterface)
 	if err := server.initClients(); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Failed to init clients"),
 				Detail:   err.Error(),
@@ -419,7 +419,7 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 	server := meta.(*ServerInterface)
 	if err := server.initClients(); err != nil {
 		return []diag.Diagnostic{
-			diag.Diagnostic{
+			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Failed to init clients"),
 				Detail:   err.Error(),

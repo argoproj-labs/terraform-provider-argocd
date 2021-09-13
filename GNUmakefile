@@ -43,7 +43,7 @@ testacc:
 	sh scripts/testacc.sh
 
 testacc_clean_env:
-	kind delete cluster --name argocd		￼
+	kind delete cluster --name argocd
 
 fmt:
 	@echo "==> Fixing source code with gofmt..."
