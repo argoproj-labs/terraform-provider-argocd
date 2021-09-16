@@ -3,6 +3,7 @@ package argocd
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/Masterminds/semver"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
@@ -41,10 +42,20 @@ type ServerInterface struct {
 	ServerVersion        *semver.Version
 	ServerVersionMessage *version.VersionMessage
 	ProviderData         *schema.ResourceData
+
+	sync.Mutex
+	initialized bool
 }
 
 func (p *ServerInterface) initClients() error {
+	if p.initialized {
+		return nil
+	}
+
 	d := p.ProviderData
+
+	p.Lock()
+	defer p.Unlock()
 
 	if p.ApiClient == nil {
 		apiClient, err := initApiClient(d)
@@ -114,6 +125,7 @@ func (p *ServerInterface) initClients() error {
 	}
 	p.ServerVersion = serverVersion
 
+	p.initialized = true
 	return nil
 }
 
