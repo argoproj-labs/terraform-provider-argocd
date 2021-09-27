@@ -26,7 +26,16 @@ func resourceArgoCDRepositoryCredentials() *schema.Resource {
 }
 
 func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.RepoCredsClient
 	repoCreds := expandRepositoryCredentials(d)
 
@@ -54,7 +63,16 @@ func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.Re
 }
 
 func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.RepoCredsClient
 	rc := application.RepoCreds{}
 
@@ -94,7 +112,16 @@ func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.Reso
 }
 
 func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.RepoCredsClient
 	repoCreds := expandRepositoryCredentials(d)
 
@@ -126,7 +153,16 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 }
 
 func resourceArgoCDRepositoryCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.RepoCredsClient
 
 	tokenMutexConfiguration.Lock()

@@ -54,7 +54,16 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 			},
 		}
 	}
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.ProjectClient
 	projectName := objectMeta.Name
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
@@ -122,7 +131,16 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.ProjectClient
 	projectName := d.Id()
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
@@ -173,7 +191,16 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 				},
 			}
 		}
-		server := meta.(ServerInterface)
+		server := meta.(*ServerInterface)
+		if err := server.initClients(); err != nil {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("Failed to init clients"),
+					Detail:   err.Error(),
+				},
+			}
+		}
 		c := *server.ProjectClient
 		projectName := objectMeta.Name
 		if _, ok := tokenMutexProjectMap[projectName]; !ok {
@@ -244,7 +271,16 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	c := *server.ProjectClient
 	projectName := d.Id()
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {

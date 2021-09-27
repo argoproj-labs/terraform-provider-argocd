@@ -25,7 +25,16 @@ func resourceArgoCDCluster() *schema.Resource {
 }
 
 func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	client := *server.ClusterClient
 	cluster, err := expandCluster(d)
 	if err != nil {
@@ -39,7 +48,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 
 	}
 	c, err := client.Create(ctx, &clusterClient.ClusterCreateRequest{
-		Cluster: cluster, Upsert: false})
+		Cluster: cluster, Upsert: true})
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -58,7 +67,16 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	client := *server.ClusterClient
 	c, err := client.Get(ctx, getClusterQueryFromID(d))
 	if err != nil {
@@ -89,7 +107,16 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	client := *server.ClusterClient
 	cluster, err := expandCluster(d)
 	if err != nil {
@@ -120,7 +147,16 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(ServerInterface)
+	server := meta.(*ServerInterface)
+	if err := server.initClients(); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Failed to init clients"),
+				Detail:   err.Error(),
+			},
+		}
+	}
 	client := *server.ClusterClient
 	_, err := client.Delete(ctx, getClusterQueryFromID(d))
 	if err != nil {
