@@ -99,8 +99,8 @@ func expandApplicationSourcePlugin(in []interface{}) *application.ApplicationSou
 		for _, v := range env.(*schema.Set).List() {
 			result.Env = append(result.Env,
 				&application.EnvEntry{
-					Name:  v.(map[string]string)["name"],
-					Value: v.(map[string]string)["value"],
+					Name:  v.(map[string]interface{})["name"].(string),
+					Value: v.(map[string]interface{})["value"].(string),
 				},
 			)
 		}
