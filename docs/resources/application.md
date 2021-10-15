@@ -69,6 +69,11 @@ resource "argocd_application" "kustomize" {
         "/spec/replicas",
         "/spec/template/spec/metadata/labels/bar",
       ]
+      # Only available from ArgoCD 2.1.0 onwards
+      jq_path_expressions = [
+        ".spec.replicas",
+        ".spec.template.spec.metadata.labels.bar",
+      ]
     }
   }
 }
@@ -174,6 +179,7 @@ Each `ignore_difference` block can have the following attributes:
 * `name` - (Optional) The targeted Kubernetes resource name.
 * `namespace` - (Optional) The targeted Kubernetes resource namespace.
 * `json_pointers` - (Optional) List of JSONPaths strings targeting the field(s) to ignore.
+* `jq_path_expressions` - (Optional) List of jq path expression strings targeting the field(s) to ignore (only available from ArgoCD 2.1.0 onwards).
 
 The `source` block has the following attributes:
 * `repo_url` - (Required) string, repository URL of the application manifests.

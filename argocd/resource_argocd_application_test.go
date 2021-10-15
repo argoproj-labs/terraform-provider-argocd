@@ -485,6 +485,7 @@ resource "argocd_application" "ignore_differences" {
       group         = "apps"
       kind          = "Deployment"
       json_pointers = ["/spec/replicas"]
+      jq_path_expressions = [".spec.replicas"]
     }
 
     ignore_difference {
@@ -494,6 +495,10 @@ resource "argocd_application" "ignore_differences" {
       json_pointers = [
         "/spec/replicas",
         "/spec/template/spec/metadata/labels/somelabel",
+      ]
+      jq_path_expressions = [
+        ".spec.replicas",
+        "'.spec.template.spec.metadata.labels.somelabel'",
       ]
     }
   }

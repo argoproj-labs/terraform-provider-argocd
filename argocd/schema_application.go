@@ -362,6 +362,14 @@ func applicationSpecSchema() *schema.Schema {
 									Type: schema.TypeString,
 								},
 							},
+							"jq_path_expressions": {
+								Type:     schema.TypeSet,
+								Set:      schema.HashString,
+								Optional: true,
+								Elem: &schema.Schema{
+									Type: schema.TypeString,
+								},
+							},
 						},
 					},
 				},
