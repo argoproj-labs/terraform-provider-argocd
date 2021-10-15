@@ -482,9 +482,9 @@ resource "argocd_application" "ignore_differences" {
     }
     
     ignore_difference {
-      group         = "apps"
-      kind          = "Deployment"
-      json_pointers = ["/spec/replicas"]
+      group               = "apps"
+      kind                = "Deployment"
+      json_pointers       = ["/spec/replicas"]
       jq_path_expressions = [".spec.replicas"]
     }
 
