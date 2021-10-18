@@ -498,7 +498,7 @@ resource "argocd_application" "ignore_differences" {
       ]
       jq_path_expressions = [
         ".spec.replicas",
-        "'.spec.template.spec.metadata.labels.somelabel'",
+        ".spec.template.spec.metadata.labels.somelabel",
       ]
     }
   }
