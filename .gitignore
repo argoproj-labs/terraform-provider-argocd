@@ -1,5 +1,6 @@
 terraform-provider-argocd
-./manifests/install/install.yml
+/manifests/install/argocd.yml
+/bin
 .idea
 .vscode
 # Env variables settings
