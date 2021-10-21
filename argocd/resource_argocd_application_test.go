@@ -1,11 +1,13 @@
 package argocd
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccArgoCDApplication(t *testing.T) {
@@ -187,6 +189,27 @@ ingress:
 						"argocd_application.ignore_differences",
 						"spec.0.ignore_difference.1.group",
 						"apps",
+					),
+				),
+			},
+			{
+				SkipFunc: testAccSkipFeatureIgnoreDiffJQPathExpressions,
+				Config: testAccArgoCDApplicationIgnoreDiffJQPathExpressions(
+					acctest.RandomWithPrefix("test-acc")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.ignore_differences_jqpe",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.ignore_differences_jqpe",
+						"spec.0.ignore_difference.0.jq_path_expressions.0",
+						".spec.replicas",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.ignore_differences_jqpe",
+						"spec.0.ignore_difference.1.jq_path_expressions.1",
+						".spec.template.spec.metadata.labels.somelabel",
 					),
 				),
 			},
@@ -485,7 +508,6 @@ resource "argocd_application" "ignore_differences" {
       group               = "apps"
       kind                = "Deployment"
       json_pointers       = ["/spec/replicas"]
-      jq_path_expressions = [".spec.replicas"]
     }
 
     ignore_difference {
@@ -496,6 +518,45 @@ resource "argocd_application" "ignore_differences" {
         "/spec/replicas",
         "/spec/template/spec/metadata/labels/somelabel",
       ]
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationIgnoreDiffJQPathExpressions(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "ignore_differences_jqpe" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "15.3.0"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+    
+    ignore_difference {
+      group               = "apps"
+      kind                = "Deployment"
+      jq_path_expressions = [".spec.replicas"]
+    }
+
+    ignore_difference {
+      group         = "apps"
+      kind          = "StatefulSet"
+      name          = "someStatefulSet"
       jq_path_expressions = [
         ".spec.replicas",
         ".spec.template.spec.metadata.labels.somelabel",
@@ -504,4 +565,22 @@ resource "argocd_application" "ignore_differences" {
   }
 }
 	`, name)
+}
+
+func testAccSkipFeatureIgnoreDiffJQPathExpressions() (bool, error) {
+	p, _ := testAccProviders["argocd"]()
+	_ = p.Configure(context.Background(), &terraform.ResourceConfig{})
+	server := p.Meta().(*ServerInterface)
+	err := server.initClients()
+	if err != nil {
+		return false, err
+	}
+	featureSupported, err := server.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
+	if err != nil {
+		return false, err
+	}
+	if !featureSupported {
+		return true, nil
+	}
+	return false, nil
 }
