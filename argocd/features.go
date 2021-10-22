@@ -20,6 +20,7 @@ import (
 
 const (
 	featureApplicationLevelSyncOptions = iota
+	featureIgnoreDiffJQPathExpressions
 	featureRepositoryGet
 	featureTokenIDs
 )
@@ -27,6 +28,7 @@ const (
 var (
 	featureVersionConstraintsMap = map[int]*semver.Version{
 		featureApplicationLevelSyncOptions: semver.MustParse("1.5.0"),
+		featureIgnoreDiffJQPathExpressions: semver.MustParse("2.1.0"),
 		featureRepositoryGet:               semver.MustParse("1.6.0"),
 		featureTokenIDs:                    semver.MustParse("1.5.3"),
 	}

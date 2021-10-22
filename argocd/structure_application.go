@@ -354,6 +354,12 @@ func expandApplicationIgnoreDifferences(ids []interface{}) (
 				elem.JSONPointers = append(elem.JSONPointers, jp.(string))
 			}
 		}
+		if v, ok := id["jq_path_expressions"]; ok {
+			jqpes := v.(*schema.Set).List()
+			for _, jqpe := range jqpes {
+				elem.JQPathExpressions = append(elem.JQPathExpressions, jqpe.(string))
+			}
+		}
 		result = append(result, elem)
 	}
 	return
@@ -473,11 +479,12 @@ func flattenApplicationIgnoreDifferences(ids []application.ResourceIgnoreDiffere
 	result []map[string]interface{}) {
 	for _, id := range ids {
 		result = append(result, map[string]interface{}{
-			"group":         id.Group,
-			"kind":          id.Kind,
-			"name":          id.Name,
-			"namespace":     id.Namespace,
-			"json_pointers": id.JSONPointers,
+			"group":               id.Group,
+			"kind":                id.Kind,
+			"name":                id.Name,
+			"namespace":           id.Namespace,
+			"json_pointers":       id.JSONPointers,
+			"jq_path_expressions": id.JQPathExpressions,
 		})
 	}
 	return

@@ -104,6 +104,36 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	featureIgnoreDiffJQPathExpressionsSupported, err := server.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	}
+	hasJQPathExpressions := false
+	if spec.IgnoreDifferences != nil {
+		for _, id := range spec.IgnoreDifferences {
+			if id.JQPathExpressions != nil {
+				hasJQPathExpressions = true
+			}
+		}
+	}
+	if !featureIgnoreDiffJQPathExpressionsSupported && hasJQPathExpressions {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"jq path expressions are only supported from ArgoCD %s onwards",
+					featureVersionConstraintsMap[featureIgnoreDiffJQPathExpressions].String()),
+				Detail: err.Error(),
+			},
+		}
+	}
+
 	app, err = c.Create(ctx, &applicationClient.ApplicationCreateRequest{
 		Application: application.Application{
 
@@ -251,6 +281,36 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 					Summary: fmt.Sprintf(
 						"application-level sync_options is only supported from ArgoCD %s onwards",
 						featureVersionConstraintsMap[featureApplicationLevelSyncOptions].String()),
+					Detail: err.Error(),
+				},
+			}
+		}
+
+		featureIgnoreDiffJQPathExpressionsSupported, err := server.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
+		if err != nil {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  "feature not supported",
+					Detail:   err.Error(),
+				},
+			}
+		}
+		hasJQPathExpressions := false
+		if spec.IgnoreDifferences != nil {
+			for _, id := range spec.IgnoreDifferences {
+				if id.JQPathExpressions != nil {
+					hasJQPathExpressions = true
+				}
+			}
+		}
+		if !featureIgnoreDiffJQPathExpressionsSupported && hasJQPathExpressions {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary: fmt.Sprintf(
+						"jq path expressions are only supported from ArgoCD %s onwards",
+						featureVersionConstraintsMap[featureIgnoreDiffJQPathExpressions].String()),
 					Detail: err.Error(),
 				},
 			}
