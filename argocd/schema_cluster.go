@@ -177,5 +177,29 @@ func clusterSchema() map[string]*schema.Schema {
 				},
 			},
 		},
+		"metadata": {
+			Type:        schema.TypeList,
+			Description: "Standard cluster secret's metadata. More info: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#metadata",
+			Optional:    true,
+			MaxItems:    2,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"annotations": {
+						Type:         schema.TypeMap,
+						Description:  "An unstructured key value map stored with the cluster secret that may be used to store arbitrary metadata. More info: http://kubernetes.io/docs/user-guide/annotations",
+						Optional:     true,
+						Elem:         &schema.Schema{Type: schema.TypeString},
+						ValidateFunc: validateMetadataAnnotations,
+					},
+					"labels": {
+						Type:         schema.TypeMap,
+						Description:  "Map of string keys and values that can be used to organize and categorize (scope and select) the cluster secret. May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels",
+						Optional:     true,
+						Elem:         &schema.Schema{Type: schema.TypeString},
+						ValidateFunc: validateMetadataLabels,
+					},
+				},
+			},
+		},
 	}
 }
