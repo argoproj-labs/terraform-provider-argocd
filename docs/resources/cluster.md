@@ -72,6 +72,7 @@ resource "argocd_cluster" "eks" {
 * `shard` - (Optional) Shard contains optional shard number. Calculated on the fly by the application controller if not specified.
 * `namespaces` - (Optional) Holds list of namespaces which are accessible in that cluster. Cluster level resources would be ignored if namespace list is not empty..
 * `config` - (Optional) The configuration specification, nested attributes are documented below.
+* `metadata` - (Optional) Cluster metadata, nested attributes are documented below.
 
 The `config` block can have the following attributes:
 
@@ -102,6 +103,11 @@ The `config.tls_client_config` block can have the following attributes:
 * `key_data` - (Optional) string. Holds PEM-encoded bytes (typically read from a client certificate key file).
 * `insecure` - (Optional) boolean. For when the server should be accessed without verifying the TLS certificate.
 * `server_name` - (Optional) string. Passed to the server for SNI and is used in the client to check server certificates against. If empty, the hostname used to contact the server is used.
+
+The `metadata` block can have the following attributes:
+
+* `annotations` - (Optional) An unstructured key value map stored with the config map that may be used to store arbitrary metadata. **By default, the provider ignores any annotations whose key names end with kubernetes.io. This is necessary because such annotations can be mutated by server-side components and consequently cause a perpetual diff in the Terraform plan output. If you explicitly specify any such annotations in the configuration template then Terraform will consider these as normal resource attributes and manage them as expected (while still avoiding the perpetual diff problem)**. For more info see [Kubernetes reference](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/).
+* `labels` - (Optional) Map of string keys and values that can be used to organize and categorize (scope and select) the config map. May match selectors of replication controllers and services. **By default, the provider ignores any labels whose key names end with kubernetes.io. This is necessary because such labels can be mutated by server-side components and consequently cause a perpetual diff in the Terraform plan output. If you explicitly specify any such labels in the configuration template then Terraform will consider these as normal resource attributes and manage them as expected (while still avoiding the perpetual diff problem).** For more info see [Kubernetes reference](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/).
 
 ## Attribute Reference
 
