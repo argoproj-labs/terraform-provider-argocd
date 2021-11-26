@@ -27,15 +27,63 @@ data "google_container_cluster" "cluster" {
   location = "europe-west1"
 }
 
+# Create the service account, cluster role + binding, which ArgoCD expects to be present in the targeted cluster
+resource "kubernetes_service_account" "argocd_manager" {
+  metadata {
+    name      = "argocd-manager"
+    namespace = "kube-system"
+  }
+}
+
+resource "kubernetes_cluster_role" "argocd_manager" {
+  metadata {
+    name = "argocd-manager-role"
+  }
+
+  rule {
+    api_groups = ["*"]
+    resources  = ["*"]
+    verbs      = ["*"]
+  }
+
+  rule {
+    non_resource_urls = ["*"]
+    verbs             = ["*"]
+  }
+}
+
+resource "kubernetes_cluster_role_binding" "argocd_manager" {
+  metadata {
+    name = "argocd-manager-role-binding"
+  }
+
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = kubernetes_cluster_role.argocd_manager.metadata.0.name
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = kubernetes_service_account.argocd_manager.metadata.0.name
+    namespace = kubernetes_service_account.argocd_manager.metadata.0.namespace
+  }
+}
+
+data "kubernetes_secret" "argocd_manager" {
+  metadata {
+    name      = kubernetes_service_account.argocd_manager.default_secret_name
+    namespace = kubernetes_service_account.argocd_manager.metadata.0.namespace
+  }
+}
+
 resource "argocd_cluster" "gke" {
   server = format("https://%s", data.google_container_cluster.cluster.endpoint)
   name   = "gke"
 
   config {
     tls_client_config {
-      ca_data      = data.google_container_cluster.cluster.master_auth.0.cluster_ca_certificate
-      cert_data    = data.google_container_cluster.cluster.master_auth.0.client_certificate
-      key_data     = data.google_container_cluster.cluster.master_auth.0.client_key
+      ca_data      = base64decode(data.google_container_cluster.cluster.master_auth.0.cluster_ca_certificate)
     }
   }
 }
