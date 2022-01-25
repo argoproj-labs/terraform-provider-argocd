@@ -13,9 +13,11 @@ require (
 	github.com/cristalhq/jwt/v3 v3.1.0
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.4.3
+	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320 // indirect
 	github.com/hashicorp/go-getter v1.5.4 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/hcl/v2 v2.8.2 // indirect
+	github.com/hashicorp/terraform-json v0.13.0 // indirect
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.1
 	github.com/klauspost/compress v1.13.1 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
