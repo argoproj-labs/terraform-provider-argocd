@@ -61,7 +61,7 @@ func testAccArgoCDRepositoryCredentialsRepositoryCoexistence() string {
 	return fmt.Sprintf(`
 resource "argocd_repository" "private" {
   count      = 10
-  repo       = format("git@private-git-repository.argocd.svc.cluster.local:project-%%d.git", count.index+1)
+  repo       = format("git@private-git-repository.argocd.svc.cluster.local:~/project-%%d.git", count.index+1)
   insecure   = true
   depends_on = [argocd_repository_credentials.private]
 }
