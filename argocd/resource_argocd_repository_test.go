@@ -38,7 +38,7 @@ func TestAccArgoCDRepository(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccArgoCDRepositoryPrivateGitSSH("git@private-git-repository.argocd.svc.cluster.local:project-1.git"),
+				Config: testAccArgoCDRepositoryPrivateGitSSH("ssh://git@private-git-repository.argocd.svc.cluster.local/home/git/project-1.git"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"argocd_repository.private",
@@ -120,7 +120,7 @@ func testAccArgoCDRepositoryMultiplePrivateGitSSH(repoCount int) string {
 	return fmt.Sprintf(`
 resource "argocd_repository" "private" {
   count           = %d
-  repo            = format("git@private-git-repository.argocd.svc.cluster.local:project-%%d.git", count.index+1)
+  repo            = format("ssh://git@private-git-repository.argocd.svc.cluster.local/home/git/project-%%d.git", count.index+1)
   type            = "git"
   insecure        = true
   ssh_private_key = "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZgAAAJB9cNEifXDR\nIgAAAAtzc2gtZWQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZg\nAAAEAJeUrObjoTbGO1Sq4TXHl/j4RJ5aKMC1OemWuHmLK7XYZ7pXHSBsqooIjTAimV+Ark\nkGMIM7duG1Texl8uh5RmAAAAC3Rlc3RAYXJnb2NkAQI=\n-----END OPENSSH PRIVATE KEY-----"
