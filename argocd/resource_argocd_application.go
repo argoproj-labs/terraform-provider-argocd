@@ -34,6 +34,12 @@ func resourceArgoCDApplication() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"cascade": {
+				Type:        schema.TypeBool,
+				Description: "Whether to applying cascading deletion when application is removed.",
+				Optional:    true,
+				Default:     true,
+			},
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
@@ -377,8 +383,10 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 	}
 	c := *server.ApplicationClient
 	appName := d.Id()
+	cascade := d.Get("cascade").(bool)
 	_, err := c.Delete(ctx, &applicationClient.ApplicationDeleteRequest{
-		Name: &appName,
+		Name:    &appName,
+		Cascade: &cascade,
 	})
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
 		return []diag.Diagnostic{
