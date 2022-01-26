@@ -61,13 +61,13 @@ func testAccArgoCDRepositoryCredentialsRepositoryCoexistence() string {
 	return fmt.Sprintf(`
 resource "argocd_repository" "private" {
   count      = 10
-  repo       = format("ssh://git@private-git-repository.argocd.svc.cluster.local/home/git/project-%%d.git", count.index+1)
+  repo       = format("git@private-git-repository.argocd.svc.cluster.local:~/project-%%d.git", count.index+1)
   insecure   = true
   depends_on = [argocd_repository_credentials.private]
 }
 
 resource "argocd_repository_credentials" "private" {
-  url             = "ssh://git@private-git-repository.argocd.svc.cluster.local"
+  url             = "git@private-git-repository.argocd.svc.cluster.local"
   username        = "git"
   ssh_private_key = "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZgAAAJB9cNEifXDR\nIgAAAAtzc2gtZWQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZg\nAAAEAJeUrObjoTbGO1Sq4TXHl/j4RJ5aKMC1OemWuHmLK7XYZ7pXHSBsqooIjTAimV+Ark\nkGMIM7duG1Texl8uh5RmAAAAC3Rlc3RAYXJnb2NkAQI=\n-----END OPENSSH PRIVATE KEY-----"
 }
