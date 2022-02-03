@@ -75,7 +75,9 @@ func clusterSchema() map[string]*schema.Schema {
 									Type:        schema.TypeList,
 									Optional:    true,
 									Description: "Arguments to pass to the command when executing it",
-									Elem:        schema.TypeString,
+									Elem: &schema.Schema{
+										Type: schema.TypeString,
+									},
 								},
 								"command": {
 									Type:        schema.TypeString,
@@ -86,7 +88,9 @@ func clusterSchema() map[string]*schema.Schema {
 									Type:        schema.TypeMap,
 									Optional:    true,
 									Description: "Env defines additional environment variables to expose to the process. Passed as a map of strings",
-									Elem:        schema.TypeString,
+									Elem: &schema.Schema{
+										Type: schema.TypeString,
+									},
 								},
 								"install_hint": {
 									Type:        schema.TypeString,
