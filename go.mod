@@ -6,14 +6,13 @@ require (
 	cloud.google.com/go/storage v1.14.0 // indirect
 	github.com/Masterminds/semver v1.5.0
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
-	github.com/argoproj/argo-cd/v2 v2.1.2
-	github.com/argoproj/gitops-engine v0.4.1
-	github.com/argoproj/pkg v0.9.1
+	github.com/argoproj/argo-cd/v2 v2.1.9
+	github.com/argoproj/gitops-engine v0.4.2
+	github.com/argoproj/pkg v0.11.1-0.20211203175135-36c59d8fafe0
 	github.com/aws/aws-sdk-go v1.38.65 // indirect
 	github.com/cristalhq/jwt/v3 v3.1.0
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.4.3
-	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320 // indirect
 	github.com/hashicorp/go-getter v1.5.4 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/hcl/v2 v2.8.2 // indirect
