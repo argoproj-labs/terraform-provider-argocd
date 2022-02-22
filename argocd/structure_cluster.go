@@ -30,6 +30,11 @@ func expandCluster(d *schema.ResourceData) (*application.Cluster, error) {
 	if v, ok := d.GetOk("config"); ok {
 		cluster.Config = expandClusterConfig(v.([]interface{})[0])
 	}
+
+	m := expandMetadata(d)
+	cluster.Annotations = m.Annotations
+	cluster.Labels = m.Labels
+
 	return cluster, err
 }
 
