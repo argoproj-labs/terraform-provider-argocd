@@ -6,7 +6,7 @@
 
 ## Compatibility promise
 
-This provider is compatible with _at least_ the last 2 major releases of ArgoCD (e.g, ranging from 1.(n).m, to 1.(n-1).0, where `n` is the latest available major version).
+This provider is compatible with _at least_ the last 2 minor releases of ArgoCD (e.g, ranging from 1.(n).m, to 1.(n-1).0, where `n` is the latest available minor version).
 
 Older releases are not supported and some resources may not work as expected.
 
