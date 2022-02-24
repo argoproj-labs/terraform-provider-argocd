@@ -49,4 +49,6 @@ jobs:
           netstat -tulpn
 
       - name: Run acceptance tests
+        env:
+          ARGOCD_VERSION: ${{ matrix.argocd_version }}
         run: sh scripts/testacc.sh
