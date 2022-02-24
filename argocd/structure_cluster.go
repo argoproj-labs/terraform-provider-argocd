@@ -35,6 +35,10 @@ func expandCluster(d *schema.ResourceData) (*application.Cluster, error) {
 	cluster.Annotations = m.Annotations
 	cluster.Labels = m.Labels
 
+	if v, ok := d.GetOk("project"); ok {
+		cluster.Project = v.(string)
+	}
+
 	return cluster, err
 }
 
@@ -113,6 +117,7 @@ func flattenCluster(cluster *application.Cluster, d *schema.ResourceData) error 
 		"namespaces": cluster.Namespaces,
 		"info":       flattenClusterInfo(cluster.Info),
 		"config":     flattenClusterConfig(cluster.Config, d),
+		"project":    cluster.Project,
 	}
 	if cluster.Shard != nil {
 		r["shard"] = convertInt64PointerToString(cluster.Shard)

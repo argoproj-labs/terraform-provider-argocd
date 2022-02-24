@@ -23,6 +23,7 @@ const (
 	featureIgnoreDiffJQPathExpressions
 	featureRepositoryGet
 	featureTokenIDs
+	featureProjectScopedClusters
 )
 
 var (
@@ -31,6 +32,7 @@ var (
 		featureIgnoreDiffJQPathExpressions: semver.MustParse("2.1.0"),
 		featureRepositoryGet:               semver.MustParse("1.6.0"),
 		featureTokenIDs:                    semver.MustParse("1.5.3"),
+		featureProjectScopedClusters:       semver.MustParse("2.2.0"),
 	}
 )
 

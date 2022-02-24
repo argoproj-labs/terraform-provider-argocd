@@ -121,6 +121,7 @@ resource "argocd_cluster" "eks" {
 * `namespaces` - (Optional) Holds list of namespaces which are accessible in that cluster. Cluster level resources would be ignored if namespace list is not empty..
 * `config` - (Optional) The configuration specification, nested attributes are documented below.
 * `metadata` - (Optional) Cluster metadata, nested attributes are documented below.
+* `project` - (Optional) Scope cluster to ArgoCD project. If omitted, cluster will be global. Requires ArgoCD 2.2.0 onwards.
 
 The `config` block can have the following attributes:
 
