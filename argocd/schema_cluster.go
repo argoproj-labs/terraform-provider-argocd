@@ -21,6 +21,11 @@ func clusterSchema() map[string]*schema.Schema {
 			Description: "Shard contains optional shard number. Calculated on the fly by the application controller if not specified.",
 			Optional:    true,
 		},
+		"project": {
+			Type:        schema.TypeString,
+			Description: "Project name for a project-scoped Kubernetes cluster.",
+			Optional:    true,
+		},
 		"namespaces": {
 			Type:        schema.TypeList,
 			Description: "Holds list of namespaces which are accessible in that cluster. Cluster level resources would be ignored if namespace list is not empty.",

@@ -22,6 +22,9 @@ func expandCluster(d *schema.ResourceData) (*application.Cluster, error) {
 			return nil, err
 		}
 	}
+	if v, ok := d.GetOk("project"); ok {
+		cluster.Project = v.(string)
+	}
 	if ns, ok := d.GetOk("namespaces"); ok {
 		for _, n := range ns.([]interface{}) {
 			cluster.Namespaces = append(cluster.Namespaces, n.(string))
@@ -110,6 +113,7 @@ func flattenCluster(cluster *application.Cluster, d *schema.ResourceData) error 
 	r := map[string]interface{}{
 		"name":       cluster.Name,
 		"server":     cluster.Server,
+		"project":    cluster.Project,
 		"namespaces": cluster.Namespaces,
 		"info":       flattenClusterInfo(cluster.Info),
 		"config":     flattenClusterConfig(cluster.Config, d),

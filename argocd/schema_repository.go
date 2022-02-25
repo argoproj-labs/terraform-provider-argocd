@@ -2,6 +2,7 @@ package argocd
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -80,6 +81,11 @@ func repositorySchema() map[string]*schema.Schema {
 		"connection_state_status": {
 			Type:     schema.TypeString,
 			Computed: true,
+		},
+		"project": {
+			Type:        schema.TypeString,
+			Description: "Project name for a project-scoped repository.",
+			Optional:    true,
 		},
 	}
 }

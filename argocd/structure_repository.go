@@ -43,6 +43,9 @@ func expandRepository(d *schema.ResourceData) *application.Repository {
 	if v, ok := d.GetOk("type"); ok {
 		repository.Type = v.(string)
 	}
+	if v, ok := d.GetOk("project"); ok {
+		repository.Project = v.(string)
+	}
 	return repository
 }
 
@@ -64,6 +67,7 @@ func flattenRepository(repository *application.Repository, d *schema.ResourceDat
 		//"tls_client_cert_key":     repository.TLSClientCertKey,
 		"tls_client_cert_data": repository.TLSClientCertData,
 		"type":                 repository.Type,
+		"project":              repository.Project,
 	}
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {
