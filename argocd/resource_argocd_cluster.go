@@ -70,6 +70,28 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	featureClusterMetadataSupported, err := server.isFeatureSupported(featureClusterMetadata)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	if !featureClusterMetadataSupported && (len(cluster.Annotations) != 0 || len(cluster.Labels) != 0) {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"cluster metadata is only supported from ArgoCD %s onwards",
+					featureVersionConstraintsMap[featureClusterMetadata].String()),
+			},
+		}
+	}
+
 	c, err := client.Create(ctx, &clusterClient.ClusterCreateRequest{
 		Cluster: cluster, Upsert: true})
 	if err != nil {
@@ -170,6 +192,28 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 					"cluster project is only supported from ArgoCD %s onwards",
 					featureVersionConstraintsMap[featureProjectScopedClusters].String()),
 				Detail: "See https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-scoped-repositories-and-clusters",
+			},
+		}
+	}
+
+	featureClusterMetadataSupported, err := server.isFeatureSupported(featureClusterMetadata)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	if !featureClusterMetadataSupported && (len(cluster.Annotations) != 0 || len(cluster.Labels) != 0) {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"cluster metadata is only supported from ArgoCD %s onwards",
+					featureVersionConstraintsMap[featureClusterMetadata].String()),
 			},
 		}
 	}
