@@ -71,6 +71,35 @@ func TestAccArgoCDCluster(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDCluster_projectScope(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedClusters) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDClusterProjectScope(acctest.RandString(10), "myproject1"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.project_scope",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.project_scope",
+						"config.0.tls_client_config.0.insecure",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.project_scope",
+						"project",
+						"myproject1",
+					),
+				),
+			},
+		},
+	})
+}
+
 func testAccArgoCDClusterBearerToken(clusterName string) string {
 	return fmt.Sprintf(`
 resource "argocd_cluster" "simple" {
@@ -116,6 +145,23 @@ EOT
   }
 }
 `, clusterName, rc.KeyData, rc.CertData, rc.CAData, rc.ServerName)
+}
+
+func testAccArgoCDClusterProjectScope(clusterName, projectName string) string {
+	return fmt.Sprintf(`
+resource "argocd_cluster" "project_scope" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  name   = "%s"
+  project = "%s"
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+`, clusterName, projectName)
 }
 
 // getInternalRestConfig returns the internal Kubernetes cluster REST config.

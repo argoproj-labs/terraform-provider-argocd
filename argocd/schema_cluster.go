@@ -205,5 +205,10 @@ func clusterSchema() map[string]*schema.Schema {
 				},
 			},
 		},
+		"project": {
+			Type:        schema.TypeString,
+			Description: "Add cluster scoped to project",
+			Optional:    true,
+		},
 	}
 }
