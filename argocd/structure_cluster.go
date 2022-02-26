@@ -92,7 +92,10 @@ func expandClusterConfig(config interface{}) (
 				clusterConfig.ExecProviderConfig.APIVersion = v.(string)
 			}
 			if k == "args" {
-				clusterConfig.ExecProviderConfig.Args = v.([]string)
+				argsI := v.([]interface{})
+				for _, argI := range argsI {
+					clusterConfig.ExecProviderConfig.Args = append(clusterConfig.ExecProviderConfig.Args, argI.(string))
+				}
 			}
 			if k == "command" {
 				clusterConfig.ExecProviderConfig.Command = v.(string)
@@ -101,7 +104,11 @@ func expandClusterConfig(config interface{}) (
 				clusterConfig.ExecProviderConfig.InstallHint = v.(string)
 			}
 			if k == "env" {
-				clusterConfig.ExecProviderConfig.Env = v.(map[string]string)
+				clusterConfig.ExecProviderConfig.Env = make(map[string]string)
+				envI := v.(map[string]interface{})
+				for key, val := range envI {
+					clusterConfig.ExecProviderConfig.Env[key] = val.(string)
+				}
 			}
 		}
 	}
