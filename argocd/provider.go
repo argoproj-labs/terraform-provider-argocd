@@ -16,6 +16,9 @@ import (
 
 	apimachineryschema "k8s.io/apimachinery/pkg/runtime/schema"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+
+	// Import to initialize client auth plugins.
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
 var apiClientConnOpts apiclient.ClientOptions
