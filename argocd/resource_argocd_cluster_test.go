@@ -100,6 +100,92 @@ func TestAccArgoCDCluster_projectScope(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDCluster_metadata(t *testing.T) {
+	clusterName := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureClusterMetadata) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDClusterMetadata(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"metadata",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_cluster.cluster_metadata",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config", "info"},
+			},
+			{
+				Config: testAccArgoCDClusterMetadata_addLabels(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"metadata.0.labels.test",
+						"label",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"metadata.0.annotations",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_cluster.cluster_metadata",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config", "info"},
+			},
+			{
+				Config: testAccArgoCDClusterMetadata_addAnnotations(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"metadata.0.labels.test",
+						"label",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"metadata.0.annotations.test",
+						"annotation",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_cluster.cluster_metadata",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config", "info"},
+			},
+			{
+				Config: testAccArgoCDClusterMetadata_removeLabels(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"metadata.0.labels",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"metadata.0.annotations.test",
+						"annotation",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_cluster.cluster_metadata",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config", "info"},
+			},
+		},
+	})
+}
+
 func testAccArgoCDClusterBearerToken(clusterName string) string {
 	return fmt.Sprintf(`
 resource "argocd_cluster" "simple" {
@@ -162,6 +248,88 @@ resource "argocd_cluster" "project_scope" {
   }
 }
 `, clusterName, projectName)
+}
+
+func testAccArgoCDClusterMetadata(clusterName string) string {
+	return fmt.Sprintf(`
+resource "argocd_cluster" "cluster_metadata" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  name   = "%s"
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+`, clusterName)
+}
+
+func testAccArgoCDClusterMetadata_addLabels(clusterName string) string {
+	return fmt.Sprintf(`
+resource "argocd_cluster" "cluster_metadata" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  name   = "%s"
+  metadata {
+    labels = {
+      test = "label"
+    }
+  }
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+`, clusterName)
+}
+
+func testAccArgoCDClusterMetadata_addAnnotations(clusterName string) string {
+	return fmt.Sprintf(`
+resource "argocd_cluster" "cluster_metadata" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  name   = "%s"
+  metadata {
+    labels = {
+      test = "label"
+    }
+    annotations = {
+      test = "annotation"
+    }
+  }
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+`, clusterName)
+}
+
+func testAccArgoCDClusterMetadata_removeLabels(clusterName string) string {
+	return fmt.Sprintf(`
+resource "argocd_cluster" "cluster_metadata" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  name   = "%s"
+  metadata {
+    annotations = {
+      test = "annotation"
+    }
+  }
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+`, clusterName)
 }
 
 // getInternalRestConfig returns the internal Kubernetes cluster REST config.
