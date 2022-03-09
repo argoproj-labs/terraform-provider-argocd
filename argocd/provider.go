@@ -10,6 +10,7 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/session"
 	"github.com/argoproj/argo-cd/v2/util/io"
+	"github.com/argoproj/argo-cd/v2/util/localconfig"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -44,6 +45,8 @@ func Provider() *schema.Provider {
 				ConflictsWith: []string{
 					"username",
 					"password",
+					"use_local_config",
+					"config_path",
 				},
 			},
 			"username": {
@@ -52,10 +55,13 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_AUTH_USERNAME", nil),
 				ConflictsWith: []string{
 					"auth_token",
+					"use_local_config",
+					"config_path",
 				},
 				AtLeastOneOf: []string{
 					"password",
 					"auth_token",
+					"use_local_config",
 				},
 			},
 			"password": {
@@ -64,10 +70,13 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_AUTH_PASSWORD", nil),
 				ConflictsWith: []string{
 					"auth_token",
+					"use_local_config",
+					"config_path",
 				},
 				AtLeastOneOf: []string{
 					"username",
 					"auth_token",
+					"use_local_config",
 				},
 			},
 			"cert_file": {
@@ -91,6 +100,25 @@ func Provider() *schema.Provider {
 			"grpc_web": {
 				Type:     schema.TypeBool,
 				Optional: true,
+			},
+			"use_local_config": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ConflictsWith: []string{
+					"username",
+					"password",
+					"auth_token",
+				},
+			},
+			"config_path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_CONFIG_PATH", nil),
+				ConflictsWith: []string{
+					"username",
+					"password",
+					"auth_token",
+				},
 			},
 			"grpc_web_root_path": {
 				Type:     schema.TypeString,
@@ -146,6 +174,20 @@ func initApiClient(d *schema.ResourceData) (
 
 	if v, ok := d.GetOk("server_addr"); ok {
 		opts.ServerAddr = v.(string)
+	}
+
+	if v, ok := d.GetOk("use_local_config"); ok {
+		if v.(bool) {
+			if v, ok := d.GetOk("config_path"); ok {
+				opts.ConfigPath = v.(string)
+			} else {
+				path, err := localconfig.DefaultLocalConfigPath()
+				if err != nil {
+					return nil, err
+				}
+				opts.ConfigPath = path
+			}
+		}
 	}
 
 	if v, ok := d.GetOk("plain_text"); ok {

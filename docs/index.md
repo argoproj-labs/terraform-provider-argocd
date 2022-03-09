@@ -14,7 +14,11 @@ provider "argocd" {
 ## Argument Reference
 
 * `server_addr` - (Required) ArgoCD server address with port.
-* `auth_token` - (Optional) ArgoCD authentication token, taked precedence over `username`/`password`. Can be set through the `ARGOCD_AUTH_TOKEN` environment variable.
+* `use_local_config` - (Optional) use the authentication settings found in the local config file. Useful when you have previously logged in using SSO. Conflicts with
+`auth_token`, `username` and `password`.
+* `config_path` (Optional) - Override the default config path of `$HOME/.config/argocd/config`. Only relevant when using `use_local_config` above.
+  Can be set through the `ARGOCD_CONFIG_PATH` environment variable.
+* `auth_token` - (Optional) ArgoCD authentication token, takes precedence over `username`/`password`. Can be set through the `ARGOCD_AUTH_TOKEN` environment variable.
 * `username` - (Optional) authentication username. Can be set through the `ARGOCD_AUTH_USERNAME` environment variable.
 * `password` - (Optional) authentication password. Can be set through the `ARGOCD_AUTH_PASSWORD` environment variable.
 * `cert_file` - (Optional) Additional root CA certificates file to add to the client TLS connection pool. 
