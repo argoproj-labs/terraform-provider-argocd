@@ -64,6 +64,16 @@ func TestAccArgoCDProject(t *testing.T) {
 					// TODO: check all possible attributes
 				),
 			},
+			{
+				Config: testAccArgoCDProjectSimpleWithoutOrph(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+						// TODO: check all possible attributes
+					),
+				),
+			},
 		},
 	})
 }
@@ -197,6 +207,33 @@ resource "argocd_project" "simple" {
     ]
   }
 }
+	`, name)
+}
+
+func testAccArgoCDProjectSimpleWithoutOrph(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "simple" {
+    metadata {
+      name      = "%s"
+      namespace = "argocd"
+      labels = {
+        acceptance = "true"
+      }
+      annotations = {
+        "this.is.a.really.long.nested.key" = "yes, really!"
+      }
+    }
+  
+    spec {
+      description  = "simple project"
+      source_repos = ["*"]
+  
+      destination {
+        name      = "anothercluster"
+        namespace = "bar"
+      }
+    }
+  }
 	`, name)
 }
 
