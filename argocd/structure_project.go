@@ -3,6 +3,7 @@ package argocd
 import (
 	"encoding/json"
 	"fmt"
+
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -67,13 +68,15 @@ func expandProjectSpec(d *schema.ResourceData) (
 		if len(orphanedResources) > 0 {
 			spec.OrphanedResources = &application.OrphanedResourcesMonitorSettings{}
 
-			if _warn, _ok := orphanedResources[0].(map[string]interface{})["warn"]; _ok {
-				warn := _warn.(bool)
-				spec.OrphanedResources.Warn = &warn
-			}
-			if _ignore, _ok := orphanedResources[0].(map[string]interface{})["ignore"]; _ok {
-				ignore := expandOrphanedResourcesIgnore(_ignore.(*schema.Set))
-				spec.OrphanedResources.Ignore = ignore
+			if orphanedResources[0] != nil {
+				if _warn, _ok := orphanedResources[0].(map[string]interface{})["warn"]; _ok {
+					warn := _warn.(bool)
+					spec.OrphanedResources.Warn = &warn
+				}
+				if _ignore, _ok := orphanedResources[0].(map[string]interface{})["ignore"]; _ok {
+					ignore := expandOrphanedResourcesIgnore(_ignore.(*schema.Set))
+					spec.OrphanedResources.Ignore = ignore
+				}
 			}
 		}
 	}

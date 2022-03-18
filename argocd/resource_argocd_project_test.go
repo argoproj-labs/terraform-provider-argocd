@@ -65,7 +65,17 @@ func TestAccArgoCDProject(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccArgoCDProjectSimpleWithoutOrph(name),
+				Config: testAccArgoCDProjectSimpleWithoutOrphaned(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+						// TODO: check all possible attributes
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDProjectSimpleWithEmptyOrphaned(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"argocd_project.simple",
@@ -210,7 +220,7 @@ resource "argocd_project" "simple" {
 	`, name)
 }
 
-func testAccArgoCDProjectSimpleWithoutOrph(name string) string {
+func testAccArgoCDProjectSimpleWithoutOrphaned(name string) string {
 	return fmt.Sprintf(`
   resource "argocd_project" "simple" {
     metadata {
@@ -232,6 +242,34 @@ func testAccArgoCDProjectSimpleWithoutOrph(name string) string {
         name      = "anothercluster"
         namespace = "bar"
       }
+    }
+  }
+	`, name)
+}
+
+func testAccArgoCDProjectSimpleWithEmptyOrphaned(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "simple" {
+    metadata {
+      name      = "%s"
+      namespace = "argocd"
+      labels = {
+        acceptance = "true"
+      }
+      annotations = {
+        "this.is.a.really.long.nested.key" = "yes, really!"
+      }
+    }
+  
+    spec {
+      description  = "simple project"
+      source_repos = ["*"]
+  
+      destination {
+        name      = "anothercluster"
+        namespace = "bar"
+      }
+      orphaned_resources { }
     }
   }
 	`, name)
