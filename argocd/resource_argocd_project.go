@@ -248,8 +248,9 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 							},
 						}
 					}
+				} else { // Only preserve preexisting JWTs for managed roles if we found an existing matching project
+					projectRequest.Project.Spec.Roles[i].JWTTokens = pr.JWTTokens
 				}
-				projectRequest.Project.Spec.Roles[i].JWTTokens = pr.JWTTokens
 			}
 		}
 
