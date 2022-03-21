@@ -94,7 +94,6 @@ func TestAccArgoCDProject_tokensCoexistence(t *testing.T) {
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				ExpectNonEmptyPlan: true,
 				Config: testAccArgoCDProjectCoexistenceWithTokenResource(
 					"test-acc-"+acctest.RandString(10),
 					4,
