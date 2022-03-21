@@ -114,6 +114,35 @@ func TestAccArgoCDProject_tokensCoexistence(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDProjectUpdateAddRole(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDProjectSimpleWithoutRole(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDProjectSimpleWithRole(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+					),
+				),
+			},
+		},
+	})
+}
+
 func testAccArgoCDProjectSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_project" "simple" {
@@ -392,4 +421,81 @@ resource "argocd_project" "failure" {
   }
 }
 	`, name, name, name)
+}
+
+func testAccArgoCDProjectSimpleWithoutRole(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "simple" {
+    metadata {
+      name      = "%s"
+      namespace = "argocd"
+      labels = {
+        acceptance = "true"
+      }
+      annotations = {
+        "this.is.a.really.long.nested.key" = "yes, really!"
+      }
+    }
+  
+    spec {
+      description  = "simple project"
+      source_repos = ["*"]
+  
+      destination {
+        name      = "anothercluster"
+        namespace = "bar"
+      }
+      orphaned_resources {
+        warn = true
+        ignore {
+          group = "apps/v1"
+          kind  = "Deployment"
+          name  = "ignored1"
+        }
+      }
+    }
+  }
+	`, name)
+}
+
+func testAccArgoCDProjectSimpleWithRole(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "simple" {
+    metadata {
+      name      = "%s"
+      namespace = "argocd"
+      labels = {
+        acceptance = "true"
+      }
+      annotations = {
+        "this.is.a.really.long.nested.key" = "yes, really!"
+      }
+    }
+  
+    spec {
+      description  = "simple project"
+      source_repos = ["*"]
+  
+      destination {
+        name      = "anothercluster"
+        namespace = "bar"
+      }
+      orphaned_resources {
+        warn = true
+        ignore {
+          group = "apps/v1"
+          kind  = "Deployment"
+          name  = "ignored1"
+        }
+      }
+      role {
+        name = "anotherrole"
+        policies = [
+          "p, proj:%s:anotherrole, applications, get, %s/*, allow",
+          "p, proj:%s:anotherrole, applications, sync, %s/*, deny",
+        ]
+      }
+    }
+  }
+	`, name, name, name, name, name)
 }
