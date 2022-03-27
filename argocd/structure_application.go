@@ -257,6 +257,9 @@ func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, di
 		return nil, nil
 	}
 	sp := _sp[0]
+	if sp == nil {
+		return &application.SyncPolicy{}, nil
+	}
 	var automated = &application.SyncPolicyAutomated{}
 	var syncOptions application.SyncOptions
 	var retry = &application.RetryStrategy{}
