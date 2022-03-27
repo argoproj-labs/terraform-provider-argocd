@@ -217,6 +217,102 @@ ingress:
 	})
 }
 
+func TestAccArgoCDApplication_NoSyncPolicyBlock(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationNoSyncPolicy(acctest.RandomWithPrefix("test-acc")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.simple",
+						"metadata.0.uid",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.simple",
+						"spec.0.sync_policy.0.retry.0.backoff.duration",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.simple",
+						"spec.0.sync_policy.0.automated.prune",
+					),
+				),
+			},
+		}})
+}
+
+func TestAccArgoCDApplication_EmptySyncPolicyBlock(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationEmptySyncPolicy(acctest.RandomWithPrefix("test-acc")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.simple",
+						"metadata.0.uid",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.simple",
+						"spec.0.sync_policy.0.retry.0.backoff.duration",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.simple",
+						"spec.0.sync_policy.0.automated.prune",
+					),
+				),
+			},
+		}})
+}
+
+func TestAccArgoCDApplication_NoAutomatedBlock(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationNoAutomated(acctest.RandomWithPrefix("test-acc")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.simple",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.simple",
+						"spec.0.sync_policy.0.retry.0.backoff.duration",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.simple",
+						"spec.0.sync_policy.0.automated.prune",
+					),
+				),
+			},
+		}})
+}
+
+func TestAccArgoCDApplication_EmptyAutomatedBlock(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationEmptyAutomated(acctest.RandomWithPrefix("test-acc")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.simple",
+						"metadata.0.uid",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.simple",
+						"spec.0.sync_policy.0.automated.prune",
+					),
+				),
+			},
+		}})
+}
+
 func testAccArgoCDApplicationSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "simple" {
@@ -561,6 +657,121 @@ resource "argocd_application" "ignore_differences_jqpe" {
         ".spec.replicas",
         ".spec.template.spec.metadata.labels.somelabel",
       ]
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationNoSyncPolicy(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "simple" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+  spec {
+    source {
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "15.3.0"
+      helm {
+        release_name = "testing"
+      }
+    }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationEmptySyncPolicy(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "simple" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+  spec {
+    source {
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "15.3.0"
+      helm {
+        release_name = "testing"
+      }
+    }
+    sync_policy {
+    }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationNoAutomated(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "simple" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+  spec {
+    source {
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "15.3.0"
+      helm {
+        release_name = "testing"
+      }
+    }
+    sync_policy {
+      retry {
+        limit   = "5"
+        backoff = {
+          duration     = "30s"
+          max_duration = "2m"
+          factor       = "2"
+        }
+      }
+    }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationEmptyAutomated(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "simple" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+  spec {
+    source {
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "15.3.0"
+      helm {
+        release_name = "testing"
+      }
+    }
+    sync_policy {
+      automated = {}
+    }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
     }
   }
 }
