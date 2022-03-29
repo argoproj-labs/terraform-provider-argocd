@@ -257,78 +257,87 @@ func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, di
 		return nil, nil
 	}
 	sp := _sp[0]
+	if sp == nil {
+		return &application.SyncPolicy{}, nil
+	}
 	var automated = &application.SyncPolicyAutomated{}
 	var syncOptions application.SyncOptions
 	var retry = &application.RetryStrategy{}
+	var syncPolicy = &application.SyncPolicy{}
 
-	if a, ok := sp.(map[string]interface{})["automated"]; ok {
-		for k, v := range a.(map[string]interface{}) {
-			if k == "prune" {
-				automated.Prune = v.(bool)
+	if a, ok := sp.(map[string]interface{})["automated"].(map[string]interface{}); ok {
+		if len(a) > 0 {
+			for k, v := range a {
+				if k == "prune" {
+					automated.Prune = v.(bool)
+				}
+				if k == "self_heal" {
+					automated.SelfHeal = v.(bool)
+				}
+				if k == "allow_empty" {
+					automated.AllowEmpty = v.(bool)
+				}
 			}
-			if k == "self_heal" {
-				automated.SelfHeal = v.(bool)
-			}
-			if k == "allow_empty" {
-				automated.AllowEmpty = v.(bool)
-			}
+			syncPolicy.Automated = automated
 		}
 	}
 	if v, ok := sp.(map[string]interface{})["sync_options"]; ok {
 		sOpts := v.([]interface{})
-		for _, sOpt := range sOpts {
-			syncOptions = append(syncOptions, sOpt.(string))
+		if len(sOpts) > 0 {
+			for _, sOpt := range sOpts {
+				syncOptions = append(syncOptions, sOpt.(string))
+			}
+			syncPolicy.SyncOptions = syncOptions
 		}
 	}
 	if _retry, ok := sp.(map[string]interface{})["retry"].([]interface{}); ok {
 		if len(_retry) > 0 {
-			r := _retry[0]
-			for k, v := range r.(map[string]interface{}) {
-				if k == "limit" {
-					var err error
-					retry.Limit, err = convertStringToInt64(v.(string))
-					if err != nil {
-						return nil, []diag.Diagnostic{
-							{
-								Severity: diag.Error,
-								Summary:  "Error converting retry limit to integer",
-								Detail:   err.Error(),
-							},
-						}
-					}
-				}
-				if k == "backoff" {
-					retry.Backoff = &application.Backoff{}
-					for kb, vb := range v.(map[string]interface{}) {
-						if kb == "duration" {
-							retry.Backoff.Duration = vb.(string)
-						}
-						if kb == "max_duration" {
-							retry.Backoff.MaxDuration = vb.(string)
-						}
-						if kb == "factor" {
-							factor, err := convertStringToInt64Pointer(vb.(string))
-							if err != nil {
-								return nil, []diag.Diagnostic{
-									{
-										Severity: diag.Error,
-										Summary:  "Error converting backoff factor to integer",
-										Detail:   err.Error(),
-									},
-								}
+			r := (_retry[0]).(map[string]interface{})
+			if len(r) > 0 {
+				for k, v := range r {
+					if k == "limit" {
+						var err error
+						retry.Limit, err = convertStringToInt64(v.(string))
+						if err != nil {
+							return nil, []diag.Diagnostic{
+								{
+									Severity: diag.Error,
+									Summary:  "Error converting retry limit to integer",
+									Detail:   err.Error(),
+								},
 							}
-							retry.Backoff.Factor = factor
+						}
+					}
+					if k == "backoff" {
+						retry.Backoff = &application.Backoff{}
+						for kb, vb := range v.(map[string]interface{}) {
+							if kb == "duration" {
+								retry.Backoff.Duration = vb.(string)
+							}
+							if kb == "max_duration" {
+								retry.Backoff.MaxDuration = vb.(string)
+							}
+							if kb == "factor" {
+								factor, err := convertStringToInt64Pointer(vb.(string))
+								if err != nil {
+									return nil, []diag.Diagnostic{
+										{
+											Severity: diag.Error,
+											Summary:  "Error converting backoff factor to integer",
+											Detail:   err.Error(),
+										},
+									}
+								}
+								retry.Backoff.Factor = factor
+							}
 						}
 					}
 				}
+				syncPolicy.Retry = retry
 			}
 		}
 	}
-	return &application.SyncPolicy{
-		Automated:   automated,
-		SyncOptions: syncOptions,
-		Retry:       retry,
-	}, nil
+	return syncPolicy, nil
 }
 
 func expandApplicationIgnoreDifferences(ids []interface{}) (
