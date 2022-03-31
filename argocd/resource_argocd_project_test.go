@@ -64,6 +64,26 @@ func TestAccArgoCDProject(t *testing.T) {
 					// TODO: check all possible attributes
 				),
 			},
+			{
+				Config: testAccArgoCDProjectSimpleWithoutOrphaned(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+						// TODO: check all possible attributes
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDProjectSimpleWithEmptyOrphaned(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+						// TODO: check all possible attributes
+					),
+				),
+			},
 		},
 	})
 }
@@ -74,7 +94,6 @@ func TestAccArgoCDProject_tokensCoexistence(t *testing.T) {
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				ExpectNonEmptyPlan: true,
 				Config: testAccArgoCDProjectCoexistenceWithTokenResource(
 					"test-acc-"+acctest.RandString(10),
 					4,
@@ -226,6 +245,61 @@ resource "argocd_project" "simple" {
     ]
   }
 }
+	`, name)
+}
+
+func testAccArgoCDProjectSimpleWithoutOrphaned(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "simple" {
+    metadata {
+      name      = "%s"
+      namespace = "argocd"
+      labels = {
+        acceptance = "true"
+      }
+      annotations = {
+        "this.is.a.really.long.nested.key" = "yes, really!"
+      }
+    }
+  
+    spec {
+      description  = "simple project"
+      source_repos = ["*"]
+  
+      destination {
+        name      = "anothercluster"
+        namespace = "bar"
+      }
+    }
+  }
+	`, name)
+}
+
+func testAccArgoCDProjectSimpleWithEmptyOrphaned(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "simple" {
+    metadata {
+      name      = "%s"
+      namespace = "argocd"
+      labels = {
+        acceptance = "true"
+      }
+      annotations = {
+        "this.is.a.really.long.nested.key" = "yes, really!"
+      }
+    }
+  
+    spec {
+      description  = "simple project"
+      source_repos = ["*"]
+  
+      destination {
+        name      = "anothercluster"
+        namespace = "bar"
+      }
+      orphaned_resources { }
+    }
+  }
 	`, name)
 }
 
