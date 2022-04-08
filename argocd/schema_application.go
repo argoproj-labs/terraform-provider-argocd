@@ -392,6 +392,7 @@ func applicationSpecSchema() *schema.Schema {
 				"revision_history_limit": {
 					Type:     schema.TypeInt,
 					Optional: true,
+					Default:  10,
 				},
 			},
 		},
