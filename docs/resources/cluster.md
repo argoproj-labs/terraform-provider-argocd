@@ -12,7 +12,10 @@ resource "argocd_cluster" "kubernetes" {
     bearer_token = "eyJhbGciOiJSUzI..."
 
     tls_client_config {
-      ca_data = base64encode(file("path/to/ca.pem"))
+      ca_data = file("path/to/ca.pem")
+      // ca_data = "-----BEGIN CERTIFICATE-----\nfoo\nbar\n-----END CERTIFICATE-----"
+      // ca_data = base64decode("LS0tLS1CRUdJTiBDRVJUSUZ...")
+
       // insecure = true
     }
   }
