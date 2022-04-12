@@ -12,6 +12,7 @@ import (
 
 func TestAccArgoCDApplication(t *testing.T) {
 	commonName := acctest.RandomWithPrefix("test-acc")
+	revisionHistoryLimit := acctest.RandIntRange(0, 9)
 	helmValues := `
 ingress:
   enabled: true
@@ -51,6 +52,11 @@ ingress:
 						"argocd_application.simple",
 						"spec.0.source.0.target_revision",
 						"15.3.0",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.simple",
+						"spec.0.revision_history_limit",
+						"10",
 					),
 				),
 			},
@@ -210,6 +216,20 @@ ingress:
 						"argocd_application.ignore_differences_jqpe",
 						"spec.0.ignore_difference.1.jq_path_expressions.1",
 						".spec.template.spec.metadata.labels.somelabel",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationSimpleRevisionHistory(commonName, revisionHistoryLimit),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.simple",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.simple",
+						"spec.0.revision_history_limit",
+						fmt.Sprint(revisionHistoryLimit),
 					),
 				),
 			},
@@ -776,6 +796,48 @@ resource "argocd_application" "simple" {
   }
 }
 	`, name)
+}
+
+func testAccArgoCDApplicationSimpleRevisionHistory(name string, revision_history_limit int) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "simple" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+    annotations = {
+      "this.is.a.really.long.nested.key" = "yes, really!"
+    }
+  }
+
+  spec {
+    revision_history_limit = %d
+    source {
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "15.3.0"
+      helm {
+        parameter {
+          name  = "image.tag"
+          value = "6.2.5"
+        }
+        parameter {
+          name  = "architecture"
+          value = "standalone"
+        }
+        release_name = "testing"
+      }
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name, revision_history_limit)
 }
 
 func testAccSkipFeatureIgnoreDiffJQPathExpressions() (bool, error) {
