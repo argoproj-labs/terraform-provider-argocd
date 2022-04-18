@@ -2,13 +2,14 @@ package argocd
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/argoproj/pkg/time"
 	"github.com/robfig/cron"
 	"golang.org/x/crypto/ssh"
 	apiValidation "k8s.io/apimachinery/pkg/api/validation"
 	utilValidation "k8s.io/apimachinery/pkg/util/validation"
-	"regexp"
-	"strings"
 )
 
 func validateMetadataLabels(value interface{}, key string) (ws []string, es []error) {
@@ -113,6 +114,14 @@ func validateSSHPrivateKey(value interface{}, key string) (ws []string, es []err
 	v := value.(string)
 	if _, err := ssh.ParsePrivateKey([]byte(v)); err != nil {
 		es = append(es, fmt.Errorf("%s: invalid ssh private key: %s", key, err))
+	}
+	return
+}
+
+func validateCertificateType(value interface{}, key string) (ws []string, es []error) {
+	v := value.(string)
+	if v != "ssh" && v != "https" {
+		es = append(es, fmt.Errorf("%s: kind '%s' mismatch: can only be https or ssh", key, v))
 	}
 	return
 }

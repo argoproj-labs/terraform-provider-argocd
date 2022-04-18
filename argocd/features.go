@@ -8,6 +8,7 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient/certificate"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/cluster"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repocreds"
@@ -35,12 +36,14 @@ var (
 		featureTokenIDs:                    semver.MustParse("1.5.3"),
 		featureProjectScopedClusters:       semver.MustParse("2.2.0"),
 		featureClusterMetadata:             semver.MustParse("2.2.0"),
+		// TODO: should declare certificate 1.2+ ?
 	}
 )
 
 type ServerInterface struct {
 	ApiClient            *apiclient.Client
 	ApplicationClient    *application.ApplicationServiceClient
+	CertificateClient    *certificate.CertificateServiceClient
 	ClusterClient        *cluster.ClusterServiceClient
 	ProjectClient        *project.ProjectServiceClient
 	RepositoryClient     *repository.RepositoryServiceClient
@@ -77,6 +80,14 @@ func (p *ServerInterface) initClients() error {
 			return err
 		}
 		p.ClusterClient = &clusterClient
+	}
+
+	if p.CertificateClient == nil {
+		_, certClient, err := (*p.ApiClient).NewCertClient()
+		if err != nil {
+			return err
+		}
+		p.CertificateClient = &certClient
 	}
 
 	if p.ApplicationClient == nil {
