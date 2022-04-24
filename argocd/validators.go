@@ -117,11 +117,3 @@ func validateSSHPrivateKey(value interface{}, key string) (ws []string, es []err
 	}
 	return
 }
-
-func validateCertificateType(value interface{}, key string) (ws []string, es []error) {
-	v := value.(string)
-	if v != "ssh" && v != "https" {
-		es = append(es, fmt.Errorf("%s: kind '%s' mismatch: can only be https or ssh", key, v))
-	}
-	return
-}

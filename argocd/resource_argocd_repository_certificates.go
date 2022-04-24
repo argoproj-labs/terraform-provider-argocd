@@ -57,9 +57,10 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 		ctx,
 		&certificate.RepositoryCertificateCreateRequest{
 			Certificates: &certs,
-			Upsert:       true,
+			Upsert:       false,
 		},
 	)
+	_ = rc
 	tokenMutexConfiguration.Unlock()
 
 	if err != nil {
@@ -74,25 +75,41 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 	// If certificate already exists and didn't change, the response will be empty but since the call is success
 	// we assume everything went fine and get the id from the request
 	// if len(rc.Items) > 0 {
-	d.SetId(getId(&rc.Items[0]))
+	// d.SetId(getId(&rc.Items[0])) // for https, certType is not returned from create call, but properly return on list call
 	// } else {
-	// 	d.SetId(getId(repoCertificate))
+	d.SetId(getId(repoCertificate))
+	// d.Set("ssh.0.cert_data", repoCertificate.CertData)
 	// }
-	return resourceArgoCDRepositoryCertificatesRead(ctx, d, meta)
+	return resourceArgoCDRepositoryCertificatesRead(context.WithValue(ctx, "cert_data", repoCertificate.CertData), d, meta)
 }
 
 // Compute resource's id as : serverName/certType/certSubType
 func getId(rc *application.RepositoryCertificate) string {
-	return fmt.Sprintf("%s/%s/%s", rc.ServerName, rc.CertType, rc.CertSubType)
+	if rc.CertType == "ssh" {
+		return fmt.Sprintf("%s/%s/%s", rc.CertType, rc.CertSubType, rc.ServerName)
+	} else {
+		return fmt.Sprintf("%s/%s", rc.CertType, rc.ServerName)
+	}
 }
 
 // Get serverName/certType/certSubType from resource's id
 func fromId(id string) (error, string, string, string) {
 	parts := strings.Split(id, "/")
-	if len(parts) < 3 || parts[0] == "" || parts[1] == "" || parts[2] == "" {
+	if len(parts) < 2 {
 		return fmt.Errorf("Unknown certificate %s in state", id), "", "", ""
 	}
-	return nil, parts[0], parts[1], parts[2]
+	certType := parts[0]
+	if certType == "ssh" {
+		if len(parts) < 3 || parts[0] == "" || parts[1] == "" || parts[2] == "" {
+			return fmt.Errorf("Unknown certificate %s in state", id), "", "", ""
+		}
+		return nil, parts[0], parts[1], parts[2]
+	} else {
+		if len(parts) < 2 || parts[0] == "" || parts[1] == "" {
+			return fmt.Errorf("Unknown certificate %s in state", id), "", "", ""
+		}
+		return nil, parts[0], parts[1], ""
+	}
 }
 
 func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -108,7 +125,7 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 	}
 	c := *server.CertificateClient
 	repoCertificate := application.RepositoryCertificate{}
-	err, serverName, certType, certSubType := fromId(d.Id())
+	err, certType, certSubType, serverName := fromId(d.Id())
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -153,7 +170,7 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 		}
 	}
 
-	err = flattenRepositoryCertificate(&repoCertificate, d)
+	err = flattenRepositoryCertificate(&repoCertificate, d, ctx)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -178,7 +195,7 @@ func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.R
 		}
 	}
 	c := *server.CertificateClient
-	err, serverName, certType, certSubType := fromId(d.Id())
+	err, certType, certSubType, serverName := fromId(d.Id())
 	if err != nil {
 		return []diag.Diagnostic{
 			{
