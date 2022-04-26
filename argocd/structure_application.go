@@ -109,7 +109,7 @@ func expandApplicationSourcePlugin(in []interface{}) *application.ApplicationSou
 }
 
 func expandApplicationSourceDirectory(in []interface{}) *application.ApplicationSourceDirectory {
-	if len(in) == 0 {
+	if len(in) == 0 || in[0] == nil {
 		return nil
 	}
 	a := in[0].(map[string]interface{})
@@ -118,34 +118,38 @@ func expandApplicationSourceDirectory(in []interface{}) *application.Application
 		result.Recurse = v.(bool)
 	}
 	if aj, ok := a["jsonnet"].([]interface{}); ok {
-		if len(aj) > 0 {
-			jsonnet := application.ApplicationSourceJsonnet{}
+		jsonnet := application.ApplicationSourceJsonnet{}
+		if len(aj) > 0 && aj[0] != nil {
 			j := aj[0].(map[string]interface{})
-			if evs, ok := j["ext_var"].([]map[string]interface{}); ok && len(evs) > 0 {
+			if evs, ok := j["ext_var"].([]interface{}); ok && len(evs) > 0 {
 				for _, v := range evs {
-					jsonnet.ExtVars = append(jsonnet.ExtVars,
-						application.JsonnetVar{
-							Name:  v["name"].(string),
-							Value: v["value"].(string),
-							Code:  v["code"].(bool),
-						},
-					)
+					if vv, ok := v.(map[string]interface{}); ok {
+						jsonnet.ExtVars = append(jsonnet.ExtVars,
+							application.JsonnetVar{
+								Name:  vv["name"].(string),
+								Value: vv["value"].(string),
+								Code:  vv["code"].(bool),
+							},
+						)
+					}
 				}
 			}
 
-			if tlas, ok := j["tla"].([]map[string]interface{}); ok && len(tlas) > 0 {
-				for _, v := range tlas {
-					jsonnet.TLAs = append(jsonnet.TLAs,
-						application.JsonnetVar{
-							Name:  v["name"].(string),
-							Value: v["value"].(string),
-							Code:  v["code"].(bool),
-						},
-					)
+			if tlas, ok := j["tla"].(*schema.Set); ok && len(tlas.List()) > 0 {
+				for _, v := range tlas.List() {
+					if vv, ok := v.(map[string]interface{}); ok {
+						jsonnet.TLAs = append(jsonnet.TLAs,
+							application.JsonnetVar{
+								Name:  vv["name"].(string),
+								Value: vv["value"].(string),
+								Code:  vv["code"].(bool),
+							},
+						)
+					}
 				}
 			}
-			result.Jsonnet = jsonnet
 		}
+		result.Jsonnet = jsonnet
 	}
 	return result
 }
@@ -589,10 +593,14 @@ func flattenApplicationSourceDirectory(as []*application.ApplicationSourceDirect
 					"value": jtla.Value,
 				})
 			}
-			result = append(result, map[string]interface{}{
-				"jsonnet": []map[string][]interface{}{jsonnet},
-				"recurse": a.Recurse,
-			})
+
+			m := make(map[string]interface{})
+			m["recurse"] = a.Recurse
+
+			if len(jsonnet) > 0 {
+				m["jsonnet"] = []map[string][]interface{}{jsonnet}
+			}
+			result = append(result, m)
 		}
 	}
 	return
