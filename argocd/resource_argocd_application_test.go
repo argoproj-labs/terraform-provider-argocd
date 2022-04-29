@@ -349,6 +349,33 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 					),
 				),
 			},
+			{
+				Config: testAccArgoCDApplicationRecurseDirectory(name, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.recurse",
+						"true",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationRecurseDirectory(name, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.recurse",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet",
+					),
+				),
+			},
 		}})
 }
 
