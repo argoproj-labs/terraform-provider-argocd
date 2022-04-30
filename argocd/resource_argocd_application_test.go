@@ -3,6 +3,7 @@ package argocd
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -111,9 +112,6 @@ ingress:
 				),
 			},
 			{
-				// TODO: ArgoCD API ApplicationQuery does not return Directory attributes, investigate?
-				// TODO: this provokes perpetual TF state drift as spec.0.source.0.directory cannot be read
-				// TODO: the Directory attributes are to be used with care until a fix is made upstream
 				Config: testAccArgoCDApplicationDirectory(
 					acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
@@ -121,16 +119,56 @@ ingress:
 						"argocd_application.directory",
 						"metadata.0.uid",
 					),
-					//resource.TestCheckResourceAttr(
-					//	"argocd_application.directory",
-					//	"spec.0.source.0.directory.0.recurse",
-					//	"false",
-					//),
-					//resource.TestCheckResourceAttr(
-					//	"argocd_application.directory",
-					//	"spec.0.source.0.directory.0.jsonnet",
-					//	"false",
-					//),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.recurse",
+						"false",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet.0.ext_var.0.name",
+						"somename",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet.0.ext_var.0.value",
+						"somevalue",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet.0.ext_var.0.code",
+						"false",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet.0.ext_var.1.name",
+						"anothername",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet.0.ext_var.1.value",
+						"anothervalue",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet.0.ext_var.1.code",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet.0.tla.0.name",
+						"yetanothername",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet.0.tla.0.value",
+						"yetanothervalue",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet.0.tla.0.code",
+						"true",
+					),
 				),
 			},
 			{
@@ -256,6 +294,85 @@ func TestAccArgoCDApplication_NoSyncPolicyBlock(t *testing.T) {
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.simple",
 						"spec.0.sync_policy.0.automated.prune",
+					),
+				),
+			},
+		}})
+}
+
+func TestAccArgoCDApplication_Recurse(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationRecurseDirectory(name, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.recurse",
+						"true",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationDirectoryImplicitNonRecurse(acctest.RandomWithPrefix("test-acc")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.recurse",
+						"false",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet.0.ext_var.0.name",
+						"somename",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationRecurseDirectory(name, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.recurse",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationRecurseDirectory(name, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.recurse",
+						"true",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationRecurseDirectory(name, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.recurse",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.jsonnet",
 					),
 				),
 			},
@@ -552,6 +669,82 @@ resource "argocd_application" "directory" {
   }
 }
 	`, name)
+}
+
+func testAccArgoCDApplicationDirectoryImplicitNonRecurse(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "directory" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://github.com/solo-io/gloo"
+      path            = "install/helm/gloo"
+      target_revision = "v1.4.2"
+      directory {
+        jsonnet {
+          ext_var {
+            name  = "somename"
+            value = "somevalue"
+            code  = false
+          }
+          ext_var {
+            name  = "anothername"
+            value = "anothervalue"
+            code  = true
+          }
+          tla {
+            name  = "yetanothername"
+            value = "yetanothervalue"
+            code  = true
+          }
+        }
+      }
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationRecurseDirectory(name string, recurse bool) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "directory" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://github.com/argoproj/argocd-example-apps"
+      path            = "guestbook"
+      target_revision = "HEAD"
+      directory {
+        recurse = %s
+      }
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name, strconv.FormatBool(recurse))
 }
 
 func testAccArgoCDApplicationSyncPolicy(name string) string {

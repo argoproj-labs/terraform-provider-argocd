@@ -184,11 +184,21 @@ func applicationSpecSchema() *schema.Schema {
 							},
 							"directory": {
 								Type: schema.TypeList,
-								// TODO: ArgoCD API ApplicationQuery does not return Directory attributes, investigate?
-								// TODO: this provokes perpetual TF state drift as spec.0.source.0.directory cannot be read
-								// TODO: the Directory attributes are to be used with care until a fix is made upstream
 								DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-									return true
+									// Avoid drift when recurse is explicitly set to false
+									// Also ignore the directory node if both recurse & jsonnet are not set or ignored
+									if k == "spec.0.source.0.directory.0.recurse" && old == "" && new == "false" {
+										return true
+									}
+									if k == "spec.0.source.0.directory.#" {
+										_, hasRecurse := d.GetOk("spec.0.source.0.directory.0.recurse")
+										_, hasJsonnet := d.GetOk("spec.0.source.0.directory.0.jsonnet")
+
+										if !hasJsonnet && !hasRecurse {
+											return true
+										}
+									}
+									return false
 								},
 								MaxItems: 1,
 								MinItems: 1,
