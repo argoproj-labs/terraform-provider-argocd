@@ -2,6 +2,7 @@ package argocd
 
 import (
 	"fmt"
+	"regexp"
 	"runtime"
 	"testing"
 
@@ -257,6 +258,104 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDCluster_uniqueByServerEvenWithDifferentNames(t *testing.T) {
+	name := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedClusters) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccArgoCDClusterTwiceWithSameServer(name, name+"d"),
+				ExpectError: regexp.MustCompile("cluster with server address .* already exists"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_one",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_one",
+						"config.0.tls_client_config.0.insecure",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_one",
+						"name",
+						name,
+					),
+				),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDCluster_uniqueByServer(t *testing.T) {
+	name := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedClusters) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccArgoCDClusterTwiceWithSameServerNoNames(),
+				ExpectError: regexp.MustCompile("cluster with server address .* already exists"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_one",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_one",
+						"config.0.tls_client_config.0.insecure",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_one",
+						"name",
+						name,
+					),
+				),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDCluster_uniqueByServerTrimmed(t *testing.T) {
+	name := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedClusters) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDClusterTwiceWithSameServerNoNamesTrimmed(
+					"https://kubernetes.default.svc.cluster.local",
+					"https://kubernetes.default.svc.cluster.local/"),
+				ExpectError: regexp.MustCompile("cluster with server address .* already exists"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_one",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_one",
+						"config.0.tls_client_config.0.insecure",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_one",
+						"name",
+						name,
+					),
+				),
+			},
+		},
+	})
+}
+
 func testAccArgoCDClusterBearerToken(clusterName string) string {
 	return fmt.Sprintf(`
 resource "argocd_cluster" "simple" {
@@ -350,6 +449,83 @@ resource "argocd_cluster" "cluster_metadata" {
   }
 }
 `
+}
+
+func testAccArgoCDClusterTwiceWithSameServer(clusterName, clusterName2 string) string {
+	return fmt.Sprintf(`
+resource "argocd_cluster" "cluster_one" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  name   = "%s"
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+resource "argocd_cluster" "cluster_two" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  name   = "%s"
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+`, clusterName, clusterName2)
+}
+
+func testAccArgoCDClusterTwiceWithSameServerNoNames() string {
+	return `
+resource "argocd_cluster" "cluster_one" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+resource "argocd_cluster" "cluster_two" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+`
+}
+
+func testAccArgoCDClusterTwiceWithSameServerNoNamesTrimmed(server, server2 string) string {
+	return fmt.Sprintf(`
+resource "argocd_cluster" "cluster_one" {
+  server = "%s"
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+resource "argocd_cluster" "cluster_two" {
+  server = "%s"
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+`, server, server2)
 }
 
 func testAccArgoCDClusterMetadata_addLabels(clusterName string) string {
