@@ -10,6 +10,17 @@ func clusterSchema() map[string]*schema.Schema {
 			Type:        schema.TypeString,
 			Description: "Name of the cluster. If omitted, will use the server address",
 			Optional:    true,
+			DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+				if k == "name" {
+					name, nameOk := d.GetOk("name")
+					server, serverOk := d.GetOk("server")
+					// Actual value is same as 'server' but not explicitly set
+					if nameOk && serverOk && name == server && old == server && new == "" {
+						return true
+					}
+				}
+				return false
+			},
 		},
 		"server": {
 			Type:        schema.TypeString,

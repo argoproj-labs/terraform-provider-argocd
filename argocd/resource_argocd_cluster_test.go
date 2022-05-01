@@ -100,6 +100,77 @@ func TestAccArgoCDCluster_projectScope(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDCluster_optionalName(t *testing.T) {
+	name := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedClusters) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDClusterMetadataNoName(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"config.0.tls_client_config.0.insecure",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"name",
+						"https://kubernetes.default.svc.cluster.local",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDClusterMetadata(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"config.0.tls_client_config.0.insecure",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"name",
+						name,
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDClusterMetadataNoName(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"config.0.tls_client_config.0.insecure",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"name",
+						"https://kubernetes.default.svc.cluster.local",
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccArgoCDCluster_metadata(t *testing.T) {
 	clusterName := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
@@ -264,6 +335,21 @@ resource "argocd_cluster" "cluster_metadata" {
   }
 }
 `, clusterName)
+}
+
+func testAccArgoCDClusterMetadataNoName() string {
+	return `
+resource "argocd_cluster" "cluster_metadata" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+`
 }
 
 func testAccArgoCDClusterMetadata_addLabels(clusterName string) string {

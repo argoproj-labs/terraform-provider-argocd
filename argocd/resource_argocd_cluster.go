@@ -103,7 +103,9 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 			},
 		}
 	}
-	if c.Name != "" {
+
+	// Check if the name has been defaulted to server (when omitted)
+	if c.Name != "" && c.Name != c.Server {
 		d.SetId(fmt.Sprintf("%s/%s", c.Server, c.Name))
 	} else {
 		d.SetId(c.Server)
