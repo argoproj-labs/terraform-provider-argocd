@@ -105,6 +105,11 @@ func applicationSpecSchema() *schema.Schema {
 											Description: "The Helm release name. If omitted it will use the application name",
 											Optional:    true,
 										},
+										"skip_crds": {
+											Type:        schema.TypeBool,
+											Description: "Helm installs custom resource definitions in the crds folder by default if they are not existing. If needed, it is possible to skip the CRD installation step with this flag",
+											Optional:    true,
+										},
 									},
 								},
 							},

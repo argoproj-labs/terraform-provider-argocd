@@ -637,6 +637,58 @@ func TestProvider_headers(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplication_SkipCrds(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-crds")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSkipCrds_NoSkip(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.crds",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.crds",
+						"spec.0.source.0.helm.0.skip_crds",
+						"false",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationSkipCrds(name, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.crds",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.crds",
+						"spec.0.source.0.helm.0.skip_crds",
+						"true",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationSkipCrds(name, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.crds",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.crds",
+						"spec.0.source.0.helm.0.skip_crds",
+						"false",
+					),
+				),
+			},
+		}})
+}
+
 func testAccArgoCDApplicationSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "simple" {
@@ -1418,6 +1470,81 @@ resource "argocd_application" "info" {
   }
 }
     `, name)
+}
+
+func testAccArgoCDApplicationSkipCrds(name string, SkipCrds bool) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "crds" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+		repo_url        = "https://charts.bitnami.com/bitnami"
+		chart           = "redis"
+		target_revision = "15.3.0"
+		helm {
+		  parameter {
+			name  = "image.tag"
+			value = "6.2.5"
+		  }
+		  parameter {
+			name  = "architecture"
+			value = "standalone"
+		  }
+		  release_name = "testing"
+		  skip_crds = %t
+		}
+	}
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name, SkipCrds)
+}
+
+func testAccArgoCDApplicationSkipCrds_NoSkip(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "crds" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+		repo_url        = "https://charts.bitnami.com/bitnami"
+		chart           = "redis"
+		target_revision = "15.3.0"
+		helm {
+		  parameter {
+			name  = "image.tag"
+			value = "6.2.5"
+		  }
+		  parameter {
+			name  = "architecture"
+			value = "standalone"
+		  }
+		  release_name = "testing"
+		}
+	}
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
 }
 
 func testAccSkipFeatureIgnoreDiffJQPathExpressions() (bool, error) {

@@ -259,6 +259,9 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 			result.Parameters = append(result.Parameters, parameter)
 		}
 	}
+	if v, ok := a["skip_crds"]; ok {
+		result.SkipCrds = v.(bool)
+	}
 	return result
 }
 
@@ -672,6 +675,7 @@ func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (
 			result = append(result, map[string]interface{}{
 				"parameter":    parameters,
 				"release_name": a.ReleaseName,
+				"skip_crds":    a.SkipCrds,
 				"value_files":  a.ValueFiles,
 				"values":       a.Values,
 			})
