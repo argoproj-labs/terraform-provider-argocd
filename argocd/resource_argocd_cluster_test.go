@@ -48,6 +48,13 @@ func TestAccArgoCDCluster(t *testing.T) {
 					),
 				),
 			},
+			//TODO: not working on CI every time
+			// {
+			// 	ResourceName:            "argocd_cluster.simple",
+			// 	ImportState:             true,
+			// 	ImportStateVerify:       true,
+			// 	ImportStateVerifyIgnore: []string{"config.0.bearer_token", "config.0.tls_client_config"},
+			// },
 			{
 				Config: testAccArgoCDClusterTLSCertificate(t, acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
@@ -97,6 +104,13 @@ func TestAccArgoCDCluster_projectScope(t *testing.T) {
 					),
 				),
 			},
+			//TODO: not working on CI every time
+			// {
+			// 	ResourceName:            "argocd_cluster.project_scope",
+			// 	ImportState:             true,
+			// 	ImportStateVerify:       true,
+			// 	ImportStateVerifyIgnore: []string{"config.0.bearer_token", "config.0.tls_client_config"},
+			// },
 		},
 	})
 }

@@ -42,6 +42,12 @@ ingress:
 					"metadata.0.uid",
 				),
 			},
+			{
+				ResourceName:            "argocd_application.simple",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade"},
+			},
 			// Check with the same name for rapid application recreation robustness
 			{
 				Config: testAccArgoCDApplicationSimple(commonName),
@@ -93,6 +99,12 @@ ingress:
 				),
 			},
 			{
+				ResourceName:            "argocd_application.helm",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+			},
+			{
 				Config: testAccArgoCDApplicationKustomize(
 					acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
@@ -111,6 +123,12 @@ ingress:
 						"-bar",
 					),
 				),
+			},
+			{
+				ResourceName:            "argocd_application.kustomize",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
 			},
 			{
 				Config: testAccArgoCDApplicationDirectory(
@@ -173,6 +191,12 @@ ingress:
 				),
 			},
 			{
+				ResourceName:            "argocd_application.directory",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+			},
+			{
 				Config: testAccArgoCDApplicationSyncPolicy(
 					acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
@@ -218,6 +242,12 @@ ingress:
 				),
 			},
 			{
+				ResourceName:            "argocd_application.sync_policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+			},
+			{
 				Config: testAccArgoCDApplicationIgnoreDifferences(
 					acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
@@ -236,6 +266,12 @@ ingress:
 						"apps",
 					),
 				),
+			},
+			{
+				ResourceName:            "argocd_application.ignore_differences",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade"},
 			},
 			{
 				SkipFunc: testAccSkipFeatureIgnoreDiffJQPathExpressions,
@@ -257,6 +293,12 @@ ingress:
 						".spec.template.spec.metadata.labels.somelabel",
 					),
 				),
+			},
+			{
+				ResourceName:            "argocd_application.ignore_differences_jqpe",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade"},
 			},
 			{
 				Config: testAccArgoCDApplicationSimpleRevisionHistory(commonName, revisionHistoryLimit),

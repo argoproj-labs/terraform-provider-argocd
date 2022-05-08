@@ -22,7 +22,6 @@ func resourceArgoCDApplication() *schema.Resource {
 		ReadContext:   resourceArgoCDApplicationRead,
 		UpdateContext: resourceArgoCDApplicationUpdate,
 		DeleteContext: resourceArgoCDApplicationDelete,
-		// TODO: add importer acceptance tests
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
