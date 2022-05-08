@@ -3,9 +3,10 @@ package argocd
 import (
 	"context"
 	"fmt"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strings"
 	"time"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	applicationClient "github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
@@ -27,7 +28,7 @@ func resourceArgoCDApplication() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("applications.argoproj.io"),
-			"spec":     applicationSpecSchema(),
+			"spec":     applicationSpecSchemaV1(),
 			"wait": {
 				Type:        schema.TypeBool,
 				Description: "Upon application creation or update, wait for application health/sync status to be healthy/Synced, upon application deletion, wait for application to be removed, when set to true.",
@@ -39,6 +40,14 @@ func resourceArgoCDApplication() *schema.Resource {
 				Description: "Whether to applying cascading deletion when application is removed.",
 				Optional:    true,
 				Default:     true,
+			},
+		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceArgoCDApplicationV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceArgoCDApplicationStateUpgradeV0,
+				Version: 0,
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{
