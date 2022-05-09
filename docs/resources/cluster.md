@@ -85,6 +85,7 @@ resource "argocd_cluster" "gke" {
   name   = "gke"
 
   config {
+    bearer_token = data.kubernetes_secret.argocd_manager.data["token"]
     tls_client_config {
       ca_data      = base64decode(data.google_container_cluster.cluster.master_auth.0.cluster_ca_certificate)
     }
