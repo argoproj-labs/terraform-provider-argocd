@@ -683,7 +683,7 @@ func TestAccArgoCDApplication_SkipCrds_NotSupported(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc-crds")
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureNotSupported(t, featureApplicationHelmSkipCrds) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			// Create tests
@@ -1668,24 +1668,6 @@ func testAccSkipFeatureIgnoreDiffJQPathExpressions() (bool, error) {
 		return false, err
 	}
 	featureSupported, err := server.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
-	if err != nil {
-		return false, err
-	}
-	if !featureSupported {
-		return true, nil
-	}
-	return false, nil
-}
-
-func testAccSkipFeatureHelmSkipCrds() (bool, error) {
-	p, _ := testAccProviders["argocd"]()
-	_ = p.Configure(context.Background(), &terraform.ResourceConfig{})
-	server := p.Meta().(*ServerInterface)
-	err := server.initClients()
-	if err != nil {
-		return false, err
-	}
-	featureSupported, err := server.isFeatureSupported(featureApplicationHelmSkipCrds)
 	if err != nil {
 		return false, err
 	}
