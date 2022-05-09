@@ -148,6 +148,31 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	featureApplicationHelmSkipCrdsSupported, err := server.isFeatureSupported(featureApplicationHelmSkipCrds)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	if !featureApplicationHelmSkipCrdsSupported {
+		_, skipCrdsOk := d.GetOk("spec.0.source.0.helm.0.skip_crds")
+		if skipCrdsOk {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary: fmt.Sprintf(
+						"application helm skip_crds is only supported from ArgoCD %s onwards",
+						featureVersionConstraintsMap[featureApplicationHelmSkipCrds].String()),
+				},
+			}
+		}
+	}
+
 	app, err = c.Create(ctx, &applicationClient.ApplicationCreateRequest{
 		Application: application.Application{
 
@@ -327,6 +352,31 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 						featureVersionConstraintsMap[featureIgnoreDiffJQPathExpressions].String()),
 					Detail: err.Error(),
 				},
+			}
+		}
+
+		featureApplicationHelmSkipCrdsSupported, err := server.isFeatureSupported(featureApplicationHelmSkipCrds)
+		if err != nil {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  "feature not supported",
+					Detail:   err.Error(),
+				},
+			}
+		}
+
+		if !featureApplicationHelmSkipCrdsSupported {
+			_, skipCrdsOk := d.GetOk("spec.0.source.0.helm.0.skip_crds")
+			if skipCrdsOk {
+				return []diag.Diagnostic{
+					{
+						Severity: diag.Error,
+						Summary: fmt.Sprintf(
+							"application helm skip_crds is only supported from ArgoCD %s onwards",
+							featureVersionConstraintsMap[featureApplicationHelmSkipCrds].String()),
+					},
+				}
 			}
 		}
 
