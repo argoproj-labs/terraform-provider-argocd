@@ -66,13 +66,6 @@ func TestAccArgoCDRepositoryCertificatesSsh(t *testing.T) {
 					resource.TestCheckResourceAttr("argocd_certificate.simple", "ssh.0.cert_subtype", "ssh-rsa"),
 				),
 			},
-			{
-				ResourceName:            "argocd_certificate.simple",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ssh.0.cert_data"},
-				Destroy:                 true,
-			},
 		},
 	})
 }
@@ -108,13 +101,6 @@ func TestAccArgoCDRepositoryCertificatesHttps(t *testing.T) {
 					resource.TestCheckResourceAttrSet("argocd_certificate.simple", "https.0.cert_info"),
 				),
 			},
-			{
-				ResourceName:            "argocd_certificate.simple",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"https.0.cert_data"},
-				Destroy:                 true,
-			},
 		},
 	})
 }
@@ -149,13 +135,6 @@ func TestAccArgoCDRepositoryCertificatesHttpsCrash(t *testing.T) {
 					resource.TestCheckResourceAttr("argocd_certificate.simple", "https.0.cert_subtype", "rsa"),
 					resource.TestCheckResourceAttrSet("argocd_certificate.simple", "https.0.cert_info"),
 				),
-			},
-			{
-				ResourceName:            "argocd_certificate.simple",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"https.0.cert_data"},
-				Destroy:                 true,
 			},
 		},
 	})

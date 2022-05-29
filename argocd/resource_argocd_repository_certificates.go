@@ -16,10 +16,7 @@ func resourceArgoCDRepositoryCertificates() *schema.Resource {
 		CreateContext: resourceArgoCDRepositoryCertificatesCreate,
 		ReadContext:   resourceArgoCDRepositoryCertificatesRead,
 		DeleteContext: resourceArgoCDRepositoryCertificatesDelete,
-		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
-		},
-		Schema: certificatesSchema(),
+		Schema:        certificatesSchema(),
 	}
 }
 
