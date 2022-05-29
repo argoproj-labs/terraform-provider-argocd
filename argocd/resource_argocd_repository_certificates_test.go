@@ -2,11 +2,13 @@ package argocd
 
 import (
 	"fmt"
+	"os/exec"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAccArgoCDRepositoryCertificatesSsh(t *testing.T) {
@@ -204,29 +206,32 @@ func TestAccArgoCDRepositoryCertificatesSsh_Random_Subtype(t *testing.T) {
 	})
 }
 
-// func TestAccArgoCDRepositoryCertifcateCredentialsApplicationWithSSH(t *testing.T) {
-// 	appName := acctest.RandomWithPrefix("testacc")
+func TestAccArgoCDRepositoryCertificatesWithApplication(t *testing.T) {
+	appName := acctest.RandomWithPrefix("testacc")
 
-// 	resource.Test(t, resource.TestCase{
-// 		PreCheck:          func() { testAccPreCheck(t) },
-// 		ProviderFactories: testAccProviders,
-// 		Steps: []resource.TestStep{
-// 			{
-// 				Config: testAccArgoCDRepositoryCertificateCredentialsApplicationWithSSH(appName),
-// 				Check: resource.ComposeTestCheckFunc(
-// 					resource.TestCheckResourceAttrSet(
-// 						"argocd_application.simple",
-// 						"metadata.0.uid",
-// 					),
-// 					resource.TestCheckResourceAttr(
-// 						"argocd_repository.private",
-// 						"connection_state_status",
-// 						"Successful",
-// 					)),
-// 			},
-// 		},
-// 	})
-// }
+	err, subtypesKeys := getSshKeysForHost("private-git-repository")
+	assert.NoError(t, err)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDRepositoryCertificateCredentialsApplicationWithSSH(appName, subtypesKeys),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.simple",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.private",
+						"connection_state_status",
+						"Successful",
+					)),
+			},
+		},
+	})
+}
 
 func testAccArgoCDRepositoryCertificateSSH(serverName, cert_subtype, cert_data string) string {
 	return fmt.Sprintf(`
@@ -255,35 +260,33 @@ EOT
 `, serverName, cert_data)
 }
 
-func testAccArgoCDRepositoryCertificateCredentialsApplicationWithSSH(random string) string {
+func testAccArgoCDRepositoryCertificateCredentialsApplicationWithSSH(random string, subtypesKeys []string) string {
 	return fmt.Sprintf(`
-resource "argocd_certificate" "private-git-repository_ssh-rsa" {
-	server_name  = "private-git-repository.argocd.svc.cluster.local"
-	cert_type    = "ssh"
-	cert_subtype = "ssh-rsa"
-	cert_data    = <<EOT
-	AAAAB3NzaC1yc2EAAAADAQABAAABgQDPR/4BO1X7ehl29eJnKV95Qup9KZEzszrAWirR753ZN8/eQXrv4FTdVnHWEAzPPbw8fsLOEr1b/pzrvlPY7YFB5D39Vd9fG7XNi7E9c8Tm2dfoXy2sYD+iweeY5T4wThkNDGkuFSqbxSv07TuPYUjnhWBy3eAAL8ufX5raajs2+BkIi8cDSGz0eCHYvt/hpLc9/HATpaslOA8QC4LgqyQu73q9jVZm0DYZTtPXdHgT728hwq6/ZctREpQdiY7bbAGQnOQ/qAtyRw0usI4HHJeGGxp+WfwzyaIF+xwhBOtetW8tm1OOHbIT3ox18tun8lEG55nudFBuPlxNfuK9DD6CLpQvE8JbbWn/zIc+ia3pe+sMU8qFA7P/V80r1xE/g2rKlzVqrOg8SVjqt1RKNIplL3PCqJpSwIeXlfFbDRNRDYO8SKjpV40GmQEfXUpYOOdywZIGG8C8+JfV16vKabovLq5+vdgeSTerkNe451xx6u/5zsw1R5msRmtWjPxPYlc=
+resource "argocd_certificate" "private-git-repository_0" {
+	ssh {
+		server_name  = "private-git-repository.argocd.svc.cluster.local"
+		cert_subtype = "%s"
+		cert_data    = <<EOT
+		%s
 EOT
+	}
 }
-resource "argocd_certificate" "private-git-repository_ssh-ecdsa" {
-	server_name  = "private-git-repository.argocd.svc.cluster.local"
-	cert_type    = "ssh"
-	cert_subtype = "ecdsa-sha2-nistp256"
-	cert_data    = <<EOT
-	AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBNrROc04E599+H2fO5Dqv8GOa3M0ZCUYWW1vUmeB5re56Cw77smSmpAFEK03H8fQDq4ucUvOYnpr7n9OqbVdiTk=
+resource "argocd_certificate" "private-git-repository_1" {
+	ssh {
+		server_name  = "private-git-repository.argocd.svc.cluster.local"
+		cert_subtype = "%s"
+		cert_data    = <<EOT
+		%s
 EOT
+	}
 }
-resource "argocd_certificate" "private-git-repository_ssh-ed25519" {
-	server_name  = "private-git-repository.argocd.svc.cluster.local"
-	cert_type    = "ssh"
-	cert_subtype = "ssh-ed25519"
-	cert_data    = <<EOT
-	AAAAC3NzaC1lZDI1NTE5AAAAIAGBu8KvIUJ9OEzpHiEsnLV5EjhiFQP0GWTc+aI9inZK
+resource "argocd_certificate" "private-git-repository_2" {
+	ssh {
+		server_name  = "private-git-repository.argocd.svc.cluster.local"
+		cert_subtype = "%s"
+		cert_data    = <<EOT
+		%s
 EOT
-
-	# ssh knownhost takes some time to be applied by argocd, blindly waiting 90s for the key to be taken in account
-	provisioner "local-exec" {
-		command = "sleep 90"
 	}
 }
 
@@ -292,9 +295,9 @@ resource "argocd_repository" "private" {
   insecure   = false
   depends_on = [
 	  argocd_repository_credentials.private, 
-	  argocd_certificate.private-git-repository_ssh-rsa, 
-	  argocd_certificate.private-git-repository_ssh-ecdsa, 
-	  argocd_certificate.private-git-repository_ssh-ed25519
+	  argocd_certificate.private-git-repository_0, 
+	  argocd_certificate.private-git-repository_1, 
+	  argocd_certificate.private-git-repository_2
   ]
 }
  
@@ -325,5 +328,43 @@ resource "argocd_application" "simple" {
     }
   }
 }
-`, random)
+`, subtypesKeys[0], subtypesKeys[1], subtypesKeys[2], subtypesKeys[3], subtypesKeys[4], subtypesKeys[5], random)
+}
+
+// Return an array like :
+// [0] = ssh-rsa
+// [1] = AAAAB3NzaC1y...
+// [2] = ecdsa-sha2-nistp256
+// [3] = AAAAB3NzaC1y...
+// etc
+func getSshKeysForHost(host string) (error, []string) {
+	app := "kubectl"
+	args := []string{
+		"exec",
+		"-n",
+		"argocd",
+		"deploy/argocd-server",
+		"--",
+		"ssh-keyscan",
+		host,
+	}
+
+	cmd := exec.Command(app, args...)
+	stdout, err := cmd.Output()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return err, nil
+	}
+
+	re, err := regexp.Compile("(?m)^private-git-repository (?P<subtype>[^\\s]+) (?P<key>.+)$")
+	matches := re.FindAllStringSubmatch(string(stdout), 3)
+
+	subTypesKeys := make([]string, 0)
+	for _, match := range matches {
+		subTypesKeys = append(subTypesKeys, match[1])
+		subTypesKeys = append(subTypesKeys, match[2])
+	}
+
+	return nil, subTypesKeys
 }

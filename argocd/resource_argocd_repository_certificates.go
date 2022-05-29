@@ -60,7 +60,6 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 			Upsert:       false,
 		},
 	)
-	_ = rc
 	tokenMutexConfiguration.Unlock()
 
 	if err != nil {
@@ -72,23 +71,35 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 			},
 		}
 	}
-	// If certificate already exists and didn't change, the response will be empty but since the call is success
-	// we assume everything went fine and get the id from the request
-	// if len(rc.Items) > 0 {
-	// d.SetId(getId(&rc.Items[0])) // for https, certType is not returned from create call, but properly return on list call
-	// } else {
-	d.SetId(getId(repoCertificate))
-	// d.Set("ssh.0.cert_data", repoCertificate.CertData)
-	// }
+
+	err, resourceId := getId(&rc.Items[0])
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("certificate for repository %s created but could not be handled", repoCertificate.ServerName),
+				Detail:   err.Error(),
+			},
+		}
+	}
+	d.SetId(resourceId)
 	return resourceArgoCDRepositoryCertificatesRead(context.WithValue(ctx, "cert_data", repoCertificate.CertData), d, meta)
 }
 
-// Compute resource's id as : serverName/certType/certSubType
-func getId(rc *application.RepositoryCertificate) string {
+// Compute resource's id as :
+// for ssh -> certType/certSubType/serverName
+// for https -> certType/serverName
+func getId(rc *application.RepositoryCertificate) (error, string) {
 	if rc.CertType == "ssh" {
-		return fmt.Sprintf("%s/%s/%s", rc.CertType, rc.CertSubType, rc.ServerName)
+		if rc.CertSubType == "" || rc.ServerName == "" {
+			return fmt.Errorf("invalid certificate: %s %s %s", rc.CertType, rc.CertSubType, rc.ServerName), ""
+		}
+		return nil, fmt.Sprintf("%s/%s/%s", rc.CertType, rc.CertSubType, rc.ServerName)
 	} else {
-		return fmt.Sprintf("%s/%s", rc.CertType, rc.ServerName)
+		if rc.ServerName == "" {
+			return fmt.Errorf("invalid certificate: %s %s", rc.CertType, rc.ServerName), ""
+		}
+		return nil, fmt.Sprintf("%s/%s", rc.CertType, rc.ServerName)
 	}
 }
 
@@ -130,7 +141,7 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to parse state"),
+				Summary:  fmt.Sprintf("Failed to parse certificate state"),
 				Detail:   err.Error(),
 			},
 		}
@@ -159,7 +170,17 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 		return nil
 	}
 	for i, _rc := range rcl.Items {
-		if getId(&_rc) == d.Id() {
+		err, resourceId := getId(&_rc)
+		if err != nil {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("certificate for repository %s could not be handled", repoCertificate.ServerName),
+					Detail:   err.Error(),
+				},
+			}
+		}
+		if resourceId == d.Id() {
 			repoCertificate = _rc
 			break
 		}
@@ -200,7 +221,7 @@ func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.R
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to parse state"),
+				Summary:  fmt.Sprintf("Failed to parse certificate state"),
 				Detail:   err.Error(),
 			},
 		}
