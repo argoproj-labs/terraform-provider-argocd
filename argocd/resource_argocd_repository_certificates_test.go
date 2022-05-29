@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAccArgoCDRepositoryCertificatesSsh(t *testing.T) {
+func TestAccArgoCDRepositoryCertificatesSSH(t *testing.T) {
 	serverName := acctest.RandomWithPrefix("mywebsite")
 
 	resource.Test(t, resource.TestCase{
@@ -19,7 +19,7 @@ func TestAccArgoCDRepositoryCertificatesSsh(t *testing.T) {
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDRepositoryCertificateSSH(
+				Config: testAccArgoCDRepositoryCertificatesSSH(
 					serverName,
 					"ecdsa-sha2-nistp256",
 					// gitlab's
@@ -33,7 +33,7 @@ func TestAccArgoCDRepositoryCertificatesSsh(t *testing.T) {
 			},
 			// same, no diff
 			{
-				Config: testAccArgoCDRepositoryCertificateSSH(
+				Config: testAccArgoCDRepositoryCertificatesSSH(
 					serverName,
 					"ecdsa-sha2-nistp256",
 					// gitlab's
@@ -44,7 +44,7 @@ func TestAccArgoCDRepositoryCertificatesSsh(t *testing.T) {
 			},
 			// change only the cert_data => same id => diff
 			{
-				Config: testAccArgoCDRepositoryCertificateSSH(
+				Config: testAccArgoCDRepositoryCertificatesSSH(
 					serverName,
 					"ecdsa-sha2-nistp256",
 					// github's
@@ -55,7 +55,7 @@ func TestAccArgoCDRepositoryCertificatesSsh(t *testing.T) {
 			},
 			// change cert_subtype & cert_data => changes id => diff
 			{
-				Config: testAccArgoCDRepositoryCertificateSSH(
+				Config: testAccArgoCDRepositoryCertificatesSSH(
 					serverName,
 					"ssh-rsa",
 					// github's
@@ -105,7 +105,7 @@ func TestAccArgoCDRepositoryCertificatesHttps(t *testing.T) {
 	})
 }
 
-func TestAccArgoCDRepositoryCertificatesHttpsCrash(t *testing.T) {
+func TestAccArgoCDRepositoryCertificatesHttps_Crash(t *testing.T) {
 	serverName := acctest.RandomWithPrefix("github")
 
 	resource.Test(t, resource.TestCase{
@@ -140,7 +140,7 @@ func TestAccArgoCDRepositoryCertificatesHttpsCrash(t *testing.T) {
 	})
 }
 
-func TestAccArgoCDRepositoryCertificatesInvalid(t *testing.T) {
+func TestAccArgoCDRepositoryCertificatesSSH_Invalid(t *testing.T) {
 	certSubType := acctest.RandomWithPrefix("cert")
 
 	resource.Test(t, resource.TestCase{
@@ -148,7 +148,7 @@ func TestAccArgoCDRepositoryCertificatesInvalid(t *testing.T) {
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDRepositoryCertificateSSH(
+				Config: testAccArgoCDRepositoryCertificatesSSH(
 					"",
 					certSubType,
 					"",
@@ -156,7 +156,7 @@ func TestAccArgoCDRepositoryCertificatesInvalid(t *testing.T) {
 				ExpectError: regexp.MustCompile("Invalid hostname in request"),
 			},
 			{
-				Config: testAccArgoCDRepositoryCertificateSSH(
+				Config: testAccArgoCDRepositoryCertificatesSSH(
 					"dummy_server",
 					certSubType,
 					"",
@@ -167,20 +167,20 @@ func TestAccArgoCDRepositoryCertificatesInvalid(t *testing.T) {
 	})
 }
 
-func TestAccArgoCDRepositoryCertificatesEmpty(t *testing.T) {
+func TestAccArgoCDRepositoryCertificates_Empty(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccArgoCDRepositoryCertificateEmpty(),
+				Config:      testAccArgoCDRepositoryCertificates_Empty(),
 				ExpectError: regexp.MustCompile("one of `https,ssh` must be specified"),
 			},
 		},
 	})
 }
 
-func TestAccArgoCDRepositoryCertificatesSsh_Allow_Random_Subtype(t *testing.T) {
+func TestAccArgoCDRepositoryCertificatesSSH_Allow_Random_Subtype(t *testing.T) {
 	certSubType := acctest.RandomWithPrefix("cert")
 
 	resource.Test(t, resource.TestCase{
@@ -188,7 +188,7 @@ func TestAccArgoCDRepositoryCertificatesSsh_Allow_Random_Subtype(t *testing.T) {
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDRepositoryCertificateSSH(
+				Config: testAccArgoCDRepositoryCertificatesSSH(
 					"dummy_server",
 					certSubType,
 					"AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFSMqzJeV9rUzU4kWitGjeR4PWSa29SPqJ1fVkhtj3Hw9xjLVXVYrU9QlYWrOLXBpQ6KWjbjTDTdDkoohFzgbEY=",
@@ -198,7 +198,7 @@ func TestAccArgoCDRepositoryCertificatesSsh_Allow_Random_Subtype(t *testing.T) {
 	})
 }
 
-func TestAccArgoCDRepositoryCertificatesWithApplication(t *testing.T) {
+func TestAccArgoCDRepositoryCertificatesSSH_WithApplication(t *testing.T) {
 	appName := acctest.RandomWithPrefix("testacc")
 
 	err, subtypesKeys := getSshKeysForHost("private-git-repository")
@@ -225,14 +225,68 @@ func TestAccArgoCDRepositoryCertificatesWithApplication(t *testing.T) {
 	})
 }
 
-func testAccArgoCDRepositoryCertificateEmpty() string {
+func TestAccArgoCDRepositoryCertificatesSSH_CannotUpdateExisting(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDRepositoryCertificatesSSH(
+					"github.com",
+					"ssh-rsa",
+					// github's
+					"AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==",
+				),
+				ExpectError: regexp.MustCompile("already exist and upsert was not specified"),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDRepositoryCertificatesSSH_CannotUpdateExisting_MultipleAtOnce(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDRepositoryCertificateSSH_Duplicated(
+					"github.com",
+					"ssh-rsaaa",
+					// github's
+					"AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==",
+				),
+				ExpectError: regexp.MustCompile("already exist and upsert was not specified"),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDRepositoryCertificatesHttps_CannotUpdateExisting_MultipleAtOnce(t *testing.T) {
+	host := "github.com"
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDRepositoryCertificateHttps_Duplicated(
+					host,
+					// github's
+					"-----BEGIN CERTIFICATE-----\nMIIFajCCBPCgAwIBAgIQBRiaVOvox+kD4KsNklVF3jAKBggqhkjOPQQDAzBWMQsw\nCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMTAwLgYDVQQDEydEaWdp\nQ2VydCBUTFMgSHlicmlkIEVDQyBTSEEzODQgMjAyMCBDQTEwHhcNMjIwMzE1MDAw\nMDAwWhcNMjMwMzE1MjM1OTU5WjBmMQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2Fs\naWZvcm5pYTEWMBQGA1UEBxMNU2FuIEZyYW5jaXNjbzEVMBMGA1UEChMMR2l0SHVi\nLCBJbmMuMRMwEQYDVQQDEwpnaXRodWIuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0D\nAQcDQgAESrCTcYUh7GI/y3TARsjnANwnSjJLitVRgwgRI1JlxZ1kdZQQn5ltP3v7\nKTtYuDdUeEu3PRx3fpDdu2cjMlyA0aOCA44wggOKMB8GA1UdIwQYMBaAFAq8CCkX\njKU5bXoOzjPHLrPt+8N6MB0GA1UdDgQWBBR4qnLGcWloFLVZsZ6LbitAh0I7HjAl\nBgNVHREEHjAcggpnaXRodWIuY29tgg53d3cuZ2l0aHViLmNvbTAOBgNVHQ8BAf8E\nBAMCB4AwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMIGbBgNVHR8EgZMw\ngZAwRqBEoEKGQGh0dHA6Ly9jcmwzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydFRMU0h5\nYnJpZEVDQ1NIQTM4NDIwMjBDQTEtMS5jcmwwRqBEoEKGQGh0dHA6Ly9jcmw0LmRp\nZ2ljZXJ0LmNvbS9EaWdpQ2VydFRMU0h5YnJpZEVDQ1NIQTM4NDIwMjBDQTEtMS5j\ncmwwPgYDVR0gBDcwNTAzBgZngQwBAgIwKTAnBggrBgEFBQcCARYbaHR0cDovL3d3\ndy5kaWdpY2VydC5jb20vQ1BTMIGFBggrBgEFBQcBAQR5MHcwJAYIKwYBBQUHMAGG\nGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBPBggrBgEFBQcwAoZDaHR0cDovL2Nh\nY2VydHMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0VExTSHlicmlkRUNDU0hBMzg0MjAy\nMENBMS0xLmNydDAJBgNVHRMEAjAAMIIBfwYKKwYBBAHWeQIEAgSCAW8EggFrAWkA\ndgCt9776fP8QyIudPZwePhhqtGcpXc+xDCTKhYY069yCigAAAX+Oi8SRAAAEAwBH\nMEUCIAR9cNnvYkZeKs9JElpeXwztYB2yLhtc8bB0rY2ke98nAiEAjiML8HZ7aeVE\nP/DkUltwIS4c73VVrG9JguoRrII7gWMAdwA1zxkbv7FsV78PrUxtQsu7ticgJlHq\nP+Eq76gDwzvWTAAAAX+Oi8R7AAAEAwBIMEYCIQDNckqvBhup7GpANMf0WPueytL8\nu/PBaIAObzNZeNMpOgIhAMjfEtE6AJ2fTjYCFh/BNVKk1mkTwBTavJlGmWomQyaB\nAHYAs3N3B+GEUPhjhtYFqdwRCUp5LbFnDAuH3PADDnk2pZoAAAF/jovErAAABAMA\nRzBFAiEA9Uj5Ed/XjQpj/MxQRQjzG0UFQLmgWlc73nnt3CJ7vskCICqHfBKlDz7R\nEHdV5Vk8bLMBW1Q6S7Ga2SbFuoVXs6zFMAoGCCqGSM49BAMDA2gAMGUCMCiVhqft\n7L/stBmv1XqSRNfE/jG/AqKIbmjGTocNbuQ7kt1Cs7kRg+b3b3C9Ipu5FQIxAM7c\ntGKrYDGt0pH8iF6rzbp9Q4HQXMZXkNxg+brjWxnaOVGTDNwNH7048+s/hT9bUQ==\n-----END CERTIFICATE-----",
+				),
+				ExpectError: regexp.MustCompile(fmt.Sprintf("https certificate for '%s' already exist.", host)),
+			},
+		},
+	})
+}
+
+func testAccArgoCDRepositoryCertificates_Empty() string {
 	return `
 resource "argocd_certificate" "simple" {
 }
 `
 }
 
-func testAccArgoCDRepositoryCertificateSSH(serverName, cert_subtype, cert_data string) string {
+func testAccArgoCDRepositoryCertificatesSSH(serverName, cert_subtype, cert_data string) string {
 	return fmt.Sprintf(`
 resource "argocd_certificate" "simple" {
   ssh {
@@ -246,6 +300,30 @@ EOT
 `, serverName, cert_subtype, cert_data)
 }
 
+func testAccArgoCDRepositoryCertificateSSH_Duplicated(serverName, cert_subtype, cert_data string) string {
+	return fmt.Sprintf(`
+resource "argocd_certificate" "simple" {
+  ssh {
+	server_name  = "%s"
+	cert_subtype = "%s"
+	cert_data    = <<EOT
+%s
+EOT
+  }
+}
+
+resource "argocd_certificate" "simple2" {
+	ssh {
+	  server_name  = "%s"
+	  cert_subtype = "%s"
+	  cert_data    = <<EOT
+  %s
+  EOT
+	}
+  }
+`, serverName, cert_subtype, cert_data, serverName, cert_subtype, cert_data)
+}
+
 func testAccArgoCDRepositoryCertificateHttps(serverName, cert_data string) string {
 	return fmt.Sprintf(`
 resource "argocd_certificate" "simple" {
@@ -257,6 +335,28 @@ EOT
   }
 }
 `, serverName, cert_data)
+}
+
+func testAccArgoCDRepositoryCertificateHttps_Duplicated(serverName, cert_data string) string {
+	return fmt.Sprintf(`
+resource "argocd_certificate" "simple" {
+  https {
+    server_name  = "%s"
+    cert_data    = <<EOT
+%s
+EOT
+  }
+}
+
+resource "argocd_certificate" "simple2" {
+  https {
+    server_name  = "%s"
+    cert_data    = <<EOT
+%s
+EOT
+  }
+}
+`, serverName, cert_data, serverName, cert_data)
 }
 
 func testAccArgoCDRepositoryCertificateCredentialsApplicationWithSSH(random string, subtypesKeys []string) string {

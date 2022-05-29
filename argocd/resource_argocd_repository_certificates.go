@@ -64,8 +64,37 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 			},
 		}
 	}
-
 	c := *server.CertificateClient
+
+	if repoCertificate.CertType == "https" {
+		tokenMutexConfiguration.RLock()
+		rcl, err := c.ListCertificates(ctx, &certificate.RepositoryCertificateQuery{
+			HostNamePattern: repoCertificate.ServerName,
+			CertType:        repoCertificate.CertType,
+			CertSubType:     repoCertificate.CertSubType,
+		})
+		tokenMutexConfiguration.RUnlock()
+
+		if err != nil {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("certificates for host %s could not be listed", repoCertificate.ServerName),
+					Detail:   err.Error(),
+				},
+			}
+		}
+
+		if len(rcl.Items) > 0 {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("https certificate for '%s' already exist.", repoCertificate.ServerName),
+				},
+			}
+		}
+	}
+
 	certs := application.RepositoryCertificateList{
 		Items: []application.RepositoryCertificate{
 			*repoCertificate,
@@ -92,7 +121,16 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 		}
 	}
 
-	err, resourceId := getId(&rc.Items[0])
+	// TODO: upstream bug : if https certificate already exists, the response will be empty
+	// instead of erroring about missing upsert flag but since the call is success
+	// we assume everything went fine and get the id from the request
+	var resourceId string
+	if len(rc.Items) > 0 {
+		err, resourceId = getId(&rc.Items[0])
+	} else {
+		err, resourceId = getId(repoCertificate)
+	}
+
 	if err != nil {
 		return []diag.Diagnostic{
 			{
