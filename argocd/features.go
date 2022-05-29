@@ -26,6 +26,7 @@ const (
 	featureTokenIDs
 	featureProjectScopedClusters
 	featureClusterMetadata
+	featureRepositoryCertificates
 )
 
 var (
@@ -36,7 +37,7 @@ var (
 		featureTokenIDs:                    semver.MustParse("1.5.3"),
 		featureProjectScopedClusters:       semver.MustParse("2.2.0"),
 		featureClusterMetadata:             semver.MustParse("2.2.0"),
-		// TODO: should declare certificate 1.2+ ?
+		featureRepositoryCertificates:      semver.MustParse("1.2.0"),
 	}
 )
 

@@ -45,6 +45,29 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 			},
 		}
 	}
+
+	featureRepositoryCertificateSupported, err := server.isFeatureSupported(featureRepositoryCertificates)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	if !featureRepositoryCertificateSupported {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"repository certificate is only supported from ArgoCD %s onwards",
+					featureVersionConstraintsMap[featureRepositoryCertificates].String()),
+			},
+		}
+	}
+
 	c := *server.CertificateClient
 	certs := application.RepositoryCertificateList{
 		Items: []application.RepositoryCertificate{
@@ -134,6 +157,29 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 			},
 		}
 	}
+
+	featureRepositoryCertificateSupported, err := server.isFeatureSupported(featureRepositoryCertificates)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	if !featureRepositoryCertificateSupported {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"repository certificate is only supported from ArgoCD %s onwards",
+					featureVersionConstraintsMap[featureRepositoryCertificates].String()),
+			},
+		}
+	}
+
 	c := *server.CertificateClient
 	repoCertificate := application.RepositoryCertificate{}
 	err, certType, certSubType, serverName := fromId(d.Id())
@@ -215,6 +261,29 @@ func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.R
 			},
 		}
 	}
+
+	featureRepositoryCertificateSupported, err := server.isFeatureSupported(featureRepositoryCertificates)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	if !featureRepositoryCertificateSupported {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"repository certificate is only supported from ArgoCD %s onwards",
+					featureVersionConstraintsMap[featureRepositoryCertificates].String()),
+			},
+		}
+	}
+
 	c := *server.CertificateClient
 	err, certType, certSubType, serverName := fromId(d.Id())
 	if err != nil {
