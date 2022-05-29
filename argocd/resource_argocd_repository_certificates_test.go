@@ -188,7 +188,20 @@ func TestAccArgoCDRepositoryCertificatesInvalid(t *testing.T) {
 	})
 }
 
-func TestAccArgoCDRepositoryCertificatesSsh_Random_Subtype(t *testing.T) {
+func TestAccArgoCDRepositoryCertificatesEmpty(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccArgoCDRepositoryCertificateEmpty(),
+				ExpectError: regexp.MustCompile("one of `https,ssh` must be specified"),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDRepositoryCertificatesSsh_Allow_Random_Subtype(t *testing.T) {
 	certSubType := acctest.RandomWithPrefix("cert")
 
 	resource.Test(t, resource.TestCase{
@@ -231,6 +244,13 @@ func TestAccArgoCDRepositoryCertificatesWithApplication(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccArgoCDRepositoryCertificateEmpty() string {
+	return `
+resource "argocd_certificate" "simple" {
+}
+`
 }
 
 func testAccArgoCDRepositoryCertificateSSH(serverName, cert_subtype, cert_data string) string {
