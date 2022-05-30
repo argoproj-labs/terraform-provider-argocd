@@ -1,4 +1,4 @@
-# argocd_certificate
+# argocd_repository_certificate
 
 Creates an ArgoCD certificate, for use with future or existing private repositories.
 
@@ -7,7 +7,7 @@ Creates an ArgoCD certificate, for use with future or existing private repositor
 ### Example ssh certificate
 ```hcl
 // Private repository ssh certificate
-resource "argocd_certificate" "private-git-repository" {
+resource "argocd_repository_certificate" "private-git-repository" {
 	ssh {
 		server_name  = "private-git-repository.local"
 		cert_subtype = "ssh-rsa"
@@ -24,7 +24,7 @@ resource "argocd_repository" "private" {
 
 ### Example https certificate
 ```hcl
-resource "argocd_certificate" "private-git-repository" {
+resource "argocd_repository_certificate" "private-git-repository" {
 	https {
 		server_name  = "private-git-repository.local"
 		cert_data    = <<EOT
