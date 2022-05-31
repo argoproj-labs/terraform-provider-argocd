@@ -15,6 +15,8 @@ builds:
       - linux_arm64
       - windows_amd64
       - windows_arm
+      - freebsd_amd64
+      - freebsd_arm
     binary: '{{ .ProjectName }}_v{{ .Version }}'
 archives:
   - format: zip
