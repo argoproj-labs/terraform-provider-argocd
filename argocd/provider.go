@@ -83,6 +83,14 @@ func Provider() *schema.Provider {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"client_cert_file": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"client_cert_key": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"plain_text": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -198,6 +206,12 @@ func initApiClient(d *schema.ResourceData) (
 	}
 	if v, ok := d.GetOk("cert_file"); ok {
 		opts.CertFile = v.(string)
+	}
+	if v, ok := d.GetOk("client_cert_file"); ok {
+		opts.ClientCertFile = v.(string)
+	}
+	if v, ok := d.GetOk("client_cert_key"); ok {
+		opts.ClientCertKeyFile = v.(string)
 	}
 	if v, ok := d.GetOk("context"); ok {
 		opts.Context = v.(string)
