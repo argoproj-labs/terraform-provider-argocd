@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     argocd = {
-      source  = "oboukili/argocd"
-      version = "1.1.3"
+      source  = "myregistry/oboukili/argocd"
+      version = "1.0.0"
 //      version = "0.4.8"
     }
   }
@@ -21,9 +21,6 @@ resource "argocd_project" "foo" {
     namespace = "argocd"
     labels = {
       acceptance = "true"
-    }
-    annotations = {
-      "this.is.a.really.long.nested.key" = "yes, really!"
     }
   }
 
@@ -47,16 +44,19 @@ resource "argocd_project" "foo" {
       group = "rbac.authorization.k8s.io"
       kind  = "ClusterRole"
     }
-    namespace_resource_blacklist {
-      group = "networking.k8s.io"
-      kind  = "Ingress"
-    }
+    namespace_resource_blacklist {}
     namespace_resource_whitelist {
       group = "*"
       kind  = "*"
     }
     orphaned_resources {
       warn = true
+    }
+    role {
+      name = "foo-role"
+      policies = [
+        "p, proj:foo:foo-role, applications, *, foo/*, allow",
+      ]
     }
     sync_window {
       kind         = "allow"
@@ -77,4 +77,10 @@ resource "argocd_project" "foo" {
       manual_sync  = false
     }
   }
+}
+
+resource "argocd_project_token" "foo_token" {
+  project      = "foo"
+  role         = "foo-role"
+  description  = "short lived token"
 }
