@@ -33,6 +33,11 @@ func repositorySchema() map[string]*schema.Schema {
 			Description: "only for Helm repos",
 			Optional:    true,
 		},
+		"project_name": {
+			Type:        schema.TypeString,
+			Description: "The project name, in case the repository is project scoped",
+			Optional:    true,
+		},
 		"username": {
 			Type:        schema.TypeString,
 			Description: "Username for authenticating at the repo server",
