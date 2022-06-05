@@ -35,6 +35,7 @@ resource "argocd_repository" "private" {
 * `enable_lfs` - (Optional), boolean, whether git-lfs support should be enabled for this repository.
 * `username` - (Optional), string, username to authenticate against the repository server.
 * `password` - (Optional), string, password to authenticate against the repository server.
+* `project_name` - (Optional), string, if the repository will be project-scoped, the name of that project. Refer to this ![doc](https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-scoped-repositories-and-clusters)
 * `ssh_private_key` - (Optional), string, SSH private key data to authenticate against the repository server. **Only for Git repositories**.
 * `tls_client_cert_data` - (Optional), TLS client cert data to authenticate against the repository server.
 * `tls_client_cert_key` - (Optional), TLS client cert key to authenticate against the repository server.
