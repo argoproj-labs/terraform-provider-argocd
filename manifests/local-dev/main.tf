@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     argocd = {
-      source  = "myregistry/oboukili/argocd"
-      version = "1.0.0"
+      source  = "oboukili/argocd"
+      version = "1.1.3"
 //      version = "0.4.8"
     }
   }
@@ -21,6 +21,9 @@ resource "argocd_project" "foo" {
     namespace = "argocd"
     labels = {
       acceptance = "true"
+    }
+    annotations = {
+      "this.is.a.really.long.nested.key" = "yes, really!"
     }
   }
 
@@ -44,7 +47,10 @@ resource "argocd_project" "foo" {
       group = "rbac.authorization.k8s.io"
       kind  = "ClusterRole"
     }
-    namespace_resource_blacklist {}
+    namespace_resource_blacklist {
+      group = "networking.k8s.io"
+      kind  = "Ingress"
+    }
     namespace_resource_whitelist {
       group = "*"
       kind  = "*"
