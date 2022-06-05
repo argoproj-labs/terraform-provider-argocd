@@ -52,7 +52,7 @@ ingress:
 					resource.TestCheckResourceAttr(
 						"argocd_application.simple",
 						"spec.0.source.0.target_revision",
-						"15.3.0",
+						"16.9.11",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.simple",
@@ -468,7 +468,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         parameter {
           name  = "image.tag"
@@ -508,7 +508,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         parameter {
           name  = "image.tag"
@@ -552,7 +552,7 @@ resource "argocd_application" "helm" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         release_name = "testing"
         
@@ -762,7 +762,7 @@ resource "argocd_application" "sync_policy" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
     }
 
     destination {
@@ -805,7 +805,7 @@ resource "argocd_application" "ignore_differences" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
     }
 
     destination {
@@ -848,7 +848,7 @@ resource "argocd_application" "ignore_differences_jqpe" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
     }
 
     destination {
@@ -887,7 +887,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         release_name = "testing"
       }
@@ -912,7 +912,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         release_name = "testing"
       }
@@ -939,7 +939,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         release_name = "testing"
       }
@@ -974,7 +974,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         release_name = "testing"
       }
@@ -1010,7 +1010,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         parameter {
           name  = "image.tag"
