@@ -66,16 +66,18 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 	}
 	c := *server.CertificateClient
 
+	// Not doing a RLock here because we can have a race-condition between the ListCertificates & CreateCertificate
+	tokenMutexConfiguration.Lock()
+
 	if repoCertificate.CertType == "https" {
-		tokenMutexConfiguration.RLock()
 		rcl, err := c.ListCertificates(ctx, &certificate.RepositoryCertificateQuery{
 			HostNamePattern: repoCertificate.ServerName,
 			CertType:        repoCertificate.CertType,
 			CertSubType:     repoCertificate.CertSubType,
 		})
-		tokenMutexConfiguration.RUnlock()
 
 		if err != nil {
+			tokenMutexConfiguration.Unlock()
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
@@ -86,6 +88,7 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 		}
 
 		if len(rcl.Items) > 0 {
+			tokenMutexConfiguration.Unlock()
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
@@ -101,7 +104,6 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 		},
 	}
 
-	tokenMutexConfiguration.Lock()
 	rc, err := c.CreateCertificate(
 		ctx,
 		&certificate.RepositoryCertificateCreateRequest{
