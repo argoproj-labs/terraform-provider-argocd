@@ -52,7 +52,7 @@ ingress:
 					resource.TestCheckResourceAttr(
 						"argocd_application.simple",
 						"spec.0.source.0.target_revision",
-						"15.3.0",
+						"16.9.11",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.simple",
@@ -450,6 +450,58 @@ func TestAccArgoCDApplication_EmptyAutomatedBlock(t *testing.T) {
 		}})
 }
 
+func TestAccArgoCDApplication_OptionalPath(t *testing.T) {
+	app := acctest.RandomWithPrefix("test-acc")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationDirectoryNoPath(app),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.directory",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.path",
+						".",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationDirectoryPath(app, "."),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.directory",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.path",
+						".",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationDirectoryNoPath(app),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.directory",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.path",
+						".",
+					),
+				),
+			},
+		}})
+}
+
 func testAccArgoCDApplicationSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "simple" {
@@ -468,7 +520,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         parameter {
           name  = "image.tag"
@@ -508,7 +560,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         parameter {
           name  = "image.tag"
@@ -552,7 +604,7 @@ resource "argocd_application" "helm" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         release_name = "testing"
         
@@ -622,6 +674,59 @@ resource "argocd_application" "kustomize" {
   }
 }
 	`, name)
+}
+
+func testAccArgoCDApplicationDirectoryNoPath(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "directory" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://github.com/MrLuje/argocd-example"
+      target_revision = "yaml-at-root"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationDirectoryPath(name string, path string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "directory" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://github.com/MrLuje/argocd-example"
+      path            = "%s"
+      target_revision = "yaml-at-root"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name, path)
 }
 
 func testAccArgoCDApplicationDirectory(name string) string {
@@ -762,7 +867,7 @@ resource "argocd_application" "sync_policy" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
     }
 
     destination {
@@ -805,7 +910,7 @@ resource "argocd_application" "ignore_differences" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
     }
 
     destination {
@@ -848,7 +953,7 @@ resource "argocd_application" "ignore_differences_jqpe" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
     }
 
     destination {
@@ -887,7 +992,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         release_name = "testing"
       }
@@ -912,7 +1017,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         release_name = "testing"
       }
@@ -939,7 +1044,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         release_name = "testing"
       }
@@ -974,7 +1079,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         release_name = "testing"
       }
@@ -1010,7 +1115,7 @@ resource "argocd_application" "simple" {
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
-      target_revision = "15.3.0"
+      target_revision = "16.9.11"
       helm {
         parameter {
           name  = "image.tag"
