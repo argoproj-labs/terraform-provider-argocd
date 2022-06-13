@@ -450,6 +450,58 @@ func TestAccArgoCDApplication_EmptyAutomatedBlock(t *testing.T) {
 		}})
 }
 
+func TestAccArgoCDApplication_OptionalPath(t *testing.T) {
+	app := acctest.RandomWithPrefix("test-acc")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationDirectoryNoPath(app),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.directory",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.path",
+						".",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationDirectoryPath(app, "."),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.directory",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.path",
+						".",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationDirectoryNoPath(app),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.directory",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.path",
+						".",
+					),
+				),
+			},
+		}})
+}
+
 func testAccArgoCDApplicationSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "simple" {
@@ -622,6 +674,59 @@ resource "argocd_application" "kustomize" {
   }
 }
 	`, name)
+}
+
+func testAccArgoCDApplicationDirectoryNoPath(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "directory" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://github.com/MrLuje/argocd-example"
+      target_revision = "yaml-at-root"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationDirectoryPath(name string, path string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "directory" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://github.com/MrLuje/argocd-example"
+      path            = "%s"
+      target_revision = "yaml-at-root"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name, path)
 }
 
 func testAccArgoCDApplicationDirectory(name string) string {
