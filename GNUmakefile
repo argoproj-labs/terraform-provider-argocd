@@ -7,7 +7,7 @@ VERSION = $(shell git describe --always)
 
 default: build-all
 
-build-all: linux windows darwin
+build-all: linux windows darwin freebsd
 
 install: fmtcheck
 	go install
@@ -27,7 +27,12 @@ darwin: fmtcheck
 	GOOS=darwin GOARCH=amd64 go build -v -o bin/$(BINARY)_$(VERSION)_darwin_amd64
 	GOOS=darwin GOARCH=arm64 go build -v -o bin/$(BINARY)_$(VERSION)_darwin_arm64
 
-release: clean linux windows darwin
+freebsd: fmtcheck
+	@mkdir -p bin/
+	GOOS=freebsd GOARCH=amd64 go build -v -o bin/$(BINARY)_$(VERSION)_freebsd_amd64
+	GOOS=freebsd GOARCH=386 go build -v -o bin/$(BINARY)_$(VERSION)_freebsd_x86
+
+release: clean linux windows darwin freebsd
 	for f in $(shell ls bin/); do zip bin/$${f}.zip bin/$${f}; done
 
 clean:

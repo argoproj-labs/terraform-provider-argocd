@@ -27,6 +27,9 @@ var apiClientConnOpts apiclient.ClientOptions
 // Used to handle concurrent access to ArgoCD common configuration
 var tokenMutexConfiguration = &sync.RWMutex{}
 
+// Used to handle concurrent access to ArgoCD clusters
+var tokenMutexClusters = &sync.RWMutex{}
+
 // Used to handle concurrent access to each ArgoCD project
 var tokenMutexProjectMap = make(map[string]*sync.RWMutex, 0)
 
