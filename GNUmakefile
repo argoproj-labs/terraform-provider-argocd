@@ -25,7 +25,7 @@ windows: fmtcheck
 darwin: fmtcheck
 	@mkdir -p bin/
 	GOOS=darwin GOARCH=amd64 go build -v -o bin/$(BINARY)_$(VERSION)_darwin_amd64
-	GOOS=darwin GOARCH=386 go build -v -o bin/$(BINARY)_$(VERSION)_darwin_x86
+	GOOS=darwin GOARCH=arm64 go build -v -o bin/$(BINARY)_$(VERSION)_darwin_arm64
 
 release: clean linux windows darwin
 	for f in $(shell ls bin/); do zip bin/$${f}.zip bin/$${f}; done
