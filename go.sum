@@ -145,10 +145,10 @@ github.com/apparentlymart/go-textseg/v12 v12.0.0/go.mod h1:S/4uRK2UtaQttw1GenVJE
 github.com/apparentlymart/go-textseg/v13 v13.0.0 h1:Y+KvPE1NYz0xl601PVImeQfFyEy6iT90AvPUL1NNfNw=
 github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkEghdlcqw7yxLeM89kiTRPUo=
 github.com/appscode/go v0.0.0-20190808133642-1d4ef1f1c1e0/go.mod h1:iy07dV61Z7QQdCKJCIvUoDL21u6AIceRhZzyleh2ymc=
-github.com/argoproj/argo-cd/v2 v2.3.0 h1:xr6UNI2EW08/eqEBM0Ue2GjpoS4bFOc0SADfhyI9zlo=
-github.com/argoproj/argo-cd/v2 v2.3.0/go.mod h1:PQw/102hk/8LmuMy0daLH1SIFYq3f95cUya+3NZP3xg=
-github.com/argoproj/gitops-engine v0.6.0 h1:Tnh6kUUVuBV0m3gueYIymAeErWl9XNN9O9JcOoNM0vU=
-github.com/argoproj/gitops-engine v0.6.0/go.mod h1:pRgVpLW7pZqf7n3COJ7UcDepk4cI61LAcJd64Q3Jq/c=
+github.com/argoproj/argo-cd/v2 v2.3.5 h1:6wGLsPf7Az4ywq4fJdatnjvcmnrJoHv2jedE01V98ow=
+github.com/argoproj/argo-cd/v2 v2.3.5/go.mod h1:/NEz/DjIrcKC+8AFa4KNFO7I9lOIhdM9N2GP7YRo8sA=
+github.com/argoproj/gitops-engine v0.6.2 h1:hM+pQeplCeIPAvfAmr1f91+ykxqaU0GAzuxVujqlKHM=
+github.com/argoproj/gitops-engine v0.6.2/go.mod h1:pRgVpLW7pZqf7n3COJ7UcDepk4cI61LAcJd64Q3Jq/c=
 github.com/argoproj/notifications-engine v0.3.1-0.20220127183449-91deed20b998/go.mod h1:5mKv7zEgI3NO0L+fsuRSwBSY9EIXSuyIsDND8O8TTIw=
 github.com/argoproj/pkg v0.11.1-0.20211203175135-36c59d8fafe0 h1:Cfp7rO/HpVxnwlRqJe0jHiBbZ77ZgXhB6HWlYD02Xdc=
 github.com/argoproj/pkg v0.11.1-0.20211203175135-36c59d8fafe0/go.mod h1:ra+bQPmbVAoEL+gYSKesuigt4m49i3Qa3mE/xQcjCiA=
@@ -1047,7 +1047,6 @@ github.com/ugorji/go/codec v1.1.7/go.mod h1:Ax+UKWsSmolVDwsd+7N3ZtXu+yMGCf907BLY
 github.com/ulikunitz/xz v0.5.8/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
 github.com/ulikunitz/xz v0.5.10 h1:t92gobL9l3HE202wg3rlk19F6X+JOxl9BBrCCMYEYd8=
 github.com/ulikunitz/xz v0.5.10/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
-github.com/undefinedlabs/go-mpatch v1.0.6/go.mod h1:TyJZDQ/5AgyN7FSLiBJ8RO9u2c6wbtRvK827b6AVqY4=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 github.com/urfave/cli v1.22.1/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
 github.com/urfave/cli v1.22.2/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
