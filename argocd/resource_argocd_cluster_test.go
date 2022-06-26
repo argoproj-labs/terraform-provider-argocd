@@ -506,6 +506,7 @@ resource "argocd_cluster" "cluster_two" {
 func testAccArgoCDClusterTwiceWithSameServerNoNamesTrimmed(server, server2 string) string {
 	return fmt.Sprintf(`
 resource "argocd_cluster" "cluster_one" {
+  name = "server"
   server = "%s"
   config {
     # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
@@ -516,6 +517,7 @@ resource "argocd_cluster" "cluster_one" {
   }
 }
 resource "argocd_cluster" "cluster_two" {
+  name = "server"
   server = "%s"
   config {
     # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
