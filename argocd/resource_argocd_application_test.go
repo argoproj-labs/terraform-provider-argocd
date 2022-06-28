@@ -3,6 +3,7 @@ package argocd
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 	"testing"
 
@@ -496,6 +497,121 @@ func TestAccArgoCDApplication_OptionalPath(t *testing.T) {
 						"argocd_application.directory",
 						"spec.0.source.0.path",
 						".",
+					),
+				),
+			},
+		}})
+}
+
+func TestAccArgoCDApplication_Info(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-info")
+	info := acctest.RandString(8)
+	value := acctest.RandString(8)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationInfo(name, info, value),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.info",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.info",
+						"spec.0.info.0.name",
+						info,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.info",
+						"spec.0.info.0.value",
+						value,
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationInfoNoName(name, value),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.info",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.info",
+						"spec.0.info.0.name",
+						"",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.info",
+						"spec.0.info.0.value",
+						value,
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationInfoNoValue(name, info),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.info",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.info",
+						"spec.0.info.0.name",
+						info,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.info",
+						"spec.0.info.0.value",
+						"",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationInfo(name, info, value),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.info",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.info",
+						"spec.0.info.0.name",
+						info,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.info",
+						"spec.0.info.0.value",
+						value,
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationNoInfo(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.info",
+						"metadata.0.uid",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.info",
+						"spec.0.info",
+					),
+				),
+			},
+			{
+				Config:      testAccArgoCDApplicationInfoEmpty(name),
+				ExpectError: regexp.MustCompile("info: cannot be empty."),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.info",
+						"metadata.0.uid",
+					),
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.info",
+						"spec.0.info",
 					),
 				),
 			},
@@ -1136,6 +1252,153 @@ resource "argocd_application" "simple" {
   }
 }
 	`, name, revision_history_limit)
+}
+
+func testAccArgoCDApplicationInfo(name, info, value string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "info" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    info {
+      name = "%s"
+      value = "%s"
+    }
+    source {
+      repo_url        = "https://github.com/argoproj/argocd-example-apps"
+      path            = "guestbook"
+      target_revision = "HEAD"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+    `, name, info, value)
+}
+
+func testAccArgoCDApplicationInfoNoName(name, value string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "info" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    info {
+      value = "%s"
+    }
+    source {
+      repo_url        = "https://github.com/argoproj/argocd-example-apps"
+      path            = "guestbook"
+      target_revision = "HEAD"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+    `, name, value)
+}
+
+func testAccArgoCDApplicationInfoNoValue(name, info string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "info" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    info {
+      name = "%s"
+    }
+    source {
+      repo_url        = "https://github.com/argoproj/argocd-example-apps"
+      path            = "guestbook"
+      target_revision = "HEAD"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+    `, name, info)
+}
+
+func testAccArgoCDApplicationInfoEmpty(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "info" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    info {
+    }
+    source {
+      repo_url        = "https://github.com/argoproj/argocd-example-apps"
+      path            = "guestbook"
+      target_revision = "HEAD"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+    `, name)
+}
+
+func testAccArgoCDApplicationNoInfo(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "info" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://github.com/argoproj/argocd-example-apps"
+      path            = "guestbook"
+      target_revision = "HEAD"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+    `, name)
 }
 
 func testAccSkipFeatureIgnoreDiffJQPathExpressions() (bool, error) {

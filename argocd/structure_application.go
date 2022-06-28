@@ -36,13 +36,19 @@ func expandApplicationSpec(d *schema.ResourceData) (
 		spec.RevisionHistoryLimit = &pv
 	}
 	if v, ok := s["info"]; ok {
-		spec.Info = expandApplicationInfo(v.(*schema.Set))
+		spec.Info, diags = expandApplicationInfo(v.(*schema.Set))
+		if len(diags) > 0 {
+			return
+		}
 	}
 	if v, ok := s["ignore_difference"]; ok {
 		spec.IgnoreDifferences = expandApplicationIgnoreDifferences(v.([]interface{}))
 	}
 	if v, ok := s["sync_policy"]; ok {
 		spec.SyncPolicy, diags = expandApplicationSyncPolicy(v.([]interface{}))
+		if len(diags) > 0 {
+			return
+		}
 	}
 	if v, ok := s["destination"]; ok {
 		spec.Destination = expandApplicationDestination(v.(*schema.Set).List()[0])
@@ -379,12 +385,30 @@ func expandApplicationIgnoreDifferences(ids []interface{}) (
 }
 
 func expandApplicationInfo(infos *schema.Set) (
-	result []application.Info) {
+	result []application.Info, diags diag.Diagnostics) {
 	for _, i := range infos.List() {
-		result = append(result, application.Info{
-			Name:  i.(map[string]string)["name"],
-			Value: i.(map[string]string)["value"],
-		})
+		item := i.(map[string]interface{})
+		info := application.Info{}
+		fieldSet := false
+
+		if name, ok := item["name"].(string); ok && name != "" {
+			info.Name = name
+			fieldSet = true
+		}
+		if value, ok := item["value"].(string); ok && value != "" {
+			info.Value = value
+			fieldSet = true
+		}
+
+		if !fieldSet {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "spec.info: cannot be empty. Must only contains 'name' or 'value' fields.",
+			})
+			return
+		}
+
+		result = append(result, info)
 	}
 	return
 }
@@ -480,10 +504,16 @@ func flattenApplicationSyncPolicy(sp *application.SyncPolicy) []map[string]inter
 func flattenApplicationInfo(infos []application.Info) (
 	result []map[string]string) {
 	for _, i := range infos {
-		result = append(result, map[string]string{
-			"name":  i.Name,
-			"value": i.Value,
-		})
+		info := map[string]string{}
+
+		if i.Name != "" {
+			info["name"] = i.Name
+		}
+		if i.Value != "" {
+			info["value"] = i.Value
+		}
+
+		result = append(result, info)
 	}
 	return
 }
