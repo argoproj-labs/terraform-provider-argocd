@@ -12,7 +12,7 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds(t *testing.T) {
 			"source": []interface{}{map[string]interface{}{
 				"repo_url":        "https://charts.bitnami.com/bitnami",
 				"chart":           "redis",
-				"target_revision": "15.3.0",
+				"target_revision": "16.9.11",
 
 				"helm": []interface{}{map[string]interface{}{
 					"release_name": "testing",
@@ -30,7 +30,7 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds(t *testing.T) {
 			"source": []interface{}{map[string]interface{}{
 				"repo_url":        "https://charts.bitnami.com/bitnami",
 				"chart":           "redis",
-				"target_revision": "15.3.0",
+				"target_revision": "16.9.11",
 
 				"helm": []interface{}{map[string]interface{}{
 					"release_name": "testing",
@@ -57,7 +57,7 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds_NoChange(t *testing.T) {
 			"source": []interface{}{map[string]interface{}{
 				"repo_url":        "https://charts.bitnami.com/bitnami",
 				"chart":           "redis",
-				"target_revision": "15.3.0",
+				"target_revision": "16.9.11",
 			}},
 			"destination": []interface{}{map[string]interface{}{
 				"server":    "https://kubernetes.default.svc",

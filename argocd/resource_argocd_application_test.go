@@ -1599,7 +1599,7 @@ resource "argocd_application" "crds" {
     source {
 		repo_url        = "https://charts.bitnami.com/bitnami"
 		chart           = "redis"
-		target_revision = "15.3.0"
+		target_revision = "16.9.11"
 		helm {
 		  parameter {
 			name  = "image.tag"
@@ -1637,7 +1637,7 @@ resource "argocd_application" "crds" {
     source {
 		repo_url        = "https://charts.bitnami.com/bitnami"
 		chart           = "redis"
-		target_revision = "15.3.0"
+		target_revision = "16.9.11"
 		helm {
 		  parameter {
 			name  = "image.tag"
