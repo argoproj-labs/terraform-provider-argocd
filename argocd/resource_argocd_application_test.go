@@ -679,7 +679,7 @@ func TestProvider_headers(t *testing.T) {
 	})
 }
 
-func TestAccArgoCDApplication_SkipCrds_NotSupported(t *testing.T) {
+func TestAccArgoCDApplication_SkipCrds_NotSupported_On_OlderVersions(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc-crds")
 
 	resource.ParallelTest(t, resource.TestCase{

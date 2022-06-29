@@ -43,6 +43,7 @@ func testAccPreCheck(t *testing.T) {
 	}
 }
 
+// Skip test if feature is not supported
 func testAccPreCheckFeatureSupported(t *testing.T, feature int) {
 	v := os.Getenv("ARGOCD_VERSION")
 	if v == "" {
@@ -61,6 +62,7 @@ func testAccPreCheckFeatureSupported(t *testing.T, feature int) {
 	}
 }
 
+// Skip test if feature is supported
 func testAccPreCheckFeatureNotSupported(t *testing.T, feature int) {
 	v := os.Getenv("ARGOCD_VERSION")
 	if v == "" {
