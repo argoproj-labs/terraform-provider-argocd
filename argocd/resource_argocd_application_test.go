@@ -618,6 +618,25 @@ func TestAccArgoCDApplication_Info(t *testing.T) {
 		}})
 }
 
+func TestProvider_headers(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf("%s %s", `
+				provider "argocd" {
+					headers = [
+						"Hello: HiThere",
+					]
+				}`, testAccArgoCDApplicationSimple(name),
+				),
+			},
+		},
+	})
+}
+
 func testAccArgoCDApplicationSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "simple" {
