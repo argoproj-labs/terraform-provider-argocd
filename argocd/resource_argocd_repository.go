@@ -3,11 +3,13 @@ package argocd
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repository"
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -40,46 +42,44 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 	c := *server.RepositoryClient
 	repo := expandRepository(d)
 
-	tokenMutexConfiguration.Lock()
-	r, err := c.CreateRepository(
-		ctx,
-		&repository.RepoCreateRequest{
-			Repo:   repo,
-			Upsert: false,
-		},
-	)
-	tokenMutexConfiguration.Unlock()
+	err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+		tokenMutexConfiguration.Lock()
+		r, err := c.CreateRepository(
+			ctx,
+			&repository.RepoCreateRequest{
+				Repo:   repo,
+				Upsert: false,
+			},
+		)
+		tokenMutexConfiguration.Unlock()
+
+		if err != nil {
+			// TODO: better way to detect ssh handshake failing ?
+			if matched, _ := regexp.MatchString("ssh: handshake failed: knownhosts: key is unknown", err.Error()); matched {
+				return resource.RetryableError(fmt.Errorf("Hanshake failed for repository %s, retrying in case a repository certificate has been set recently", repo.Repo))
+			}
+			return resource.NonRetryableError(fmt.Errorf("Repository %s not found: %s", repo.Repo, err))
+		}
+		if r == nil {
+			return resource.NonRetryableError(fmt.Errorf("ArgoCD did not return an error or a repository result: %s", err))
+		}
+		if r.ConnectionState.Status == application.ConnectionStatusFailed {
+			return resource.NonRetryableError(fmt.Errorf("could not connect to repository %s: %s", repo.Repo, r.ConnectionState.Message))
+		}
+		d.SetId(r.Repo)
+		return nil
+	})
 
 	if err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Repository %s not found", repo.Repo),
+				Summary:  fmt.Sprintf("Error while creating repository %s", repo.Name),
 				Detail:   err.Error(),
 			},
 		}
 	}
-	if r == nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("ArgoCD did not return an error or a repository result"),
-			},
-		}
-	}
-	if r.ConnectionState.Status == application.ConnectionStatusFailed {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"could not connect to repository %s: %s",
-					repo.Repo,
-					r.ConnectionState.Message,
-				),
-			},
-		}
-	}
-	d.SetId(r.Repo)
+
 	return resourceArgoCDRepositoryRead(ctx, d, meta)
 }
 

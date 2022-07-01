@@ -2,13 +2,14 @@ package argocd
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/argoproj/pkg/time"
 	"github.com/robfig/cron"
 	"golang.org/x/crypto/ssh"
 	apiValidation "k8s.io/apimachinery/pkg/api/validation"
 	utilValidation "k8s.io/apimachinery/pkg/util/validation"
-	"regexp"
-	"strings"
 )
 
 func validateMetadataLabels(value interface{}, key string) (ws []string, es []error) {
