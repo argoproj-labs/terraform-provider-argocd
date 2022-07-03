@@ -42,6 +42,12 @@ ingress:
 					"metadata.0.uid",
 				),
 			},
+			{
+				ResourceName:            "argocd_application.simple",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade"},
+			},
 			// Check with the same name for rapid application recreation robustness
 			{
 				Config: testAccArgoCDApplicationSimple(commonName),
@@ -93,6 +99,12 @@ ingress:
 				),
 			},
 			{
+				ResourceName:            "argocd_application.helm",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+			},
+			{
 				Config: testAccArgoCDApplicationKustomize(
 					acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
@@ -111,6 +123,12 @@ ingress:
 						"-bar",
 					),
 				),
+			},
+			{
+				ResourceName:            "argocd_application.kustomize",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
 			},
 			{
 				Config: testAccArgoCDApplicationDirectory(
@@ -173,6 +191,12 @@ ingress:
 				),
 			},
 			{
+				ResourceName:            "argocd_application.directory",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+			},
+			{
 				Config: testAccArgoCDApplicationSyncPolicy(
 					acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
@@ -218,6 +242,12 @@ ingress:
 				),
 			},
 			{
+				ResourceName:            "argocd_application.sync_policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+			},
+			{
 				Config: testAccArgoCDApplicationIgnoreDifferences(
 					acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
@@ -236,6 +266,12 @@ ingress:
 						"apps",
 					),
 				),
+			},
+			{
+				ResourceName:            "argocd_application.ignore_differences",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade"},
 			},
 			{
 				SkipFunc: testAccSkipFeatureIgnoreDiffJQPathExpressions,
@@ -257,6 +293,12 @@ ingress:
 						".spec.template.spec.metadata.labels.somelabel",
 					),
 				),
+			},
+			{
+				ResourceName:            "argocd_application.ignore_differences_jqpe",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade"},
 			},
 			{
 				Config: testAccArgoCDApplicationSimpleRevisionHistory(commonName, revisionHistoryLimit),
@@ -635,6 +677,128 @@ func TestProvider_headers(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccArgoCDApplication_SkipCrds_NotSupported_On_OlderVersions(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-crds")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureNotSupported(t, featureApplicationHelmSkipCrds) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			// Create tests
+			{
+				Config:      testAccArgoCDApplicationSkipCrds(acctest.RandomWithPrefix("test-acc-crds"), true),
+				ExpectError: regexp.MustCompile("application helm skip_crds is only supported from ArgoCD"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.crds",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.crds",
+						"spec.0.source.0.helm.0.skip_crds",
+						"true",
+					),
+				),
+			},
+			// Update tests
+			{
+				Config: testAccArgoCDApplicationSkipCrds_NoSkip(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.crds",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.crds",
+						"spec.0.source.0.helm.0.skip_crds",
+						"false",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationSkipCrds(name, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.crds",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.crds",
+						"spec.0.source.0.helm.0.skip_crds",
+						"false",
+					),
+				),
+			},
+			{
+				Config:      testAccArgoCDApplicationSkipCrds(name, true),
+				ExpectError: regexp.MustCompile("application helm skip_crds is only supported from ArgoCD"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.crds",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.crds",
+						"spec.0.source.0.helm.0.skip_crds",
+						"true",
+					),
+				),
+			},
+		}})
+}
+
+func TestAccArgoCDApplication_SkipCrds(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-crds")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureApplicationHelmSkipCrds) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSkipCrds_NoSkip(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.crds",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.crds",
+						"spec.0.source.0.helm.0.skip_crds",
+						"false",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationSkipCrds(name, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.crds",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.crds",
+						"spec.0.source.0.helm.0.skip_crds",
+						"true",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationSkipCrds(name, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.crds",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.crds",
+						"spec.0.source.0.helm.0.skip_crds",
+						"false",
+					),
+				),
+			},
+		}})
 }
 
 func testAccArgoCDApplicationSimple(name string) string {
@@ -1418,6 +1582,81 @@ resource "argocd_application" "info" {
   }
 }
     `, name)
+}
+
+func testAccArgoCDApplicationSkipCrds(name string, SkipCrds bool) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "crds" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+		repo_url        = "https://charts.bitnami.com/bitnami"
+		chart           = "redis"
+		target_revision = "16.9.11"
+		helm {
+		  parameter {
+			name  = "image.tag"
+			value = "6.2.5"
+		  }
+		  parameter {
+			name  = "architecture"
+			value = "standalone"
+		  }
+		  release_name = "testing"
+		  skip_crds = %t
+		}
+	}
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name, SkipCrds)
+}
+
+func testAccArgoCDApplicationSkipCrds_NoSkip(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "crds" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+		repo_url        = "https://charts.bitnami.com/bitnami"
+		chart           = "redis"
+		target_revision = "16.9.11"
+		helm {
+		  parameter {
+			name  = "image.tag"
+			value = "6.2.5"
+		  }
+		  parameter {
+			name  = "architecture"
+			value = "standalone"
+		  }
+		  release_name = "testing"
+		}
+	}
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
 }
 
 func testAccSkipFeatureIgnoreDiffJQPathExpressions() (bool, error) {

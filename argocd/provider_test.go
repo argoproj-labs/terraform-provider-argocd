@@ -43,6 +43,7 @@ func testAccPreCheck(t *testing.T) {
 	}
 }
 
+// Skip test if feature is not supported
 func testAccPreCheckFeatureSupported(t *testing.T, feature int) {
 	v := os.Getenv("ARGOCD_VERSION")
 	if v == "" {
@@ -57,6 +58,25 @@ func testAccPreCheckFeatureSupported(t *testing.T, feature int) {
 		t.Fatal("feature constraint is not handled by the provider")
 	}
 	if i := versionConstraint.Compare(serverVersion); i == 1 {
+		t.Skipf("version %s does not support feature", v)
+	}
+}
+
+// Skip test if feature is supported
+func testAccPreCheckFeatureNotSupported(t *testing.T, feature int) {
+	v := os.Getenv("ARGOCD_VERSION")
+	if v == "" {
+		t.Skip("ARGOCD_VERSION must be set set for feature supported acceptance tests")
+	}
+	serverVersion, err := semver.NewVersion(v)
+	if err != nil {
+		t.Fatalf("could not parse ARGOCD_VERSION as semantic version: %s", v)
+	}
+	versionConstraint, ok := featureVersionConstraintsMap[feature]
+	if !ok {
+		t.Fatal("feature constraint is not handled by the provider")
+	}
+	if i := versionConstraint.Compare(serverVersion); i != 1 {
 		t.Skipf("version %s does not support feature", v)
 	}
 }

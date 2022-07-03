@@ -53,6 +53,11 @@ func TestAccArgoCDProject(t *testing.T) {
 					"metadata.0.uid",
 				),
 			},
+			{
+				ResourceName:      "argocd_project.simple",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			// Check with the same name for rapid project recreation robustness
 			{
 				Config: testAccArgoCDProjectSimple(name),
@@ -148,6 +153,11 @@ func TestAccArgoCDProjectUpdateAddRole(t *testing.T) {
 						"metadata.0.uid",
 					),
 				),
+			},
+			{
+				ResourceName:      "argocd_project.simple",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccArgoCDProjectSimpleWithRole(name),

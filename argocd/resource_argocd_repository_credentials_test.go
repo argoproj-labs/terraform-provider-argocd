@@ -33,6 +33,12 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:            "argocd_repository_credentials.simple",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ssh_private_key"},
+			},
+			{
 				Config: testAccArgoCDRepositoryCredentialsRepositoryCoexistence(),
 				Check: testCheckMultipleResourceAttr(
 					"argocd_repository.private",

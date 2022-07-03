@@ -27,6 +27,7 @@ const (
 	featureProjectScopedClusters
 	featureClusterMetadata
 	featureRepositoryCertificates
+	featureApplicationHelmSkipCrds
 )
 
 var (
@@ -38,6 +39,7 @@ var (
 		featureProjectScopedClusters:       semver.MustParse("2.2.0"),
 		featureClusterMetadata:             semver.MustParse("2.2.0"),
 		featureRepositoryCertificates:      semver.MustParse("1.2.0"),
+		featureApplicationHelmSkipCrds:     semver.MustParse("2.3.0"),
 	}
 )
 
