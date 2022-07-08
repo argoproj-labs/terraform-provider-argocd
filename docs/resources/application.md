@@ -197,6 +197,7 @@ The `helm` block has the following attributes:
 * `value_files` - (Optional) list of Helm value files to use when generating a template.
 * `values` - (Optional) Helm values, typically defined as a block.
 * `release_name` - (Optional) the Helm release name. If omitted it will use the application name.
+* `skip_crds` - (Optional) Helm installs custom resource definitions in the crds folder by default if they are not existing. If needed, it is possible to skip the CRD installation step with this flag.
 * `parameter` - (Optional) parameter to the Helm template. Can be repeated multiple times. Structure is documented below.
 
 Each `helm/parameter` block has the following attributes:

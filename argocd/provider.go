@@ -164,6 +164,7 @@ func Provider() *schema.Provider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"argocd_application":            resourceArgoCDApplication(),
+			"argocd_repository_certificate": resourceArgoCDRepositoryCertificates(),
 			"argocd_cluster":                resourceArgoCDCluster(),
 			"argocd_project":                resourceArgoCDProject(),
 			"argocd_project_token":          resourceArgoCDProjectToken(),
@@ -235,7 +236,12 @@ func initApiClient(d *schema.ResourceData) (
 		opts.PortForwardNamespace = v.(string)
 	}
 	if v, ok := d.GetOk("headers"); ok {
-		opts.Headers = v.([]string)
+		_headers := v.(*schema.Set).List()
+		var headers = make([]string, len(_headers))
+		for i, _header := range _headers {
+			headers[i] = _header.(string)
+		}
+		opts.Headers = headers
 	}
 	if _, ok := d.GetOk("kubernetes"); ok {
 		opts.KubeOverrides = &clientcmd.ConfigOverrides{}

@@ -23,12 +23,22 @@ func TestAccArgoCDRepository(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "argocd_repository.simple",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccArgoCDRepositoryHelm(),
 				Check: resource.TestCheckResourceAttr(
 					"argocd_repository.helm",
 					"connection_state_status",
 					"Successful",
 				),
+			},
+			{
+				ResourceName:      "argocd_repository.helm",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccArgoCDRepositoryPublicUsageInApplication(acctest.RandString(10)),
@@ -51,6 +61,12 @@ func TestAccArgoCDRepository(t *testing.T) {
 						"false",
 					),
 				),
+			},
+			{
+				ResourceName:            "argocd_repository.private",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ssh_private_key"},
 			},
 			{
 				Config: testAccArgoCDRepositoryMultiplePrivateGitSSH(10),
