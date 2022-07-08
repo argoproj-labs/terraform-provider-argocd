@@ -3,9 +3,10 @@ package argocd
 import (
 	"context"
 	"fmt"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strings"
 	"time"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	applicationClient "github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
@@ -21,13 +22,12 @@ func resourceArgoCDApplication() *schema.Resource {
 		ReadContext:   resourceArgoCDApplicationRead,
 		UpdateContext: resourceArgoCDApplicationUpdate,
 		DeleteContext: resourceArgoCDApplicationDelete,
-		// TODO: add importer acceptance tests
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("applications.argoproj.io"),
-			"spec":     applicationSpecSchema(),
+			"spec":     applicationSpecSchemaV1(),
 			"wait": {
 				Type:        schema.TypeBool,
 				Description: "Upon application creation or update, wait for application health/sync status to be healthy/Synced, upon application deletion, wait for application to be removed, when set to true.",
@@ -39,6 +39,14 @@ func resourceArgoCDApplication() *schema.Resource {
 				Description: "Whether to applying cascading deletion when application is removed.",
 				Optional:    true,
 				Default:     true,
+			},
+		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceArgoCDApplicationV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceArgoCDApplicationStateUpgradeV0,
+				Version: 0,
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{
@@ -137,6 +145,31 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 					featureVersionConstraintsMap[featureIgnoreDiffJQPathExpressions].String()),
 				Detail: err.Error(),
 			},
+		}
+	}
+
+	featureApplicationHelmSkipCrdsSupported, err := server.isFeatureSupported(featureApplicationHelmSkipCrds)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	if !featureApplicationHelmSkipCrdsSupported {
+		_, skipCrdsOk := d.GetOk("spec.0.source.0.helm.0.skip_crds")
+		if skipCrdsOk {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary: fmt.Sprintf(
+						"application helm skip_crds is only supported from ArgoCD %s onwards",
+						featureVersionConstraintsMap[featureApplicationHelmSkipCrds].String()),
+				},
+			}
 		}
 	}
 
@@ -319,6 +352,31 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 						featureVersionConstraintsMap[featureIgnoreDiffJQPathExpressions].String()),
 					Detail: err.Error(),
 				},
+			}
+		}
+
+		featureApplicationHelmSkipCrdsSupported, err := server.isFeatureSupported(featureApplicationHelmSkipCrds)
+		if err != nil {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  "feature not supported",
+					Detail:   err.Error(),
+				},
+			}
+		}
+
+		if !featureApplicationHelmSkipCrdsSupported {
+			_, skipCrdsOk := d.GetOk("spec.0.source.0.helm.0.skip_crds")
+			if skipCrdsOk {
+				return []diag.Diagnostic{
+					{
+						Severity: diag.Error,
+						Summary: fmt.Sprintf(
+							"application helm skip_crds is only supported from ArgoCD %s onwards",
+							featureVersionConstraintsMap[featureApplicationHelmSkipCrds].String()),
+					},
+				}
 			}
 		}
 

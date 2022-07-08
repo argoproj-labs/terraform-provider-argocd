@@ -48,6 +48,13 @@ func TestAccArgoCDCluster(t *testing.T) {
 					),
 				),
 			},
+			//TODO: not working on CI every time
+			// {
+			// 	ResourceName:            "argocd_cluster.simple",
+			// 	ImportState:             true,
+			// 	ImportStateVerify:       true,
+			// 	ImportStateVerifyIgnore: []string{"config.0.bearer_token", "config.0.tls_client_config"},
+			// },
 			{
 				Config: testAccArgoCDClusterTLSCertificate(t, acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
@@ -97,6 +104,13 @@ func TestAccArgoCDCluster_projectScope(t *testing.T) {
 					),
 				),
 			},
+			//TODO: not working on CI every time
+			// {
+			// 	ResourceName:            "argocd_cluster.project_scope",
+			// 	ImportState:             true,
+			// 	ImportStateVerify:       true,
+			// 	ImportStateVerifyIgnore: []string{"config.0.bearer_token", "config.0.tls_client_config"},
+			// },
 		},
 	})
 }
@@ -506,6 +520,7 @@ resource "argocd_cluster" "cluster_two" {
 func testAccArgoCDClusterTwiceWithSameServerNoNamesTrimmed(server, server2 string) string {
 	return fmt.Sprintf(`
 resource "argocd_cluster" "cluster_one" {
+  name = "server"
   server = "%s"
   config {
     # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
@@ -516,6 +531,7 @@ resource "argocd_cluster" "cluster_one" {
   }
 }
 resource "argocd_cluster" "cluster_two" {
+  name = "server"
   server = "%s"
   config {
     # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.

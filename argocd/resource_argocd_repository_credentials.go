@@ -17,7 +17,6 @@ func resourceArgoCDRepositoryCredentials() *schema.Resource {
 		ReadContext:   resourceArgoCDRepositoryCredentialsRead,
 		UpdateContext: resourceArgoCDRepositoryCredentialsUpdate,
 		DeleteContext: resourceArgoCDRepositoryCredentialsDelete,
-		// TODO: add importer acceptance tests
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
