@@ -22,6 +22,8 @@ provider "argocd" {
 * `username` - (Optional) authentication username. Can be set through the `ARGOCD_AUTH_USERNAME` environment variable.
 * `password` - (Optional) authentication password. Can be set through the `ARGOCD_AUTH_PASSWORD` environment variable.
 * `cert_file` - (Optional) Additional root CA certificates file to add to the client TLS connection pool. 
+* `client_cert_file` - (Optional) Client Certificate.
+* `client_cert_key` - (Optional) Client Certificate Key.
 * `plain_text` - (Optional) Boolean, whether to initiate an unencrypted connection to ArgoCD server. 
 * `context` - (Optional) Kubernetes context to load from an existing `.kube/config` file. Can be set through `ARGOCD_CONTEXT` environment variable.
 * `user_agent` - (Optional)
