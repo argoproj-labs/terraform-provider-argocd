@@ -1,6 +1,8 @@
 package argocd
 
 import (
+	"fmt"
+
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -24,6 +26,9 @@ func expandCluster(d *schema.ResourceData) (*application.Cluster, error) {
 	}
 	if ns, ok := d.GetOk("namespaces"); ok {
 		for _, n := range ns.([]interface{}) {
+			if n == nil {
+				return nil, fmt.Errorf("namespaces: must contain non-empty strings")
+			}
 			cluster.Namespaces = append(cluster.Namespaces, n.(string))
 		}
 	}
