@@ -370,6 +370,25 @@ func TestAccArgoCDCluster_uniqueByServerTrimmed(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDCluster_namespacesErrorWhenEmpty(t *testing.T) {
+	name := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedClusters) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccArgoCDClusterNamespacesContainsEmptyString(name),
+				ExpectError: regexp.MustCompile("namespaces: must contain non-empty strings"),
+			},
+			{
+				Config:      testAccArgoCDClusterNamespacesContainsEmptyString_MultipleItems(name),
+				ExpectError: regexp.MustCompile("namespaces: must contain non-empty strings"),
+			},
+		},
+	})
+}
+
 func testAccArgoCDClusterBearerToken(clusterName string) string {
 	return fmt.Sprintf(`
 resource "argocd_cluster" "simple" {
@@ -599,6 +618,42 @@ resource "argocd_cluster" "cluster_metadata" {
       test = "annotation"
     }
   }
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+`, clusterName)
+}
+
+func testAccArgoCDClusterNamespacesContainsEmptyString(clusterName string) string {
+	return fmt.Sprintf(`
+resource "argocd_cluster" "simple" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  name   = "%s"
+  shard  = "1"
+  namespaces = [""]
+  config {
+    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
+    bearer_token = "abcdef.0123456789abcdef"
+    tls_client_config {
+      insecure = true
+    }
+  }
+}
+`, clusterName)
+}
+
+func testAccArgoCDClusterNamespacesContainsEmptyString_MultipleItems(clusterName string) string {
+	return fmt.Sprintf(`
+resource "argocd_cluster" "simple" {
+  server = "https://kubernetes.default.svc.cluster.local"
+  name   = "%s"
+  shard  = "1"
+  namespaces = ["default", ""]
   config {
     # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
     bearer_token = "abcdef.0123456789abcdef"
