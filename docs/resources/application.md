@@ -189,7 +189,6 @@ The `source` block has the following attributes:
 Only one of the following `source` attributes can be defined at a time:
 * `helm` - (Optional) holds Helm specific options. Structure is documented below.
 * `kustomize` - (Optional) holds Kustomize specific options. Structure is documented below.
-* `ksonnet` - (Optional) holds Ksonnet specific options. Structure is documented below.
 * `directory` - (Optional) holds path/directory specific options (native Kubernetes manifests or **Jsonnet** manifests). Structure is documented below.
 * `plugin` - (Optional) holds config management plugin specific options. Structure is documented below.
 
@@ -212,15 +211,6 @@ The `kustomize` block has the following attributes:
 * `images` - (Optional) set of strings, kustomize image overrides.
 * `common_labels` - (Optional) map(string) of strings, adds additional kustomize commonLabels.
 * `common_annotations` - (Optional) map(string) of strings, adds additional kustomize commonAnnotations.
-
-The `ksonnet` block has the following attributes:
-* `environment` - (Optional) string, Ksonnet application environment name.
-* `parameters` - (Optional) Set of ksonnet component parameter overrides. Can be repeated multiple times. Structure is documented below.
-
-Each `ksonnet/parameters` block has the following attributes:
-* `name` - (Optional) string, name of the Ksonnet parameter.
-* `value` - (Optional) string, value of the Ksonnet parameter.
-* `component` - (Optional) string, value of the component parameter.
 
 The `directory` block has the following attributes:
 * `recurse` - (Optional) boolean, determines whether to recursively look for manifests in specified path.

@@ -27,7 +27,7 @@ func resourceArgoCDApplication() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("applications.argoproj.io"),
-			"spec":     applicationSpecSchemaV1(),
+			"spec":     applicationSpecSchemaV2(),
 			"wait": {
 				Type:        schema.TypeBool,
 				Description: "Upon application creation or update, wait for application health/sync status to be healthy/Synced, upon application deletion, wait for application to be removed, when set to true.",
@@ -174,7 +174,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	app, err = c.Create(ctx, &applicationClient.ApplicationCreateRequest{
-		Application: application.Application{
+		Application: &application.Application{
 
 			ObjectMeta: objectMeta,
 			Spec:       spec,
