@@ -157,6 +157,8 @@ require (
 )
 
 require (
+	code.gitea.io/sdk/gitea v0.15.1 // indirect
+	github.com/TomOnTime/utfutil v0.0.0-20210710122150-437f72b26edf // indirect
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
