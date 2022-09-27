@@ -250,30 +250,26 @@ func initApiClient(d *schema.ResourceData) (
 		opts.KubeOverrides = &clientcmd.ConfigOverrides{}
 
 		if v, ok := k8sGetOk(d, "config_path"); ok {
+			// https://github.com/argoproj/argo-cd/blob/561452ac943a8f83e17c66eb72200f4a66ee3ae3/util/kube/portforwarder.go#L26
+			// github.com/argoproj/argo-cd/v2/util/kube.PortForward does not accept custom config path and uses default
+			clientcmd.RecommendedHomeFile = v.(string)
+
 			rawConfig, err := getRawClientCmdApiConfig(v.(string))
 			if err != nil {
 				return nil, err
 			}
 
-			var contextName string
-			var ctx *clientcmdapi.Context
 			if v, ok := k8sGetOk(d, "config_context"); ok {
 				contextName := v.(string)
-				ctx, ok = rawConfig.Contexts[contextName]
+				_, ok = rawConfig.Contexts[contextName]
 				if !ok {
 					return nil, errors.New(fmt.Sprintf("config_context %s not found", contextName))
 				}
 			} else {
-				if ctx, ok = rawConfig.Contexts[rawConfig.CurrentContext]; !ok {
-					return nil, errors.New("unknown context")
+				if _, ok = rawConfig.Contexts[rawConfig.CurrentContext]; !ok {
+					return nil, errors.New("kube config has no current context")
 				}
 			}
-
-			opts.KubeOverrides.AuthInfo = *rawConfig.AuthInfos[ctx.AuthInfo]
-			opts.KubeOverrides.ClusterDefaults = *rawConfig.Clusters[ctx.Cluster]
-			opts.KubeOverrides.ClusterInfo = *rawConfig.Clusters[ctx.Cluster]
-			opts.KubeOverrides.Context = *ctx
-			opts.KubeOverrides.CurrentContext = contextName
 		}
 
 		if v, ok := k8sGetOk(d, "insecure"); ok {
