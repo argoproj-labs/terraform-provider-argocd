@@ -3,8 +3,11 @@ package argocd
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	io2 "io"
 	"log"
+	"os"
 	"sync"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
@@ -245,6 +248,34 @@ func initApiClient(d *schema.ResourceData) (
 	}
 	if _, ok := d.GetOk("kubernetes"); ok {
 		opts.KubeOverrides = &clientcmd.ConfigOverrides{}
+
+		if v, ok := k8sGetOk(d, "config_path"); ok {
+			rawConfig, err := getRawClientCmdApiConfig(v.(string))
+			if err != nil {
+				return nil, err
+			}
+
+			var contextName string
+			var ctx *clientcmdapi.Context
+			if v, ok := k8sGetOk(d, "config_context"); ok {
+				contextName := v.(string)
+				ctx, ok = rawConfig.Contexts[contextName]
+				if !ok {
+					return nil, errors.New(fmt.Sprintf("config_context %s not found", contextName))
+				}
+			} else {
+				if ctx, ok = rawConfig.Contexts[rawConfig.CurrentContext]; !ok {
+					return nil, errors.New("unknown context")
+				}
+			}
+
+			opts.KubeOverrides.AuthInfo = *rawConfig.AuthInfos[ctx.AuthInfo]
+			opts.KubeOverrides.ClusterDefaults = *rawConfig.Clusters[ctx.Cluster]
+			opts.KubeOverrides.ClusterInfo = *rawConfig.Clusters[ctx.Cluster]
+			opts.KubeOverrides.Context = *ctx
+			opts.KubeOverrides.CurrentContext = contextName
+		}
+
 		if v, ok := k8sGetOk(d, "insecure"); ok {
 			opts.KubeOverrides.ClusterInfo.InsecureSkipTLSVerify = v.(bool)
 		}
@@ -486,4 +517,20 @@ func expandStringSlice(s []interface{}) []string {
 		}
 	}
 	return result
+}
+
+func getRawClientCmdApiConfig(path string) (cfg clientcmdapi.Config, err error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return cfg, err
+	}
+	b, err := io2.ReadAll(f)
+	if err != nil {
+		return cfg, err
+	}
+	clientConfig, err := clientcmd.NewClientConfigFromBytes(b)
+	if err != nil {
+		return cfg, err
+	}
+	return clientConfig.RawConfig()
 }
