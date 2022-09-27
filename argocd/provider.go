@@ -261,13 +261,11 @@ func initApiClient(d *schema.ResourceData) (
 
 			if v, ok := k8sGetOk(d, "config_context"); ok {
 				contextName := v.(string)
-				_, ok = rawConfig.Contexts[contextName]
-				if !ok {
+
+				if _, ok := rawConfig.Contexts[v.(string)]; !ok {
 					return nil, errors.New(fmt.Sprintf("config_context %s not found", contextName))
-				}
-			} else {
-				if _, ok = rawConfig.Contexts[rawConfig.CurrentContext]; !ok {
-					return nil, errors.New("kube config has no current context")
+				} else {
+					opts.KubeOverrides.CurrentContext = contextName
 				}
 			}
 		}
