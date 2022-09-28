@@ -34,7 +34,7 @@ func TestAccArgoCDCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.simple",
 						"info.0.server_version",
-						"1.19",
+						"1.23",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.simple",
@@ -48,7 +48,7 @@ func TestAccArgoCDCluster(t *testing.T) {
 					),
 				),
 			},
-			//TODO: not working on CI every time
+			// TODO: not working on CI every time
 			// {
 			// 	ResourceName:            "argocd_cluster.simple",
 			// 	ImportState:             true,
@@ -66,7 +66,7 @@ func TestAccArgoCDCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.tls",
 						"info.0.server_version",
-						"1.19",
+						"1.23",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.tls",
@@ -104,7 +104,7 @@ func TestAccArgoCDCluster_projectScope(t *testing.T) {
 					),
 				),
 			},
-			//TODO: not working on CI every time
+			// TODO: not working on CI every time
 			// {
 			// 	ResourceName:            "argocd_cluster.project_scope",
 			// 	ImportState:             true,
