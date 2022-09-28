@@ -80,9 +80,6 @@ func expandApplicationSource(_as interface{}) (
 	if v, ok := as["kustomize"]; ok {
 		result.Kustomize = expandApplicationSourceKustomize(v.([]interface{}))
 	}
-	if v, ok := as["ksonnet"]; ok {
-		result.Ksonnet = expandApplicationSourceKsonnet(v.([]interface{}))
-	}
 	if v, ok := as["directory"]; ok {
 		result.Directory = expandApplicationSourceDirectory(v.([]interface{}))
 	}
@@ -156,34 +153,6 @@ func expandApplicationSourceDirectory(in []interface{}) *application.Application
 			}
 		}
 		result.Jsonnet = jsonnet
-	}
-	return result
-}
-
-func expandApplicationSourceKsonnet(in []interface{}) *application.ApplicationSourceKsonnet {
-	if len(in) == 0 {
-		return nil
-	}
-	a := in[0].(map[string]interface{})
-	result := &application.ApplicationSourceKsonnet{}
-	if v, ok := a["environment"]; ok {
-		result.Environment = v.(string)
-	}
-	if parameters, ok := a["parameters"]; ok {
-		for _, _p := range parameters.(*schema.Set).List() {
-			p := _p.(map[string]string)
-			parameter := application.KsonnetParameter{}
-			if v, ok := p["name"]; ok {
-				parameter.Name = v
-			}
-			if v, ok := p["value"]; ok {
-				parameter.Value = v
-			}
-			if v, ok := p["component"]; ok {
-				parameter.Component = v
-			}
-			result.Parameters = append(result.Parameters, parameter)
-		}
 	}
 	return result
 }
@@ -547,9 +516,6 @@ func flattenApplicationSource(source []application.ApplicationSource) (
 			"helm": flattenApplicationSourceHelm(
 				[]*application.ApplicationSourceHelm{s.Helm},
 			),
-			"ksonnet": flattenApplicationSourceKsonnet(
-				[]*application.ApplicationSourceKsonnet{s.Ksonnet},
-			),
 			"kustomize": flattenApplicationSourceKustomize(
 				[]*application.ApplicationSourceKustomize{s.Kustomize},
 			),
@@ -578,29 +544,6 @@ func flattenApplicationSourcePlugin(as []*application.ApplicationSourcePlugin) (
 			result = append(result, map[string]interface{}{
 				"name": a.Name,
 				"env":  env,
-			})
-		}
-	}
-	return
-}
-
-func flattenApplicationSourceKsonnet(as []*application.ApplicationSourceKsonnet) (
-	result []map[string]interface{}) {
-	for _, a := range as {
-		if a != nil {
-			var parameters []map[string]string
-			for _, p := range a.Parameters {
-				parameters = append(parameters,
-					map[string]string{
-						"component": p.Component,
-						"name":      p.Name,
-						"value":     p.Value,
-					},
-				)
-			}
-			result = append(result, map[string]interface{}{
-				"environment": a.Environment,
-				"parameters":  parameters,
 			})
 		}
 	}

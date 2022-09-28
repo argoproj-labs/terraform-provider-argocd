@@ -27,7 +27,7 @@ func resourceArgoCDApplication() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("applications.argoproj.io"),
-			"spec":     applicationSpecSchemaV1(),
+			"spec":     applicationSpecSchemaV2(),
 			"wait": {
 				Type:        schema.TypeBool,
 				Description: "Upon application creation or update, wait for application health/sync status to be healthy/Synced, upon application deletion, wait for application to be removed, when set to true.",
@@ -41,12 +41,17 @@ func resourceArgoCDApplication() *schema.Resource {
 				Default:     true,
 			},
 		},
-		SchemaVersion: 1,
+		SchemaVersion: 2,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceArgoCDApplicationV0().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceArgoCDApplicationStateUpgradeV0,
 				Version: 0,
+			},
+			{
+				Type:    resourceArgoCDApplicationV1().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceArgoCDApplicationStateUpgradeV1,
+				Version: 1,
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{
@@ -174,8 +179,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	app, err = c.Create(ctx, &applicationClient.ApplicationCreateRequest{
-		Application: application.Application{
-
+		Application: &application.Application{
 			ObjectMeta: objectMeta,
 			Spec:       spec,
 			TypeMeta: metav1.TypeMeta{
@@ -299,7 +303,8 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 					Kind:       "Application",
 					APIVersion: "argoproj.io/v1alpha1",
 				},
-			}}
+			},
+		}
 
 		featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
 		if err != nil {
