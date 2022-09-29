@@ -73,6 +73,12 @@ resource "argocd_project" "myproject" {
       policies = [
         "p, proj:myproject:testrole, applications, override, myproject/*, allow",
         "p, proj:myproject:testrole, applications, sync, myproject/*, allow",
+        "p, proj:myproject:testrole, clusters, get, myproject/*, allow",
+        "p, proj:myproject:testrole, repositories, create, myproject/*, allow",
+        "p, proj:myproject:testrole, repositories, delete, myproject/*, allow",
+        "p, proj:myproject:testrole, repositories, update, myproject/*, allow",
+        "p, proj:myproject:testrole, logs, get, myproject/*, allow",
+        "p, proj:myproject:testrole, exec, create, myproject/*, allow",
       ]
     }
     role {

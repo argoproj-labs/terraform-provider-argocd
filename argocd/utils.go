@@ -97,9 +97,17 @@ func validatePolicy(project string, role string, policy string) error {
 		return fmt.Errorf("invalid policy rule '%s': policy subject must be: '%s', not '%s'", policy, expectedSubject, subject)
 	}
 	// resource
+	// See https://github.com/muma378/argo-cd/blob/6fd4c6f44acc06f934061ce7848d72454366345b/pkg/apis/application/v1alpha1/types.go#L1555-L1561
+	validResources := map[string]bool{
+		"applications": true,
+		"repositories": true,
+		"clusters":     true,
+		"exec":         true,
+		"logs":         true,
+	}
 	resource := strings.Trim(policyComponents[2], " ")
-	if resource != "applications" {
-		return fmt.Errorf("invalid policy rule '%s': project resource must be: 'applications', not '%s'", policy, resource)
+	if !validResources[resource] {
+		return fmt.Errorf("invalid policy rule '%s': resource '%s' not recognised", policy, resource)
 	}
 	// action
 	action := strings.Trim(policyComponents[3], " ")
