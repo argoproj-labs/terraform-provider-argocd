@@ -2,14 +2,16 @@ package argocd
 
 import (
 	"fmt"
-	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
-	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
-	"github.com/argoproj/argo-cd/v2/util/io"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
+	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	"github.com/argoproj/argo-cd/v2/server/rbacpolicy"
+	"github.com/argoproj/argo-cd/v2/util/io"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func convertStringToInt64(s string) (i int64, err error) {
@@ -61,16 +63,16 @@ func expandStringList(l []interface{}) (
 }
 
 func isValidPolicyAction(action string) bool {
-	var validActions = map[string]bool{
-		"get":      true,
-		"create":   true,
-		"update":   true,
-		"delete":   true,
-		"sync":     true,
-		"override": true,
-		"*":        true,
+	validActions := map[string]bool{
+		rbacpolicy.ActionGet:      true,
+		rbacpolicy.ActionCreate:   true,
+		rbacpolicy.ActionUpdate:   true,
+		rbacpolicy.ActionDelete:   true,
+		rbacpolicy.ActionSync:     true,
+		rbacpolicy.ActionOverride: true,
+		"*":                       true,
 	}
-	var validActionPatterns = []*regexp.Regexp{
+	validActionPatterns := []*regexp.Regexp{
 		regexp.MustCompile("action/.*"),
 	}
 
@@ -97,9 +99,17 @@ func validatePolicy(project string, role string, policy string) error {
 		return fmt.Errorf("invalid policy rule '%s': policy subject must be: '%s', not '%s'", policy, expectedSubject, subject)
 	}
 	// resource
+	// https://github.com/argoproj/argo-cd/blob/c99669e088b5f25c8ce8faff6df25797a8beb5ba/pkg/apis/application/v1alpha1/types.go#L1554
+	validResources := map[string]bool{
+		rbacpolicy.ResourceApplications: true,
+		rbacpolicy.ResourceRepositories: true,
+		rbacpolicy.ResourceClusters:     true,
+		rbacpolicy.ResourceExec:         true,
+		rbacpolicy.ResourceLogs:         true,
+	}
 	resource := strings.Trim(policyComponents[2], " ")
-	if resource != "applications" {
-		return fmt.Errorf("invalid policy rule '%s': project resource must be: 'applications', not '%s'", policy, resource)
+	if !validResources[resource] {
+		return fmt.Errorf("invalid policy rule '%s': resource '%s' not recognised", policy, resource)
 	}
 	// action
 	action := strings.Trim(policyComponents[3], " ")

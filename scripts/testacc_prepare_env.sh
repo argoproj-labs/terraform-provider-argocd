@@ -7,7 +7,7 @@ echo "\n--- Kustomize sanity checks\n"
 kustomize version || exit 1
 
 echo "\n--- Create Kind cluster\n"
-kind create cluster --name argocd --config scripts/kind-config.yml --image kindest/node:${ARGOCD_KUBERNETES_VERSION:-v1.19.7}
+kind create cluster --name argocd --config scripts/kind-config.yml --image kindest/node:${ARGOCD_KUBERNETES_VERSION:-v1.23.12}
 
 echo "\n--- Kind sanity checks\n"
 kubectl get nodes -o wide
@@ -19,11 +19,11 @@ if [[ -z "${ARGOCD_CI}" ]]; then
   kind load docker-image redis:6.2.4-alpine --name argocd
   kind load docker-image ghcr.io/dexidp/dex:v2.27.0 --name argocd
   kind load docker-image alpine:3 --name argocd
-  kind load docker-image quay.io/argoproj/argocd:${ARGOCD_VERSION:-v1.8.7} --name argocd
+  kind load docker-image quay.io/argoproj/argocd:${ARGOCD_VERSION:-v2.3.9} --name argocd
 fi
 
-echo "\n--- Install ArgoCD ${ARGOCD_VERSION:-v1.8.7}\n"
-curl https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION:-v1.8.7}/manifests/install.yaml > manifests/install/argocd.yml &&
+echo "\n--- Install ArgoCD ${ARGOCD_VERSION:-v2.4.12}\n"
+curl https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION:-v2.4.12}/manifests/install.yaml > manifests/install/argocd.yml &&
 kustomize build manifests/install | kubectl apply -f - &&
 kubectl apply -f manifests/testdata/ &&
 

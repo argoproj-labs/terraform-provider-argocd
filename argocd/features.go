@@ -28,20 +28,20 @@ const (
 	featureClusterMetadata
 	featureRepositoryCertificates
 	featureApplicationHelmSkipCrds
+	featureExecLogsPolicy
 )
 
-var (
-	featureVersionConstraintsMap = map[int]*semver.Version{
-		featureApplicationLevelSyncOptions: semver.MustParse("1.5.0"),
-		featureIgnoreDiffJQPathExpressions: semver.MustParse("2.1.0"),
-		featureRepositoryGet:               semver.MustParse("1.6.0"),
-		featureTokenIDs:                    semver.MustParse("1.5.3"),
-		featureProjectScopedClusters:       semver.MustParse("2.2.0"),
-		featureClusterMetadata:             semver.MustParse("2.2.0"),
-		featureRepositoryCertificates:      semver.MustParse("1.2.0"),
-		featureApplicationHelmSkipCrds:     semver.MustParse("2.3.0"),
-	}
-)
+var featureVersionConstraintsMap = map[int]*semver.Version{
+	featureApplicationLevelSyncOptions: semver.MustParse("1.5.0"),
+	featureIgnoreDiffJQPathExpressions: semver.MustParse("2.1.0"),
+	featureRepositoryGet:               semver.MustParse("1.6.0"),
+	featureTokenIDs:                    semver.MustParse("1.5.3"),
+	featureProjectScopedClusters:       semver.MustParse("2.2.0"),
+	featureClusterMetadata:             semver.MustParse("2.2.0"),
+	featureRepositoryCertificates:      semver.MustParse("1.2.0"),
+	featureApplicationHelmSkipCrds:     semver.MustParse("2.3.0"),
+	featureExecLogsPolicy:              semver.MustParse("2.4.0"),
+}
 
 type ServerInterface struct {
 	ApiClient            *apiclient.Client

@@ -172,6 +172,56 @@ func TestAccArgoCDProjectUpdateAddRole(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDProjectWithClustersRepositoriesRolePolicy(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedClusters) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDProjectWithClustersRepositoriesRolePolicy(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+					),
+				),
+			},
+			{
+				ResourceName:      "argocd_project.simple",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccArgoCDProjectWithLogsExecRolePolicy(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureExecLogsPolicy) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDProjectWithExecLogsRolePolicy(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+					),
+				),
+			},
+			{
+				ResourceName:      "argocd_project.simple",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccArgoCDProjectSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_project" "simple" {
@@ -582,4 +632,88 @@ func testAccArgoCDProjectSimpleWithRole(name string) string {
     }
   }
 	`, name, name, name, name, name)
+}
+
+func testAccArgoCDProjectWithClustersRepositoriesRolePolicy(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "simple" {
+    metadata {
+      name      = "%[1]s"
+      namespace = "argocd"
+      labels = {
+        acceptance = "true"
+      }
+      annotations = {
+        "this.is.a.really.long.nested.key" = "yes, really!"
+      }
+    }
+  
+    spec {
+      description  = "simple project"
+      source_repos = ["*"]
+  
+      destination {
+        name      = "anothercluster"
+        namespace = "bar"
+      }
+      orphaned_resources {
+        warn = true
+        ignore {
+          group = "apps/v1"
+          kind  = "Deployment"
+          name  = "ignored1"
+        }
+      }
+      role {
+        name = "admin"
+        policies = [
+          "p, proj:%[1]s:admin, clusters, get, %[1]s/*, allow",
+          "p, proj:%[1]s:admin, repositories, get, %[1]s/*, allow",
+        ]
+      }
+    }
+  }
+	`, name)
+}
+
+func testAccArgoCDProjectWithExecLogsRolePolicy(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "simple" {
+    metadata {
+      name      = "%[1]s"
+      namespace = "argocd"
+      labels = {
+        acceptance = "true"
+      }
+      annotations = {
+        "this.is.a.really.long.nested.key" = "yes, really!"
+      }
+    }
+  
+    spec {
+      description  = "simple project"
+      source_repos = ["*"]
+  
+      destination {
+        name      = "anothercluster"
+        namespace = "bar"
+      }
+      orphaned_resources {
+        warn = true
+        ignore {
+          group = "apps/v1"
+          kind  = "Deployment"
+          name  = "ignored1"
+        }
+      }
+      role {
+        name = "admin"
+        policies = [
+          "p, proj:%[1]s:admin, exec, create, %[1]s/*, allow",
+          "p, proj:%[1]s:admin, logs, get, %[1]s/*, allow",
+        ]
+      }
+    }
+  }
+	`, name)
 }
