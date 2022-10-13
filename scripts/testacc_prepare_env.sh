@@ -22,8 +22,8 @@ if [[ -z "${ARGOCD_CI}" ]]; then
   kind load docker-image quay.io/argoproj/argocd:${ARGOCD_VERSION:-v2.3.9} --name argocd
 fi
 
-echo "\n--- Install ArgoCD ${ARGOCD_VERSION:-v2.3.9}\n"
-curl https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION:-v2.3.9}/manifests/install.yaml > manifests/install/argocd.yml &&
+echo "\n--- Install ArgoCD ${ARGOCD_VERSION:-v2.4.12}\n"
+curl https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION:-v2.4.12}/manifests/install.yaml > manifests/install/argocd.yml &&
 kustomize build manifests/install | kubectl apply -f - &&
 kubectl apply -f manifests/testdata/ &&
 
