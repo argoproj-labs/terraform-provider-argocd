@@ -31,6 +31,9 @@ func expandRepositoryCredentials(d *schema.ResourceData) *application.RepoCreds 
 	if v, ok := d.GetOk("tls_client_cert_key"); ok {
 		repoCreds.TLSClientCertKey = v.(string)
 	}
+	if v, ok := d.GetOk("enable_oci"); ok {
+		repoCreds.EnableOCI = v.(bool)
+	}
 	return repoCreds
 }
 

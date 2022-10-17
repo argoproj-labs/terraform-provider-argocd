@@ -40,6 +40,9 @@ func expandRepository(d *schema.ResourceData) *application.Repository {
 	if v, ok := d.GetOk("tls_client_cert_key"); ok {
 		repository.TLSClientCertKey = v.(string)
 	}
+	if v, ok := d.GetOk("enable_oci"); ok {
+		repository.EnableOCI = v.(bool)
+	}
 	if v, ok := d.GetOk("type"); ok {
 		repository.Type = v.(string)
 	}
