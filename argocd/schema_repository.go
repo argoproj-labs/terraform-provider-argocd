@@ -64,6 +64,11 @@ func repositorySchema() map[string]*schema.Schema {
 			// TODO: add a validator
 			Optional: true,
 		},
+		"enable_oci": {
+			Type:        schema.TypeBool,
+			Description: "Specify whether the repo server should be viewed as OCI compliant",
+			Optional: true,
+		},
 		"type": {
 			Type:        schema.TypeString,
 			Description: "type of the repo, may be 'git' or 'helm', defaults to 'git'",
