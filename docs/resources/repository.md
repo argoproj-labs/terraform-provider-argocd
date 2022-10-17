@@ -38,6 +38,7 @@ resource "argocd_repository" "private" {
 * `ssh_private_key` - (Optional), string, SSH private key data to authenticate against the repository server. **Only for Git repositories**.
 * `tls_client_cert_data` - (Optional), TLS client cert data to authenticate against the repository server.
 * `tls_client_cert_key` - (Optional), TLS client cert key to authenticate against the repository server.
+* `enable_oci` - (Optional), specify whether the repository server should be viewed as OCI compliant.
 
 # Exported Attributes
 
