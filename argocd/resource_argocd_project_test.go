@@ -239,6 +239,7 @@ resource "argocd_project" "simple" {
   spec {
     description  = "simple"
     source_repos = ["*"]
+    source_namespaces = ["*"]
 
     destination {
       server    = "https://kubernetes.default.svc"
@@ -325,6 +326,7 @@ func testAccArgoCDProjectSimpleWithoutOrphaned(name string) string {
     spec {
       description  = "simple project"
       source_repos = ["*"]
+      source_namespaces = ["*"]
   
       destination {
         name      = "anothercluster"
@@ -352,6 +354,7 @@ func testAccArgoCDProjectSimpleWithEmptyOrphaned(name string) string {
     spec {
       description  = "simple project"
       source_repos = ["*"]
+      source_namespaces = ["*"]
   
       destination {
         name      = "anothercluster"
@@ -378,6 +381,7 @@ resource "argocd_project" "coexistence" {
 	   namespace = "*"
     }
     source_repos = ["*"]
+    source_namespaces = ["*"]
     role {
       name = "testrole"
       policies = [
@@ -415,6 +419,7 @@ resource "argocd_project" "failure" {
 	   namespace = "*"
     }
     source_repos = ["*"]
+    source_namespaces = ["*"]
     role {
       name = "incorrect-policy"
       policies = [
@@ -441,6 +446,7 @@ resource "argocd_project" "failure" {
 	   namespace = "*"
     }
     source_repos = ["*"]
+    source_namespaces = ["*"]
     role {
       name = "incorrect role name"
       policies = [
@@ -467,6 +473,7 @@ resource "argocd_project" "failure" {
 	   namespace = "*"
     }
     source_repos = ["*"]
+    source_namespaces = ["*"]
     role {
       name = "incorrect-syncwindow"
       policies = [
@@ -502,6 +509,7 @@ resource "argocd_project" "failure" {
 	   namespace = "*"
     }
     source_repos = ["*"]
+    source_namespaces = ["*"]
     role {
       name = "incorrect-syncwindow"
       policies = [
@@ -537,6 +545,7 @@ resource "argocd_project" "failure" {
 	   namespace = "*"
     }
     source_repos = ["*"]
+    source_namespaces = ["*"]
     role {
       name = "incorrect-syncwindow"
       policies = [
@@ -574,6 +583,7 @@ func testAccArgoCDProjectSimpleWithoutRole(name string) string {
     spec {
       description  = "simple project"
       source_repos = ["*"]
+      source_namespaces = ["*"]
   
       destination {
         name      = "anothercluster"
@@ -609,6 +619,7 @@ func testAccArgoCDProjectSimpleWithRole(name string) string {
     spec {
       description  = "simple project"
       source_repos = ["*"]
+      source_namespaces = ["*"]
   
       destination {
         name      = "anothercluster"
@@ -651,6 +662,7 @@ func testAccArgoCDProjectWithClustersRepositoriesRolePolicy(name string) string 
     spec {
       description  = "simple project"
       source_repos = ["*"]
+      source_namespaces = ["*"]
   
       destination {
         name      = "anothercluster"
@@ -693,6 +705,7 @@ func testAccArgoCDProjectWithExecLogsRolePolicy(name string) string {
     spec {
       description  = "simple project"
       source_repos = ["*"]
+      source_namespaces = ["*"]
   
       destination {
         name      = "anothercluster"

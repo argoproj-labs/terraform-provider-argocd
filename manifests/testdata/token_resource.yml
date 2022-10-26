@@ -8,6 +8,8 @@ spec:
   description: myproject1
   sourceRepos:
     - '*'
+  sourceNamespaces:
+    - '*'
   destinations:
     - namespace: '*'
       server: https://kubernetes.default.svc
@@ -40,6 +42,8 @@ metadata:
 spec:
   description: myproject2
   sourceRepos:
+    - '*'
+  sourceNamespaces:
     - '*'
   destinations:
     - namespace: '*'
