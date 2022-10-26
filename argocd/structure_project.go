@@ -56,6 +56,11 @@ func expandProjectSpec(d *schema.ResourceData) (
 			spec.SourceRepos = append(spec.SourceRepos, sr.(string))
 		}
 	}
+	if v, ok := s["source_namespaces"]; ok {
+		for _, sr := range v.([]interface{}) {
+			spec.SourceNamespaces = append(spec.SourceNamespaces, sr.(string))
+		}
+	}
 	if v, ok := s["signature_keys"]; ok {
 		for _, sk := range v.([]interface{}) {
 			spec.SignatureKeys = append(spec.SignatureKeys, application.SignatureKey{
@@ -156,6 +161,7 @@ func flattenProjectSpec(s application.AppProjectSpec) []map[string]interface{} {
 		"sync_window":                  flattenSyncWindows(s.SyncWindows),
 		"description":                  s.Description,
 		"source_repos":                 s.SourceRepos,
+		"source_namespaces":            s.SourceNamespaces,
 		"signature_keys":               flattenProjectSignatureKeys(s.SignatureKeys),
 	}
 	return []map[string]interface{}{spec}
