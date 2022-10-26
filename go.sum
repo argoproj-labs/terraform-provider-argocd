@@ -139,8 +139,8 @@ github.com/apparentlymart/go-textseg/v13 v13.0.0 h1:Y+KvPE1NYz0xl601PVImeQfFyEy6
 github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkEghdlcqw7yxLeM89kiTRPUo=
 github.com/argoproj/argo-cd/v2 v2.5.0 h1:gDRx8ZnKb0YguuMsATL5/za/jRXWI0yS2lhOghvT+gA=
 github.com/argoproj/argo-cd/v2 v2.5.0/go.mod h1:3ToENm286PFVlZKNMutBzOwNyhevz4fw9dcgyiq3FIY=
-github.com/argoproj/gitops-engine v0.7.3 h1:0ZlRTReAJG5Y1PviQ8ZIJq/+VowxWe2uFwoXqYcbtXU=
-github.com/argoproj/gitops-engine v0.7.3/go.mod h1:pRgVpLW7pZqf7n3COJ7UcDepk4cI61LAcJd64Q3Jq/c=
+github.com/argoproj/gitops-engine v0.7.1-0.20220804190909-2bc3fef13e07 h1:d9zthkVnQATgEQz1wel4ge8JzcmYFPRtFuTEWzhniWA=
+github.com/argoproj/gitops-engine v0.7.1-0.20220804190909-2bc3fef13e07/go.mod h1:WpA/B7tgwfz+sdNE3LqrTrb7ArEY1FOPI2pAGI0hfPc=
 github.com/argoproj/pkg v0.11.1-0.20211203175135-36c59d8fafe0 h1:Cfp7rO/HpVxnwlRqJe0jHiBbZ77ZgXhB6HWlYD02Xdc=
 github.com/argoproj/pkg v0.11.1-0.20211203175135-36c59d8fafe0/go.mod h1:ra+bQPmbVAoEL+gYSKesuigt4m49i3Qa3mE/xQcjCiA=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
