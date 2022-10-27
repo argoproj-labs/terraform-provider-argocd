@@ -1,3 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mynamespace-1 # in order to test deploying Applications to this namespace instead of to 'argocd'
+---
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
@@ -5,13 +10,15 @@ metadata:
   namespace: argocd
 spec:
   clusterResourceWhitelist:
-    - group: "*"
-      kind: "*"
+    - group: '*'
+      kind: '*'
   destinations:
-    - namespace: "*"
-      server: "*"
+    - namespace: '*'
+      server: '*'
   sourceRepos:
-    - "*"
+    - '*'
+  sourceNamespaces:
+    - '*'
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
@@ -21,16 +28,17 @@ metadata:
 spec:
   description: myproject1
   sourceRepos:
-    - "*"
-
+    - '*'
+  sourceNamespaces:
+    - '*'
   destinations:
-    - namespace: "*"
+    - namespace: '*'
       server: https://kubernetes.default.svc
   orphanedResources:
     warn: false
   clusterResourceWhitelist:
-    - group: "*"
-      kind: "*"
+    - group: '*'
+      kind: '*'
   roles:
     - name: test-role1234
       description: test role, waiting for a Terraform ArgoCD provider resource
@@ -55,15 +63,17 @@ metadata:
 spec:
   description: myproject2
   sourceRepos:
-    - "*"
+    - '*'
+  sourceNamespaces:
+    - '*'
   destinations:
-    - namespace: "*"
+    - namespace: '*'
       server: https://kubernetes.default.svc
   orphanedResources:
     warn: false
   clusterResourceWhitelist:
-    - group: "*"
-      kind: "*"
+    - group: '*'
+      kind: '*'
   roles:
     - name: test-role1234
       description: test role, waiting for a Terraform ArgoCD provider resource
