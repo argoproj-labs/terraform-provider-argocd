@@ -145,11 +145,6 @@ func projectSpecSchemaV0() *schema.Schema {
 					Required: true,
 					Elem:     &schema.Schema{Type: schema.TypeString},
 				},
-				"source_namespaces": {
-					Type:     schema.TypeList,
-					Required: true,
-					Elem:     &schema.Schema{Type: schema.TypeString},
-				},
 				"sync_window": {
 					Type:     schema.TypeList,
 					Optional: true,
@@ -359,11 +354,6 @@ func projectSpecSchemaV1() *schema.Schema {
 					},
 				},
 				"source_repos": {
-					Type:     schema.TypeList,
-					Required: true,
-					Elem:     &schema.Schema{Type: schema.TypeString},
-				},
-				"source_namespaces": {
 					Type:     schema.TypeList,
 					Required: true,
 					Elem:     &schema.Schema{Type: schema.TypeString},
