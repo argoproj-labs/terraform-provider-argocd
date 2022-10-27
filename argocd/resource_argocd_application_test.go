@@ -844,7 +844,6 @@ resource "argocd_application" "simple" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -886,7 +885,6 @@ resource "argocd_application" "simple" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -927,7 +925,6 @@ resource "argocd_application" "simple" {
     }
   }
   spec {
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -974,7 +971,6 @@ resource "argocd_application" "simple" {
     }
   }
   spec {
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -1019,7 +1015,6 @@ resource "argocd_application" "helm" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -1065,7 +1060,6 @@ resource "argocd_application" "kustomize" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://github.com/kubernetes-sigs/kustomize"
       path            = "examples/helloWorld"
@@ -1108,7 +1102,6 @@ resource "argocd_application" "directory" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://github.com/MrLuje/argocd-example"
       target_revision = "yaml-at-root"
@@ -1135,7 +1128,6 @@ resource "argocd_application" "directory" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://github.com/MrLuje/argocd-example"
       path            = "%s"
@@ -1163,7 +1155,6 @@ resource "argocd_application" "directory" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://github.com/solo-io/gloo"
       path            = "install/helm/gloo"
@@ -1211,7 +1202,6 @@ resource "argocd_application" "directory" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://github.com/solo-io/gloo"
       path            = "install/helm/gloo"
@@ -1258,7 +1248,6 @@ resource "argocd_application" "directory" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://github.com/argoproj/argocd-example-apps"
       path            = "guestbook"
@@ -1289,7 +1278,6 @@ resource "argocd_application" "sync_policy" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -1333,7 +1321,6 @@ resource "argocd_application" "ignore_differences" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -1377,7 +1364,6 @@ resource "argocd_application" "ignore_differences_jqpe" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -1417,7 +1403,6 @@ resource "argocd_application" "simple" {
     namespace = "argocd"
   }
   spec {
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -1443,7 +1428,6 @@ resource "argocd_application" "simple" {
     namespace = "argocd"
   }
   spec {
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -1471,7 +1455,6 @@ resource "argocd_application" "simple" {
     namespace = "argocd"
   }
   spec {
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -1507,7 +1490,6 @@ resource "argocd_application" "simple" {
     namespace = "argocd"
   }
   spec {
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -1544,7 +1526,6 @@ resource "argocd_application" "simple" {
 
   spec {
     revision_history_limit = %d
-    project = "test"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
@@ -1587,7 +1568,6 @@ resource "argocd_application" "info" {
       name = "%s"
       value = "%s"
     }
-    project = "test"
     source {
       repo_url        = "https://github.com/argoproj/argocd-example-apps"
       path            = "guestbook"
@@ -1618,7 +1598,6 @@ resource "argocd_application" "info" {
     info {
       value = "%s"
     }
-    project = "test"
     source {
       repo_url        = "https://github.com/argoproj/argocd-example-apps"
       path            = "guestbook"
@@ -1649,7 +1628,6 @@ resource "argocd_application" "info" {
     info {
       name = "%s"
     }
-    project = "test"
     source {
       repo_url        = "https://github.com/argoproj/argocd-example-apps"
       path            = "guestbook"
@@ -1679,7 +1657,6 @@ resource "argocd_application" "info" {
   spec {
     info {
     }
-    project = "test"
     source {
       repo_url        = "https://github.com/argoproj/argocd-example-apps"
       path            = "guestbook"
@@ -1707,7 +1684,6 @@ resource "argocd_application" "info" {
   }
 
   spec {
-    project = "test"
     source {
       repo_url        = "https://github.com/argoproj/argocd-example-apps"
       path            = "guestbook"
@@ -1735,7 +1711,6 @@ resource "argocd_application" "crds" {
   }
 
   spec {
-    project = "test"
     source {
 		repo_url        = "https://charts.bitnami.com/bitnami"
 		chart           = "redis"
@@ -1774,7 +1749,6 @@ resource "argocd_application" "crds" {
   }
 
   spec {
-    project = "test"
     source {
 		repo_url        = "https://charts.bitnami.com/bitnami"
 		chart           = "redis"
