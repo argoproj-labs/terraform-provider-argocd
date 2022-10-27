@@ -239,6 +239,92 @@ resource "argocd_project" "simple" {
   spec {
     description  = "simple"
     source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "foo"
+    }
+    cluster_resource_whitelist {
+      group = "rbac.authorization.k8s.io"
+      kind  = "ClusterRoleBinding"
+    }
+    cluster_resource_whitelist {
+      group = "rbac.authorization.k8s.io"
+      kind  = "ClusterRole"
+    }
+    cluster_resource_blacklist {
+      group = "*"
+      kind  = "*"
+    }
+    namespace_resource_blacklist {
+      group = "networking.k8s.io"
+      kind  = "Ingress"
+    }
+    namespace_resource_whitelist {
+      group = "*"
+      kind  = "*"
+    }
+    orphaned_resources {
+      warn = true
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored1"
+      }
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored2"
+      }
+    }
+    sync_window {
+      kind = "allow"
+      applications = ["api-*"]
+      clusters = ["*"]
+      namespaces = ["*"]
+      duration = "3600s"
+      schedule = "10 1 * * *"
+      manual_sync = true
+    }
+    sync_window {
+      kind = "deny"
+      applications = ["foo"]
+      clusters = ["in-cluster"]
+      namespaces = ["default"]
+      duration = "12h"
+      schedule = "22 1 5 * *"
+      manual_sync = false
+    }
+    signature_keys = [
+      "4AEE18F83AFDEB23",
+      "07E34825A909B250"
+    ]
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDProjectSimpleWithSourceNamespaces(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "simple" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+    annotations = {
+      "this.is.a.really.long.nested.key" = "yes, really!"
+    }
+  }
+
+  spec {
+    description  = "simple"
+    source_repos = ["*"]
     source_namespaces = ["*"]
 
     destination {
@@ -381,7 +467,6 @@ resource "argocd_project" "coexistence" {
 	   namespace = "*"
     }
     source_repos = ["*"]
-    source_namespaces = ["*"]
     role {
       name = "testrole"
       policies = [
@@ -419,7 +504,6 @@ resource "argocd_project" "failure" {
 	   namespace = "*"
     }
     source_repos = ["*"]
-    source_namespaces = ["*"]
     role {
       name = "incorrect-policy"
       policies = [
@@ -446,7 +530,6 @@ resource "argocd_project" "failure" {
 	   namespace = "*"
     }
     source_repos = ["*"]
-    source_namespaces = ["*"]
     role {
       name = "incorrect role name"
       policies = [
@@ -473,7 +556,6 @@ resource "argocd_project" "failure" {
 	   namespace = "*"
     }
     source_repos = ["*"]
-    source_namespaces = ["*"]
     role {
       name = "incorrect-syncwindow"
       policies = [
@@ -509,7 +591,6 @@ resource "argocd_project" "failure" {
 	   namespace = "*"
     }
     source_repos = ["*"]
-    source_namespaces = ["*"]
     role {
       name = "incorrect-syncwindow"
       policies = [
@@ -545,7 +626,6 @@ resource "argocd_project" "failure" {
 	   namespace = "*"
     }
     source_repos = ["*"]
-    source_namespaces = ["*"]
     role {
       name = "incorrect-syncwindow"
       policies = [
