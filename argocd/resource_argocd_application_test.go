@@ -69,35 +69,7 @@ ingress:
 				),
 			},
 			{
-				Config: testAccArgoCDApplicationSimpleMyNamespace(commonName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(
-						"argocd_application.simple",
-						"metadata.0.uid",
-					),
-					resource.TestCheckResourceAttr(
-						"argocd_application.simple",
-						"spec.0.source.0.target_revision",
-						"16.9.11",
-					),
-					resource.TestCheckResourceAttr(
-						"argocd_application.simple",
-						"spec.0.revision_history_limit",
-						"10",
-					),
-				),
-			},
-			{
 				Config:             testAccArgoCDApplicationSimpleWait(commonName),
-				ExpectNonEmptyPlan: true,
-				Check: resource.TestCheckResourceAttr(
-					"argocd_application.simple",
-					"wait",
-					"true",
-				),
-			},
-			{
-				Config:             testAccArgoCDApplicationSimpleWaitMyNamespace(commonName),
 				ExpectNonEmptyPlan: true,
 				Check: resource.TestCheckResourceAttr(
 					"argocd_application.simple",
@@ -870,99 +842,12 @@ resource "argocd_application" "simple" {
 	`, name)
 }
 
-func testAccArgoCDApplicationSimpleMyNamespace(name string) string {
-	return fmt.Sprintf(`
-resource "argocd_application" "simple" {
-  metadata {
-    name      = "%s"
-    namespace = "mynamespace-1"
-    labels = {
-      acceptance = "true"
-    }
-    annotations = {
-      "this.is.a.really.long.nested.key" = "yes, really!"
-    }
-  }
-
-  spec {
-    source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
-      helm {
-        parameter {
-          name  = "image.tag"
-          value = "6.2.5"
-        }
-        parameter {
-          name  = "architecture"
-          value = "standalone"
-        }
-        release_name = "testing"
-      }
-    }
-
-    destination {
-      server    = "https://kubernetes.default.svc"
-      namespace = "default"
-    }
-  }
-}
-	`, name)
-}
-
 func testAccArgoCDApplicationSimpleWait(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "simple" {
   metadata {
     name      = "%s"
     namespace = "argocd"
-    labels = {
-      acceptance = "true"
-    }
-    annotations = {
-      "this.is.a.really.long.nested.key" = "yes, really!"
-    }
-  }
-  spec {
-    source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
-      helm {
-        parameter {
-          name  = "image.tag"
-          value = "6.2.5"
-        }
-        parameter {
-          name  = "architecture"
-          value = "standalone"
-        }
-        release_name = "testing"
-      }
-    }
-    sync_policy {
-      automated = {
-        prune     = true
-        self_heal = true
-      }
-    }
-    destination {
-      server    = "https://kubernetes.default.svc"
-      namespace = "default"
-    }
-  }
-  wait = true
-}
-	`, name)
-}
-
-func testAccArgoCDApplicationSimpleWaitMyNamespace(name string) string {
-	return fmt.Sprintf(`
-resource "argocd_application" "simple" {
-  metadata {
-    name      = "%s"
-    namespace = "mynamespace-1"
     labels = {
       acceptance = "true"
     }
