@@ -222,6 +222,31 @@ func TestAccArgoCDProjectWithLogsExecRolePolicy(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDProjectWithSourceNamespaces(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectSourceNamespaces) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDProjectWithSourceNamespaces(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+					),
+				),
+			},
+			{
+				ResourceName:      "argocd_project.simple",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccArgoCDProjectSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_project" "simple" {
@@ -308,93 +333,6 @@ resource "argocd_project" "simple" {
 	`, name)
 }
 
-func testAccArgoCDProjectSimpleWithSourceNamespaces(name string) string {
-	return fmt.Sprintf(`
-resource "argocd_project" "simple" {
-  metadata {
-    name      = "%s"
-    namespace = "argocd"
-    labels = {
-      acceptance = "true"
-    }
-    annotations = {
-      "this.is.a.really.long.nested.key" = "yes, really!"
-    }
-  }
-
-  spec {
-    description  = "simple"
-    source_repos = ["*"]
-    source_namespaces = ["*"]
-
-    destination {
-      server    = "https://kubernetes.default.svc"
-      namespace = "default"
-    }
-    destination {
-      server    = "https://kubernetes.default.svc"
-      namespace = "foo"
-    }
-    cluster_resource_whitelist {
-      group = "rbac.authorization.k8s.io"
-      kind  = "ClusterRoleBinding"
-    }
-    cluster_resource_whitelist {
-      group = "rbac.authorization.k8s.io"
-      kind  = "ClusterRole"
-    }
-    cluster_resource_blacklist {
-      group = "*"
-      kind  = "*"
-    }
-    namespace_resource_blacklist {
-      group = "networking.k8s.io"
-      kind  = "Ingress"
-    }
-    namespace_resource_whitelist {
-      group = "*"
-      kind  = "*"
-    }
-    orphaned_resources {
-      warn = true
-      ignore {
-        group = "apps/v1"
-        kind  = "Deployment"
-        name  = "ignored1"
-      }
-      ignore {
-        group = "apps/v1"
-        kind  = "Deployment"
-        name  = "ignored2"
-      }
-    }
-    sync_window {
-      kind = "allow"
-      applications = ["api-*"]
-      clusters = ["*"]
-      namespaces = ["*"]
-      duration = "3600s"
-      schedule = "10 1 * * *"
-      manual_sync = true
-    }
-    sync_window {
-      kind = "deny"
-      applications = ["foo"]
-      clusters = ["in-cluster"]
-      namespaces = ["default"]
-      duration = "12h"
-      schedule = "22 1 5 * *"
-      manual_sync = false
-    }
-    signature_keys = [
-      "4AEE18F83AFDEB23",
-      "07E34825A909B250"
-    ]
-  }
-}
-	`, name)
-}
-
 func testAccArgoCDProjectSimpleWithoutOrphaned(name string) string {
 	return fmt.Sprintf(`
   resource "argocd_project" "simple" {
@@ -412,7 +350,6 @@ func testAccArgoCDProjectSimpleWithoutOrphaned(name string) string {
     spec {
       description  = "simple project"
       source_repos = ["*"]
-      source_namespaces = ["*"]
   
       destination {
         name      = "anothercluster"
@@ -440,7 +377,6 @@ func testAccArgoCDProjectSimpleWithEmptyOrphaned(name string) string {
     spec {
       description  = "simple project"
       source_repos = ["*"]
-      source_namespaces = ["*"]
   
       destination {
         name      = "anothercluster"
@@ -663,7 +599,6 @@ func testAccArgoCDProjectSimpleWithoutRole(name string) string {
     spec {
       description  = "simple project"
       source_repos = ["*"]
-      source_namespaces = ["*"]
   
       destination {
         name      = "anothercluster"
@@ -699,7 +634,6 @@ func testAccArgoCDProjectSimpleWithRole(name string) string {
     spec {
       description  = "simple project"
       source_repos = ["*"]
-      source_namespaces = ["*"]
   
       destination {
         name      = "anothercluster"
@@ -742,7 +676,6 @@ func testAccArgoCDProjectWithClustersRepositoriesRolePolicy(name string) string 
     spec {
       description  = "simple project"
       source_repos = ["*"]
-      source_namespaces = ["*"]
   
       destination {
         name      = "anothercluster"
@@ -785,7 +718,6 @@ func testAccArgoCDProjectWithExecLogsRolePolicy(name string) string {
     spec {
       description  = "simple project"
       source_repos = ["*"]
-      source_namespaces = ["*"]
   
       destination {
         name      = "anothercluster"
@@ -808,5 +740,45 @@ func testAccArgoCDProjectWithExecLogsRolePolicy(name string) string {
       }
     }
   }
+	`, name)
+}
+
+func testAccArgoCDProjectWithSourceNamespaces(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "simple" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+    annotations = {
+      "this.is.a.really.long.nested.key" = "yes, really!"
+    }
+  }
+
+  spec {
+    description  = "simple project"
+    source_repos = ["*"]
+    source_namespaces = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "foo"
+    }
+    orphaned_resources {
+      warn = true
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored1"
+      }
+    }
+  }
+}
 	`, name)
 }

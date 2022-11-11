@@ -29,6 +29,7 @@ const (
 	featureRepositoryCertificates
 	featureApplicationHelmSkipCrds
 	featureExecLogsPolicy
+	featureProjectSourceNamespaces
 )
 
 var featureVersionConstraintsMap = map[int]*semver.Version{
@@ -41,6 +42,7 @@ var featureVersionConstraintsMap = map[int]*semver.Version{
 	featureRepositoryCertificates:      semver.MustParse("1.2.0"),
 	featureApplicationHelmSkipCrds:     semver.MustParse("2.3.0"),
 	featureExecLogsPolicy:              semver.MustParse("2.4.0"),
+	featureProjectSourceNamespaces:     semver.MustParse("2.5.0"),
 }
 
 type ServerInterface struct {
