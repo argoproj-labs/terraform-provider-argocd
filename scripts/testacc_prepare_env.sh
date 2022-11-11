@@ -23,9 +23,9 @@ if [[ -z "${ARGOCD_CI}" ]]; then
 fi
 
 echo "\n--- Install ArgoCD ${ARGOCD_VERSION:-v2.5.0}\n"
-curl https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION:-v2.5.0}/manifests/install.yaml > manifests/install/argocd.yml &&
-kustomize build manifests/install | kubectl apply -f - &&
-kubectl apply -f manifests/testdata/ &&
+curl https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION:-v2.5.0}/manifests/install.yaml > manifests/install/argocd.yml && \
+  kustomize build manifests/install | kubectl apply -f - && \
+  kubectl apply -f manifests/testdata/
 
 echo "\n--- Wait for ArgoCD components to be ready...\n"
 kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd
