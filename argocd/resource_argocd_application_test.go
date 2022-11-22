@@ -340,7 +340,8 @@ func TestAccArgoCDApplication_NoSyncPolicyBlock(t *testing.T) {
 					),
 				),
 			},
-		}})
+		},
+	})
 }
 
 func TestAccArgoCDApplication_Recurse(t *testing.T) {
@@ -419,7 +420,8 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 					),
 				),
 			},
-		}})
+		},
+	})
 }
 
 func TestAccArgoCDApplication_EmptySyncPolicyBlock(t *testing.T) {
@@ -444,7 +446,8 @@ func TestAccArgoCDApplication_EmptySyncPolicyBlock(t *testing.T) {
 					),
 				),
 			},
-		}})
+		},
+	})
 }
 
 func TestAccArgoCDApplication_NoAutomatedBlock(t *testing.T) {
@@ -469,7 +472,8 @@ func TestAccArgoCDApplication_NoAutomatedBlock(t *testing.T) {
 					),
 				),
 			},
-		}})
+		},
+	})
 }
 
 func TestAccArgoCDApplication_EmptyAutomatedBlock(t *testing.T) {
@@ -490,7 +494,8 @@ func TestAccArgoCDApplication_EmptyAutomatedBlock(t *testing.T) {
 					),
 				),
 			},
-		}})
+		},
+	})
 }
 
 func TestAccArgoCDApplication_OptionalPath(t *testing.T) {
@@ -542,7 +547,8 @@ func TestAccArgoCDApplication_OptionalPath(t *testing.T) {
 					),
 				),
 			},
-		}})
+		},
+	})
 }
 
 func TestAccArgoCDApplication_Info(t *testing.T) {
@@ -657,7 +663,8 @@ func TestAccArgoCDApplication_Info(t *testing.T) {
 					),
 				),
 			},
-		}})
+		},
+	})
 }
 
 func TestProvider_headers(t *testing.T) {
@@ -746,7 +753,8 @@ func TestAccArgoCDApplication_SkipCrds_NotSupported_On_OlderVersions(t *testing.
 					),
 				),
 			},
-		}})
+		},
+	})
 }
 
 func TestAccArgoCDApplication_SkipCrds(t *testing.T) {
@@ -798,7 +806,8 @@ func TestAccArgoCDApplication_SkipCrds(t *testing.T) {
 					),
 				),
 			},
-		}})
+		},
+	})
 }
 
 func testAccArgoCDApplicationSimple(name string) string {

@@ -259,7 +259,6 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 		Name:         &appName,
 		AppNamespace: &namespace,
 	})
-
 	if err != nil {
 		if strings.Contains(err.Error(), "NotFound") {
 			d.SetId("")
