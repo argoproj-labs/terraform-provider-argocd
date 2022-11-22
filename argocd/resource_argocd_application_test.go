@@ -810,6 +810,31 @@ func TestAccArgoCDApplication_SkipCrds(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-custom-namespace")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectSourceNamespaces) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationCustomNamespace(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.simple",
+						"metadata.0.uid",
+					),
+				),
+			},
+			{
+				ResourceName:      "argocd_application.simple",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccArgoCDApplicationSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "simple" {
@@ -1659,6 +1684,60 @@ resource "argocd_application" "crds" {
 		  release_name = "testing"
 		}
 	}
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationCustomNamespace(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "simple" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "project with source namespace"
+    source_repos = ["*"]
+    source_namespaces = ["mynamespace-1"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+
+resource "argocd_application" "simple" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "mynamespace-1"
+  }
+
+  spec {
+	project = "%[1]s"
+    source {
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "16.9.11"
+      helm {
+        parameter {
+          name  = "image.tag"
+          value = "6.2.5"
+        }
+        parameter {
+          name  = "architecture"
+          value = "standalone"
+        }
+        release_name = "testing"
+      }
+    }
+
     destination {
       server    = "https://kubernetes.default.svc"
       namespace = "default"
