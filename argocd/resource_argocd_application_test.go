@@ -827,9 +827,10 @@ func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "argocd_application.simple",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "argocd_application.simple",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade"},
 			},
 		},
 	})

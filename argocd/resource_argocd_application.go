@@ -41,7 +41,7 @@ func resourceArgoCDApplication() *schema.Resource {
 				Default:     true,
 			},
 		},
-		SchemaVersion: 2,
+		SchemaVersion: 3,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceArgoCDApplicationV0().CoreConfigSchema().ImpliedType(),
@@ -52,6 +52,11 @@ func resourceArgoCDApplication() *schema.Resource {
 				Type:    resourceArgoCDApplicationV1().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceArgoCDApplicationStateUpgradeV1,
 				Version: 1,
+			},
+			{
+				Type:    resourceArgoCDApplicationV2().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceArgoCDApplicationStateUpgradeV2,
+				Version: 2,
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{
@@ -206,7 +211,9 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 			},
 		}
 	}
-	d.SetId(app.Name)
+
+	d.SetId(fmt.Sprintf("%s:%s", app.Name, objectMeta.Namespace))
+
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
 		err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 			a, err := c.Get(ctx, &applicationClient.ApplicationQuery{
@@ -248,12 +255,12 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 			},
 		}
 	}
+
 	c := *server.ApplicationClient
-	appName := d.Id()
-	namespace := ""
-	if v, ok := d.GetOk("metadata.0.namespace"); ok {
-		namespace = v.(string)
-	}
+
+	ids := strings.Split(d.Id(), ":")
+	appName := ids[0]
+	namespace := ids[1]
 
 	app, err := c.Get(ctx, &applicationClient.ApplicationQuery{
 		Name:         &appName,
@@ -286,7 +293,9 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	appName := d.Id()
+	ids := strings.Split(d.Id(), ":")
+	appName := ids[0]
+	namespace := ids[1]
 	if ok := d.HasChanges("metadata", "spec"); ok {
 		objectMeta, spec, diags := expandApplication(d)
 		if diags != nil {
@@ -392,10 +401,6 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 				}
 			}
 		}
-		namespace := ""
-		if v, ok := d.GetOk("metadata.0.namespace"); ok {
-			namespace = v.(string)
-		}
 		app, err := c.Get(ctx, &applicationClient.ApplicationQuery{
 			Name:         &appName,
 			AppNamespace: &namespace,
@@ -458,12 +463,10 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 		}
 	}
 	c := *server.ApplicationClient
-	appName := d.Id()
+	ids := strings.Split(d.Id(), ":")
+	appName := ids[0]
+	namespace := ids[1]
 	cascade := d.Get("cascade").(bool)
-	namespace := ""
-	if v, ok := d.GetOk("metadata.0.namespace"); ok {
-		namespace = v.(string)
-	}
 	_, err := c.Delete(ctx, &applicationClient.ApplicationDeleteRequest{
 		Name:         &appName,
 		Cascade:      &cascade,

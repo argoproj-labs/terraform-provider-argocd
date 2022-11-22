@@ -235,7 +235,7 @@ Each `plugin/env` block has the following attributes:
 
 ## Import
 
-ArgoCD applications can be imported using an id consisting of `{name}`, e.g.
+ArgoCD applications can be imported using an id consisting of `{name}:{namespace}`, e.g.
 ```
-$ terraform import argocd_application.myapp myapp
+$ terraform import argocd_application.myapp myapp:argocd
 ```
