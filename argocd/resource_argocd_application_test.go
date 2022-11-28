@@ -1721,7 +1721,7 @@ resource "argocd_application" "simple" {
   }
 
   spec {
-	project = "%[1]s"
+    project = "%[1]s"
     source {
       repo_url        = "https://charts.bitnami.com/bitnami"
       chart           = "redis"
