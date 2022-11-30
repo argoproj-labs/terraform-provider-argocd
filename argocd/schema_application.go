@@ -1618,7 +1618,7 @@ func resourceArgoCDApplicationStateUpgradeV1(_ context.Context, rawState map[str
 func resourceArgoCDApplicationStateUpgradeV2(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	_metadata, ok := rawState["metadata"].([]interface{})
 	if !ok || len(_metadata) == 0 {
-		return nil, fmt.Errorf("failed to read metdata during state migration v2 to v3")
+		return nil, fmt.Errorf("failed to read metadata during state migration v2 to v3")
 	}
 
 	metadata := _metadata[0].(map[string]interface{})
