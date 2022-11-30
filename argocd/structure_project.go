@@ -57,8 +57,9 @@ func expandProjectSpec(d *schema.ResourceData) (
 		}
 	}
 	if v, ok := s["source_namespaces"]; ok {
-		for _, sr := range v.([]interface{}) {
-			spec.SourceNamespaces = append(spec.SourceNamespaces, sr.(string))
+		sourceNamespaces := v.(*schema.Set).List()
+		for _, sn := range sourceNamespaces {
+			spec.SourceNamespaces = append(spec.SourceNamespaces, sn.(string))
 		}
 	}
 	if v, ok := s["signature_keys"]; ok {
