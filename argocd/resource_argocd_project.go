@@ -95,6 +95,30 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	featureProjectSourceNamespacesSupported, err := server.isFeatureSupported(featureProjectSourceNamespaces)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	}
+	if !featureProjectSourceNamespacesSupported {
+		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
+		if sourceNamespacesOk {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary: fmt.Sprintf(
+						"project source_namespaces is only supported from ArgoCD %s onwards",
+						featureVersionConstraintsMap[featureProjectSourceNamespaces].String()),
+				},
+			}
+		}
+	}
+
 	tokenMutexProjectMap[projectName].Lock()
 	p, err = c.Create(ctx, &projectClient.ProjectCreateRequest{
 		Project: &application.AppProject{

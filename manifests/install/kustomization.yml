@@ -7,5 +7,7 @@ resources:
   - argocd.yml
   - git-private-repository.yml
   - proxy-service.yml
+  - cluster-rbac.yml
 patchesStrategicMerge:
   - patches/secret.yml
+  - patches/argocd-cmd-params-cm.yml

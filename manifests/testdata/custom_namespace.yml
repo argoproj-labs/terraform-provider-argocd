@@ -1,0 +1,7 @@
+
+# Used to test deploying Applications to this namespace instead of to 'argocd'
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mynamespace-1 

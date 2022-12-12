@@ -1166,6 +1166,16 @@ func applicationSpecSchemaV2() *schema.Schema {
 	}
 }
 
+func applicationSpecSchemaV3() *schema.Schema {
+	// To support deploying applications to non-default namespaces (aka project
+	// source namespaces), we need to do a state migration to ensure that the Id
+	// on existing resources is updated to include the namespace.
+	// For this to happen, we need to trigger a schema version upgrade on the
+	// application resource however, the schema of the application `spec` has
+	// changed from `v2`.
+	return applicationSpecSchemaV2()
+}
+
 func resourceArgoCDApplicationV0() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -1180,6 +1190,15 @@ func resourceArgoCDApplicationV1() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("appprojects.argoproj.io"),
 			"spec":     applicationSpecSchemaV1(),
+		},
+	}
+}
+
+func resourceArgoCDApplicationV2() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"metadata": metadataSchema("appprojects.argoproj.io"),
+			"spec":     applicationSpecSchemaV2(),
 		},
 	}
 }
@@ -1227,4 +1246,16 @@ func resourceArgoCDApplicationStateUpgradeV1(_ context.Context, rawState map[str
 	}
 
 	return nil, fmt.Errorf("error during state migration v1 to v2, 'ksonnet' support has been removed")
+}
+
+func resourceArgoCDApplicationStateUpgradeV2(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+	_metadata, ok := rawState["metadata"].([]interface{})
+	if !ok || len(_metadata) == 0 {
+		return nil, fmt.Errorf("failed to read metadata during state migration v2 to v3")
+	}
+
+	metadata := _metadata[0].(map[string]interface{})
+	rawState["id"] = fmt.Sprintf("%s:%s", metadata["name"].(string), metadata["namespace"].(string))
+
+	return rawState, nil
 }

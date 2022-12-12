@@ -576,6 +576,14 @@ func projectSpecSchemaV2() *schema.Schema {
 					Required: true,
 					Elem:     &schema.Schema{Type: schema.TypeString},
 				},
+				"source_namespaces": {
+					Type:     schema.TypeSet,
+					Set:      schema.HashString,
+					Optional: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
 				"signature_keys": {
 					Type:     schema.TypeList,
 					Optional: true,

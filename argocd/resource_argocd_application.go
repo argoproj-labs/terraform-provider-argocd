@@ -27,7 +27,7 @@ func resourceArgoCDApplication() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("applications.argoproj.io"),
-			"spec":     applicationSpecSchemaV2(),
+			"spec":     applicationSpecSchemaV3(),
 			"wait": {
 				Type:        schema.TypeBool,
 				Description: "Upon application creation or update, wait for application health/sync status to be healthy/Synced, upon application deletion, wait for application to be removed, when set to true.",
@@ -41,7 +41,7 @@ func resourceArgoCDApplication() *schema.Resource {
 				Default:     true,
 			},
 		},
-		SchemaVersion: 2,
+		SchemaVersion: 3,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceArgoCDApplicationV0().CoreConfigSchema().ImpliedType(),
@@ -52,6 +52,11 @@ func resourceArgoCDApplication() *schema.Resource {
 				Type:    resourceArgoCDApplicationV1().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceArgoCDApplicationStateUpgradeV1,
 				Version: 1,
+			},
+			{
+				Type:    resourceArgoCDApplicationV2().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceArgoCDApplicationStateUpgradeV2,
+				Version: 2,
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{
@@ -79,7 +84,8 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	}
 	c := *server.ApplicationClient
 	app, err := c.Get(ctx, &applicationClient.ApplicationQuery{
-		Name: &objectMeta.Name,
+		Name:         &objectMeta.Name,
+		AppNamespace: &objectMeta.Namespace,
 	})
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
 		return []diag.Diagnostic{
@@ -205,11 +211,14 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 			},
 		}
 	}
-	d.SetId(app.Name)
+
+	d.SetId(fmt.Sprintf("%s:%s", app.Name, objectMeta.Namespace))
+
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
 		err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 			a, err := c.Get(ctx, &applicationClient.ApplicationQuery{
-				Name: &app.Name,
+				Name:         &app.Name,
+				AppNamespace: &app.Namespace,
 			})
 			if err != nil {
 				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
@@ -246,10 +255,16 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 			},
 		}
 	}
+
 	c := *server.ApplicationClient
-	appName := d.Id()
+
+	ids := strings.Split(d.Id(), ":")
+	appName := ids[0]
+	namespace := ids[1]
+
 	app, err := c.Get(ctx, &applicationClient.ApplicationQuery{
-		Name: &appName,
+		Name:         &appName,
+		AppNamespace: &namespace,
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "NotFound") {
@@ -278,7 +293,9 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	appName := d.Id()
+	ids := strings.Split(d.Id(), ":")
+	appName := ids[0]
+	namespace := ids[1]
 	if ok := d.HasChanges("metadata", "spec"); ok {
 		objectMeta, spec, diags := expandApplication(d)
 		if diags != nil {
@@ -384,9 +401,9 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 				}
 			}
 		}
-
 		app, err := c.Get(ctx, &applicationClient.ApplicationQuery{
-			Name: &appName,
+			Name:         &appName,
+			AppNamespace: &namespace,
 		})
 		if app != nil {
 			// Kubernetes API requires providing the up-to-date correct ResourceVersion for updates
@@ -406,7 +423,8 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		if wait, _ok := d.GetOk("wait"); _ok && wait.(bool) {
 			err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
 				a, err := c.Get(ctx, &applicationClient.ApplicationQuery{
-					Name: &app.Name,
+					Name:         &app.Name,
+					AppNamespace: &app.Namespace,
 				})
 				if err != nil {
 					return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
@@ -445,11 +463,14 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 		}
 	}
 	c := *server.ApplicationClient
-	appName := d.Id()
+	ids := strings.Split(d.Id(), ":")
+	appName := ids[0]
+	namespace := ids[1]
 	cascade := d.Get("cascade").(bool)
 	_, err := c.Delete(ctx, &applicationClient.ApplicationDeleteRequest{
-		Name:    &appName,
-		Cascade: &cascade,
+		Name:         &appName,
+		Cascade:      &cascade,
+		AppNamespace: &namespace,
 	})
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
 		return []diag.Diagnostic{
@@ -463,7 +484,8 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
 		err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 			_, err := c.Get(ctx, &applicationClient.ApplicationQuery{
-				Name: &appName,
+				Name:         &appName,
+				AppNamespace: &namespace,
 			})
 			if err == nil {
 				return resource.RetryableError(fmt.Errorf("application %s is still present", appName))

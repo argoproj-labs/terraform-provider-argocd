@@ -222,6 +222,31 @@ func TestAccArgoCDProjectWithLogsExecRolePolicy(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDProjectWithSourceNamespaces(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectSourceNamespaces) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDProjectWithSourceNamespaces(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+					),
+				),
+			},
+			{
+				ResourceName:      "argocd_project.simple",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccArgoCDProjectSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_project" "simple" {
@@ -715,5 +740,45 @@ func testAccArgoCDProjectWithExecLogsRolePolicy(name string) string {
       }
     }
   }
+	`, name)
+}
+
+func testAccArgoCDProjectWithSourceNamespaces(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "simple" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+    annotations = {
+      "this.is.a.really.long.nested.key" = "yes, really!"
+    }
+  }
+
+  spec {
+    description  = "simple project"
+    source_repos = ["*"]
+    source_namespaces = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "foo"
+    }
+    orphaned_resources {
+      warn = true
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored1"
+      }
+    }
+  }
+}
 	`, name)
 }
