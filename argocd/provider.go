@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
@@ -87,6 +89,18 @@ func Provider() *schema.Provider {
 				Optional: true,
 			},
 			"client_cert_file": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"client_cert_key_file": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"cert": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"client_cert": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -202,6 +216,8 @@ func initApiClient(d *schema.ResourceData) (
 		}
 	}
 
+	tmpCertificatePath := "tmp/terraform-provider-argocd"
+
 	if v, ok := d.GetOk("plain_text"); ok {
 		opts.PlainText = v.(bool)
 	}
@@ -210,12 +226,36 @@ func initApiClient(d *schema.ResourceData) (
 	}
 	if v, ok := d.GetOk("cert_file"); ok {
 		opts.CertFile = v.(string)
+	} else if v, ok := d.GetOk("cert"); ok {
+		fp := filepath.Join(tmpCertificatePath, "cert.crt")
+		t, err := os.Create(fp)
+
+		if err == nil {
+			t.Write(v.([]byte))
+			opts.CertFile = fp
+		}
 	}
 	if v, ok := d.GetOk("client_cert_file"); ok {
 		opts.ClientCertFile = v.(string)
+	} else if v, ok := d.GetOk("client_cert"); ok {
+		fp := filepath.Join(tmpCertificatePath, "client_cert.crt")
+		t, err := os.Create(fp)
+
+		if err == nil {
+			t.Write(v.([]byte))
+			opts.CertFile = fp
+		}
 	}
-	if v, ok := d.GetOk("client_cert_key"); ok {
+	if v, ok := d.GetOk("client_cert_key_file"); ok {
 		opts.ClientCertKeyFile = v.(string)
+	} else if v, ok := d.GetOk("client_cert_key"); ok {
+		fp := filepath.Join(tmpCertificatePath, "client_cert_key.key")
+		t, err := os.Create(fp)
+
+		if err == nil {
+			t.Write(v.([]byte))
+			opts.CertFile = fp
+		}
 	}
 	if v, ok := d.GetOk("context"); ok {
 		opts.Context = v.(string)
