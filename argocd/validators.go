@@ -9,6 +9,7 @@ import (
 	"github.com/robfig/cron"
 	"golang.org/x/crypto/ssh"
 	apiValidation "k8s.io/apimachinery/pkg/api/validation"
+
 	utilValidation "k8s.io/apimachinery/pkg/util/validation"
 )
 
@@ -37,6 +38,19 @@ func validateMetadataAnnotations(value interface{}, key string) (ws []string, es
 		if len(errors) > 0 {
 			for _, e := range errors {
 				es = append(es, fmt.Errorf("%s (%q) %s", key, k, e))
+			}
+		}
+	}
+	return
+}
+
+func validateFinalizers(value interface{}, key string) (ws []string, es []error) {
+	m := value.([]string)
+	for _,finalizer := range m {
+		errors := utilValidation.IsQualifiedName(finalizer)
+		if len(errors) > 0 {
+			for _, e := range errors {
+				es = append(es, fmt.Errorf("%s (%q) %s", key, finalizer, e))
 			}
 		}
 	}
