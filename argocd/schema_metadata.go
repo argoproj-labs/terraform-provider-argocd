@@ -32,7 +32,6 @@ func metadataFields(objectName string) map[string]*schema.Schema {
 			Description:  "Any finalizers to put on the object at creation time",
 			Optional:     true,
 			Elem:         &schema.Schema{Type: schema.TypeList},
-			ValidateFunc: validateFinalizers,
 		},
 		"generation": {
 			Type:        schema.TypeInt,
