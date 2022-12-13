@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/c2fo/vfs/v6/vfssimple"
 	"log"
+	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
@@ -215,7 +216,7 @@ func initApiClient(d *schema.ResourceData) (
 		}
 	}
 
-	certOsLocation, err := vfssimple.NewLocation("file:///tmp/terraform-provider-argocd")
+	tmpCertificatePath := "tmp/terraform-provider-argocd"
 
 	if v, ok := d.GetOk("plain_text"); ok {
 		opts.PlainText = v.(bool)
@@ -226,31 +227,34 @@ func initApiClient(d *schema.ResourceData) (
 	if v, ok := d.GetOk("cert_file"); ok {
 		opts.CertFile = v.(string)
 	} else if v, ok := d.GetOk("cert"); ok {
-		osTmpFile, err := certOsLocation.NewFile("cert.crt")
+		fp := filepath.Join(tmpCertificatePath, "cert.crt")
+		t, err := os.Create(fp)
 
 		if err == nil {
-			osTmpFile.Write(v.([]byte))
-			opts.CertFile = osTmpFile.Path()
+			t.Write(v.([]byte))
+			opts.CertFile = fp
 		}
 	}
 	if v, ok := d.GetOk("client_cert_file"); ok {
 		opts.ClientCertFile = v.(string)
 	} else if v, ok := d.GetOk("client_cert"); ok {
-		osTmpFile, err := certOsLocation.NewFile("client_cert.crt")
+		fp := filepath.Join(tmpCertificatePath, "client_cert.crt")
+		t, err := os.Create(fp)
 
 		if err == nil {
-			osTmpFile.Write(v.([]byte))
-			opts.ClientCertFile = osTmpFile.Path()
+			t.Write(v.([]byte))
+			opts.CertFile = fp
 		}
 	}
 	if v, ok := d.GetOk("client_cert_key_file"); ok {
 		opts.ClientCertKeyFile = v.(string)
 	} else if v, ok := d.GetOk("client_cert_key"); ok {
-		osTmpFile, err := certOsLocation.NewFile("client_cert_key.key")
+		fp := filepath.Join(tmpCertificatePath, "client_cert_key.key")
+		t, err := os.Create(fp)
 
 		if err == nil {
-			osTmpFile.Write(v.([]byte))
-			opts.ClientCertKeyFile = osTmpFile.Path()
+			t.Write(v.([]byte))
+			opts.CertFile = fp
 		}
 	}
 	if v, ok := d.GetOk("context"); ok {
