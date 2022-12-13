@@ -19,7 +19,22 @@ func expandApplication(d *schema.ResourceData) (
 
 	metadata = expandMetadata(d)
 	spec, diags = expandApplicationSpec(d)
+	if len(diags) == 0 {
+		diags = diagnoseFinalizers(d)
+	}
 	return
+}
+
+func diagnoseFinalizers(d *schema.ResourceData) diag.Diagnostics {
+	finalizerKey := "metadata.finalizers"
+	if _, err := validateFinalizers(d.Get(finalizerKey).([]interface{}), finalizerKey); err != nil {
+		return []diag.Diagnostic{{
+			Severity: diag.Error,
+			Summary:  "Finalizers are invalid",
+			Detail:   fmt.Errorf("finalizers invalid: %s", err).Error(),
+		}}
+	}
+	return nil
 }
 
 func expandApplicationSpec(d *schema.ResourceData) (
