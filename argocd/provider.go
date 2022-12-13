@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/c2fo/vfs/v6/vfssimple"
 	"log"
 	"sync"
 
@@ -87,6 +88,18 @@ func Provider() *schema.Provider {
 				Optional: true,
 			},
 			"client_cert_file": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"client_cert_key_file": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"cert": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"client_cert": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -202,6 +215,8 @@ func initApiClient(d *schema.ResourceData) (
 		}
 	}
 
+	certOsLocation, err := vfssimple.NewLocation("file:///tmp/terraform-provider-argocd")
+
 	if v, ok := d.GetOk("plain_text"); ok {
 		opts.PlainText = v.(bool)
 	}
@@ -210,12 +225,33 @@ func initApiClient(d *schema.ResourceData) (
 	}
 	if v, ok := d.GetOk("cert_file"); ok {
 		opts.CertFile = v.(string)
+	} else if v, ok := d.GetOk("cert"); ok {
+		osTmpFile, err := certOsLocation.NewFile("cert.crt")
+
+		if err == nil {
+			osTmpFile.Write(v.([]byte))
+			opts.CertFile = osTmpFile.Path()
+		}
 	}
 	if v, ok := d.GetOk("client_cert_file"); ok {
 		opts.ClientCertFile = v.(string)
+	} else if v, ok := d.GetOk("client_cert"); ok {
+		osTmpFile, err := certOsLocation.NewFile("client_cert.crt")
+
+		if err == nil {
+			osTmpFile.Write(v.([]byte))
+			opts.ClientCertFile = osTmpFile.Path()
+		}
 	}
-	if v, ok := d.GetOk("client_cert_key"); ok {
+	if v, ok := d.GetOk("client_cert_key_file"); ok {
 		opts.ClientCertKeyFile = v.(string)
+	} else if v, ok := d.GetOk("client_cert_key"); ok {
+		osTmpFile, err := certOsLocation.NewFile("client_cert_key.key")
+
+		if err == nil {
+			osTmpFile.Write(v.([]byte))
+			opts.ClientCertKeyFile = osTmpFile.Path()
+		}
 	}
 	if v, ok := d.GetOk("context"); ok {
 		opts.Context = v.(string)
