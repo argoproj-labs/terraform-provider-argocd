@@ -2,6 +2,7 @@ package argocd
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -25,6 +26,13 @@ func metadataFields(objectName string) map[string]*schema.Schema {
 			Optional:     true,
 			Elem:         &schema.Schema{Type: schema.TypeString},
 			ValidateFunc: validateMetadataAnnotations,
+		},
+		"finalizers": {
+			Type:         schema.TypeList,
+			Description:  "Any finalizers to put on the object at creation time",
+			Optional:     true,
+			Elem:         &schema.Schema{Type: schema.TypeList},
+			ValidateFunc: validateFinalizers,
 		},
 		"generation": {
 			Type:        schema.TypeInt,
