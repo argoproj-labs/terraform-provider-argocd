@@ -1,6 +1,6 @@
 # Terraform Provider for ArgoCD
 
-![Acceptance Tests](https://github.com/oboukili/terraform-provider-argocd/workflows/Acceptance%20Tests/badge.svg)
+[![Tests](https://github.com/oboukili/terraform-provider-argocd/actions/workflows/tests.yml/badge.svg)](https://github.com/oboukili/terraform-provider-argocd/actions/workflows/tests.yml)
 
 ---
 
@@ -351,7 +351,7 @@ go build
 
 ### Running tests
 
-The acceptance tests run against a disposable ArgoCD installation within a [Kind](https://github.com/kubernetes-sigs/kind) cluster. You will only need to have a running Docker daemon running as an additional prerequisite.
+The acceptance tests run against a disposable ArgoCD installation within a [Kind](https://github.com/kubernetes-sigs/kind) cluster. Other requirements are having a Docker daemon running and [Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/) installed.
 
 ```sh
 make testacc_prepare_env
