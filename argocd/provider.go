@@ -243,7 +243,7 @@ func initApiClient(d *schema.ResourceData) (
 
 		if err == nil {
 			t.Write(v.([]byte))
-			opts.CertFile = fp
+			opts.ClientCertFile = fp
 		}
 	}
 	if v, ok := d.GetOk("client_cert_key_file"); ok {
@@ -254,7 +254,7 @@ func initApiClient(d *schema.ResourceData) (
 
 		if err == nil {
 			t.Write(v.([]byte))
-			opts.CertFile = fp
+			opts.ClientCertKeyFile = fp
 		}
 	}
 	if v, ok := d.GetOk("context"); ok {
