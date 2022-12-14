@@ -232,6 +232,7 @@ func initApiClient(d *schema.ResourceData) (
 
 		if err == nil {
 			t.Write(v.([]byte))
+			t.Close()
 			opts.CertFile = fp
 		}
 	}
@@ -243,6 +244,7 @@ func initApiClient(d *schema.ResourceData) (
 
 		if err == nil {
 			t.Write(v.([]byte))
+			t.Close()
 			opts.ClientCertFile = fp
 		}
 	}
@@ -254,6 +256,7 @@ func initApiClient(d *schema.ResourceData) (
 
 		if err == nil {
 			t.Write(v.([]byte))
+			t.Close()
 			opts.ClientCertKeyFile = fp
 		}
 	}
