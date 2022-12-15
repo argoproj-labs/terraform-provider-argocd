@@ -233,7 +233,7 @@ func initApiClient(d *schema.ResourceData) (
 		log.Printf("Created file: %s", fp)
 
 		if err == nil {
-			t.Write(v.([]byte))
+			t.Write([]byte(v.(string)))
 			t.Close()
 			opts.CertFile = fp
 		} else {
@@ -248,7 +248,7 @@ func initApiClient(d *schema.ResourceData) (
 		log.Printf("Created file: %s", fp)
 
 		if err == nil {
-			t.Write(v.([]byte))
+			t.Write([]byte(v.(string)))
 			t.Close()
 			opts.ClientCertFile = fp
 		} else {
@@ -263,7 +263,7 @@ func initApiClient(d *schema.ResourceData) (
 		log.Printf("Created file: %s", fp)
 
 		if err == nil {
-			t.Write(v.([]byte))
+			t.Write([]byte(v.(string)))
 			t.Close()
 			opts.ClientCertKeyFile = fp
 		} else {
