@@ -229,11 +229,14 @@ func initApiClient(d *schema.ResourceData) (
 	} else if v, ok := d.GetOk("cert"); ok {
 		fp := filepath.Join(tmpCertificatePath, "cert.crt")
 		t, err := os.Create(fp)
+		log.Printf("Created file: %s", fp)
 
 		if err == nil {
 			t.Write(v.([]byte))
 			t.Close()
 			opts.CertFile = fp
+		} else {
+			return nil, fmt.Errorf("failed to create ca certificate file: %+v", err)
 		}
 	}
 	if v, ok := d.GetOk("client_cert_file"); ok {
@@ -241,11 +244,14 @@ func initApiClient(d *schema.ResourceData) (
 	} else if v, ok := d.GetOk("client_cert"); ok {
 		fp := filepath.Join(tmpCertificatePath, "client_cert.crt")
 		t, err := os.Create(fp)
+		log.Printf("Created file: %s", fp)
 
 		if err == nil {
 			t.Write(v.([]byte))
 			t.Close()
 			opts.ClientCertFile = fp
+		} else {
+			return nil, fmt.Errorf("failed to create client certificate file: %+v", err)
 		}
 	}
 	if v, ok := d.GetOk("client_cert_key_file"); ok {
@@ -253,11 +259,14 @@ func initApiClient(d *schema.ResourceData) (
 	} else if v, ok := d.GetOk("client_cert_key"); ok {
 		fp := filepath.Join(tmpCertificatePath, "client_cert_key.key")
 		t, err := os.Create(fp)
+		log.Printf("Created file: %s", fp)
 
 		if err == nil {
 			t.Write(v.([]byte))
 			t.Close()
 			opts.ClientCertKeyFile = fp
+		} else {
+			return nil, fmt.Errorf("failed to create client key file: %+v", err)
 		}
 	}
 	if v, ok := d.GetOk("context"); ok {
