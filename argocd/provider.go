@@ -217,6 +217,7 @@ func initApiClient(d *schema.ResourceData) (
 	}
 
 	tmpCertificatePath := "/tmp/terraform-provider-argocd"
+	os.MkdirAll(tmpCertificatePath, 0700)
 
 	if v, ok := d.GetOk("plain_text"); ok {
 		opts.PlainText = v.(bool)
