@@ -45,9 +45,9 @@ func validateMetadataAnnotations(value interface{}, key string) (ws []string, es
 }
 
 func validateFinalizers(value interface{}, key string) (ws []string, es []error) {
-	m := value.([]string)
-	for _,finalizer := range m {
-		errors := utilValidation.IsQualifiedName(finalizer)
+	m := value.([]interface{})
+	for _, finalizer := range m {
+		errors := utilValidation.IsQualifiedName(finalizer.(string))
 		if len(errors) > 0 {
 			for _, e := range errors {
 				es = append(es, fmt.Errorf("%s (%q) %s", key, finalizer, e))

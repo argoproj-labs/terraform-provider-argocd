@@ -2,10 +2,11 @@ package argocd
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"net/url"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func expandMetadata(d *schema.ResourceData) (
@@ -25,6 +26,12 @@ func expandMetadata(d *schema.ResourceData) (
 	if v, ok := m["namespace"]; ok {
 		meta.Namespace = v.(string)
 	}
+	if v, ok := m["finalizers"]; ok {
+		meta.Finalizers = expandStringList(v.([]interface{}))
+		if meta.Finalizers == nil {
+			meta.Finalizers = []string{}
+		}
+	}
 	return meta
 }
 
@@ -35,6 +42,7 @@ func flattenMetadata(meta meta.ObjectMeta, d *schema.ResourceData) []interface{}
 		"namespace":        meta.Namespace,
 		"resource_version": meta.ResourceVersion,
 		"uid":              fmt.Sprintf("%v", meta.UID),
+		"finalizers":       meta.Finalizers,
 	}
 
 	annotations := d.Get("metadata.0.annotations").(map[string]interface{})

@@ -26,8 +26,9 @@ func expandApplication(d *schema.ResourceData) (
 }
 
 func diagnoseFinalizers(d *schema.ResourceData) diag.Diagnostics {
-	finalizerKey := "metadata.finalizers"
-	if _, err := validateFinalizers(d.Get(finalizerKey).([]interface{}), finalizerKey); err != nil {
+	finalizerKey := "metadata.0.finalizers"
+	finalizers := d.Get(finalizerKey)
+	if _, err := validateFinalizers(finalizers, finalizerKey); err != nil {
 		return []diag.Diagnostic{{
 			Severity: diag.Error,
 			Summary:  "Finalizers are invalid",

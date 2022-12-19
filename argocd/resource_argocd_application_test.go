@@ -424,6 +424,53 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplication_Finalizers(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSimple(acctest.RandomWithPrefix("test-acc")),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckModuleResourceAttrNotSet(
+						"argocd_application.simple",
+						"metadata.0.finalizers",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationSimpleFinalizers(acctest.RandomWithPrefix("test-acc"), "[]"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.simple",
+						"metadata.0.finalizers.#",
+						"0",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationSimpleFinalizers(acctest.RandomWithPrefix("test-acc"), "[\"resources-finalizer.argocd.argoproj.io\"]"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.simple",
+						"metadata.0.finalizers.#",
+						"1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.simple",
+						"metadata.0.finalizers.0",
+						"resources-finalizer.argocd.argoproj.io",
+					),
+				),
+			},
+			{
+				Config:      testAccArgoCDApplicationSimpleFinalizers(acctest.RandomWithPrefix("test-acc"), "[\"malform/form-ed/.argocd.argoproj.io\"]"),
+				ExpectError: regexp.MustCompile(".*Error: Finalizers are invalid.*"),
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplication_EmptySyncPolicyBlock(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -836,6 +883,17 @@ func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
 	})
 }
 
+func testCheckModuleResourceAttrNotSet(name, key string) resource.TestCheckFunc {
+	helper := resource.TestCheckResourceAttrSet(name, key)
+	return func(s *terraform.State) error {
+		error := helper(s)
+		if error == nil {
+			return fmt.Errorf("expected %s to not be set", key)
+		}
+		return nil
+	}
+}
+
 func testAccArgoCDApplicationSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "simple" {
@@ -875,6 +933,48 @@ resource "argocd_application" "simple" {
   }
 }
 	`, name)
+}
+
+func testAccArgoCDApplicationSimpleFinalizers(name string, finalizerRawText string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "simple" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+    finalizers = %s
+    annotations = {
+      "this.is.a.really.long.nested.key" = "yes, really!"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://charts.bitnami.com/bitnami"
+      chart           = "redis"
+      target_revision = "16.9.11"
+      helm {
+        parameter {
+          name  = "image.tag"
+          value = "6.2.5"
+        }
+        parameter {
+          name  = "architecture"
+          value = "standalone"
+        }
+        release_name = "testing"
+      }
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name, finalizerRawText)
 }
 
 func testAccArgoCDApplicationSimpleWait(name string) string {
