@@ -952,7 +952,7 @@ resource "argocd_application" "simple" {
 
   spec {
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
       helm {
