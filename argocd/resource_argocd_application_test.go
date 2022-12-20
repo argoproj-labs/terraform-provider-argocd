@@ -852,7 +852,7 @@ resource "argocd_application" "simple" {
 
   spec {
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
       helm {
@@ -892,7 +892,7 @@ resource "argocd_application" "simple" {
   }
   spec {
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
       helm {
@@ -936,7 +936,7 @@ resource "argocd_application" "helm" {
 
   spec {
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
       helm {
@@ -1199,7 +1199,7 @@ resource "argocd_application" "sync_policy" {
 
   spec {
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
     }
@@ -1242,7 +1242,7 @@ resource "argocd_application" "ignore_differences" {
 
   spec {
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
     }
@@ -1285,7 +1285,7 @@ resource "argocd_application" "ignore_differences_jqpe" {
 
   spec {
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
     }
@@ -1324,7 +1324,7 @@ resource "argocd_application" "simple" {
   }
   spec {
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
       helm {
@@ -1349,7 +1349,7 @@ resource "argocd_application" "simple" {
   }
   spec {
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
       helm {
@@ -1376,7 +1376,7 @@ resource "argocd_application" "simple" {
   }
   spec {
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
       helm {
@@ -1411,7 +1411,7 @@ resource "argocd_application" "simple" {
   }
   spec {
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
       helm {
@@ -1447,7 +1447,7 @@ resource "argocd_application" "simple" {
   spec {
     revision_history_limit = %d
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
       helm {
@@ -1632,7 +1632,7 @@ resource "argocd_application" "crds" {
 
   spec {
     source {
-		repo_url        = "https://charts.bitnami.com/bitnami"
+		repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
 		chart           = "redis"
 		target_revision = "16.9.11"
 		helm {
@@ -1670,7 +1670,7 @@ resource "argocd_application" "crds" {
 
   spec {
     source {
-		repo_url        = "https://charts.bitnami.com/bitnami"
+		repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
 		chart           = "redis"
 		target_revision = "16.9.11"
 		helm {
@@ -1723,7 +1723,7 @@ resource "argocd_application" "simple" {
   spec {
     project = argocd_project.simple.metadata[0].name
     source {
-      repo_url        = "https://charts.bitnami.com/bitnami"
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"
       target_revision = "16.9.11"
       helm {
