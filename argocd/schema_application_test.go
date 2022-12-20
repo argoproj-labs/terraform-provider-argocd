@@ -12,7 +12,7 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds(t *testing.T) {
 		"spec": []interface{}{
 			map[string]interface{}{
 				"source": []interface{}{map[string]interface{}{
-					"repo_url":        "https://charts.bitnami.com/bitnami",
+					"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
 					"chart":           "redis",
 					"target_revision": "16.9.11",
 
@@ -32,7 +32,7 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds(t *testing.T) {
 		"spec": []interface{}{
 			map[string]interface{}{
 				"source": []interface{}{map[string]interface{}{
-					"repo_url":        "https://charts.bitnami.com/bitnami",
+					"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
 					"chart":           "redis",
 					"target_revision": "16.9.11",
 
@@ -61,7 +61,7 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds_NoChange(t *testing.T) {
 		"spec": []interface{}{
 			map[string]interface{}{
 				"source": []interface{}{map[string]interface{}{
-					"repo_url":        "https://charts.bitnami.com/bitnami",
+					"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
 					"chart":           "redis",
 					"target_revision": "16.9.11",
 				}},
@@ -85,7 +85,7 @@ func TestUpgradeSchemaApplication_V1V2_Default_NoChange(t *testing.T) {
 		"spec": []interface{}{
 			map[string]interface{}{
 				"source": []interface{}{map[string]interface{}{
-					"repo_url":        "https://charts.bitnami.com/bitnami",
+					"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
 					"chart":           "redis",
 					"target_revision": "16.9.11",
 
@@ -114,7 +114,7 @@ func TestUpgradeSchemaApplication_V1V2_WithKsonnet(t *testing.T) {
 		"spec": []interface{}{
 			map[string]interface{}{
 				"source": []interface{}{map[string]interface{}{
-					"repo_url":        "https://charts.bitnami.com/bitnami",
+					"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
 					"chart":           "redis",
 					"target_revision": "16.9.11",
 
@@ -150,7 +150,7 @@ func TestUpgradeSchemaApplication_V2V3_Default_NoChange(t *testing.T) {
 		"spec": []interface{}{
 			map[string]interface{}{
 				"source": []interface{}{map[string]interface{}{
-					"repo_url":        "https://charts.bitnami.com/bitnami",
+					"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
 					"chart":           "redis",
 					"target_revision": "16.9.11",
 
