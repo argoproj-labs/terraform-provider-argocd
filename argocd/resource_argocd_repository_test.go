@@ -2,6 +2,7 @@ package argocd
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -81,6 +82,60 @@ func TestAccArgoCDRepository(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDRepositoryScoped(t *testing.T) {
+	projectName := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedRepositories) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDRepositoryHelmProjectScoped(projectName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.helm",
+						"connection_state_status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.helm",
+						"project_name",
+						projectName,
+					),
+				),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDRepositoryScoped_NotSupported_On_OlderVersions(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-scoped-repo")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureNotSupported(t, featureProjectScopedRepositories) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			// Create tests
+			{
+				Config:      testAccArgoCDRepositoryHelmProjectScoped(name),
+				ExpectError: regexp.MustCompile("repository project is only supported from ArgoCD"),
+			},
+			// Update tests (create repo without project, update it with project)
+			{
+				Config: testAccArgoCDRepositoryHelm(),
+				Check: resource.TestCheckResourceAttr(
+					"argocd_repository.helm",
+					"connection_state_status",
+					"Successful",
+				),
+			},
+			{
+				Config:      testAccArgoCDRepositoryHelmProjectScoped(name),
+				ExpectError: regexp.MustCompile("repository project is only supported from ArgoCD"),
+			},
+		},
+	})
+}
+
 func testAccArgoCDRepositorySimple() string {
 	return fmt.Sprintf(`
 resource "argocd_repository" "simple" {
@@ -97,6 +152,34 @@ resource "argocd_repository" "helm" {
   type = "helm"
 }
 `)
+}
+
+func testAccArgoCDRepositoryHelmProjectScoped(project_name string) string {
+	return fmt.Sprintf(`
+	resource "argocd_project" "simple" {
+	metadata {
+		name      = "%s"
+		namespace = "argocd"
+	}
+
+	spec {
+		description  = "simple project"
+		source_repos = ["*"]
+
+		destination {
+		name      = "anothercluster"
+		namespace = "bar"
+		}
+	}
+	}
+
+resource "argocd_repository" "helm" {
+  repo = "https://helm.nginx.com/stable"
+  name = "nginx-stable-scoped"
+  type = "helm"
+  project_name = "%s"
+}
+`, project_name, project_name)
 }
 
 func testAccArgoCDRepositoryPublicUsageInApplication(name string) string {
