@@ -25,9 +25,9 @@ func expandRepository(d *schema.ResourceData) *application.Repository {
 	if v, ok := d.GetOk("name"); ok {
 		repository.Name = v.(string)
 	}
-	if v, ok := d.GetOk("project_name"); ok {
+	if v, ok := d.GetOk("project"); ok {
 		repository.Project = v.(string)
-	}	
+	}
 	if v, ok := d.GetOk("username"); ok {
 		repository.Username = v.(string)
 	}
@@ -62,7 +62,7 @@ func flattenRepository(repository *application.Repository, d *schema.ResourceDat
 		"inherited_creds":         repository.InheritedCreds,
 		"insecure":                repository.Insecure,
 		"name":                    repository.Name,
-		"project_name":			   repository.Project,
+		"project":                 repository.Project,
 		// TODO: in case of repositoryCredentials existence, will perma-diff
 		//"username":                repository.Username,
 		// TODO: ArgoCD API does not return sensitive data!

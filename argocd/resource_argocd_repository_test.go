@@ -98,7 +98,7 @@ func TestAccArgoCDRepositoryScoped(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_repository.helm",
-						"project_name",
+						"project",
 						projectName,
 					),
 				),
@@ -154,7 +154,7 @@ resource "argocd_repository" "helm" {
 `)
 }
 
-func testAccArgoCDRepositoryHelmProjectScoped(project_name string) string {
+func testAccArgoCDRepositoryHelmProjectScoped(project string) string {
 	return fmt.Sprintf(`
 	resource "argocd_project" "simple" {
 	metadata {
@@ -177,9 +177,9 @@ resource "argocd_repository" "helm" {
   repo = "https://helm.nginx.com/stable"
   name = "nginx-stable-scoped"
   type = "helm"
-  project_name = "%s"
+  project = "%s"
 }
-`, project_name, project_name)
+`, project, project)
 }
 
 func testAccArgoCDRepositoryPublicUsageInApplication(name string) string {
