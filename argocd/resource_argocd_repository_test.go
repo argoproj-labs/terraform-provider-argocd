@@ -156,30 +156,30 @@ resource "argocd_repository" "helm" {
 
 func testAccArgoCDRepositoryHelmProjectScoped(project string) string {
 	return fmt.Sprintf(`
-	resource "argocd_project" "simple" {
-	metadata {
-		name      = "%s"
-		namespace = "argocd"
-	}
+resource "argocd_project" "simple" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
 
-	spec {
-		description  = "simple project"
-		source_repos = ["*"]
-
-		destination {
-		name      = "anothercluster"
-		namespace = "bar"
-		}
-	}
-	}
+  spec {
+    description  = "simple project"
+    source_repos = ["*"]
+    
+	destination {
+      name      = "anothercluster"
+      namespace = "bar"
+    }
+  }
+}
 
 resource "argocd_repository" "helm" {
   repo = "https://helm.nginx.com/stable"
   name = "nginx-stable-scoped"
   type = "helm"
-  project = "%s"
+  project = "%[1]s"
 }
-`, project, project)
+`, project)
 }
 
 func testAccArgoCDRepositoryPublicUsageInApplication(name string) string {
