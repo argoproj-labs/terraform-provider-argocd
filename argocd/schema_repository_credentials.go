@@ -45,7 +45,7 @@ func repositoryCredentialsSchema() map[string]*schema.Schema {
 		"enable_oci": {
 			Type:        schema.TypeBool,
 			Description: "Specify whether the repo server should be viewed as OCI compliant",
-			Optional: true,
+			Optional:    true,
 		},
 	}
 }

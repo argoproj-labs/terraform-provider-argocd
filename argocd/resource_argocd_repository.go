@@ -41,7 +41,29 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 	c := *server.RepositoryClient
 	repo := expandRepository(d)
 
-	err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+	featureProjectScopedRepositoriesSupported, err := server.isFeatureSupported(featureProjectScopedRepositories)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	}
+	if !featureProjectScopedRepositoriesSupported && repo.Project != "" {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"repository project is only supported from ArgoCD %s onwards",
+					featureVersionConstraintsMap[featureProjectScopedRepositories].String()),
+				Detail: "See https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-scoped-repositories-and-clusters",
+			},
+		}
+	}
+
+	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		tokenMutexConfiguration.Lock()
 		r, err := c.CreateRepository(
 			ctx,
@@ -190,6 +212,28 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 	c := *server.RepositoryClient
 	repo := expandRepository(d)
+
+	featureProjectScopedRepositoriesSupported, err := server.isFeatureSupported(featureProjectScopedRepositories)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	}
+	if !featureProjectScopedRepositoriesSupported && repo.Project != "" {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"repository project is only supported from ArgoCD %s onwards",
+					featureVersionConstraintsMap[featureProjectScopedRepositories].String()),
+				Detail: "See https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-scoped-repositories-and-clusters",
+			},
+		}
+	}
 
 	tokenMutexConfiguration.Lock()
 	r, err := c.UpdateRepository(

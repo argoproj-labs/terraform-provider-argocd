@@ -2,6 +2,7 @@ package argocd
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -31,6 +32,11 @@ func repositorySchema() map[string]*schema.Schema {
 		"name": {
 			Type:        schema.TypeString,
 			Description: "only for Helm repos",
+			Optional:    true,
+		},
+		"project": {
+			Type:        schema.TypeString,
+			Description: "The project name, in case the repository is project scoped",
 			Optional:    true,
 		},
 		"username": {
@@ -67,7 +73,7 @@ func repositorySchema() map[string]*schema.Schema {
 		"enable_oci": {
 			Type:        schema.TypeBool,
 			Description: "Specify whether the repo server should be viewed as OCI compliant",
-			Optional: true,
+			Optional:    true,
 		},
 		"type": {
 			Type:        schema.TypeString,
