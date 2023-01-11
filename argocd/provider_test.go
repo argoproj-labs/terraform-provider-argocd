@@ -77,6 +77,6 @@ func testAccPreCheckFeatureNotSupported(t *testing.T, feature int) {
 		t.Fatal("feature constraint is not handled by the provider")
 	}
 	if i := versionConstraint.Compare(serverVersion); i != 1 {
-		t.Skipf("not running test if feature is already supported (v%s)", v)
+		t.Skipf("not running test if feature is already supported (%s)", v)
 	}
 }
