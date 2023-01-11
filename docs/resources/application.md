@@ -38,7 +38,7 @@ resource "argocd_application" "kustomize" {
     }
 
     sync_policy {
-      automated = {
+      automated {
         prune       = true
         self_heal   = true
         allow_empty = true
@@ -46,8 +46,8 @@ resource "argocd_application" "kustomize" {
       # Only available from ArgoCD 1.5.0 onwards
       sync_options = ["Validate=false"]
       retry {
-        limit   = "5"
-        backoff = {
+        limit = "5"
+        backoff {
           duration     = "30s"
           max_duration = "2m"
           factor       = "2"

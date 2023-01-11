@@ -27,7 +27,7 @@ func resourceArgoCDApplication() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("applications.argoproj.io"),
-			"spec":     applicationSpecSchemaV3(),
+			"spec":     applicationSpecSchemaV4(),
 			"wait": {
 				Type:        schema.TypeBool,
 				Description: "Upon application creation or update, wait for application health/sync status to be healthy/Synced, upon application deletion, wait for application to be removed, when set to true.",
@@ -41,7 +41,7 @@ func resourceArgoCDApplication() *schema.Resource {
 				Default:     true,
 			},
 		},
-		SchemaVersion: 3,
+		SchemaVersion: 4,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceArgoCDApplicationV0().CoreConfigSchema().ImpliedType(),
@@ -57,6 +57,11 @@ func resourceArgoCDApplication() *schema.Resource {
 				Type:    resourceArgoCDApplicationV2().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceArgoCDApplicationStateUpgradeV2,
 				Version: 2,
+			},
+			{
+				Type:    resourceArgoCDApplicationV3().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceArgoCDApplicationStateUpgradeV3,
+				Version: 3,
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{

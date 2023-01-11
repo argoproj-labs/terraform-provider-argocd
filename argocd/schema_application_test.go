@@ -173,3 +173,375 @@ func TestUpgradeSchemaApplication_V2V3_Default_NoChange(t *testing.T) {
 		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", v2, actual)
 	}
 }
+func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
+	type stateUpgradeTestCases []struct {
+		name          string
+		sourceState   map[string]interface{}
+		expectedState map[string]interface{}
+	}
+	cases := stateUpgradeTestCases{
+		{
+			name: "no sync policy",
+			sourceState: map[string]interface{}{
+				"metadata": []interface{}{
+					map[string]interface{}{
+						"name":      "test",
+						"namespace": "argocd",
+					},
+				},
+				"spec": []interface{}{
+					map[string]interface{}{
+						"source": []interface{}{map[string]interface{}{
+							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
+							"chart":           "redis",
+							"target_revision": "16.9.11",
+						}},
+						"destination": []interface{}{map[string]interface{}{
+							"server":    "https://kubernetes.default.svc",
+							"namespace": "default",
+						}},
+					},
+				},
+			},
+			expectedState: map[string]interface{}{
+				"metadata": []interface{}{
+					map[string]interface{}{
+						"name":      "test",
+						"namespace": "argocd",
+					},
+				},
+				"spec": []interface{}{
+					map[string]interface{}{
+						"source": []interface{}{map[string]interface{}{
+							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
+							"chart":           "redis",
+							"target_revision": "16.9.11",
+						}},
+						"destination": []interface{}{map[string]interface{}{
+							"server":    "https://kubernetes.default.svc",
+							"namespace": "default",
+						}},
+					},
+				},
+			},
+		},
+		{
+			name: "full sync policy",
+			sourceState: map[string]interface{}{
+				"metadata": []interface{}{
+					map[string]interface{}{
+						"name":      "test",
+						"namespace": "argocd",
+					},
+				},
+				"spec": []interface{}{
+					map[string]interface{}{
+						"source": []interface{}{map[string]interface{}{
+							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
+							"chart":           "redis",
+							"target_revision": "16.9.11",
+						}},
+						"destination": []interface{}{map[string]interface{}{
+							"server":    "https://kubernetes.default.svc",
+							"namespace": "default",
+						}},
+						"sync_policy": []interface{}{map[string]interface{}{
+							"automated": map[string]bool{
+								"prune":       true,
+								"self_heal":   true,
+								"allow_empty": true,
+							},
+							"sync_options": []string{
+								"Validate=false",
+							},
+							"retry": []interface{}{map[string]interface{}{
+								"limit": "5",
+								"backoff": map[string]string{
+									"duration":     "30s",
+									"max_duration": "2m",
+									"factor":       "2",
+								},
+							}},
+						}},
+					},
+				},
+			},
+			expectedState: map[string]interface{}{
+				"metadata": []interface{}{
+					map[string]interface{}{
+						"name":      "test",
+						"namespace": "argocd",
+					},
+				},
+				"spec": []interface{}{
+					map[string]interface{}{
+						"source": []interface{}{map[string]interface{}{
+							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
+							"chart":           "redis",
+							"target_revision": "16.9.11",
+						}},
+						"destination": []interface{}{map[string]interface{}{
+							"server":    "https://kubernetes.default.svc",
+							"namespace": "default",
+						}},
+						"sync_policy": []interface{}{map[string]interface{}{
+							"automated": []map[string]interface{}{
+								{
+									"prune":       true,
+									"self_heal":   true,
+									"allow_empty": true,
+								},
+							},
+							"sync_options": []string{
+								"Validate=false",
+							},
+							"retry": []interface{}{map[string]interface{}{
+								"limit": "5",
+								"backoff": []map[string]interface{}{
+									{
+										"duration":     "30s",
+										"max_duration": "2m",
+										"factor":       "2",
+									},
+								},
+							}},
+						}},
+					},
+				},
+			},
+		},
+		{
+			name: "no automated block",
+			sourceState: map[string]interface{}{
+				"metadata": []interface{}{
+					map[string]interface{}{
+						"name":      "test",
+						"namespace": "argocd",
+					},
+				},
+				"spec": []interface{}{
+					map[string]interface{}{
+						"source": []interface{}{map[string]interface{}{
+							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
+							"chart":           "redis",
+							"target_revision": "16.9.11",
+						}},
+						"destination": []interface{}{map[string]interface{}{
+							"server":    "https://kubernetes.default.svc",
+							"namespace": "default",
+						}},
+						"sync_policy": []interface{}{map[string]interface{}{
+							"sync_options": []string{
+								"Validate=false",
+							},
+							"retry": []interface{}{map[string]interface{}{
+								"limit": "5",
+								"backoff": map[string]string{
+									"duration":     "30s",
+									"max_duration": "2m",
+									"factor":       "2",
+								},
+							}},
+						}},
+					},
+				},
+			},
+			expectedState: map[string]interface{}{
+				"metadata": []interface{}{
+					map[string]interface{}{
+						"name":      "test",
+						"namespace": "argocd",
+					},
+				},
+				"spec": []interface{}{
+					map[string]interface{}{
+						"source": []interface{}{map[string]interface{}{
+							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
+							"chart":           "redis",
+							"target_revision": "16.9.11",
+						}},
+						"destination": []interface{}{map[string]interface{}{
+							"server":    "https://kubernetes.default.svc",
+							"namespace": "default",
+						}},
+						"sync_policy": []interface{}{map[string]interface{}{
+							"sync_options": []string{
+								"Validate=false",
+							},
+							"retry": []interface{}{map[string]interface{}{
+								"limit": "5",
+								"backoff": []map[string]interface{}{
+									{
+										"duration":     "30s",
+										"max_duration": "2m",
+										"factor":       "2",
+									},
+								},
+							}},
+						}},
+					},
+				},
+			},
+		},
+		{
+			name: "blank automated block",
+			sourceState: map[string]interface{}{
+				"metadata": []interface{}{
+					map[string]interface{}{
+						"name":      "test",
+						"namespace": "argocd",
+					},
+				},
+				"spec": []interface{}{
+					map[string]interface{}{
+						"source": []interface{}{map[string]interface{}{
+							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
+							"chart":           "redis",
+							"target_revision": "16.9.11",
+						}},
+						"destination": []interface{}{map[string]interface{}{
+							"server":    "https://kubernetes.default.svc",
+							"namespace": "default",
+						}},
+						"sync_policy": []interface{}{map[string]interface{}{
+							"automated": map[string]bool{},
+							"sync_options": []string{
+								"Validate=false",
+							},
+							"retry": []interface{}{map[string]interface{}{
+								"limit": "5",
+								"backoff": map[string]string{
+									"duration":     "30s",
+									"max_duration": "2m",
+									"factor":       "2",
+								},
+							}},
+						}},
+					},
+				},
+			},
+			expectedState: map[string]interface{}{
+				"metadata": []interface{}{
+					map[string]interface{}{
+						"name":      "test",
+						"namespace": "argocd",
+					},
+				},
+				"spec": []interface{}{
+					map[string]interface{}{
+						"source": []interface{}{map[string]interface{}{
+							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
+							"chart":           "redis",
+							"target_revision": "16.9.11",
+						}},
+						"destination": []interface{}{map[string]interface{}{
+							"server":    "https://kubernetes.default.svc",
+							"namespace": "default",
+						}},
+						"sync_policy": []interface{}{map[string]interface{}{
+							"automated": []map[string]interface{}{{}},
+							"sync_options": []string{
+								"Validate=false",
+							},
+							"retry": []interface{}{map[string]interface{}{
+								"limit": "5",
+								"backoff": []map[string]interface{}{
+									{
+										"duration":     "30s",
+										"max_duration": "2m",
+										"factor":       "2",
+									},
+								},
+							}},
+						}},
+					},
+				},
+			},
+		},
+		{
+			name: "no backoff",
+			sourceState: map[string]interface{}{
+				"metadata": []interface{}{
+					map[string]interface{}{
+						"name":      "test",
+						"namespace": "argocd",
+					},
+				},
+				"spec": []interface{}{
+					map[string]interface{}{
+						"source": []interface{}{map[string]interface{}{
+							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
+							"chart":           "redis",
+							"target_revision": "16.9.11",
+						}},
+						"destination": []interface{}{map[string]interface{}{
+							"server":    "https://kubernetes.default.svc",
+							"namespace": "default",
+						}},
+						"sync_policy": []interface{}{map[string]interface{}{
+							"automated": map[string]bool{
+								"prune":       true,
+								"self_heal":   true,
+								"allow_empty": true,
+							},
+							"sync_options": []string{
+								"Validate=false",
+							},
+							"retry": []interface{}{map[string]interface{}{
+								"limit": "5",
+							}},
+						}},
+					},
+				},
+			},
+			expectedState: map[string]interface{}{
+				"metadata": []interface{}{
+					map[string]interface{}{
+						"name":      "test",
+						"namespace": "argocd",
+					},
+				},
+				"spec": []interface{}{
+					map[string]interface{}{
+						"source": []interface{}{map[string]interface{}{
+							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
+							"chart":           "redis",
+							"target_revision": "16.9.11",
+						}},
+						"destination": []interface{}{map[string]interface{}{
+							"server":    "https://kubernetes.default.svc",
+							"namespace": "default",
+						}},
+						"sync_policy": []interface{}{map[string]interface{}{
+							"automated": []map[string]interface{}{
+								{
+									"prune":       true,
+									"self_heal":   true,
+									"allow_empty": true,
+								},
+							},
+							"sync_options": []string{
+								"Validate=false",
+							},
+							"retry": []interface{}{map[string]interface{}{
+								"limit": "5",
+							}},
+						}},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			actualState, err := resourceArgoCDApplicationStateUpgradeV3(context.TODO(), tc.sourceState, nil)
+			if err != nil {
+				t.Fatalf("error migrating state: %s", err)
+			}
+			if !reflect.DeepEqual(actualState, tc.expectedState) {
+				t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", tc.expectedState, actualState)
+			}
+		})
+	}
+}

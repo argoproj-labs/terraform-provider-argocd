@@ -258,7 +258,7 @@ resource "argocd_application" "kustomize" {
     }
 
     sync_policy {
-      automated = {
+      automated {
         prune     = true
         self_heal = true
       }
