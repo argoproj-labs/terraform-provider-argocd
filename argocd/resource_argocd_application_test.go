@@ -69,8 +69,7 @@ ingress:
 				),
 			},
 			{
-				Config:             testAccArgoCDApplicationSimpleWait(commonName),
-				ExpectNonEmptyPlan: true,
+				Config: testAccArgoCDApplicationSimpleWait(commonName),
 				Check: resource.TestCheckResourceAttr(
 					"argocd_application.simple",
 					"wait",
@@ -909,8 +908,9 @@ resource "argocd_application" "simple" {
     }
     sync_policy {
       automated = {
-        prune     = true
-        self_heal = true
+        prune       = true
+        self_heal   = true
+		allow_empty = false
       }
     }
     destination {
