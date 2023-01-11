@@ -361,7 +361,7 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.directory",
-						"spec.0.source.0.directory.0.jsonnet",
+						"spec.0.source.0.directory.0.jsonnet.0",
 					),
 				),
 			},
@@ -389,7 +389,7 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.directory",
-						"spec.0.source.0.directory.0.jsonnet",
+						"spec.0.source.0.directory.0.jsonnet.0",
 					),
 				),
 			},
@@ -403,7 +403,7 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.directory",
-						"spec.0.source.0.directory.0.jsonnet",
+						"spec.0.source.0.directory.0.jsonnet.0",
 					),
 				),
 			},
@@ -416,7 +416,7 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.directory",
-						"spec.0.source.0.directory.0.jsonnet",
+						"spec.0.source.0.directory.0.jsonnet.0",
 					),
 				),
 			},
@@ -645,7 +645,7 @@ func TestAccArgoCDApplication_Info(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.info",
-						"spec.0.info",
+						"spec.0.info.0",
 					),
 				),
 			},
@@ -659,7 +659,7 @@ func TestAccArgoCDApplication_Info(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.info",
-						"spec.0.info",
+						"spec.0.info.0",
 					),
 				),
 			},
