@@ -15,6 +15,7 @@ import (
 
 func resourceArgoCDRepository() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages [repositories](https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#repositories) within ArgoCD.",
 		CreateContext: resourceArgoCDRepositoryCreate,
 		ReadContext:   resourceArgoCDRepositoryRead,
 		UpdateContext: resourceArgoCDRepositoryUpdate,

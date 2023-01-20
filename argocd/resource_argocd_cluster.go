@@ -12,6 +12,7 @@ import (
 
 func resourceArgoCDCluster() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages [clusters](https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#clusters) within ArgoCD.",
 		CreateContext: resourceArgoCDClusterCreate,
 		ReadContext:   resourceArgoCDClusterRead,
 		UpdateContext: resourceArgoCDClusterUpdate,

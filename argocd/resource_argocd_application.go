@@ -18,6 +18,7 @@ import (
 
 func resourceArgoCDApplication() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages [applications](https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#applications) within ArgoCD.",
 		CreateContext: resourceArgoCDApplicationCreate,
 		ReadContext:   resourceArgoCDApplicationRead,
 		UpdateContext: resourceArgoCDApplicationUpdate,
@@ -30,7 +31,7 @@ func resourceArgoCDApplication() *schema.Resource {
 			"spec":     applicationSpecSchemaV4(),
 			"wait": {
 				Type:        schema.TypeBool,
-				Description: "Upon application creation or update, wait for application health/sync status to be healthy/Synced, upon application deletion, wait for application to be removed, when set to true.",
+				Description: "Upon application creation or update, wait for application health/sync status to be healthy/Synced, upon application deletion, wait for application to be removed, when set to true. Wait timeouts are controlled by Terraform Create, Update and Delete resource timeouts (all default to 5 minutes).",
 				Optional:    true,
 				Default:     false,
 			},

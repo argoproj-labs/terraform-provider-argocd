@@ -15,6 +15,7 @@ import (
 
 func resourceArgoCDProject() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages [projects](https://argo-cd.readthedocs.io/en/stable/user-guide/projects/) within ArgoCD.",
 		CreateContext: resourceArgoCDProjectCreate,
 		ReadContext:   resourceArgoCDProjectRead,
 		UpdateContext: resourceArgoCDProjectUpdate,

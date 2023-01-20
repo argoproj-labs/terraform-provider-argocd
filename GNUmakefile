@@ -62,6 +62,9 @@ lint:
 	@echo "==> Checking source code against linters..."
 	@GOGC=30 golangci-lint run ./$(PKG_NAME)
 
+generate:
+	go generate ./...
+
 test-compile:
 	@if [ "$(TEST)" = "./..." ]; then \
 		echo "ERROR: Set TEST to a specific package. For example,"; \

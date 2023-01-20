@@ -2,6 +2,17 @@
 
 [![Tests](https://github.com/oboukili/terraform-provider-argocd/actions/workflows/tests.yml/badge.svg)](https://github.com/oboukili/terraform-provider-argocd/actions/workflows/tests.yml)
 
+The [ArgoCD
+Provider](https://registry.terraform.io/providers/oboukili/argocd/latest/docs)
+provides lifecycle management of
+[ArgoCD](https://argo-cd.readthedocs.io/en/stable/) resources.
+
+**NB**: The provider is not concerned with the installation/configuration of
+ArgoCD itself. To make use of the provider, you will need to have an existing
+ArgoCD deployment and, the ArgoCD API server must be
+[accessible](https://argo-cd.readthedocs.io/en/stable/getting_started/#3-access-the-argo-cd-api-server)
+from where you are running Terraform.
+
 ---
 
 ## Compatibility promise
@@ -368,6 +379,16 @@ docker pull ghcr.io/dexidp/dex:v2.27.0
 docker pull redis:6.2.4-alpine
 docker pull alpine:3
 ```
+
+### Generating documentation
+
+This provider uses [terraform-plugin-docs](https://github.com/hashicorp/terraform-plugin-docs/)
+to generate documentation and store it in the `docs/` directory.
+Once a release is cut, the Terraform Registry will download the documentation from `docs/`
+and associate it with the release version. Read more about how this works on the
+[official page](https://www.terraform.io/registry/providers/docs).
+
+Use `make generate` to ensure the documentation is regenerated with any changes.
 
 #### Troubleshooting during local development
 

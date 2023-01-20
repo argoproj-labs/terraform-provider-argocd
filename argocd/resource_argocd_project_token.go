@@ -17,6 +17,7 @@ import (
 
 func resourceArgoCDProjectToken() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages ArgoCD project role JWT tokens. See [Project Roles](https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-roles) for more info.",
 		CreateContext: resourceArgoCDProjectTokenCreate,
 		ReadContext:   resourceArgoCDProjectTokenRead,
 		UpdateContext: resourceArgoCDProjectTokenUpdate,
@@ -24,46 +25,54 @@ func resourceArgoCDProjectToken() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"project": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The project associated with the token.",
+				Required:    true,
+				ForceNew:    true,
 			},
 			"role": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The name of the role in the project associated with the token.",
+				Required:    true,
+				ForceNew:    true,
 			},
 			"expires_in": {
 				Type:         schema.TypeString,
+				Description:  "Duration before the token will expire. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. E.g. `12h`, `7d`. Default: No expiration.",
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateDuration,
 			},
 			"renew_before": {
 				Type:         schema.TypeString,
+				Description:  "Duration to control token silent regeneration, valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. If `expires_in` is set, Terraform will regenerate the token if `expires_in - renew_before < currentDate`.",
 				Optional:     true,
 				ValidateFunc: validateDuration,
 				RequiredWith: []string{"expires_in"},
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "Description of the token.",
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"jwt": {
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Description: "The raw JWT.",
+				Computed:    true,
+				Sensitive:   true,
 			},
 			"issued_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "Unix timestamp at which the token was issued.",
+				Computed:    true,
+				ForceNew:    true,
 			},
 			"expires_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "If `expires_in` is set, Unix timestamp upon which the token will expire.",
+				Computed:    true,
+				ForceNew:    true,
 			},
 		},
 	}
