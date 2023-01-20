@@ -346,19 +346,12 @@ Contributions are welcome! You'll first need a working installation of [Go 1.14+
 
 ### Building
 
-Clone the repository within your `GOPATH`
+1. `git clone` this repository and `cd` into its directory
+2. `make build` will trigger the Golang build
 
-```sh
-mkdir -p $GOPATH/src/github.com/oboukili; cd $GOPATH/src/github.com/oboukili
-git clone git@github.com:oboukili/terraform-provider-argocd
-```
-
-Then build the provider
-
-```sh
-cd $GOPATH/src/github.com/oboukili/terraform-provider-argocd
-go build
-```
+The provided `GNUmakefile` defines additional commands generally useful during development,
+like for running tests, generating documentation, code formatting and linting.
+Taking a look at it's content is recommended.
 
 ### Running tests
 
