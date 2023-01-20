@@ -197,7 +197,7 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr(
 						"argocd_cluster.cluster_metadata",
-						"metadata",
+						"metadata.0",
 					),
 				),
 			},
@@ -253,7 +253,7 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr(
 						"argocd_cluster.cluster_metadata",
-						"metadata.0.labels",
+						"metadata.0.labels.test",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.cluster_metadata",

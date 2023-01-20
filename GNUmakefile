@@ -36,7 +36,7 @@ release: clean linux windows darwin freebsd
 	for f in $(shell ls bin/); do zip bin/$${f}.zip bin/$${f}; done
 
 clean:
-	git clean -fXd -e \!vendor -e \!vendor/**/*
+	git clean -fXd -e \!vendor -e \!vendor/**/* -e \!.vscode
 
 test: fmtcheck
 	go test $(TEST) -timeout=30s -parallel=4

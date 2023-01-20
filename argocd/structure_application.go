@@ -44,8 +44,8 @@ func expandApplicationSpec(d *schema.ResourceData) (
 	if v, ok := s["ignore_difference"]; ok {
 		spec.IgnoreDifferences = expandApplicationIgnoreDifferences(v.([]interface{}))
 	}
-	if v, ok := s["sync_policy"]; ok {
-		spec.SyncPolicy, diags = expandApplicationSyncPolicy(v.([]interface{}))
+	if v, ok := s["sync_policy"].([]interface{}); ok && len(v) > 0 {
+		spec.SyncPolicy, diags = expandApplicationSyncPolicy(v[0])
 		if len(diags) > 0 {
 			return
 		}
@@ -234,11 +234,7 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 	return result
 }
 
-func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, diag.Diagnostics) {
-	if len(_sp) == 0 {
-		return nil, nil
-	}
-	sp := _sp[0]
+func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, diag.Diagnostics) {
 	if sp == nil {
 		return &application.SyncPolicy{}, nil
 	}
@@ -247,18 +243,18 @@ func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, di
 	var retry = &application.RetryStrategy{}
 	var syncPolicy = &application.SyncPolicy{}
 
-	if a, ok := sp.(map[string]interface{})["automated"].(map[string]interface{}); ok {
-		if len(a) > 0 {
-			for k, v := range a {
-				if k == "prune" {
-					automated.Prune = v.(bool)
-				}
-				if k == "self_heal" {
-					automated.SelfHeal = v.(bool)
-				}
-				if k == "allow_empty" {
-					automated.AllowEmpty = v.(bool)
-				}
+	if _a, ok := sp.(map[string]interface{})["automated"].(*schema.Set); ok {
+		list := _a.List()
+		if len(list) > 0 {
+			a := list[0].(map[string]interface{})
+			if v, ok := a["prune"]; ok {
+				automated.Prune = v.(bool)
+			}
+			if v, ok := a["self_heal"]; ok {
+				automated.SelfHeal = v.(bool)
+			}
+			if v, ok := a["allow_empty"]; ok {
+				automated.AllowEmpty = v.(bool)
 			}
 			syncPolicy.Automated = automated
 		}
@@ -275,48 +271,54 @@ func expandApplicationSyncPolicy(_sp []interface{}) (*application.SyncPolicy, di
 	if _retry, ok := sp.(map[string]interface{})["retry"].([]interface{}); ok {
 		if len(_retry) > 0 {
 			r := (_retry[0]).(map[string]interface{})
-			if len(r) > 0 {
-				for k, v := range r {
-					if k == "limit" {
-						var err error
-						retry.Limit, err = convertStringToInt64(v.(string))
+
+			if v, ok := r["limit"]; ok {
+				var err error
+				retry.Limit, err = convertStringToInt64(v.(string))
+				if err != nil {
+					return nil, []diag.Diagnostic{
+						{
+							Severity: diag.Error,
+							Summary:  "Error converting retry limit to integer",
+							Detail:   err.Error(),
+						},
+					}
+				}
+			}
+
+			if _b, ok := r["backoff"].(*schema.Set); ok {
+				retry.Backoff = &application.Backoff{}
+
+				list := _b.List()
+				if len(list) > 0 {
+					b := list[0].(map[string]interface{})
+
+					if v, ok := b["duration"]; ok {
+						retry.Backoff.Duration = v.(string)
+					}
+
+					if v, ok := b["max_duration"]; ok {
+						retry.Backoff.MaxDuration = v.(string)
+					}
+
+					if v, ok := b["factor"]; ok {
+						factor, err := convertStringToInt64Pointer(v.(string))
 						if err != nil {
 							return nil, []diag.Diagnostic{
 								{
 									Severity: diag.Error,
-									Summary:  "Error converting retry limit to integer",
+									Summary:  "Error converting backoff factor to integer",
 									Detail:   err.Error(),
 								},
 							}
 						}
-					}
-					if k == "backoff" {
-						retry.Backoff = &application.Backoff{}
-						for kb, vb := range v.(map[string]interface{}) {
-							if kb == "duration" {
-								retry.Backoff.Duration = vb.(string)
-							}
-							if kb == "max_duration" {
-								retry.Backoff.MaxDuration = vb.(string)
-							}
-							if kb == "factor" {
-								factor, err := convertStringToInt64Pointer(vb.(string))
-								if err != nil {
-									return nil, []diag.Diagnostic{
-										{
-											Severity: diag.Error,
-											Summary:  "Error converting backoff factor to integer",
-											Detail:   err.Error(),
-										},
-									}
-								}
-								retry.Backoff.Factor = factor
-							}
-						}
+						retry.Backoff.Factor = factor
 					}
 				}
-				syncPolicy.Retry = retry
+
 			}
+
+			syncPolicy.Retry = retry
 		}
 	}
 	return syncPolicy, nil
@@ -443,19 +445,21 @@ func flattenApplicationSyncPolicy(sp *application.SyncPolicy) []map[string]inter
 		return nil
 	}
 	result := make(map[string]interface{}, 0)
-	backoff := make(map[string]string, 0)
+	backoff := make(map[string]interface{}, 0)
 	if sp.Automated != nil {
-		result["automated"] = map[string]bool{
-			"prune":       sp.Automated.Prune,
-			"self_heal":   sp.Automated.SelfHeal,
-			"allow_empty": sp.Automated.AllowEmpty,
+		result["automated"] = []map[string]interface{}{
+			{
+				"prune":       sp.Automated.Prune,
+				"self_heal":   sp.Automated.SelfHeal,
+				"allow_empty": sp.Automated.AllowEmpty,
+			},
 		}
 	}
 	result["sync_options"] = []string(sp.SyncOptions)
 	if sp.Retry != nil {
 		limit := convertInt64ToString(sp.Retry.Limit)
 		if sp.Retry.Backoff != nil {
-			backoff = map[string]string{
+			backoff = map[string]interface{}{
 				"duration":     sp.Retry.Backoff.Duration,
 				"max_duration": sp.Retry.Backoff.MaxDuration,
 			}
@@ -466,7 +470,7 @@ func flattenApplicationSyncPolicy(sp *application.SyncPolicy) []map[string]inter
 		result["retry"] = []map[string]interface{}{
 			{
 				"limit":   limit,
-				"backoff": backoff,
+				"backoff": []map[string]interface{}{backoff},
 			},
 		}
 	}

@@ -69,8 +69,7 @@ ingress:
 				),
 			},
 			{
-				Config:             testAccArgoCDApplicationSimpleWait(commonName),
-				ExpectNonEmptyPlan: true,
+				Config: testAccArgoCDApplicationSimpleWait(commonName),
 				Check: resource.TestCheckResourceAttr(
 					"argocd_application.simple",
 					"wait",
@@ -206,32 +205,32 @@ ingress:
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.sync_policy",
-						"spec.0.sync_policy.0.automated.prune",
+						"spec.0.sync_policy.0.automated.0.prune",
 						"true",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.sync_policy",
-						"spec.0.sync_policy.0.automated.self_heal",
+						"spec.0.sync_policy.0.automated.0.self_heal",
 						"true",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.sync_policy",
-						"spec.0.sync_policy.0.automated.allow_empty",
+						"spec.0.sync_policy.0.automated.0.allow_empty",
 						"true",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.sync_policy",
-						"spec.0.sync_policy.0.retry.0.backoff.duration",
+						"spec.0.sync_policy.0.retry.0.backoff.0.duration",
 						"30s",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.sync_policy",
-						"spec.0.sync_policy.0.retry.0.backoff.max_duration",
+						"spec.0.sync_policy.0.retry.0.backoff.0.max_duration",
 						"2m",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.sync_policy",
-						"spec.0.sync_policy.0.retry.0.backoff.factor",
+						"spec.0.sync_policy.0.retry.0.backoff.0.factor",
 						"2",
 					),
 					resource.TestCheckResourceAttr(
@@ -332,11 +331,11 @@ func TestAccArgoCDApplication_NoSyncPolicyBlock(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.simple",
-						"spec.0.sync_policy.0.retry.0.backoff.duration",
+						"spec.0.sync_policy.0.retry.0.backoff.0.duration",
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.simple",
-						"spec.0.sync_policy.0.automated.prune",
+						"spec.0.sync_policy.0.automated.0.prune",
 					),
 				),
 			},
@@ -361,7 +360,7 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.directory",
-						"spec.0.source.0.directory.0.jsonnet",
+						"spec.0.source.0.directory.0.jsonnet.0",
 					),
 				),
 			},
@@ -389,7 +388,7 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.directory",
-						"spec.0.source.0.directory.0.jsonnet",
+						"spec.0.source.0.directory.0.jsonnet.0",
 					),
 				),
 			},
@@ -403,7 +402,7 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.directory",
-						"spec.0.source.0.directory.0.jsonnet",
+						"spec.0.source.0.directory.0.jsonnet.0",
 					),
 				),
 			},
@@ -416,7 +415,7 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.directory",
-						"spec.0.source.0.directory.0.jsonnet",
+						"spec.0.source.0.directory.0.jsonnet.0",
 					),
 				),
 			},
@@ -438,11 +437,11 @@ func TestAccArgoCDApplication_EmptySyncPolicyBlock(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.simple",
-						"spec.0.sync_policy.0.retry.0.backoff.duration",
+						"spec.0.sync_policy.0.retry.0.backoff.0.duration",
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.simple",
-						"spec.0.sync_policy.0.automated.prune",
+						"spec.0.sync_policy.0.automated.0.prune",
 					),
 				),
 			},
@@ -464,11 +463,11 @@ func TestAccArgoCDApplication_NoAutomatedBlock(t *testing.T) {
 					),
 					resource.TestCheckResourceAttrSet(
 						"argocd_application.simple",
-						"spec.0.sync_policy.0.retry.0.backoff.duration",
+						"spec.0.sync_policy.0.retry.0.backoff.0.duration",
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.simple",
-						"spec.0.sync_policy.0.automated.prune",
+						"spec.0.sync_policy.0.automated.0.prune",
 					),
 				),
 			},
@@ -488,9 +487,13 @@ func TestAccArgoCDApplication_EmptyAutomatedBlock(t *testing.T) {
 						"argocd_application.simple",
 						"metadata.0.uid",
 					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.simple",
+						"spec.0.sync_policy.0.automated.#",
+					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.simple",
-						"spec.0.sync_policy.0.automated.prune",
+						"spec.0.sync_policy.0.automated.0.prune",
 					),
 				),
 			},
@@ -645,7 +648,7 @@ func TestAccArgoCDApplication_Info(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.info",
-						"spec.0.info",
+						"spec.0.info.0",
 					),
 				),
 			},
@@ -659,7 +662,7 @@ func TestAccArgoCDApplication_Info(t *testing.T) {
 					),
 					resource.TestCheckNoResourceAttr(
 						"argocd_application.info",
-						"spec.0.info",
+						"spec.0.info.0",
 					),
 				),
 			},
@@ -908,9 +911,10 @@ resource "argocd_application" "simple" {
       }
     }
     sync_policy {
-      automated = {
-        prune     = true
-        self_heal = true
+      automated {
+        prune       = true
+        self_heal   = true
+        allow_empty   = false
       }
     }
     destination {
@@ -1210,14 +1214,14 @@ resource "argocd_application" "sync_policy" {
     }
     
     sync_policy {
-      automated = {
+      automated {
         prune       = true
         self_heal   = true
         allow_empty = true
       }
       retry {
         limit   = "5"
-        backoff = {
+        backoff {
           duration     = "30s"
           max_duration = "2m"
           factor       = "2"
@@ -1386,7 +1390,7 @@ resource "argocd_application" "simple" {
     sync_policy {
       retry {
         limit   = "5"
-        backoff = {
+        backoff {
           duration     = "30s"
           max_duration = "2m"
           factor       = "2"
@@ -1419,7 +1423,7 @@ resource "argocd_application" "simple" {
       }
     }
     sync_policy {
-      automated = {}
+      automated {}
     }
     destination {
       server    = "https://kubernetes.default.svc"
