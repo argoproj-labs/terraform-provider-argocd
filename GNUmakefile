@@ -7,6 +7,9 @@ VERSION = $(shell git describe --always)
 
 default: build-all
 
+build: 
+	go build -v ./...
+
 build-all: linux windows darwin freebsd
 
 install: fmtcheck
