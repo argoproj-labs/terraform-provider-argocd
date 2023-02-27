@@ -68,24 +68,24 @@ func expandRepository(d *schema.ResourceData) *application.Repository {
 
 func flattenRepository(repository *application.Repository, d *schema.ResourceData) error {
 	r := map[string]interface{}{
-		"repo":                    			repository.Repo,
-		"connection_state_status": 			repository.ConnectionState.Status,
-		"enable_lfs":              			repository.EnableLFS,
-		"inherited_creds":         			repository.InheritedCreds,
-		"insecure":                			repository.Insecure,
-		"name":                    			repository.Name,
-		"project":                 			repository.Project,
+		"repo":                    repository.Repo,
+		"connection_state_status": repository.ConnectionState.Status,
+		"enable_lfs":              repository.EnableLFS,
+		"inherited_creds":         repository.InheritedCreds,
+		"insecure":                repository.Insecure,
+		"name":                    repository.Name,
+		"project":                 repository.Project,
 		// TODO: in case of repositoryCredentials existence, will perma-diff
 		//"username":                		repository.Username,
 		// TODO: ArgoCD API does not return sensitive data!
 		//"password":                		repository.Password,
 		//"ssh_private_key":         		repository.SSHPrivateKey,
 		//"tls_client_cert_key":     		repository.TLSClientCertKey,
-		"tls_client_cert_data": 			repository.TLSClientCertData,
-		"type":                 			repository.Type,
-		"githubApp_id": 					repository.GithubAppId,
-		"githubApp_installation_id":		repository.GithubAppInstallationId,
-		"githubApp_enterprise_base_url": 	repository.GitHubAppEnterpriseBaseURL,
+		"tls_client_cert_data":          repository.TLSClientCertData,
+		"type":                          repository.Type,
+		"githubApp_id":                  repository.GithubAppId,
+		"githubApp_installation_id":     repository.GithubAppInstallationId,
+		"githubApp_enterprise_base_url": repository.GitHubAppEnterpriseBaseURL,
 	}
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {

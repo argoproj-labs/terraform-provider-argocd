@@ -59,9 +59,9 @@ func flattenRepositoryCredentials(repository application.RepoCreds, d *schema.Re
 		//"password":             repository.Password,
 		//"ssh_private_key":      repository.SSHPrivateKey,
 		//"tls_client_cert_key":  repository.TLSClientCertKey,
-		"tls_client_cert_data": repository.TLSClientCertData,
-		"githubApp_id": repository.GithubAppId,
-		"githubApp_installation_id": repository.GithubAppInstallationId,
+		"tls_client_cert_data":          repository.TLSClientCertData,
+		"githubApp_id":                  repository.GithubAppId,
+		"githubApp_installation_id":     repository.GithubAppInstallationId,
 		"githubApp_enterprise_base_url": repository.GitHubAppEnterpriseBaseURL,
 	}
 	for k, v := range r {
