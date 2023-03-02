@@ -49,16 +49,16 @@ func expandRepository(d *schema.ResourceData) *application.Repository {
 	if v, ok := d.GetOk("type"); ok {
 		repository.Type = v.(string)
 	}
-	if v, ok := d.GetOk("githubApp_id"); ok {
+	if v, ok := d.GetOk("githubapp_id"); ok {
 		repository.GithubAppId = v.(int64)
 	}
-	if v, ok := d.GetOk("githubApp_installation_id"); ok {
+	if v, ok := d.GetOk("githubapp_installation_id"); ok {
 		repository.GithubAppInstallationId = v.(int64)
 	}
-	if v, ok := d.GetOk("githubApp_enterprise_base_url"); ok {
+	if v, ok := d.GetOk("githubapp_enterprise_base_url"); ok {
 		repository.GitHubAppEnterpriseBaseURL = v.(string)
 	}
-	if v, ok := d.GetOk("githubApp_private_key"); ok {
+	if v, ok := d.GetOk("githubapp_private_key"); ok {
 		repository.GithubAppPrivateKey = v.(string)
 	}
 	return repository
@@ -83,9 +83,9 @@ func flattenRepository(repository *application.Repository, d *schema.ResourceDat
 		//"tls_client_cert_key":     		repository.TLSClientCertKey,
 		"tls_client_cert_data":          repository.TLSClientCertData,
 		"type":                          repository.Type,
-		"githubApp_id":                  repository.GithubAppId,
-		"githubApp_installation_id":     repository.GithubAppInstallationId,
-		"githubApp_enterprise_base_url": repository.GitHubAppEnterpriseBaseURL,
+		"githubapp_id":                  repository.GithubAppId,
+		"githubapp_installation_id":     repository.GithubAppInstallationId,
+		"githubapp_enterprise_base_url": repository.GitHubAppEnterpriseBaseURL,
 	}
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {

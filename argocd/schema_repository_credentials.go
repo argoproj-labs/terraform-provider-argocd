@@ -47,22 +47,22 @@ func repositoryCredentialsSchema() map[string]*schema.Schema {
 			Description: "Specify whether the repo server should be viewed as OCI compliant",
 			Optional:    true,
 		},
-		"githubApp_id": {
+		"githubapp_id": {
 			Type:        schema.TypeInt,
 			Description: "GitHub App id for authenticating at the repo server only for GitHub repos",
 			Optional:    true,
 		},
-		"githubApp_installation_id": {
+		"githubapp_installation_id": {
 			Type:        schema.TypeInt,
 			Description: "GitHub App installation id for authenticating at the repo server only for GitHub repos",
 			Optional:    true,
 		},
-		"githubApp_enterprise_base_url": {
+		"githubapp_enterprise_base_url": {
 			Type:        schema.TypeString,
 			Description: "If using GitHub App for a GitHub Enterprise repository the host url is required",
 			Optional:    true,
 		},
-		"githubApp_private_key": {
+		"githubapp_private_key": {
 			Type:         schema.TypeString,
 			Sensitive:    true,
 			Description:  "Private key data (pem) of GitHub App for authenticating at the repo server only for GitHub repos",
