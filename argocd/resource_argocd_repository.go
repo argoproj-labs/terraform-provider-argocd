@@ -39,7 +39,7 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	c := *server.RepositoryClient
-	repo := expandRepository(d)
+	repo, err := expandRepository(d)
 
 	featureProjectScopedRepositoriesSupported, err := server.isFeatureSupported(featureProjectScopedRepositories)
 	if err != nil {
@@ -211,7 +211,7 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 	c := *server.RepositoryClient
-	repo := expandRepository(d)
+	repo, err := expandRepository(d)
 
 	featureProjectScopedRepositoriesSupported, err := server.isFeatureSupported(featureProjectScopedRepositories)
 	if err != nil {

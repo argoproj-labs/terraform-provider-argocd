@@ -36,7 +36,7 @@ func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.Re
 		}
 	}
 	c := *server.RepoCredsClient
-	repoCreds := expandRepositoryCredentials(d)
+	repoCreds, err := expandRepositoryCredentials(d)
 
 	tokenMutexConfiguration.Lock()
 	rc, err := c.CreateRepositoryCredentials(
@@ -122,7 +122,7 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 		}
 	}
 	c := *server.RepoCredsClient
-	repoCreds := expandRepositoryCredentials(d)
+	repoCreds, err := expandRepositoryCredentials(d)
 
 	tokenMutexConfiguration.Lock()
 	r, err := c.UpdateRepositoryCredentials(

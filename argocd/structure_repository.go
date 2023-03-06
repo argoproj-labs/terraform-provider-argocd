@@ -8,7 +8,9 @@ import (
 
 // Expand
 
-func expandRepository(d *schema.ResourceData) *application.Repository {
+func expandRepository(d *schema.ResourceData) (*application.Repository, error) {
+	var err error
+
 	repository := &application.Repository{}
 	if v, ok := d.GetOk("repo"); ok {
 		repository.Repo = v.(string)
@@ -50,10 +52,16 @@ func expandRepository(d *schema.ResourceData) *application.Repository {
 		repository.Type = v.(string)
 	}
 	if v, ok := d.GetOk("githubapp_id"); ok {
-		repository.GithubAppId = v.(int64)
+		repository.GithubAppId, err = convertStringToInt64(v.(string))
+		if err != nil {
+			return nil, err
+		}
 	}
 	if v, ok := d.GetOk("githubapp_installation_id"); ok {
-		repository.GithubAppInstallationId = v.(int64)
+		repository.GithubAppInstallationId, err = convertStringToInt64(v.(string))
+		if err != nil {
+			return nil, err
+		}
 	}
 	if v, ok := d.GetOk("githubapp_enterprise_base_url"); ok {
 		repository.GitHubAppEnterpriseBaseURL = v.(string)
@@ -61,7 +69,7 @@ func expandRepository(d *schema.ResourceData) *application.Repository {
 	if v, ok := d.GetOk("githubapp_private_key"); ok {
 		repository.GithubAppPrivateKey = v.(string)
 	}
-	return repository
+	return repository, err
 }
 
 // Flatten
@@ -83,8 +91,8 @@ func flattenRepository(repository *application.Repository, d *schema.ResourceDat
 		//"tls_client_cert_key":     		repository.TLSClientCertKey,
 		"tls_client_cert_data":          repository.TLSClientCertData,
 		"type":                          repository.Type,
-		"githubapp_id":                  repository.GithubAppId,
-		"githubapp_installation_id":     repository.GithubAppInstallationId,
+		"githubapp_id":                  convertInt64ToString(repository.GithubAppId),
+		"githubapp_installation_id":     convertInt64ToString(repository.GithubAppInstallationId),
 		"githubapp_enterprise_base_url": repository.GitHubAppEnterpriseBaseURL,
 	}
 	for k, v := range r {

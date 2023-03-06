@@ -11,7 +11,9 @@ import (
 
 // Expand
 
-func expandRepositoryCredentials(d *schema.ResourceData) *application.RepoCreds {
+func expandRepositoryCredentials(d *schema.ResourceData) (*application.RepoCreds, error) {
+	var err error
+
 	repoCreds := &application.RepoCreds{}
 	if v, ok := d.GetOk("url"); ok {
 		repoCreds.URL = v.(string)
@@ -35,10 +37,16 @@ func expandRepositoryCredentials(d *schema.ResourceData) *application.RepoCreds 
 		repoCreds.EnableOCI = v.(bool)
 	}
 	if v, ok := d.GetOk("githubapp_id"); ok {
-		repoCreds.GithubAppId = v.(int64)
+		repoCreds.GithubAppId, err = convertStringToInt64(v.(string))
+		if err != nil {
+			return nil, err
+		}
 	}
 	if v, ok := d.GetOk("githubapp_installation_id"); ok {
-		repoCreds.GithubAppInstallationId = v.(int64)
+		repoCreds.GithubAppInstallationId, err = convertStringToInt64(v.(string))
+		if err != nil {
+			return nil, err
+		}
 	}
 	if v, ok := d.GetOk("githubapp_enterprise_base_url"); ok {
 		repoCreds.GitHubAppEnterpriseBaseURL = v.(string)
@@ -46,7 +54,7 @@ func expandRepositoryCredentials(d *schema.ResourceData) *application.RepoCreds 
 	if v, ok := d.GetOk("githubapp_private_key"); ok {
 		repoCreds.GithubAppPrivateKey = v.(string)
 	}
-	return repoCreds
+	return repoCreds, err
 }
 
 // Flatten
@@ -60,8 +68,8 @@ func flattenRepositoryCredentials(repository application.RepoCreds, d *schema.Re
 		//"ssh_private_key":      repository.SSHPrivateKey,
 		//"tls_client_cert_key":  repository.TLSClientCertKey,
 		"tls_client_cert_data":          repository.TLSClientCertData,
-		"githubapp_id":                  repository.GithubAppId,
-		"githubapp_installation_id":     repository.GithubAppInstallationId,
+		"githubapp_id":                  convertInt64ToString(repository.GithubAppId),
+		"githubapp_installation_id":     convertInt64ToString(repository.GithubAppInstallationId),
 		"githubapp_enterprise_base_url": repository.GitHubAppEnterpriseBaseURL,
 	}
 	for k, v := range r {

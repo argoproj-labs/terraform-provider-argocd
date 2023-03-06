@@ -27,8 +27,8 @@ resource "argocd_repository" "private" {
 * `tls_client_cert_data` - (Optional), TLS client cert data to authenticate against the repository server.
 * `tls_client_cert_key` - (Optional), TLS client cert key to authenticate against the repository server.
 * `enable_oci` - (Optional), specify whether the repository server should be viewed as OCI compliant.
-* `githubapp_id` - (Optional), int, GitHub App id for authenticating at the repo server only for GitHub repos
-* `githubapp_installation_id` - (Optional), int, GitHub App installation id for authenticating at the repo server only for GitHub repos
+* `githubapp_id` - (Optional), string, GitHub App id for authenticating at the repo server only for GitHub repos
+* `githubapp_installation_id` - (Optional), string, GitHub App installation id for authenticating at the repo server only for GitHub repos
 * `githubapp_enterprise_base_url` - (Optional), string, If using GitHub App for a GitHub Enterprise repository the host url is required
 * `githubapp_private_key` - (Optional), string, SSH private key data for GitHub App authentication.
 
