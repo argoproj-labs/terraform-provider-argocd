@@ -93,14 +93,16 @@ func repositorySchema() map[string]*schema.Schema {
 			Computed: true,
 		},
 		"githubapp_id": {
-			Type:        schema.TypeString,
-			Description: "GitHub App id for authenticating at the repo server only for GitHub repos",
-			Optional:    true,
+			Type:         schema.TypeString,
+			Description:  "GitHub App id for authenticating at the repo server only for GitHub repos",
+			ValidateFunc: validatePositiveInteger,
+			Optional:     true,
 		},
 		"githubapp_installation_id": {
-			Type:        schema.TypeString,
-			Description: "GitHub App installation id for authenticating at the repo server only for GitHub repos",
-			Optional:    true,
+			Type:         schema.TypeString,
+			Description:  "GitHub App installation id for authenticating at the repo server only for GitHub repos",
+			ValidateFunc: validatePositiveInteger,
+			Optional:     true,
 		},
 		"githubapp_enterprise_base_url": {
 			Type:        schema.TypeString,
