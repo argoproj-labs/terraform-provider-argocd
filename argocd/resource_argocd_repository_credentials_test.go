@@ -49,7 +49,7 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 			},
 			{
 				Config: testAccArgoCDRepositoryCredentialsGitHubApp(
-					"git@private-git-repository.argocd.svc.cluster.local",
+					"https://private-git-repository.argocd.svc.cluster.local/project-1.git",
 					"123456",
 					"987654321",
 					"github.some.company.com",
