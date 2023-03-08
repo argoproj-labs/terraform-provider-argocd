@@ -49,16 +49,28 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 			},
 			{
 				Config: testAccArgoCDRepositoryCredentialsGitHubApp(
-					"https://private-git-repository.argocd.svc.cluster.local/project-1.git",
+					"git@private-git-repository.argocd.svc.cluster.local",
 					"123456",
 					"987654321",
-					"some.company.github.com",
+					"github.some.company.com",
 					sshPrivateKey,
 				),
-				Check: resource.TestCheckResourceAttr(
-					"argocd_repository_credentials.githubapp",
-					"githubapp_id",
-					"123456",
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository_credentials.githubapp",
+						"githubapp_id",
+						"123456",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository_credentials.githubapp",
+						"githubapp_installation_id",
+						"987654321",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository_credentials.githubapp",
+						"githubapp_enterprise_base_url",
+						"github.some.company.com",
+					),
 				),
 			},
 		},
@@ -97,11 +109,11 @@ resource "argocd_repository_credentials" "private" {
 func testAccArgoCDRepositoryCredentialsGitHubApp(repoUrl, githubAppId, githubAppInstallId, githubAppUrl, githubAppKey string) string {
 	return fmt.Sprintf(`
 resource "argocd_repository_credentials" "githubapp" {
-  url             = "%s"
-  githubapp_id    = "%s"
-  githubapp_installation_id = "%s"
+  url             				= "%s"
+  githubapp_id    				= "%s"
+  githubapp_installation_id 	= "%s"
   githubapp_enterprise_base_url = "%s"
-  githubapp_private_key = <<EOT
+  githubapp_private_key 		= <<EOT
 %s
 EOT
 }
