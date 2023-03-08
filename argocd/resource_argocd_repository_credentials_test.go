@@ -52,7 +52,7 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 					"https://private-git-repository.argocd.svc.cluster.local/project-1.git",
 					"123456",
 					"987654321",
-					"github.some.company.com",
+					"testing",
 					sshPrivateKey,
 				),
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -69,7 +69,7 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_repository_credentials.githubapp",
 						"githubapp_enterprise_base_url",
-						"github.some.company.com",
+						"testing",
 					),
 				),
 			},
