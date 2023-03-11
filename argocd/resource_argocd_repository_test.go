@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAccArgoCDRepository(t *testing.T) {
@@ -136,6 +137,44 @@ func TestAccArgoCDRepositoryScoped_NotSupported_On_OlderVersions(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDRepository_GitHubApp(t *testing.T) {
+	sshPrivateKey, err := generateSSHPrivateKey()
+	assert.NoError(t, err)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDRepositoryGitHubApp(
+					"https://private-git-repository.argocd.svc.cluster.local/project-1.git",
+					"123456",
+					"987654321",
+					"https://ghe.example.com/api/v3",
+					sshPrivateKey,
+				),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.githubapp",
+						"githubapp_id",
+						"123456",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.githubapp",
+						"githubapp_installation_id",
+						"987654321",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.githubapp",
+						"githubapp_enterprise_base_url",
+						"https://ghe.example.com/api/v3",
+					),
+				),
+			},
+		},
+	})
+}
+
 func testAccArgoCDRepositorySimple() string {
 	return fmt.Sprintf(`
 resource "argocd_repository" "simple" {
@@ -225,6 +264,21 @@ resource "argocd_repository" "private" {
   ssh_private_key = "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZgAAAJB9cNEifXDR\nIgAAAAtzc2gtZWQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZg\nAAAEAJeUrObjoTbGO1Sq4TXHl/j4RJ5aKMC1OemWuHmLK7XYZ7pXHSBsqooIjTAimV+Ark\nkGMIM7duG1Texl8uh5RmAAAAC3Rlc3RAYXJnb2NkAQI=\n-----END OPENSSH PRIVATE KEY-----"
 }
 `, repoCount)
+}
+
+func testAccArgoCDRepositoryGitHubApp(repoUrl, id, installID, baseURL, appKey string) string {
+	return fmt.Sprintf(`
+resource "argocd_repository" "githubapp" {
+  project                       = "default"
+  repo             				= "%s"
+  githubapp_id    				= "%s"
+  githubapp_installation_id 	= "%s"
+  githubapp_enterprise_base_url = "%s"
+  githubapp_private_key 		= <<EOT
+%s
+EOT
+}
+`, repoUrl, id, installID, baseURL, appKey)
 }
 
 func testCheckMultipleResourceAttr(name, key, value string, count int) resource.TestCheckFunc {
