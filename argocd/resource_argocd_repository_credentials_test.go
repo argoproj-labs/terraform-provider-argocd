@@ -47,12 +47,24 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 					10,
 				),
 			},
+		},
+	})
+}
+
+func TestAccArgoCDRepositoryCredentials_GitHubApp(t *testing.T) {
+	sshPrivateKey, err := generateSSHPrivateKey()
+	assert.NoError(t, err)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCredentialsGitHubApp(
 					"https://private-git-repository.argocd.svc.cluster.local/project-1.git",
 					"123456",
 					"987654321",
-					"testing",
+					"https://ghe.example.com/api/v3",
 					sshPrivateKey,
 				),
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -69,7 +81,7 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_repository_credentials.githubapp",
 						"githubapp_enterprise_base_url",
-						"testing",
+						"https://ghe.example.com/api/v3",
 					),
 				),
 			},
@@ -106,7 +118,7 @@ resource "argocd_repository_credentials" "private" {
 `)
 }
 
-func testAccArgoCDRepositoryCredentialsGitHubApp(repoUrl, githubAppId, githubAppInstallId, githubAppUrl, githubAppKey string) string {
+func testAccArgoCDRepositoryCredentialsGitHubApp(repoUrl, id, installID, enterpriseBaseURL, appKey string) string {
 	return fmt.Sprintf(`
 resource "argocd_repository_credentials" "githubapp" {
   url             				= "%s"
@@ -117,7 +129,7 @@ resource "argocd_repository_credentials" "githubapp" {
 %s
 EOT
 }
-`, repoUrl, githubAppId, githubAppInstallId, githubAppUrl, githubAppKey)
+`, repoUrl, id, installID, enterpriseBaseURL, appKey)
 }
 
 func generateSSHPrivateKey() (privateKey string, err error) {
