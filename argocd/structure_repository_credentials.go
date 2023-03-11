@@ -54,7 +54,7 @@ func expandRepositoryCredentials(d *schema.ResourceData) (*application.RepoCreds
 	if v, ok := d.GetOk("githubapp_private_key"); ok {
 		repoCreds.GithubAppPrivateKey = v.(string)
 	}
-	return repoCreds, err
+	return repoCreds, nil
 }
 
 // Flatten

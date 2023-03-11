@@ -69,7 +69,7 @@ func expandRepository(d *schema.ResourceData) (*application.Repository, error) {
 	if v, ok := d.GetOk("githubapp_private_key"); ok {
 		repository.GithubAppPrivateKey = v.(string)
 	}
-	return repository, err
+	return repository, nil
 }
 
 // Flatten
