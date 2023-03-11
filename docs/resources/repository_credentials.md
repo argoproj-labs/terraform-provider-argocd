@@ -2,6 +2,11 @@
 
 Creates ArgoCD repository credentials, for use with future or existing private repositories.
 
+**Note**: due to restrictions in the ArgoCD API the provider is unable to track
+drift in this resource to fields other than `username`. I.e. the provider is
+unable to detect changes to repository credentials that are made outside of
+Terraform (e.g. manual updates to the underlying Kubernetes Secrets). 
+
 ## Example Usage
 
 ```hcl

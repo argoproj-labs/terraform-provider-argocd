@@ -58,30 +58,23 @@ func expandRepositoryCredentials(d *schema.ResourceData) (*application.RepoCreds
 }
 
 // Flatten
-
-func flattenRepositoryCredentials(repository application.RepoCreds, d *schema.ResourceData) diag.Diagnostics {
+func flattenRepositoryCredentials(repoCreds application.RepoCreds, d *schema.ResourceData) diag.Diagnostics {
 	r := map[string]interface{}{
-		"url":      repository.URL,
-		"username": repository.Username,
-		// TODO: ArgoCD API does not return sensitive data!
-		//"password":             repository.Password,
-		//"ssh_private_key":      repository.SSHPrivateKey,
-		//"tls_client_cert_key":  repository.TLSClientCertKey,
-		"tls_client_cert_data":          repository.TLSClientCertData,
-		"githubapp_enterprise_base_url": repository.GitHubAppEnterpriseBaseURL,
+		"url":      repoCreds.URL,
+		"username": repoCreds.Username,
 	}
-	for repository.GithubAppId > 0 {
-		r["githubapp_id"] = convertInt64ToString(repository.GithubAppId)
-	}
-	for repository.GithubAppInstallationId > 0 {
-		r["githubapp_installation_id"] = convertInt64ToString(repository.GithubAppInstallationId)
-	}
+
+	// Note: We are only able to retrieve URL and Username from the ArgoCD API
+	// at this point since `repocreds` does not implement a `Get` endpoint which
+	// would alow us to retrieve additional details. See
+	// https://github.com/argoproj/argo-cd/blob/7be094f38d06859b594b98eb75c7c70d39b80b1e/server/repocreds/repocreds.go#L58-L61
+
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
-					Summary:  fmt.Sprintf("credentials key (%s) and value for repository %s could not be persisted to state", k, repository.URL),
+					Summary:  fmt.Sprintf("credentials key (%s) and value for repository %s could not be persisted to state", k, repoCreds.URL),
 					Detail:   err.Error(),
 				},
 			}
