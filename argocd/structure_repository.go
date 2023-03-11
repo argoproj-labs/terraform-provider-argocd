@@ -93,10 +93,10 @@ func flattenRepository(repository *application.Repository, d *schema.ResourceDat
 		"type":                          repository.Type,
 		"githubapp_enterprise_base_url": repository.GitHubAppEnterpriseBaseURL,
 	}
-	for repository.GithubAppId > 0 {
+	if repository.GithubAppId > 0 {
 		r["githubapp_id"] = convertInt64ToString(repository.GithubAppId)
 	}
-	for repository.GithubAppInstallationId > 0 {
+	if repository.GithubAppInstallationId > 0 {
 		r["githubapp_installation_id"] = convertInt64ToString(repository.GithubAppInstallationId)
 	}
 	for k, v := range r {
