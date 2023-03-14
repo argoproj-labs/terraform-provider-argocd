@@ -51,6 +51,44 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDRepositoryCredentials_GitHubApp(t *testing.T) {
+	sshPrivateKey, err := generateSSHPrivateKey()
+	assert.NoError(t, err)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDRepositoryCredentialsGitHubApp(
+					"https://private-git-repository.argocd.svc.cluster.local/project-1.git",
+					"123456",
+					"987654321",
+					"https://ghe.example.com/api/v3",
+					sshPrivateKey,
+				),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository_credentials.githubapp",
+						"githubapp_id",
+						"123456",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository_credentials.githubapp",
+						"githubapp_installation_id",
+						"987654321",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository_credentials.githubapp",
+						"githubapp_enterprise_base_url",
+						"https://ghe.example.com/api/v3",
+					),
+				),
+			},
+		},
+	})
+}
+
 func testAccArgoCDRepositoryCredentialsSimple(repoUrl, username, sshPrivateKey string) string {
 	return fmt.Sprintf(`
 resource "argocd_repository_credentials" "simple" {
@@ -78,6 +116,20 @@ resource "argocd_repository_credentials" "private" {
   ssh_private_key = "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZgAAAJB9cNEifXDR\nIgAAAAtzc2gtZWQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZg\nAAAEAJeUrObjoTbGO1Sq4TXHl/j4RJ5aKMC1OemWuHmLK7XYZ7pXHSBsqooIjTAimV+Ark\nkGMIM7duG1Texl8uh5RmAAAAC3Rlc3RAYXJnb2NkAQI=\n-----END OPENSSH PRIVATE KEY-----"
 }
 `)
+}
+
+func testAccArgoCDRepositoryCredentialsGitHubApp(repoUrl, id, installID, enterpriseBaseURL, appKey string) string {
+	return fmt.Sprintf(`
+resource "argocd_repository_credentials" "githubapp" {
+  url             				= "%s"
+  githubapp_id    				= "%s"
+  githubapp_installation_id 	= "%s"
+  githubapp_enterprise_base_url = "%s"
+  githubapp_private_key 		= <<EOT
+%s
+EOT
+}
+`, repoUrl, id, installID, enterpriseBaseURL, appKey)
 }
 
 func generateSSHPrivateKey() (privateKey string, err error) {

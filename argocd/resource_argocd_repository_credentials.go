@@ -36,7 +36,16 @@ func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.Re
 		}
 	}
 	c := *server.RepoCredsClient
-	repoCreds := expandRepositoryCredentials(d)
+	repoCreds, err := expandRepositoryCredentials(d)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("could not expand repository credential attributes: %s", err),
+				Detail:   err.Error(),
+			},
+		}
+	}
 
 	tokenMutexConfiguration.Lock()
 	rc, err := c.CreateRepositoryCredentials(
@@ -122,7 +131,16 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 		}
 	}
 	c := *server.RepoCredsClient
-	repoCreds := expandRepositoryCredentials(d)
+	repoCreds, err := expandRepositoryCredentials(d)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("could not expand repository credential attributes: %s", err),
+				Detail:   err.Error(),
+			},
+		}
+	}
 
 	tokenMutexConfiguration.Lock()
 	r, err := c.UpdateRepositoryCredentials(

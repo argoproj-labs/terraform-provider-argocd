@@ -117,3 +117,12 @@ func validateSSHPrivateKey(value interface{}, key string) (ws []string, es []err
 	}
 	return
 }
+
+func validatePositiveInteger(value interface{}, key string) (ws []string, es []error) {
+	v := value.(string)
+	positiveIntegerRegexp := regexp.MustCompile(`^[+]?\d+?$`)
+	if !positiveIntegerRegexp.MatchString(v) {
+		es = append(es, fmt.Errorf("%s: invalid input '%s'. String input must match a positive integer, e.g.'12345'", key, v))
+	}
+	return
+}

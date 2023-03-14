@@ -11,7 +11,9 @@ import (
 
 // Expand
 
-func expandRepositoryCredentials(d *schema.ResourceData) *application.RepoCreds {
+func expandRepositoryCredentials(d *schema.ResourceData) (*application.RepoCreds, error) {
+	var err error
+
 	repoCreds := &application.RepoCreds{}
 	if v, ok := d.GetOk("url"); ok {
 		repoCreds.URL = v.(string)
@@ -34,27 +36,45 @@ func expandRepositoryCredentials(d *schema.ResourceData) *application.RepoCreds 
 	if v, ok := d.GetOk("enable_oci"); ok {
 		repoCreds.EnableOCI = v.(bool)
 	}
-	return repoCreds
+	if v, ok := d.GetOk("githubapp_id"); ok {
+		repoCreds.GithubAppId, err = convertStringToInt64(v.(string))
+		if err != nil {
+			return nil, err
+		}
+	}
+	if v, ok := d.GetOk("githubapp_installation_id"); ok {
+		repoCreds.GithubAppInstallationId, err = convertStringToInt64(v.(string))
+		if err != nil {
+			return nil, err
+		}
+	}
+	if v, ok := d.GetOk("githubapp_enterprise_base_url"); ok {
+		repoCreds.GitHubAppEnterpriseBaseURL = v.(string)
+	}
+	if v, ok := d.GetOk("githubapp_private_key"); ok {
+		repoCreds.GithubAppPrivateKey = v.(string)
+	}
+	return repoCreds, nil
 }
 
 // Flatten
-
-func flattenRepositoryCredentials(repository application.RepoCreds, d *schema.ResourceData) diag.Diagnostics {
+func flattenRepositoryCredentials(repoCreds application.RepoCreds, d *schema.ResourceData) diag.Diagnostics {
 	r := map[string]interface{}{
-		"url":      repository.URL,
-		"username": repository.Username,
-		// TODO: ArgoCD API does not return sensitive data!
-		//"password":             repository.Password,
-		//"ssh_private_key":      repository.SSHPrivateKey,
-		//"tls_client_cert_key":  repository.TLSClientCertKey,
-		"tls_client_cert_data": repository.TLSClientCertData,
+		"url":      repoCreds.URL,
+		"username": repoCreds.Username,
 	}
+
+	// Note: We are only able to retrieve URL and Username from the ArgoCD API
+	// at this point since `repocreds` does not implement a `Get` endpoint which
+	// would alow us to retrieve additional details. See
+	// https://github.com/argoproj/argo-cd/blob/7be094f38d06859b594b98eb75c7c70d39b80b1e/server/repocreds/repocreds.go#L58-L61
+
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
-					Summary:  fmt.Sprintf("credentials key (%s) and value for repository %s could not be persisted to state", k, repository.URL),
+					Summary:  fmt.Sprintf("credentials key (%s) and value for repository %s could not be persisted to state", k, repoCreds.URL),
 					Detail:   err.Error(),
 				},
 			}

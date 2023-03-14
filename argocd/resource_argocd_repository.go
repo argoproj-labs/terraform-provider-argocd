@@ -39,7 +39,16 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	c := *server.RepositoryClient
-	repo := expandRepository(d)
+	repo, err := expandRepository(d)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("could not expand repository attributes: %s", err),
+				Detail:   err.Error(),
+			},
+		}
+	}
 
 	featureProjectScopedRepositoriesSupported, err := server.isFeatureSupported(featureProjectScopedRepositories)
 	if err != nil {
@@ -211,7 +220,16 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 	c := *server.RepositoryClient
-	repo := expandRepository(d)
+	repo, err := expandRepository(d)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("could not expand repository attributes: %s", err),
+				Detail:   err.Error(),
+			},
+		}
+	}
 
 	featureProjectScopedRepositoriesSupported, err := server.isFeatureSupported(featureProjectScopedRepositories)
 	if err != nil {
