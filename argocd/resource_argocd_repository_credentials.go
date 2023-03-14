@@ -136,7 +136,7 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("could not expand repository attributes: %s", err),
+				Summary:  fmt.Sprintf("could not expand repository credential attributes: %s", err),
 				Detail:   err.Error(),
 			},
 		}
