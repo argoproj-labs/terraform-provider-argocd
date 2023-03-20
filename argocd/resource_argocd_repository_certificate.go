@@ -13,6 +13,7 @@ import (
 
 func resourceArgoCDRepositoryCertificates() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages [custom TLS certificates](https://argo-cd.readthedocs.io/en/stable/user-guide/private-repositories/#self-signed-untrusted-tls-certificates) used by ArgoCD for connecting Git repositories.",
 		CreateContext: resourceArgoCDRepositoryCertificatesCreate,
 		ReadContext:   resourceArgoCDRepositoryCertificatesRead,
 		DeleteContext: resourceArgoCDRepositoryCertificatesDelete,

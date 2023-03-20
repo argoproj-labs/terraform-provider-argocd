@@ -10,74 +10,74 @@ func repositorySchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"repo": {
 			Type:        schema.TypeString,
-			Description: "URL of the repo",
+			Description: "URL of the repository.",
 			ForceNew:    true,
 			Required:    true,
 		},
 		"enable_lfs": {
 			Type:        schema.TypeBool,
-			Description: "Whether git-lfs support should be enabled for this repo",
+			Description: "Whether `git-lfs` support should be enabled for this repository.",
 			Optional:    true,
 		},
 		"inherited_creds": {
 			Type:        schema.TypeBool,
-			Description: "Whether credentials were inherited from a credential set",
+			Description: "Whether credentials were inherited from a credential set.",
 			Computed:    true,
 		},
 		"insecure": {
 			Type:        schema.TypeBool,
-			Description: "Whether the repo is insecure",
+			Description: "Whether the connection to the repository ignores any errors when verifying TLS certificates or SSH host keys.",
 			Optional:    true,
 		},
 		"name": {
 			Type:        schema.TypeString,
-			Description: "only for Helm repos",
+			Description: "Name to be used for this repo. Only used with Helm repos.",
 			Optional:    true,
 		},
 		"project": {
 			Type:        schema.TypeString,
-			Description: "The project name, in case the repository is project scoped",
+			Description: "The project name, in case the repository is project scoped.",
 			Optional:    true,
 		},
 		"username": {
 			Type:        schema.TypeString,
-			Description: "Username for authenticating at the repo server",
+			Description: "Username used for authenticating at the remote repository.",
 			Optional:    true,
 		},
 		"password": {
 			Type:        schema.TypeString,
 			Sensitive:   true,
-			Description: "Password for authenticating at the repo server",
+			Description: "Password or PAT used for authenticating at the remote repository.",
 			Optional:    true,
 		},
 		"ssh_private_key": {
 			Type:         schema.TypeString,
 			Sensitive:    true,
-			Description:  "SSH private key data for authenticating at the repo server only for Git repos",
+			Description:  "PEM data for authenticating at the repo server. Only used with Git repos.",
 			ValidateFunc: validateSSHPrivateKey,
 			Optional:     true,
 		},
 		"tls_client_cert_data": {
 			Type:        schema.TypeString,
-			Description: "TLS client cert data for authenticating at the repo server",
+			Description: "TLS client certificate in PEM format for authenticating at the repo server.",
 			// TODO: add a validator
 			Optional: true,
 		},
 		"tls_client_cert_key": {
 			Type:        schema.TypeString,
 			Sensitive:   true,
-			Description: "TLS client cert key for authenticating at the repo server ",
+			Description: "TLS client certificate private key in PEM format for authenticating at the repo server.",
 			// TODO: add a validator
 			Optional: true,
 		},
 		"enable_oci": {
 			Type:        schema.TypeBool,
-			Description: "Specify whether the repo server should be viewed as OCI compliant",
+			Description: "Whether `helm-oci` support should be enabled for this repository.",
 			Optional:    true,
 		},
 		"type": {
 			Type:        schema.TypeString,
-			Description: "type of the repo, may be 'git' or 'helm', defaults to 'git'",
+			Description: "Type of the repo. Can be either `git` or `helm`. `git` is assumed if empty or absent.",
 			Default:     "git",
 			ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 				v := val.(string)
@@ -89,30 +89,31 @@ func repositorySchema() map[string]*schema.Schema {
 			Optional: true,
 		},
 		"connection_state_status": {
-			Type:     schema.TypeString,
-			Computed: true,
+			Description: "Contains information about the current state of connection to the repository server.",
+			Type:        schema.TypeString,
+			Computed:    true,
 		},
 		"githubapp_id": {
 			Type:         schema.TypeString,
-			Description:  "GitHub App id for authenticating at the repo server only for GitHub repos",
+			Description:  "ID of the GitHub app used to access the repo.",
 			ValidateFunc: validatePositiveInteger,
 			Optional:     true,
 		},
 		"githubapp_installation_id": {
 			Type:         schema.TypeString,
-			Description:  "GitHub App installation id for authenticating at the repo server only for GitHub repos",
+			Description:  "The installation ID of the GitHub App used to access the repo.",
 			ValidateFunc: validatePositiveInteger,
 			Optional:     true,
 		},
 		"githubapp_enterprise_base_url": {
 			Type:        schema.TypeString,
-			Description: "If using GitHub App for a GitHub Enterprise repository the host url is required",
+			Description: "GitHub API URL for GitHub app authentication.",
 			Optional:    true,
 		},
 		"githubapp_private_key": {
 			Type:         schema.TypeString,
 			Sensitive:    true,
-			Description:  "Private key data (pem) of GitHub App for authenticating at the repo server only for GitHub repos",
+			Description:  "Private key data (PEM) for authentication via GitHub app.",
 			ValidateFunc: validateSSHPrivateKey,
 			Optional:     true,
 		},

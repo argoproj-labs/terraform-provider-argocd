@@ -1,0 +1,22 @@
+---
+page_title: "Provider: ArgoCD"
+description: |-
+  The ArgoCD provider provides lifecycle management of ArgoCD resources.
+---
+
+# ArgoCD Provider
+
+The ArgoCD Provider provides lifecycle management of
+[ArgoCD](https://argo-cd.readthedocs.io/en/stable/) resources.
+
+**NB**: The provider is not concerned with the installation/configuration of
+ArgoCD itself. To make use of the provider, you will need to have an existing
+ArgoCD installation and, the ArgoCD API server must be
+[accessible](https://argo-cd.readthedocs.io/en/stable/getting_started/#3-access-the-argo-cd-api-server)
+from where you are running Terraform.
+
+## Example Usage
+
+{{ tffile "examples/provider/provider.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
