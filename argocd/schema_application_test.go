@@ -246,7 +246,7 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 							"namespace": "default",
 						}},
 						"sync_policy": []interface{}{map[string]interface{}{
-							"automated": map[string]bool{
+							"automated": map[string]interface{}{
 								"prune":       true,
 								"self_heal":   true,
 								"allow_empty": true,
@@ -256,7 +256,7 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 							},
 							"retry": []interface{}{map[string]interface{}{
 								"limit": "5",
-								"backoff": map[string]string{
+								"backoff": map[string]interface{}{
 									"duration":     "30s",
 									"max_duration": "2m",
 									"factor":       "2",
@@ -336,7 +336,7 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 							},
 							"retry": []interface{}{map[string]interface{}{
 								"limit": "5",
-								"backoff": map[string]string{
+								"backoff": map[string]interface{}{
 									"duration":     "30s",
 									"max_duration": "2m",
 									"factor":       "2",
@@ -404,13 +404,13 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 							"namespace": "default",
 						}},
 						"sync_policy": []interface{}{map[string]interface{}{
-							"automated": map[string]bool{},
+							"automated": map[string]interface{}{},
 							"sync_options": []string{
 								"Validate=false",
 							},
 							"retry": []interface{}{map[string]interface{}{
 								"limit": "5",
-								"backoff": map[string]string{
+								"backoff": map[string]interface{}{
 									"duration":     "30s",
 									"max_duration": "2m",
 									"factor":       "2",
@@ -479,7 +479,7 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 							"namespace": "default",
 						}},
 						"sync_policy": []interface{}{map[string]interface{}{
-							"automated": map[string]bool{
+							"automated": map[string]interface{}{
 								"prune":       true,
 								"self_heal":   true,
 								"allow_empty": true,

@@ -1804,7 +1804,7 @@ func resourceArgoCDApplicationStateUpgradeV3(_ context.Context, rawState map[str
 
 	syncPolicy := _syncPolicy[0].(map[string]interface{})
 
-	if automated, ok := syncPolicy["automated"].(map[string]bool); ok {
+	if automated, ok := syncPolicy["automated"].(map[string]interface{}); ok {
 		updated := make(map[string]interface{}, 0)
 		for k, v := range automated {
 			updated[k] = v
@@ -1820,7 +1820,7 @@ func resourceArgoCDApplicationStateUpgradeV3(_ context.Context, rawState map[str
 
 	retry := _retry[0].(map[string]interface{})
 
-	if backoff, ok := retry["backoff"].(map[string]string); ok {
+	if backoff, ok := retry["backoff"].(map[string]interface{}); ok {
 		updated := make(map[string]interface{}, 0)
 		for k, v := range backoff {
 			updated[k] = v
