@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 	"github.com/oboukili/terraform-provider-argocd/argocd"
@@ -17,7 +19,13 @@ import (
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 
 func main() {
+	var debugMode bool
+	flag.BoolVar(&debugMode, "debug", false, "set to true to run the provider with support for debuggers like delve")
+	flag.Parse()
+
 	plugin.Serve(&plugin.ServeOpts{
+		Debug:        debugMode,
+		ProviderAddr: "registry.terraform.io/oboukili/argocd",
 		ProviderFunc: func() *schema.Provider {
 			return argocd.Provider()
 		},
