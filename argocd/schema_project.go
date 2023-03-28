@@ -717,6 +717,7 @@ func resourceArgoCDProjectStateUpgradeV0(_ context.Context, rawState map[string]
 			}
 		}
 	}
+
 	return rawState, nil
 }
 
@@ -735,5 +736,6 @@ func resourceArgoCDProjectStateUpgradeV1(_ context.Context, rawState map[string]
 			}
 		}
 	}
+
 	return rawState, nil
 }

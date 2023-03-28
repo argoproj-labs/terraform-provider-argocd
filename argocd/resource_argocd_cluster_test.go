@@ -188,6 +188,7 @@ func TestAccArgoCDCluster_optionalName(t *testing.T) {
 
 func TestAccArgoCDCluster_metadata(t *testing.T) {
 	clusterName := acctest.RandString(10)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureClusterMetadata) },
 		ProviderFactories: testAccProviders,
@@ -412,6 +413,7 @@ func testAccArgoCDClusterTLSCertificate(t *testing.T, clusterName string) string
 	if err != nil {
 		t.Error(err)
 	}
+
 	return fmt.Sprintf(`
 resource "argocd_cluster" "tls" {
   server = "https://kubernetes.default.svc.cluster.local"
@@ -667,7 +669,6 @@ resource "argocd_cluster" "simple" {
 
 // getInternalRestConfig returns the internal Kubernetes cluster REST config.
 func getInternalRestConfig() (*rest.Config, error) {
-	rc := &rest.Config{}
 	var kubeConfigFilePath string
 
 	switch runtime.GOOS {
@@ -676,10 +677,14 @@ func getInternalRestConfig() (*rest.Config, error) {
 	default:
 		kubeConfigFilePath = fmt.Sprintf("%s/.kube/config", homedir.HomeDir())
 	}
+
 	cfg, err := clientcmd.LoadFromFile(kubeConfigFilePath)
 	if err != nil {
 		return nil, err
 	}
+
+	rc := &rest.Config{}
+
 	for key, cluster := range cfg.Clusters {
 		if key == "kind-argocd" {
 			authInfo := cfg.AuthInfos[key]
@@ -688,8 +693,10 @@ func getInternalRestConfig() (*rest.Config, error) {
 			rc.TLSClientConfig.CAData = cluster.CertificateAuthorityData
 			rc.TLSClientConfig.CertData = authInfo.ClientCertificateData
 			rc.TLSClientConfig.KeyData = authInfo.ClientKeyData
+
 			return rc, nil
 		}
 	}
+
 	return nil, fmt.Errorf("could not find a kind-argocd cluster from the current ~/.kube/config file")
 }

@@ -44,6 +44,17 @@ func resourceArgoCDProject() *schema.Resource {
 }
 
 func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	server := meta.(*ServerInterface)
+	if err := server.initClients(ctx); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "failed to init clients",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
 	objectMeta, spec, err := expandProject(d)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -54,18 +65,10 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 			},
 		}
 	}
-	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
-				Detail:   err.Error(),
-			},
-		}
-	}
+
 	c := *server.ProjectClient
 	projectName := objectMeta.Name
+
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
 	}
@@ -87,6 +90,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 			}
 		}
 	}
+
 	if p != nil {
 		switch p.DeletionTimestamp {
 		case nil:
@@ -105,8 +109,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 				Detail:   err.Error(),
 			},
 		}
-	}
-	if !featureProjectSourceNamespacesSupported {
+	} else if !featureProjectSourceNamespacesSupported {
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
 			return []diag.Diagnostic{
@@ -136,12 +139,11 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Project %s could not be created", objectMeta.Name),
+				Summary:  fmt.Sprintf("project %s could not be created", objectMeta.Name),
 				Detail:   err.Error(),
 			},
 		}
-	}
-	if p == nil {
+	} else if p == nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -150,23 +152,27 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 			},
 		}
 	}
+
 	d.SetId(p.Name)
+
 	return resourceArgoCDProjectRead(ctx, d, meta)
 }
 
 func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	c := *server.ProjectClient
 	projectName := d.Id()
+
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
 	}
@@ -182,6 +188,7 @@ func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta
 			d.SetId("")
 			return diag.Diagnostics{}
 		}
+
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -190,8 +197,8 @@ func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta
 			},
 		}
 	}
-	err = flattenProject(p, d)
-	if err != nil {
+
+	if err = flattenProject(p, d); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -200,114 +207,130 @@ func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta
 			},
 		}
 	}
+
 	return nil
 }
 
 func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	if ok := d.HasChanges("metadata", "spec"); ok {
-		objectMeta, spec, err := expandProject(d)
-		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("project %s could not be updated", d.Id()),
-					Detail:   err.Error(),
-				},
-			}
-		}
-		server := meta.(*ServerInterface)
-		if err := server.initClients(); err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("Failed to init clients"),
-					Detail:   err.Error(),
-				},
-			}
-		}
-		c := *server.ProjectClient
-		projectName := objectMeta.Name
-		if _, ok := tokenMutexProjectMap[projectName]; !ok {
-			tokenMutexProjectMap[projectName] = &sync.RWMutex{}
-		}
-		projectRequest := &projectClient.ProjectUpdateRequest{
-			Project: &application.AppProject{
-				ObjectMeta: objectMeta,
-				Spec:       spec,
+	if ok := d.HasChanges("metadata", "spec"); !ok {
+		return resourceArgoCDProjectRead(ctx, d, meta)
+	}
+
+	server := meta.(*ServerInterface)
+	if err := server.initClients(ctx); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "failed to init clients",
+				Detail:   err.Error(),
 			},
 		}
+	}
 
-		tokenMutexProjectMap[projectName].RLock()
-		p, err := c.Get(ctx, &projectClient.ProjectQuery{
-			Name: d.Id(),
-		})
-		tokenMutexProjectMap[projectName].RUnlock()
-
-		if p != nil {
-			// Kubernetes API requires providing the up-to-date correct ResourceVersion for updates
-			projectRequest.Project.ResourceVersion = p.ResourceVersion
-
-			// Preserve preexisting JWTs for managed roles
-			roles, err := expandProjectRoles(d.Get("spec.0.role").([]interface{}))
-			if err != nil {
-				return []diag.Diagnostic{
-					{
-						Severity: diag.Error,
-						Summary:  fmt.Sprintf("roles for project %s could not be expanded", d.Id()),
-						Detail:   err.Error(),
-					},
-				}
-			}
-			for _, r := range roles {
-				pr, i, err := p.GetRoleByName(r.Name)
-				if err != nil {
-					// i == -1 means the role does not exist
-					// and was recently added within Terraform tf files
-					if i != -1 {
-						return []diag.Diagnostic{
-							{
-								Severity: diag.Error,
-								Summary:  fmt.Sprintf("project role %s could not be retrieved", r.Name),
-								Detail:   err.Error(),
-							},
-						}
-					}
-				} else { // Only preserve preexisting JWTs for managed roles if we found an existing matching project
-					projectRequest.Project.Spec.Roles[i].JWTTokens = pr.JWTTokens
-				}
-			}
+	objectMeta, spec, err := expandProject(d)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("project %s could not be updated", d.Id()),
+				Detail:   err.Error(),
+			},
 		}
+	}
 
-		tokenMutexProjectMap[projectName].Lock()
-		_, err = c.Update(ctx, projectRequest)
-		tokenMutexProjectMap[projectName].Unlock()
+	c := *server.ProjectClient
+	projectName := objectMeta.Name
 
-		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("Error while waiting for project %s to be created", projectName),
-					Detail:   err.Error(),
-				},
+	if _, ok := tokenMutexProjectMap[projectName]; !ok {
+		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
+	}
+
+	projectRequest := &projectClient.ProjectUpdateRequest{
+		Project: &application.AppProject{
+			ObjectMeta: objectMeta,
+			Spec:       spec,
+		},
+	}
+
+	tokenMutexProjectMap[projectName].RLock()
+	p, err := c.Get(ctx, &projectClient.ProjectQuery{
+		Name: d.Id(),
+	})
+	tokenMutexProjectMap[projectName].RUnlock()
+
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "failed to get project",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	if p != nil {
+		// Kubernetes API requires providing the up-to-date correct ResourceVersion for updates
+		projectRequest.Project.ResourceVersion = p.ResourceVersion
+
+		// Preserve preexisting JWTs for managed roles
+		roles := expandProjectRoles(d.Get("spec.0.role").([]interface{}))
+
+		for _, r := range roles {
+			var pr *application.ProjectRole
+
+			var i int
+
+			pr, i, err = p.GetRoleByName(r.Name)
+			if err != nil {
+				// i == -1 means the role does not exist
+				// and was recently added within Terraform tf files
+				if i != -1 {
+					return []diag.Diagnostic{
+						{
+							Severity: diag.Error,
+							Summary:  fmt.Sprintf("project role %s could not be retrieved", r.Name),
+							Detail:   err.Error(),
+						},
+					}
+				}
+			} else { // Only preserve preexisting JWTs for managed roles if we found an existing matching project
+				projectRequest.Project.Spec.Roles[i].JWTTokens = pr.JWTTokens
 			}
 		}
 	}
+
+	tokenMutexProjectMap[projectName].Lock()
+	_, err = c.Update(ctx, projectRequest)
+	tokenMutexProjectMap[projectName].Unlock()
+
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Error while waiting for project %s to be created", projectName),
+				Detail:   err.Error(),
+			},
+		}
+	}
+
 	return resourceArgoCDProjectRead(ctx, d, meta)
 }
 
 func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	c := *server.ProjectClient
 	projectName := d.Id()
+
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
 	}
@@ -325,6 +348,8 @@ func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, me
 			},
 		}
 	}
+
 	d.SetId("")
+
 	return nil
 }

@@ -201,7 +201,7 @@ func TestAccArgoCDRepositoryCertificatesSSH_Allow_Random_Subtype(t *testing.T) {
 func TestAccArgoCDRepositoryCertificatesSSH_WithApplication(t *testing.T) {
 	appName := acctest.RandomWithPrefix("testacc")
 
-	err, subtypesKeys := getSshKeysForHost("private-git-repository")
+	subtypesKeys, err := getSshKeysForHost("private-git-repository")
 	assert.NoError(t, err)
 
 	resource.Test(t, resource.TestCase{
@@ -263,6 +263,7 @@ func TestAccArgoCDRepositoryCertificatesSSH_CannotUpdateExisting_MultipleAtOnce(
 
 func TestAccArgoCDRepositoryCertificatesHttps_CannotUpdateExisting_MultipleAtOnce(t *testing.T) {
 	host := "github.com"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
@@ -436,7 +437,7 @@ resource "argocd_application" "simple" {
 // [2] = ecdsa-sha2-nistp256
 // [3] = AAAAB3NzaC1y...
 // etc
-func getSshKeysForHost(host string) (error, []string) {
+func getSshKeysForHost(host string) ([]string, error) {
 	app := "kubectl"
 	args := []string{
 		"exec",
@@ -453,10 +454,10 @@ func getSshKeysForHost(host string) (error, []string) {
 
 	if err != nil {
 		fmt.Println(err.Error())
-		return err, nil
+		return nil, err
 	}
 
-	re, err := regexp.Compile("(?m)^private-git-repository (?P<subtype>[^\\s]+) (?P<key>.+)$")
+	re, _ := regexp.Compile(`(?m)^private-git-repository (?P<subtype>[^\s]+) (?P<key>.+)$`)
 	matches := re.FindAllStringSubmatch(string(stdout), 3)
 
 	subTypesKeys := make([]string, 0)
@@ -465,5 +466,5 @@ func getSshKeysForHost(host string) (error, []string) {
 		subTypesKeys = append(subTypesKeys, match[2])
 	}
 
-	return nil, subTypesKeys
+	return subTypesKeys, nil
 }

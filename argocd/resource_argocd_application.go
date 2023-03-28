@@ -78,17 +78,20 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	if diags != nil {
 		return diags
 	}
+
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	c := *server.ApplicationClient
+
 	app, err := c.Get(ctx, &applicationClient.ApplicationQuery{
 		Name:         &objectMeta.Name,
 		AppNamespace: &objectMeta.Namespace,
@@ -102,6 +105,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 			},
 		}
 	}
+
 	if app != nil {
 		switch app.DeletionTimestamp {
 		case nil:
@@ -121,6 +125,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 			},
 		}
 	}
+
 	if !featureApplicationLevelSyncOptionsSupported &&
 		spec.SyncPolicy != nil &&
 		spec.SyncPolicy.SyncOptions != nil {
@@ -145,7 +150,9 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 			},
 		}
 	}
+
 	hasJQPathExpressions := false
+
 	if spec.IgnoreDifferences != nil {
 		for _, id := range spec.IgnoreDifferences {
 			if id.JQPathExpressions != nil {
@@ -153,6 +160,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 			}
 		}
 	}
+
 	if !featureIgnoreDiffJQPathExpressionsSupported && hasJQPathExpressions {
 		return []diag.Diagnostic{
 			{
@@ -208,8 +216,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 				Detail:   err.Error(),
 			},
 		}
-	}
-	if app == nil {
+	} else if app == nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -221,23 +228,25 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	d.SetId(fmt.Sprintf("%s:%s", app.Name, objectMeta.Namespace))
 
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
-		err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-			a, err := c.Get(ctx, &applicationClient.ApplicationQuery{
+		if err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+			var a *application.Application
+			if a, err = c.Get(ctx, &applicationClient.ApplicationQuery{
 				Name:         &app.Name,
 				AppNamespace: &app.Namespace,
-			})
-			if err != nil {
+			}); err != nil {
 				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
 			}
+
 			if a.Status.Health.Status != health.HealthStatusHealthy {
 				return resource.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", a.Status.Health.Status))
 			}
+
 			if a.Status.Sync.Status != application.SyncStatusCodeSynced {
 				return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", a.Status.Sync.Status))
 			}
+
 			return nil
-		})
-		if err != nil {
+		}); err != nil {
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
@@ -247,16 +256,17 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 			}
 		}
 	}
+
 	return resourceArgoCDApplicationRead(ctx, d, meta)
 }
 
 func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
@@ -277,6 +287,7 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 			d.SetId("")
 			return diag.Diagnostics{}
 		}
+
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -285,6 +296,7 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 			},
 		}
 	}
+
 	err = flattenApplication(app, d)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -295,190 +307,214 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 			},
 		}
 	}
+
 	return nil
 }
 
 func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	ids := strings.Split(d.Id(), ":")
-	appName := ids[0]
-	namespace := ids[1]
-	if ok := d.HasChanges("metadata", "spec"); ok {
-		objectMeta, spec, diags := expandApplication(d)
-		if diags != nil {
-			return diags
-		}
-		server := meta.(*ServerInterface)
-		if err := server.initClients(); err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("Failed to init clients"),
-					Detail:   err.Error(),
-				},
-			}
-		}
-		c := *server.ApplicationClient
-		appRequest := &applicationClient.ApplicationUpdateRequest{
-			Application: &application.Application{
-				ObjectMeta: objectMeta,
-				Spec:       spec,
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Application",
-					APIVersion: "argoproj.io/v1alpha1",
-				},
+	if ok := d.HasChanges("metadata", "spec"); !ok {
+		return resourceArgoCDApplicationRead(ctx, d, meta)
+	}
+
+	server := meta.(*ServerInterface)
+	if err := server.initClients(ctx); err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "failed to init clients",
+				Detail:   err.Error(),
 			},
 		}
+	}
 
-		featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
-		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  "Feature not supported",
-					Detail:   err.Error(),
-				},
-			}
-		}
-		if !featureApplicationLevelSyncOptionsSupported &&
-			spec.SyncPolicy != nil &&
-			spec.SyncPolicy.SyncOptions != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary: fmt.Sprintf(
-						"application-level sync_options is only supported from ArgoCD %s onwards",
-						featureVersionConstraintsMap[featureApplicationLevelSyncOptions].String()),
-					Detail: err.Error(),
-				},
-			}
-		}
+	objectMeta, spec, diags := expandApplication(d)
+	if diags != nil {
+		return diags
+	}
 
-		featureIgnoreDiffJQPathExpressionsSupported, err := server.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
-		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  "feature not supported",
-					Detail:   err.Error(),
-				},
-			}
-		}
-		hasJQPathExpressions := false
-		if spec.IgnoreDifferences != nil {
-			for _, id := range spec.IgnoreDifferences {
-				if id.JQPathExpressions != nil {
-					hasJQPathExpressions = true
-				}
-			}
-		}
-		if !featureIgnoreDiffJQPathExpressionsSupported && hasJQPathExpressions {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary: fmt.Sprintf(
-						"jq path expressions are only supported from ArgoCD %s onwards",
-						featureVersionConstraintsMap[featureIgnoreDiffJQPathExpressions].String()),
-					Detail: err.Error(),
-				},
-			}
-		}
+	c := *server.ApplicationClient
+	appRequest := &applicationClient.ApplicationUpdateRequest{
+		Application: &application.Application{
+			ObjectMeta: objectMeta,
+			Spec:       spec,
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "Application",
+				APIVersion: "argoproj.io/v1alpha1",
+			},
+		},
+	}
 
-		featureApplicationHelmSkipCrdsSupported, err := server.isFeatureSupported(featureApplicationHelmSkipCrds)
-		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  "feature not supported",
-					Detail:   err.Error(),
-				},
-			}
+	featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "Feature not supported",
+				Detail:   err.Error(),
+			},
 		}
+	}
 
-		if !featureApplicationHelmSkipCrdsSupported {
-			_, skipCrdsOk := d.GetOk("spec.0.source.0.helm.0.skip_crds")
-			if skipCrdsOk {
-				return []diag.Diagnostic{
-					{
-						Severity: diag.Error,
-						Summary: fmt.Sprintf(
-							"application helm skip_crds is only supported from ArgoCD %s onwards",
-							featureVersionConstraintsMap[featureApplicationHelmSkipCrds].String()),
-					},
-				}
-			}
+	if !featureApplicationLevelSyncOptionsSupported &&
+		spec.SyncPolicy != nil &&
+		spec.SyncPolicy.SyncOptions != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"application-level sync_options is only supported from ArgoCD %s onwards",
+					featureVersionConstraintsMap[featureApplicationLevelSyncOptions].String()),
+				Detail: err.Error(),
+			},
 		}
-		app, err := c.Get(ctx, &applicationClient.ApplicationQuery{
-			Name:         &appName,
-			AppNamespace: &namespace,
-		})
-		if app != nil {
-			// Kubernetes API requires providing the up-to-date correct ResourceVersion for updates
-			// FIXME ResourceVersion not available anymore
-			// appRequest.ResourceVersion = app.ResourceVersion
+	}
+
+	featureIgnoreDiffJQPathExpressionsSupported, err := server.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
 		}
-		_, err = c.Update(ctx, appRequest)
-		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("application %s could not be updated", appName),
-					Detail:   err.Error(),
-				},
-			}
-		}
-		if wait, _ok := d.GetOk("wait"); _ok && wait.(bool) {
-			err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-				a, err := c.Get(ctx, &applicationClient.ApplicationQuery{
-					Name:         &app.Name,
-					AppNamespace: &app.Namespace,
-				})
-				if err != nil {
-					return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
-				}
-				if a.Status.Health.Status != health.HealthStatusHealthy {
-					return resource.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", a.Status.Health.Status))
-				}
-				if a.Status.Sync.Status != application.SyncStatusCodeSynced {
-					return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", a.Status.Sync.Status))
-				}
-				return nil
-			})
-			if err != nil {
-				return []diag.Diagnostic{
-					{
-						Severity: diag.Error,
-						Summary:  fmt.Sprintf("something went wrong upon waiting for the application to be updated: %s", err),
-						Detail:   err.Error(),
-					},
-				}
+	}
+
+	hasJQPathExpressions := false
+
+	if spec.IgnoreDifferences != nil {
+		for _, id := range spec.IgnoreDifferences {
+			if id.JQPathExpressions != nil {
+				hasJQPathExpressions = true
 			}
 		}
 	}
+
+	if !featureIgnoreDiffJQPathExpressionsSupported && hasJQPathExpressions {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"jq path expressions are only supported from ArgoCD %s onwards",
+					featureVersionConstraintsMap[featureIgnoreDiffJQPathExpressions].String()),
+				Detail: err.Error(),
+			},
+		}
+	}
+
+	featureApplicationHelmSkipCrdsSupported, err := server.isFeatureSupported(featureApplicationHelmSkipCrds)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	} else if !featureApplicationHelmSkipCrdsSupported {
+		_, skipCrdsOk := d.GetOk("spec.0.source.0.helm.0.skip_crds")
+		if skipCrdsOk {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary: fmt.Sprintf(
+						"application helm skip_crds is only supported from ArgoCD %s onwards",
+						featureVersionConstraintsMap[featureApplicationHelmSkipCrds].String()),
+				},
+			}
+		}
+	}
+
+	ids := strings.Split(d.Id(), ":")
+	appName := ids[0]
+	namespace := ids[1]
+
+	app, err := c.Get(ctx, &applicationClient.ApplicationQuery{
+		Name:         &appName,
+		AppNamespace: &namespace,
+	})
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "failed to get application",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	// Kubernetes API requires providing the up-to-date correct ResourceVersion for updates
+	// FIXME ResourceVersion not available anymore
+	// if app != nil {
+	// 	 appRequest.ResourceVersion = app.ResourceVersion
+	// }
+
+	_, err = c.Update(ctx, appRequest)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("application %s could not be updated", appName),
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	if wait, _ok := d.GetOk("wait"); _ok && wait.(bool) {
+		if err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+			var a *application.Application
+			if a, err = c.Get(ctx, &applicationClient.ApplicationQuery{
+				Name:         &app.Name,
+				AppNamespace: &app.Namespace,
+			}); err != nil {
+				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
+			}
+
+			if a.Status.Health.Status != health.HealthStatusHealthy {
+				return resource.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", a.Status.Health.Status))
+			}
+			if a.Status.Sync.Status != application.SyncStatusCodeSynced {
+				return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", a.Status.Sync.Status))
+			}
+
+			return nil
+		}); err != nil {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("something went wrong upon waiting for the application to be updated: %s", err),
+					Detail:   err.Error(),
+				},
+			}
+		}
+	}
+
 	return resourceArgoCDApplicationRead(ctx, d, meta)
 }
 
 func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	c := *server.ApplicationClient
 	ids := strings.Split(d.Id(), ":")
 	appName := ids[0]
 	namespace := ids[1]
 	cascade := d.Get("cascade").(bool)
-	_, err := c.Delete(ctx, &applicationClient.ApplicationDeleteRequest{
+
+	if _, err := c.Delete(ctx, &applicationClient.ApplicationDeleteRequest{
 		Name:         &appName,
 		Cascade:      &cascade,
 		AppNamespace: &namespace,
-	})
-	if err != nil && !strings.Contains(err.Error(), "NotFound") {
+	}); err != nil && !strings.Contains(err.Error(), "NotFound") {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -487,22 +523,26 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 			},
 		}
 	}
+
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
-		err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+		if err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 			_, err := c.Get(ctx, &applicationClient.ApplicationQuery{
 				Name:         &appName,
 				AppNamespace: &namespace,
 			})
+
 			if err == nil {
 				return resource.RetryableError(fmt.Errorf("application %s is still present", appName))
 			}
+
 			if !strings.Contains(err.Error(), "NotFound") {
 				return resource.NonRetryableError(err)
 			}
+
 			d.SetId("")
+
 			return nil
-		})
-		if err != nil {
+		}); err != nil {
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
@@ -512,6 +552,8 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 			}
 		}
 	}
+
 	d.SetId("")
+
 	return nil
 }

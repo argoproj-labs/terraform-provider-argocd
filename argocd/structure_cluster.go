@@ -7,31 +7,36 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// Expand
-
 func expandCluster(d *schema.ResourceData) (*application.Cluster, error) {
-	var err error
 	cluster := &application.Cluster{}
+
 	if v, ok := d.GetOk("name"); ok {
 		cluster.Name = v.(string)
 	}
+
 	if v, ok := d.GetOk("server"); ok {
 		cluster.Server = v.(string)
 	}
+
 	if v, ok := d.GetOk("shard"); ok {
-		cluster.Shard, err = convertStringToInt64Pointer(v.(string))
+		shard, err := convertStringToInt64Pointer(v.(string))
 		if err != nil {
 			return nil, err
 		}
+
+		cluster.Shard = shard
 	}
+
 	if ns, ok := d.GetOk("namespaces"); ok {
 		for _, n := range ns.([]interface{}) {
 			if n == nil {
 				return nil, fmt.Errorf("namespaces: must contain non-empty strings")
 			}
+
 			cluster.Namespaces = append(cluster.Namespaces, n.(string))
 		}
 	}
+
 	if v, ok := d.GetOk("config"); ok {
 		cluster.Config = expandClusterConfig(v.([]interface{})[0])
 	}
@@ -44,72 +49,76 @@ func expandCluster(d *schema.ResourceData) (*application.Cluster, error) {
 		cluster.Project = v.(string)
 	}
 
-	return cluster, err
+	return cluster, nil
 }
 
-func expandClusterConfig(config interface{}) (
-	clusterConfig application.ClusterConfig) {
+func expandClusterConfig(config interface{}) application.ClusterConfig {
+	clusterConfig := application.ClusterConfig{}
+
 	c := config.(map[string]interface{})
 	if aws, ok := c["aws_auth_config"].([]interface{}); ok && len(aws) > 0 {
 		clusterConfig.AWSAuthConfig = &application.AWSAuthConfig{}
+
 		for k, v := range aws[0].(map[string]interface{}) {
-			if k == "cluster_name" {
+			switch k {
+			case "cluster_name":
 				clusterConfig.AWSAuthConfig.ClusterName = v.(string)
-			}
-			if k == "role_arn" {
+			case "role_arn":
 				clusterConfig.AWSAuthConfig.RoleARN = v.(string)
 			}
 		}
 	}
+
 	if v, ok := c["bearer_token"]; ok {
 		clusterConfig.BearerToken = v.(string)
 	}
+
 	if v, ok := c["username"]; ok {
 		clusterConfig.Username = v.(string)
 	}
+
 	if v, ok := c["password"]; ok {
 		clusterConfig.Password = v.(string)
 	}
+
 	if tls, ok := c["tls_client_config"].([]interface{}); ok && len(tls) > 0 {
 		clusterConfig.TLSClientConfig = application.TLSClientConfig{}
+
 		for k, v := range tls[0].(map[string]interface{}) {
-			if k == "ca_data" {
+			switch k {
+			case "ca_data":
 				clusterConfig.TLSClientConfig.CAData = []byte(v.(string))
-			}
-			if k == "cert_data" {
+			case "cert_data":
 				clusterConfig.TLSClientConfig.CertData = []byte(v.(string))
-			}
-			if k == "key_data" {
+			case "key_data":
 				clusterConfig.TLSClientConfig.KeyData = []byte(v.(string))
-			}
-			if k == "insecure" {
+			case "insecure":
 				clusterConfig.TLSClientConfig.Insecure = v.(bool)
-			}
-			if k == "server_name" {
+			case "server_name":
 				clusterConfig.TLSClientConfig.ServerName = v.(string)
 			}
 		}
 	}
+
 	if epc, ok := c["exec_provider_config"].([]interface{}); ok && len(epc) > 0 {
 		clusterConfig.ExecProviderConfig = &application.ExecProviderConfig{}
+
 		for k, v := range epc[0].(map[string]interface{}) {
-			if k == "api_version" {
+			switch k {
+			case "api_version":
 				clusterConfig.ExecProviderConfig.APIVersion = v.(string)
-			}
-			if k == "args" {
+			case "args":
 				argsI := v.([]interface{})
 				for _, argI := range argsI {
 					clusterConfig.ExecProviderConfig.Args = append(clusterConfig.ExecProviderConfig.Args, argI.(string))
 				}
-			}
-			if k == "command" {
+			case "command":
 				clusterConfig.ExecProviderConfig.Command = v.(string)
-			}
-			if k == "install_hint" {
+			case "install_hint":
 				clusterConfig.ExecProviderConfig.InstallHint = v.(string)
-			}
-			if k == "env" {
+			case "env":
 				clusterConfig.ExecProviderConfig.Env = make(map[string]string)
+
 				envI := v.(map[string]interface{})
 				for key, val := range envI {
 					clusterConfig.ExecProviderConfig.Env[key] = val.(string)
@@ -117,10 +126,9 @@ func expandClusterConfig(config interface{}) (
 			}
 		}
 	}
-	return
-}
 
-// Flatten
+	return clusterConfig
+}
 
 func flattenCluster(cluster *application.Cluster, d *schema.ResourceData) error {
 	r := map[string]interface{}{
@@ -131,19 +139,23 @@ func flattenCluster(cluster *application.Cluster, d *schema.ResourceData) error 
 		"config":     flattenClusterConfig(cluster.Config, d),
 		"project":    cluster.Project,
 	}
+
 	if len(cluster.Annotations) != 0 || len(cluster.Labels) != 0 {
 		// The generic flattenMetadata function can not be used since the Cluster
 		// object does not actually have ObjectMeta, just label and annotation maps
 		r["metadata"] = flattenClusterMetadata(cluster.Annotations, cluster.Labels)
 	}
+
 	if cluster.Shard != nil {
 		r["shard"] = convertInt64PointerToString(cluster.Shard)
 	}
+
 	for k, v := range r {
 		if err := persistToState(k, v, d); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -163,17 +175,19 @@ func flattenClusterInfo(info application.ClusterInfo) []map[string]interface{} {
 }
 
 func flattenClusterConfig(config application.ClusterConfig, d *schema.ResourceData) []map[string]interface{} {
-	var scc application.ClusterConfig
 	r := map[string]interface{}{
 		"username":             config.Username,
 		"exec_provider_config": flattenClusterConfigExecProviderConfig(config.ExecProviderConfig),
 	}
+
 	if stateClusterConfig, ok := d.GetOk("config"); ok {
-		scc = expandClusterConfig(stateClusterConfig.([]interface{})[0])
+		scc := expandClusterConfig(stateClusterConfig.([]interface{})[0])
+
 		r["password"] = scc.Password
 		r["bearer_token"] = scc.BearerToken
 		r["tls_client_config"] = flattenClusterConfigTLSClientConfig(scc)
 	}
+
 	if config.AWSAuthConfig != nil {
 		r["aws_auth_config"] = []map[string]string{
 			{
@@ -182,6 +196,7 @@ func flattenClusterConfig(config application.ClusterConfig, d *schema.ResourceDa
 			},
 		}
 	}
+
 	return []map[string]interface{}{r}
 }
 
@@ -197,19 +212,21 @@ func flattenClusterConfigTLSClientConfig(stateClusterConfig application.ClusterC
 	}
 }
 
-func flattenClusterConfigExecProviderConfig(epc *application.ExecProviderConfig) (
-	result []map[string]interface{}) {
-	if epc != nil {
-		result = []map[string]interface{}{
-			{
-				"api_version":  epc.APIVersion,
-				"args":         epc.Args,
-				"command":      epc.Command,
-				"env":          epc.Env,
-				"install_hint": epc.InstallHint,
-			},
-		}
+func flattenClusterConfigExecProviderConfig(epc *application.ExecProviderConfig) (result []map[string]interface{}) {
+	if epc == nil {
+		return
 	}
+
+	result = []map[string]interface{}{
+		{
+			"api_version":  epc.APIVersion,
+			"args":         epc.Args,
+			"command":      epc.Command,
+			"env":          epc.Env,
+			"install_hint": epc.InstallHint,
+		},
+	}
+
 	return
 }
 

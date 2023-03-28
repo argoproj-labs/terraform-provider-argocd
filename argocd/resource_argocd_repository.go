@@ -29,17 +29,18 @@ func resourceArgoCDRepository() *schema.Resource {
 
 func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
 
 	c := *server.RepositoryClient
+
 	repo, err := expandRepository(d)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -60,8 +61,7 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 				Detail:   err.Error(),
 			},
 		}
-	}
-	if !featureProjectScopedRepositoriesSupported && repo.Project != "" {
+	} else if !featureProjectScopedRepositoriesSupported && repo.Project != "" {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -75,7 +75,10 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 
 	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		tokenMutexConfiguration.Lock()
-		r, err := c.CreateRepository(
+
+		var r *application.Repository
+
+		r, err = c.CreateRepository(
 			ctx,
 			&repository.RepoCreateRequest{
 				Repo:   repo,
@@ -87,17 +90,18 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 		if err != nil {
 			// TODO: better way to detect ssh handshake failing ?
 			if matched, _ := regexp.MatchString("ssh: handshake failed: knownhosts: key is unknown", err.Error()); matched {
-				return resource.RetryableError(fmt.Errorf("Hanshake failed for repository %s, retrying in case a repository certificate has been set recently", repo.Repo))
+				return resource.RetryableError(fmt.Errorf("handshake failed for repository %s, retrying in case a repository certificate has been set recently", repo.Repo))
 			}
-			return resource.NonRetryableError(fmt.Errorf("Repository %s not found: %s", repo.Repo, err))
-		}
-		if r == nil {
+
+			return resource.NonRetryableError(fmt.Errorf("repository %s not found: %s", repo.Repo, err))
+		} else if r == nil {
 			return resource.NonRetryableError(fmt.Errorf("ArgoCD did not return an error or a repository result: %s", err))
-		}
-		if r.ConnectionState.Status == application.ConnectionStatusFailed {
+		} else if r.ConnectionState.Status == application.ConnectionStatusFailed {
 			return resource.NonRetryableError(fmt.Errorf("could not connect to repository %s: %s", repo.Repo, r.ConnectionState.Message))
 		}
+
 		d.SetId(r.Repo)
+
 		return nil
 	})
 
@@ -116,15 +120,16 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 
 func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	c := *server.RepositoryClient
 	r := &application.Repository{}
 
@@ -153,6 +158,7 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 				d.SetId("")
 				return nil
 			}
+
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
@@ -162,8 +168,10 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 			}
 		}
 	} else {
+		var rl *application.RepositoryList
+
 		tokenMutexConfiguration.RLock()
-		rl, err := c.ListRepositories(ctx, &repository.RepoQuery{
+		rl, err = c.ListRepositories(ctx, &repository.RepoQuery{
 			Repo:         d.Id(),
 			ForceRefresh: true,
 		})
@@ -179,16 +187,19 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 				},
 			}
 		}
+
 		if rl == nil {
 			// Repository has already been deleted in an out-of-band fashion
 			d.SetId("")
 			return nil
 		}
+
 		for i, _r := range rl.Items {
 			if _r.Repo == d.Id() {
 				r = _r
 				break
 			}
+
 			// Repository has already been deleted in an out-of-band fashion
 			if i == len(rl.Items)-1 {
 				d.SetId("")
@@ -196,8 +207,8 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 			}
 		}
 	}
-	err = flattenRepository(r, d)
-	if err != nil {
+
+	if err = flattenRepository(r, d); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -206,21 +217,24 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 			},
 		}
 	}
+
 	return nil
 }
 
 func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	c := *server.RepositoryClient
+
 	repo, err := expandRepository(d)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -242,6 +256,7 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 			},
 		}
 	}
+
 	if !featureProjectScopedRepositoriesSupported && repo.Project != "" {
 		return []diag.Diagnostic{
 			{
@@ -267,6 +282,7 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 			d.SetId("")
 			return nil
 		}
+
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -274,8 +290,8 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 				Detail:   err.Error(),
 			},
 		}
-
 	}
+
 	if r == nil {
 		return []diag.Diagnostic{
 			{
@@ -285,6 +301,7 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 			},
 		}
 	}
+
 	if r.ConnectionState.Status == application.ConnectionStatusFailed {
 		return []diag.Diagnostic{
 			{
@@ -293,21 +310,24 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 			},
 		}
 	}
+
 	d.SetId(r.Repo)
+
 	return resourceArgoCDRepositoryRead(ctx, d, meta)
 }
 
 func resourceArgoCDRepositoryDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	c := *server.RepositoryClient
 
 	tokenMutexConfiguration.Lock()
@@ -323,14 +343,17 @@ func resourceArgoCDRepositoryDelete(ctx context.Context, d *schema.ResourceData,
 			d.SetId("")
 			return nil
 		}
+
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Repository %s not found", d.Id()),
+				Summary:  fmt.Sprintf("repository %s could not be deleted", d.Id()),
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	d.SetId("")
+
 	return nil
 }

@@ -30,16 +30,18 @@ func resourceArgoCDRepositoryCredentials() *schema.Resource {
 
 func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	c := *server.RepoCredsClient
+
 	repoCreds, err := expandRepositoryCredentials(d)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -70,21 +72,24 @@ func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.Re
 			},
 		}
 	}
+
 	d.SetId(rc.URL)
+
 	return resourceArgoCDRepositoryCredentialsRead(ctx, d, meta)
 }
 
 func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	c := *server.RepoCredsClient
 	rc := application.RepoCreds{}
 
@@ -103,38 +108,42 @@ func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.Reso
 				Detail:   err.Error(),
 			},
 		}
-	}
-	if rcl == nil {
+	} else if rcl == nil {
 		// Repository credentials have already been deleted in an out-of-band fashion
 		d.SetId("")
 		return nil
 	}
+
 	for i, _rc := range rcl.Items {
 		if _rc.URL == d.Id() {
 			rc = _rc
 			break
 		}
+
 		// Repository credentials have already been deleted in an out-of-band fashion
 		if i == len(rcl.Items)-1 {
 			d.SetId("")
 			return nil
 		}
 	}
+
 	return flattenRepositoryCredentials(rc, d)
 }
 
 func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	c := *server.RepoCredsClient
+
 	repoCreds, err := expandRepositoryCredentials(d)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -169,21 +178,24 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 			}
 		}
 	}
+
 	d.SetId(r.URL)
+
 	return resourceArgoCDRepositoryCredentialsRead(ctx, d, meta)
 }
 
 func resourceArgoCDRepositoryCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	c := *server.RepoCredsClient
 
 	tokenMutexConfiguration.Lock()
@@ -198,16 +210,18 @@ func resourceArgoCDRepositoryCredentialsDelete(ctx context.Context, d *schema.Re
 			// Repository credentials have already been deleted in an out-of-band fashion
 			d.SetId("")
 			return nil
-		} else {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("credentials for repository %s could not be deleted", d.Id()),
-					Detail:   err.Error(),
-				},
-			}
+		}
+
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("credentials for repository %s could not be deleted", d.Id()),
+				Detail:   err.Error(),
+			},
 		}
 	}
+
 	d.SetId("")
+
 	return nil
 }

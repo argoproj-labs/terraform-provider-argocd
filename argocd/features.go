@@ -63,7 +63,7 @@ type ServerInterface struct {
 	initialized bool
 }
 
-func (p *ServerInterface) initClients() error {
+func (p *ServerInterface) initClients(ctx context.Context) error {
 	if p.initialized {
 		return nil
 	}
@@ -74,10 +74,11 @@ func (p *ServerInterface) initClients() error {
 	defer p.Unlock()
 
 	if p.ApiClient == nil {
-		apiClient, err := initApiClient(d)
+		apiClient, err := initApiClient(ctx, d)
 		if err != nil {
 			return err
 		}
+
 		p.ApiClient = &apiClient
 	}
 
@@ -86,6 +87,7 @@ func (p *ServerInterface) initClients() error {
 		if err != nil {
 			return err
 		}
+
 		p.ClusterClient = &clusterClient
 	}
 
@@ -94,6 +96,7 @@ func (p *ServerInterface) initClients() error {
 		if err != nil {
 			return err
 		}
+
 		p.CertificateClient = &certClient
 	}
 
@@ -102,6 +105,7 @@ func (p *ServerInterface) initClients() error {
 		if err != nil {
 			return err
 		}
+
 		p.ApplicationClient = &applicationClient
 	}
 
@@ -110,6 +114,7 @@ func (p *ServerInterface) initClients() error {
 		if err != nil {
 			return err
 		}
+
 		p.ProjectClient = &projectClient
 	}
 
@@ -118,6 +123,7 @@ func (p *ServerInterface) initClients() error {
 		if err != nil {
 			return err
 		}
+
 		p.RepositoryClient = &repositoryClient
 	}
 
@@ -126,6 +132,7 @@ func (p *ServerInterface) initClients() error {
 		if err != nil {
 			return err
 		}
+
 		p.RepoCredsClient = &repoCredsClient
 	}
 
@@ -135,33 +142,39 @@ func (p *ServerInterface) initClients() error {
 	}
 	defer io.Close(acCloser)
 
-	serverVersionMessage, err := versionClient.Version(context.Background(), &empty.Empty{})
+	serverVersionMessage, err := versionClient.Version(ctx, &empty.Empty{})
 	if err != nil {
 		return err
 	}
+
 	if serverVersionMessage == nil {
 		return fmt.Errorf("could not get server version information")
 	}
+
 	p.ServerVersionMessage = serverVersionMessage
+
 	serverVersion, err := semver.NewVersion(serverVersionMessage.Version)
 	if err != nil {
 		return fmt.Errorf("could not parse server semantic version: %s", serverVersionMessage.Version)
 	}
-	p.ServerVersion = serverVersion
 
+	p.ServerVersion = serverVersion
 	p.initialized = true
+
 	return nil
 }
 
 // Checks that a specific feature is available for the current ArgoCD server version.
 // 'feature' argument must match one of the predefined feature* constants.
-func (p ServerInterface) isFeatureSupported(feature int) (bool, error) {
+func (p *ServerInterface) isFeatureSupported(feature int) (bool, error) {
 	versionConstraint, ok := featureVersionConstraintsMap[feature]
 	if !ok {
 		return false, fmt.Errorf("feature constraint is not handled by the provider")
 	}
+
 	if i := versionConstraint.Compare(p.ServerVersion); i == 1 {
 		return false, nil
 	}
+
 	return true, nil
 }

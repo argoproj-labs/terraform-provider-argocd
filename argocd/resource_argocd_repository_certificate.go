@@ -11,6 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+type (
+	certDataKey struct{}
+)
+
 func resourceArgoCDRepositoryCertificates() *schema.Resource {
 	return &schema.Resource{
 		Description:   "Manages [custom TLS certificates](https://argo-cd.readthedocs.io/en/stable/user-guide/private-repositories/#self-signed-untrusted-tls-certificates) used by ArgoCD for connecting Git repositories.",
@@ -22,30 +26,18 @@ func resourceArgoCDRepositoryCertificates() *schema.Resource {
 }
 
 func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	repoCertificate, err := expandRepositoryCertificate(d)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("certificate %s could not be created", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
-	}
-
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
 
-	featureRepositoryCertificateSupported, err := server.isFeatureSupported(featureRepositoryCertificates)
-	if err != nil {
+	if featureRepositoryCertificateSupported, err := server.isFeatureSupported(featureRepositoryCertificates); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -53,9 +45,7 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 				Detail:   err.Error(),
 			},
 		}
-	}
-
-	if !featureRepositoryCertificateSupported {
+	} else if !featureRepositoryCertificateSupported {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -65,7 +55,9 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 			},
 		}
 	}
+
 	c := *server.CertificateClient
+	repoCertificate := expandRepositoryCertificate(d)
 
 	// Not doing a RLock here because we can have a race-condition between the ListCertificates & CreateCertificate
 	tokenMutexConfiguration.Lock()
@@ -76,9 +68,9 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 			CertType:        repoCertificate.CertType,
 			CertSubType:     repoCertificate.CertSubType,
 		})
-
 		if err != nil {
 			tokenMutexConfiguration.Unlock()
+
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
@@ -90,6 +82,7 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 
 		if len(rcl.Items) > 0 {
 			tokenMutexConfiguration.Unlock()
+
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
@@ -129,9 +122,9 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 	// we assume everything went fine and get the id from the request
 	var resourceId string
 	if len(rc.Items) > 0 {
-		err, resourceId = getId(&rc.Items[0])
+		resourceId, err = getId(&rc.Items[0])
 	} else {
-		err, resourceId = getId(repoCertificate)
+		resourceId, err = getId(repoCertificate)
 	}
 
 	if err != nil {
@@ -143,54 +136,61 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 			},
 		}
 	}
+
 	d.SetId(resourceId)
-	return resourceArgoCDRepositoryCertificatesRead(context.WithValue(ctx, "cert_data", repoCertificate.CertData), d, meta)
+
+	return resourceArgoCDRepositoryCertificatesRead(context.WithValue(ctx, certDataKey{}, repoCertificate.CertData), d, meta)
 }
 
 // Compute resource's id as :
 // for ssh -> certType/certSubType/serverName
 // for https -> certType/serverName
-func getId(rc *application.RepositoryCertificate) (error, string) {
+func getId(rc *application.RepositoryCertificate) (string, error) {
 	if rc.CertType == "ssh" {
 		if rc.CertSubType == "" || rc.ServerName == "" {
-			return fmt.Errorf("invalid certificate: %s %s %s", rc.CertType, rc.CertSubType, rc.ServerName), ""
+			return "", fmt.Errorf("invalid certificate: %s %s %s", rc.CertType, rc.CertSubType, rc.ServerName)
 		}
-		return nil, fmt.Sprintf("%s/%s/%s", rc.CertType, rc.CertSubType, rc.ServerName)
-	} else {
-		if rc.ServerName == "" {
-			return fmt.Errorf("invalid certificate: %s %s", rc.CertType, rc.ServerName), ""
-		}
-		return nil, fmt.Sprintf("%s/%s", rc.CertType, rc.ServerName)
+
+		return fmt.Sprintf("%s/%s/%s", rc.CertType, rc.CertSubType, rc.ServerName), nil
 	}
+
+	if rc.ServerName == "" {
+		return "", fmt.Errorf("invalid certificate: %s %s", rc.CertType, rc.ServerName)
+	}
+
+	return fmt.Sprintf("%s/%s", rc.CertType, rc.ServerName), nil
 }
 
 // Get serverName/certType/certSubType from resource's id
-func fromId(id string) (error, string, string, string) {
+func fromId(id string) (string, string, string, error) {
 	parts := strings.Split(id, "/")
 	if len(parts) < 2 {
-		return fmt.Errorf("Unknown certificate %s in state", id), "", "", ""
+		return "", "", "", fmt.Errorf("unknown certificate %s in state", id)
 	}
+
 	certType := parts[0]
 	if certType == "ssh" {
 		if len(parts) < 3 || parts[0] == "" || parts[1] == "" || parts[2] == "" {
-			return fmt.Errorf("Unknown certificate %s in state", id), "", "", ""
+			return "", "", "", fmt.Errorf("unknown certificate %s in state", id)
 		}
-		return nil, parts[0], parts[1], parts[2]
-	} else {
-		if len(parts) < 2 || parts[0] == "" || parts[1] == "" {
-			return fmt.Errorf("Unknown certificate %s in state", id), "", "", ""
-		}
-		return nil, parts[0], parts[1], ""
+
+		return parts[0], parts[1], parts[2], nil
 	}
+
+	if len(parts) < 2 || parts[0] == "" || parts[1] == "" {
+		return "", "", "", fmt.Errorf("unknown certificate %s in state", id)
+	}
+
+	return parts[0], parts[1], "", nil
 }
 
 func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
@@ -220,12 +220,13 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 
 	c := *server.CertificateClient
 	repoCertificate := application.RepositoryCertificate{}
-	err, certType, certSubType, serverName := fromId(d.Id())
+
+	certType, certSubType, serverName, err := fromId(d.Id())
 	if err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to parse certificate state"),
+				Summary:  "failed to parse certificate state",
 				Detail:   err.Error(),
 			},
 		}
@@ -247,14 +248,16 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 				Detail:   err.Error(),
 			},
 		}
-	}
-	if rcl == nil || len(rcl.Items) == 0 {
+	} else if rcl == nil || len(rcl.Items) == 0 {
 		// Certificate have already been deleted in an out-of-band fashion
 		d.SetId("")
 		return nil
 	}
+
 	for i, _rc := range rcl.Items {
-		err, resourceId := getId(&_rc)
+		var resourceId string
+
+		resourceId, err = getId(&_rc)
 		if err != nil {
 			return []diag.Diagnostic{
 				{
@@ -264,10 +267,12 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 				},
 			}
 		}
+
 		if resourceId == d.Id() {
 			repoCertificate = _rc
 			break
 		}
+
 		// Certificate have already been deleted in an out-of-band fashion
 		if i == len(rcl.Items)-1 {
 			d.SetId("")
@@ -285,16 +290,17 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 			},
 		}
 	}
+
 	return nil
 }
 
 func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
@@ -323,12 +329,13 @@ func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.R
 	}
 
 	c := *server.CertificateClient
-	err, certType, certSubType, serverName := fromId(d.Id())
+
+	certType, certSubType, serverName, err := fromId(d.Id())
 	if err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to parse certificate state"),
+				Summary:  "failed to parse certificate state",
 				Detail:   err.Error(),
 			},
 		}
@@ -352,16 +359,18 @@ func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.R
 			// Certificate have already been deleted in an out-of-band fashion
 			d.SetId("")
 			return nil
-		} else {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("certificate for repository %s could not be deleted", d.Id()),
-					Detail:   err.Error(),
-				},
-			}
+		}
+
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("certificate for repository %s could not be deleted", d.Id()),
+				Detail:   err.Error(),
+			},
 		}
 	}
+
 	d.SetId("")
+
 	return nil
 }
