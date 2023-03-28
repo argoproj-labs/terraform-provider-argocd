@@ -421,7 +421,8 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 			}
 		}
 	}
-	return resourceArgoCDProjectRead(ctx, d, meta)
+
+	return resourceArgoCDProjectTokenRead(ctx, d, meta)
 }
 
 func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
