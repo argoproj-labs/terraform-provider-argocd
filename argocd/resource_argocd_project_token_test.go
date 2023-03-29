@@ -109,6 +109,34 @@ func TestAccArgoCDProjectToken_RenewBefore(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDProjectToken_RenewAfter(t *testing.T) {
+	resourceName := "argocd_project_token.renew_after"
+
+	renewAfterSeconds := 1
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDProjectTokenRenewAfter(renewAfterSeconds),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "renew_after", fmt.Sprintf("%ds", renewAfterSeconds)),
+					testDelay(renewAfterSeconds+1),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: testAccArgoCDProjectTokenRenewAfter(renewAfterSeconds),
+				Check: resource.ComposeTestCheckFunc(
+					testDelay(renewAfterSeconds),
+				),
+				ExpectNonEmptyPlan: true, // token should be recreated when refreshed at end of step due to delay above
+			},
+		},
+	})
+}
+
 func testAccArgoCDProjectTokenSimple() string {
 	return `
 resource "argocd_project_token" "simple" {
@@ -181,6 +209,17 @@ resource "argocd_project_token" "renew_before" {
 `, expiresIn, renewBefore)
 }
 
+func testAccArgoCDProjectTokenRenewAfter(renewAfter int) string {
+	return fmt.Sprintf(`
+resource "argocd_project_token" "renew_after" {
+  project     = "myproject1"
+  description = "auto-renewing long-lived token"
+  role        = "test-role1234"
+  renew_after = "%ds"
+}
+`, renewAfter)
+}
+
 func testCheckTokenIssuedAt(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
@@ -192,11 +231,11 @@ func testCheckTokenIssuedAt(resourceName string) resource.TestCheckFunc {
 		}
 		_issuedAt, ok := rs.Primary.Attributes["issued_at"]
 		if !ok {
-			return fmt.Errorf("testCheckTokenExpiresAt: issued_at is not set")
+			return fmt.Errorf("testCheckTokenIssuedAt: issued_at is not set")
 		}
 		_, err := convertStringToInt64(_issuedAt)
 		if err != nil {
-			return fmt.Errorf("testCheckTokenExpiresAt: string attribute 'issued_at' stored in state cannot be converted to int64: %s", err)
+			return fmt.Errorf("testCheckTokenIssuedAt: string attribute 'issued_at' stored in state cannot be converted to int64: %s", err)
 		}
 		return nil
 	}

@@ -23,6 +23,33 @@ func resourceArgoCDProjectToken() *schema.Resource {
 		UpdateContext: resourceArgoCDProjectTokenUpdate,
 		DeleteContext: resourceArgoCDProjectTokenDelete,
 		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, m interface{}) error {
+			ia := d.Get("issued_at").(string)
+			if ia == "" {
+				// Blank issued_at indicates a new token - nothing to do here
+				return nil
+			}
+
+			issuedAt, err := convertStringToInt64(ia)
+			if err != nil {
+				return fmt.Errorf("invalid issued_at: %w", err)
+			}
+
+			if ra, ok := d.GetOk("renew_after"); ok {
+				renewAfterDuration, err := time.ParseDuration(ra.(string))
+				if err != nil {
+					return fmt.Errorf("invalid renew_after: %w", err)
+				}
+
+				if time.Now().Unix()-issuedAt > int64(renewAfterDuration.Seconds()) {
+					// Token is older than renewAfterDuration - force recreation
+					if err := d.SetNewComputed("issued_at"); err != nil {
+						return fmt.Errorf("failed to force new resource on field %q: %w", "issued_at", err)
+					}
+
+					return nil
+				}
+			}
+
 			ea, ok := d.GetOk("expires_at")
 			if !ok {
 				return nil
@@ -85,6 +112,12 @@ func resourceArgoCDProjectToken() *schema.Resource {
 				Description:  "Duration before the token will expire. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. E.g. `12h`, `7d`. Default: No expiration.",
 				Optional:     true,
 				ForceNew:     true,
+				ValidateFunc: validateDuration,
+			},
+			"renew_after": {
+				Type:         schema.TypeString,
+				Description:  "Duration to control token silent regeneration based on token age. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. If set, then the token will be regenerated if it is older than `renew_after`. I.e. if `currentDate - issued_at > renew_after`.",
+				Optional:     true,
 				ValidateFunc: validateDuration,
 			},
 			"renew_before": {
