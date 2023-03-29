@@ -2,7 +2,6 @@ package argocd
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"regexp"
 	"testing"
@@ -22,8 +21,6 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 	count := 3 + rand.Intn(7)
 	expIn1 := expiresInDurationFunc(rand.Intn(100000))
 	expIn2 := expiresInDurationFunc(rand.Intn(100000))
-	expIn3 := expiresInDurationFunc(rand.Intn(100000))
-	expIn4 := expiresInDurationFunc(rand.Intn(100000))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -53,23 +50,6 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 				ExpectError: regexp.MustCompile("token will expire within 5 minutes, check your settings"),
 			},
 			{
-				Config: testAccArgoCDProjectTokenRenewBeforeSuccess(expIn3),
-				Check: resource.ComposeTestCheckFunc(
-					testCheckTokenExpiresAt(
-						"argocd_project_token.renew",
-						int64(expIn3.Seconds()),
-					),
-					resource.TestCheckResourceAttrSet(
-						"argocd_project_token.renew",
-						"renew_before",
-					),
-				),
-			},
-			{
-				Config:      testAccArgoCDProjectTokenRenewBeforeFailure(expIn4),
-				ExpectError: regexp.MustCompile("renew_before .* cannot be greater than expires_in .*"),
-			},
-			{
 				Config: testAccArgoCDProjectTokenMultiple(count),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckMultipleResourceAttrSet(
@@ -93,6 +73,36 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 						count,
 					),
 				),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDProjectToken_RenewBefore(t *testing.T) {
+	resourceName := "argocd_project_token.renew"
+	expiresIn := "1h"
+	expiresInDuration, _ := time.ParseDuration("1h")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDProjectTokenRenewBeforeSuccess(expiresIn, "10m"),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckTokenExpiresAt(resourceName, int64(expiresInDuration.Seconds())),
+					resource.TestCheckResourceAttr("argocd_project_token.renew", "renew_before", "10m"),
+				),
+			},
+			{
+				Config: testAccArgoCDProjectTokenRenewBeforeSuccess(expiresIn, "20m"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_project_token.renew", "renew_before", "20m"),
+				),
+			},
+			{
+				Config:      testAccArgoCDProjectTokenRenewBeforeFailure(expiresInDuration),
+				ExpectError: regexp.MustCompile("renew_before .* cannot be greater than expires_in .*"),
 			},
 		},
 	})
@@ -160,29 +170,20 @@ resource "argocd_project_token" "renew" {
 `, expiresIn, renewBefore)
 }
 
-func testAccArgoCDProjectTokenRenewBeforeSuccess(expiresInDuration time.Duration) string {
-	expiresIn := int64(expiresInDuration.Seconds())
-	renewBefore := int64(math.Min(
-		expiresInDuration.Seconds()-1,
-		expiresInDuration.Seconds()-(rand.Float64()*expiresInDuration.Seconds()),
-	)) % int64(expiresInDuration.Seconds())
-
+func testAccArgoCDProjectTokenRenewBeforeSuccess(expiresIn, renewBefore string) string {
 	return fmt.Sprintf(`
 resource "argocd_project_token" "renew" {
   project = "myproject1"
   role    = "test-role1234"
-  expires_in = "%ds"
-  renew_before = "%ds"
+  expires_in = "%s"
+  renew_before = "%s"
 }
 `, expiresIn, renewBefore)
 }
 
 func testAccArgoCDProjectTokenRenewBeforeFailure(expiresInDuration time.Duration) string {
 	expiresIn := int64(expiresInDuration.Seconds())
-	renewBefore := int64(math.Max(
-		expiresInDuration.Seconds()+1.0,
-		expiresInDuration.Seconds()+(rand.Float64()*expiresInDuration.Seconds()),
-	))
+	renewBefore := int64(expiresInDuration.Seconds() + 1.0)
 	return fmt.Sprintf(`
 resource "argocd_project_token" "renew" {
   project = "myproject1"
