@@ -265,17 +265,12 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 	tokenMutexClusters.Unlock()
 
 	if err != nil {
-		if strings.Contains(err.Error(), "NotFound") {
-			d.SetId("")
-			return nil
-		} else {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("something went wrong during cluster update: %s", err),
-					Detail:   err.Error(),
-				},
-			}
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("something went wrong during cluster update: %s", err),
+				Detail:   err.Error(),
+			},
 		}
 	}
 	return resourceArgoCDClusterRead(ctx, d, meta)

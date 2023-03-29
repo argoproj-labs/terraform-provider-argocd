@@ -155,18 +155,12 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 	tokenMutexConfiguration.Unlock()
 
 	if err != nil {
-		if strings.Contains(err.Error(), "NotFound") {
-			// Repository credentials have already been deleted in an out-of-band fashion
-			d.SetId("")
-			return nil
-		} else {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("credentials for repository %s could not be updated", repoCreds.URL),
-					Detail:   err.Error(),
-				},
-			}
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("credentials for repository %s could not be updated", repoCreds.URL),
+				Detail:   err.Error(),
+			},
 		}
 	}
 	d.SetId(r.URL)
