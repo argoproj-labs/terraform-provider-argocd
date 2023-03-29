@@ -104,7 +104,7 @@ func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.Reso
 			},
 		}
 	}
-	if rcl == nil {
+	if rcl == nil || len(rcl.Items) == 0 {
 		// Repository credentials have already been deleted in an out-of-band fashion
 		d.SetId("")
 		return nil
