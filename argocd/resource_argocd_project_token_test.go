@@ -20,7 +20,6 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 	}
 	count := 3 + rand.Intn(7)
 	expIn1 := expiresInDurationFunc(rand.Intn(100000))
-	expIn2 := expiresInDurationFunc(rand.Intn(100000))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -44,10 +43,6 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 					"argocd_project_token.expires",
 					int64(expIn1.Seconds()),
 				),
-			},
-			{
-				Config:      testAccArgoCDProjectTokenMisconfiguration(expIn2),
-				ExpectError: regexp.MustCompile("token will expire within 5 minutes, check your settings"),
 			},
 			{
 				Config: testAccArgoCDProjectTokenMultiple(count),
@@ -79,26 +74,32 @@ func TestAccArgoCDProjectToken(t *testing.T) {
 }
 
 func TestAccArgoCDProjectToken_RenewBefore(t *testing.T) {
-	resourceName := "argocd_project_token.renew"
-	expiresIn := "1h"
-	expiresInDuration, _ := time.ParseDuration("1h")
+	resourceName := "argocd_project_token.renew_before"
 
-	resource.Test(t, resource.TestCase{
+	expiresInSeconds := 30
+	expiresIn := fmt.Sprintf("%ds", expiresInSeconds)
+	expiresInDuration, _ := time.ParseDuration(expiresIn)
+
+	renewBeforeSeconds := expiresInSeconds - 1
+
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDProjectTokenRenewBeforeSuccess(expiresIn, "10m"),
+				Config: testAccArgoCDProjectTokenRenewBeforeSuccess(expiresIn, "20s"),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckTokenExpiresAt(resourceName, int64(expiresInDuration.Seconds())),
-					resource.TestCheckResourceAttr("argocd_project_token.renew", "renew_before", "10m"),
+					resource.TestCheckResourceAttr(resourceName, "renew_before", "20s"),
 				),
 			},
 			{
-				Config: testAccArgoCDProjectTokenRenewBeforeSuccess(expiresIn, "20m"),
+				Config: testAccArgoCDProjectTokenRenewBeforeSuccess(expiresIn, fmt.Sprintf("%ds", renewBeforeSeconds)),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("argocd_project_token.renew", "renew_before", "20m"),
+					resource.TestCheckResourceAttr(resourceName, "renew_before", fmt.Sprintf("%ds", renewBeforeSeconds)),
+					testDelay(renewBeforeSeconds+1),
 				),
+				ExpectNonEmptyPlan: true, // token should be recreated when refreshed at end of step due to delay above
 			},
 			{
 				Config:      testAccArgoCDProjectTokenRenewBeforeFailure(expiresInDuration),
@@ -156,23 +157,9 @@ resource "argocd_project_token" "multiple2b" {
 `, count, count, count, count)
 }
 
-func testAccArgoCDProjectTokenMisconfiguration(expiresInDuration time.Duration) string {
-	expiresIn := int64(expiresInDuration.Seconds())
-	renewBefore := expiresIn
-
-	return fmt.Sprintf(`
-resource "argocd_project_token" "renew" {
-  project = "myproject1"
-  role    = "test-role1234"
-  expires_in = "%ds"
-  renew_before = "%ds"
-}
-`, expiresIn, renewBefore)
-}
-
 func testAccArgoCDProjectTokenRenewBeforeSuccess(expiresIn, renewBefore string) string {
 	return fmt.Sprintf(`
-resource "argocd_project_token" "renew" {
+resource "argocd_project_token" "renew_before" {
   project = "myproject1"
   role    = "test-role1234"
   expires_in = "%s"
@@ -185,7 +172,7 @@ func testAccArgoCDProjectTokenRenewBeforeFailure(expiresInDuration time.Duration
 	expiresIn := int64(expiresInDuration.Seconds())
 	renewBefore := int64(expiresInDuration.Seconds() + 1.0)
 	return fmt.Sprintf(`
-resource "argocd_project_token" "renew" {
+resource "argocd_project_token" "renew_before" {
   project = "myproject1"
   role    = "test-role1234"
   expires_in = "%ds"
@@ -264,6 +251,13 @@ func testCheckMultipleResourceAttrSet(name, key string, count int) resource.Test
 				return fmt.Errorf("%s: Attribute '%s' expected to be set", _name, key)
 			}
 		}
+		return nil
+	}
+}
+
+func testDelay(seconds int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		time.Sleep(time.Duration(seconds) * time.Second)
 		return nil
 	}
 }
