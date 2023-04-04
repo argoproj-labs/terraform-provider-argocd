@@ -90,7 +90,7 @@ func expandApplicationSource(_as interface{}) (
 }
 
 func expandApplicationSourcePlugin(in []interface{}) *application.ApplicationSourcePlugin {
-	if len(in) == 0 {
+	if len(in) == 0  || in[0] == nil {
 		return nil
 	}
 	a := in[0].(map[string]interface{})
