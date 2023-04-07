@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// Expand
-
 func expandRepositoryCredentials(d *schema.ResourceData) (*application.RepoCreds, error) {
 	var err error
 
@@ -18,46 +16,56 @@ func expandRepositoryCredentials(d *schema.ResourceData) (*application.RepoCreds
 	if v, ok := d.GetOk("url"); ok {
 		repoCreds.URL = v.(string)
 	}
+
 	if v, ok := d.GetOk("username"); ok {
 		repoCreds.Username = v.(string)
 	}
+
 	if v, ok := d.GetOk("password"); ok {
 		repoCreds.Password = v.(string)
 	}
+
 	if v, ok := d.GetOk("ssh_private_key"); ok {
 		repoCreds.SSHPrivateKey = v.(string)
 	}
+
 	if v, ok := d.GetOk("tls_client_cert_data"); ok {
 		repoCreds.TLSClientCertData = v.(string)
 	}
+
 	if v, ok := d.GetOk("tls_client_cert_key"); ok {
 		repoCreds.TLSClientCertKey = v.(string)
 	}
+
 	if v, ok := d.GetOk("enable_oci"); ok {
 		repoCreds.EnableOCI = v.(bool)
 	}
+
 	if v, ok := d.GetOk("githubapp_id"); ok {
 		repoCreds.GithubAppId, err = convertStringToInt64(v.(string))
 		if err != nil {
 			return nil, err
 		}
 	}
+
 	if v, ok := d.GetOk("githubapp_installation_id"); ok {
 		repoCreds.GithubAppInstallationId, err = convertStringToInt64(v.(string))
 		if err != nil {
 			return nil, err
 		}
 	}
+
 	if v, ok := d.GetOk("githubapp_enterprise_base_url"); ok {
 		repoCreds.GitHubAppEnterpriseBaseURL = v.(string)
 	}
+
 	if v, ok := d.GetOk("githubapp_private_key"); ok {
 		repoCreds.GithubAppPrivateKey = v.(string)
 	}
+
 	return repoCreds, nil
 }
 
-// Flatten
 func flattenRepositoryCredentials(repoCreds application.RepoCreds, d *schema.ResourceData) diag.Diagnostics {
 	r := map[string]interface{}{
 		"url":      repoCreds.URL,
@@ -80,5 +88,6 @@ func flattenRepositoryCredentials(repoCreds application.RepoCreds, d *schema.Res
 			}
 		}
 	}
+
 	return nil
 }

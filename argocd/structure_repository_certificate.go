@@ -8,9 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// Expand
-
-func expandRepositoryCertificate(d *schema.ResourceData) (*application.RepositoryCertificate, error) {
+func expandRepositoryCertificate(d *schema.ResourceData) *application.RepositoryCertificate {
 	certificate := &application.RepositoryCertificate{}
 
 	if _, ok := d.GetOk("ssh"); ok {
@@ -18,9 +16,11 @@ func expandRepositoryCertificate(d *schema.ResourceData) (*application.Repositor
 		if v, ok := d.GetOk("ssh.0.server_name"); ok {
 			certificate.ServerName = v.(string)
 		}
+
 		if v, ok := d.GetOk("ssh.0.cert_subtype"); ok {
 			certificate.CertSubType = v.(string)
 		}
+
 		if v, ok := d.GetOk("ssh.0.cert_data"); ok {
 			certificate.CertData = []byte(v.(string))
 		}
@@ -29,14 +29,14 @@ func expandRepositoryCertificate(d *schema.ResourceData) (*application.Repositor
 		if v, ok := d.GetOk("https.0.server_name"); ok {
 			certificate.ServerName = v.(string)
 		}
+
 		if v, ok := d.GetOk("https.0.cert_data"); ok {
 			certificate.CertData = []byte(v.(string))
 		}
 	}
-	return certificate, nil
-}
 
-// Flatten
+	return certificate
+}
 
 func flattenRepositoryCertificate(certificate *application.RepositoryCertificate, d *schema.ResourceData, ctx context.Context) error {
 	var r map[string]interface{}
@@ -70,6 +70,7 @@ func flattenRepositoryCertificate(certificate *application.RepositoryCertificate
 			return err
 		}
 	}
+
 	return nil
 }
 

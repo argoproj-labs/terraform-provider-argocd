@@ -7,11 +7,14 @@ import (
 )
 
 func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
+	t.Parallel()
+
 	type projectStateUpgradeTestCases []struct {
 		name          string
 		expectedState map[string]interface{}
 		sourceState   map[string]interface{}
 	}
+
 	cases := projectStateUpgradeTestCases{
 		{
 			name: "source_<_v0.5.0_with_warn",
@@ -125,7 +128,11 @@ func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
 	}
 
 	for _, tc := range cases {
+		tc := tc
+
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			actualState, err := resourceArgoCDProjectStateUpgradeV0(context.TODO(), tc.sourceState, nil)
 			if err != nil {
 				t.Fatalf("error migrating state: %s", err)

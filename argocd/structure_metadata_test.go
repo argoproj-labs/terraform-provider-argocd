@@ -6,6 +6,8 @@ import (
 )
 
 func TestMetadataIsInternalKey(t *testing.T) {
+	t.Parallel()
+
 	testCases := []struct {
 		Key      string
 		Expected bool
@@ -19,7 +21,12 @@ func TestMetadataIsInternalKey(t *testing.T) {
 		{"notified.notifications.argoproj.io", true},
 	}
 	for i, tc := range testCases {
+		i := i
+		tc := tc
+
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			t.Parallel()
+
 			isInternal := metadataIsInternalKey(tc.Key)
 			if tc.Expected && isInternal != tc.Expected {
 				t.Fatalf("Expected %q to be internal", tc.Key)

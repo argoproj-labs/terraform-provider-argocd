@@ -26,16 +26,16 @@ func resourceArgoCDCluster() *schema.Resource {
 
 func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
-	client := *server.ClusterClient
+
 	cluster, err := expandCluster(d)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -45,7 +45,6 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 				Detail:   err.Error(),
 			},
 		}
-
 	}
 
 	featureProjectScopedClustersSupported, err := server.isFeatureSupported(featureProjectScopedClusters)
@@ -57,8 +56,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 				Detail:   err.Error(),
 			},
 		}
-	}
-	if !featureProjectScopedClustersSupported && cluster.Project != "" {
+	} else if !featureProjectScopedClustersSupported && cluster.Project != "" {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -79,9 +77,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 				Detail:   err.Error(),
 			},
 		}
-	}
-
-	if !featureClusterMetadataSupported && (len(cluster.Annotations) != 0 || len(cluster.Labels) != 0) {
+	} else if !featureClusterMetadataSupported && (len(cluster.Annotations) != 0 || len(cluster.Labels) != 0) {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -92,6 +88,8 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	client := *server.ClusterClient
+
 	// Cluster are unique by "server address" so we should check there is no existing cluster with this address before
 	tokenMutexClusters.RLock()
 	existingClusters, err := client.List(ctx, &clusterClient.ClusterQuery{
@@ -101,6 +99,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 		},
 	})
 	tokenMutexClusters.RUnlock()
+
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -112,7 +111,8 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	rtrimmedServer := strings.TrimRight(cluster.Server, "/")
-	if err == nil && len(existingClusters.Items) > 0 {
+
+	if len(existingClusters.Items) > 0 {
 		for _, existingCluster := range existingClusters.Items {
 			if rtrimmedServer == strings.TrimRight(existingCluster.Server, "/") {
 				return []diag.Diagnostic{
@@ -146,20 +146,22 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 	} else {
 		d.SetId(c.Server)
 	}
+
 	return resourceArgoCDClusterRead(ctx, d, meta)
 }
 
 func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	client := *server.ClusterClient
 
 	tokenMutexClusters.RLock()
@@ -170,18 +172,18 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 		if strings.Contains(err.Error(), "NotFound") {
 			d.SetId("")
 			return nil
-		} else {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("could not get cluster information: %s", err),
-					Detail:   err.Error(),
-				},
-			}
+		}
+
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("could not get cluster information: %s", err),
+				Detail:   err.Error(),
+			},
 		}
 	}
-	err = flattenCluster(c, d)
-	if err != nil {
+
+	if err = flattenCluster(c, d); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -190,21 +192,24 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 			},
 		}
 	}
+
 	return nil
 }
 
 func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	client := *server.ClusterClient
+
 	cluster, err := expandCluster(d)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -225,8 +230,7 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 				Detail:   err.Error(),
 			},
 		}
-	}
-	if !featureProjectScopedClustersSupported && cluster.Project != "" {
+	} else if !featureProjectScopedClustersSupported && cluster.Project != "" {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -247,9 +251,7 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 				Detail:   err.Error(),
 			},
 		}
-	}
-
-	if !featureClusterMetadataSupported && (len(cluster.Annotations) != 0 || len(cluster.Labels) != 0) {
+	} else if !featureClusterMetadataSupported && (len(cluster.Annotations) != 0 || len(cluster.Labels) != 0) {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -273,21 +275,24 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 			},
 		}
 	}
+
 	return resourceArgoCDClusterRead(ctx, d, meta)
 }
 
 func resourceArgoCDClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	client := *server.ClusterClient
+
 	tokenMutexClusters.Lock()
 	_, err := client.Delete(ctx, getClusterQueryFromID(d))
 	tokenMutexClusters.Unlock()
@@ -296,28 +301,32 @@ func resourceArgoCDClusterDelete(ctx context.Context, d *schema.ResourceData, me
 		if strings.Contains(err.Error(), "NotFound") {
 			d.SetId("")
 			return nil
-		} else {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("something went wrong during cluster deletion: %s", err),
-					Detail:   err.Error(),
-				},
-			}
+		}
+
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("something went wrong during cluster deletion: %s", err),
+				Detail:   err.Error(),
+			},
 		}
 	}
+
 	d.SetId("")
+
 	return nil
 }
 
 func getClusterQueryFromID(d *schema.ResourceData) *clusterClient.ClusterQuery {
-	id := strings.Split(strings.TrimPrefix(d.Id(), "https://"), "/")
 	cq := &clusterClient.ClusterQuery{}
+
+	id := strings.Split(strings.TrimPrefix(d.Id(), "https://"), "/")
 	if len(id) > 1 {
 		cq.Name = id[len(id)-1]
 		cq.Server = fmt.Sprintf("https://%s", strings.Join(id[:len(id)-1], "/"))
 	} else {
 		cq.Server = d.Id()
 	}
+
 	return cq
 }
