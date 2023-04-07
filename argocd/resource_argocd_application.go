@@ -356,18 +356,6 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		return diags
 	}
 
-	c := *server.ApplicationClient
-	appRequest := &applicationClient.ApplicationUpdateRequest{
-		Application: &application.Application{
-			ObjectMeta: objectMeta,
-			Spec:       spec,
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "Application",
-				APIVersion: "argoproj.io/v1alpha1",
-			},
-		},
-	}
-
 	featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -449,14 +437,14 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	c := *server.ApplicationClient
 	ids := strings.Split(d.Id(), ":")
-	appName := ids[0]
-	namespace := ids[1]
+	appQuery := &applicationClient.ApplicationQuery{
+		Name:         &ids[0],
+		AppNamespace: &ids[1],
+	}
 
-	apps, err := c.List(ctx, &applicationClient.ApplicationQuery{
-		Name:         &appName,
-		AppNamespace: &namespace,
-	})
+	apps, err := c.List(ctx, appQuery)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -477,18 +465,26 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("found multiple applications matching name '%s' and namespace '%s'", appName, namespace),
+				Summary:  fmt.Sprintf("found multiple applications matching name '%s' and namespace '%s'", *appQuery.Name, *appQuery.AppNamespace),
 				Detail:   err.Error(),
 			},
 		}
 	}
 
-	_, err = c.Update(ctx, appRequest)
-	if err != nil {
+	if _, err = c.Update(ctx, &applicationClient.ApplicationUpdateRequest{
+		Application: &application.Application{
+			ObjectMeta: objectMeta,
+			Spec:       spec,
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "Application",
+				APIVersion: "argoproj.io/v1alpha1",
+			},
+		},
+	}); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application %s could not be updated", appName),
+				Summary:  fmt.Sprintf("application %s could not be updated", *appQuery.Name),
 				Detail:   err.Error(),
 			},
 		}
@@ -497,15 +493,12 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 	if wait, _ok := d.GetOk("wait"); _ok && wait.(bool) {
 		if err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
 			var list *application.ApplicationList
-			if list, err = c.List(ctx, &applicationClient.ApplicationQuery{
-				Name:         &appName,
-				AppNamespace: &namespace,
-			}); err != nil {
+			if list, err = c.List(ctx, appQuery); err != nil {
 				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", list.Items[0].Name, err))
 			}
 
 			if len(list.Items) != 1 {
-				return resource.NonRetryableError(fmt.Errorf("found multiple applications matching name '%s' and namespace '%s'", appName, namespace))
+				return resource.NonRetryableError(fmt.Errorf("found multiple applications matching name '%s' and namespace '%s'", *appQuery.Name, *appQuery.AppNamespace))
 			}
 
 			if list.Items[0].Status.Health.Status != health.HealthStatusHealthy {
