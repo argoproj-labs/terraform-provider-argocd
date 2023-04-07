@@ -3,28 +3,39 @@
 
 export PATH=$PATH:.
 
+argocd_version=${ARGOCD_VERSION:-v2.6.7}
+k8s_version=${ARGOCD_KUBERNETES_VERSION:-v1.24.7}
+
 echo "\n--- Kustomize sanity checks\n"
 kustomize version || exit 1
 
 echo "\n--- Create Kind cluster\n"
-kind create cluster --name argocd --config scripts/kind-config.yml --image kindest/node:${ARGOCD_KUBERNETES_VERSION:-v1.23.12}
+kind create cluster --name argocd --config scripts/kind-config.yml --image kindest/node:$k8s_version
 
 echo "\n--- Kind sanity checks\n"
 kubectl get nodes -o wide
 kubectl get pods --all-namespaces -o wide
 kubectl get services --all-namespaces -o wide
 
-if [[ -z "${ARGOCD_CI}" ]]; then
-  echo "\n--- Load already available container images from local registry into Kind (local development only)\n"
-  kind load docker-image redis:6.2.4-alpine --name argocd
-  kind load docker-image ghcr.io/dexidp/dex:v2.27.0 --name argocd
-  kind load docker-image alpine:3 --name argocd
-  kind load docker-image quay.io/argoproj/argocd:${ARGOCD_VERSION:-v2.5.0} --name argocd
+echo "\n--- Fetch ArgoCD installation manifests\n"
+curl https://raw.githubusercontent.com/argoproj/argo-cd/$argocd_version/manifests/install.yaml > manifests/install/argocd.yml
+
+if [ -z "${ARGOCD_CI}" ]; then
+  echo "\n--- Load local container images from into Kind (local development only)\n"
+  docker pull quay.io/argoproj/argocd:$argocd_version
+  kind load docker-image quay.io/argoproj/argocd:$argocd_version --name argocd
+  
+  dex_version=$(cat manifests/install/argocd.yml| grep "image: ghcr.io/dexidp/dex" | cut -d":" -f3)
+  docker pull ghcr.io/dexidp/dex:$dex_version
+  kind load docker-image ghcr.io/dexidp/dex:$dex_version --name argocd
+  
+  redis_version=$(cat manifests/install/argocd.yml| grep "image: redis" | cut -d":" -f3)
+  docker pull redis:$redis_version
+  kind load docker-image redis:$redis_version --name argocd
 fi
 
-echo "\n--- Install ArgoCD ${ARGOCD_VERSION:-v2.5.0}\n"
-curl https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION:-v2.5.0}/manifests/install.yaml > manifests/install/argocd.yml && \
-  kustomize build manifests/install | kubectl apply -f - && \
+echo "\n--- Install ArgoCD $argocd_version\n"
+kustomize build manifests/install | kubectl apply -f - && \
   kubectl apply -f manifests/testdata/
 
 echo "\n--- Wait for ArgoCD components to be ready...\n"

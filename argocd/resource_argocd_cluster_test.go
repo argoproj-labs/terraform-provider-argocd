@@ -34,7 +34,7 @@ func TestAccArgoCDCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.simple",
 						"info.0.server_version",
-						"1.23",
+						"1.24",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.simple",
@@ -66,7 +66,7 @@ func TestAccArgoCDCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.tls",
 						"info.0.server_version",
-						"1.23",
+						"1.24",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.tls",
