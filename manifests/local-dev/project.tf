@@ -1,20 +1,3 @@
-terraform {
-  required_providers {
-    argocd = {
-      source  = "oboukili/argocd"
-      version = "1.1.3"
-//      version = "0.4.8"
-    }
-  }
-}
-
-provider "argocd" {
-  server_addr = "127.0.0.1:8080"
-  insecure    = true
-  username    = "admin"
-  password    = "acceptancetesting"
-}
-
 resource "argocd_project" "foo" {
   metadata {
     name      = "foo"
@@ -35,29 +18,44 @@ resource "argocd_project" "foo" {
       server    = "https://kubernetes.default.svc"
       namespace = "default"
     }
+
     destination {
       server    = "https://kubernetes.default.svc"
       namespace = "foo"
     }
+
     cluster_resource_whitelist {
       group = "rbac.authorization.k8s.io"
       kind  = "ClusterRoleBinding"
     }
+
     cluster_resource_whitelist {
       group = "rbac.authorization.k8s.io"
       kind  = "ClusterRole"
     }
+
     namespace_resource_blacklist {
       group = "networking.k8s.io"
       kind  = "Ingress"
     }
+
     namespace_resource_whitelist {
       group = "*"
       kind  = "*"
     }
+
+    role {
+      name = "foo"
+      policies = [
+        "p, proj:foo:foo, applications, get, foo/*, allow",
+        "p, proj:foo:foo, applications, sync, foo/*, deny",
+      ]
+    }
+
     orphaned_resources {
       warn = true
     }
+
     sync_window {
       kind         = "allow"
       applications = ["api-*"]
@@ -67,6 +65,7 @@ resource "argocd_project" "foo" {
       schedule     = "10 1 * * *"
       manual_sync  = true
     }
+
     sync_window {
       kind         = "deny"
       applications = ["foo"]
