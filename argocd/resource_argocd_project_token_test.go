@@ -197,6 +197,7 @@ resource "argocd_project_token" "renew_before" {
 func testAccArgoCDProjectTokenRenewBeforeFailure(expiresInDuration time.Duration) string {
 	expiresIn := int64(expiresInDuration.Seconds())
 	renewBefore := int64(expiresInDuration.Seconds() + 1.0)
+
 	return fmt.Sprintf(`
 resource "argocd_project_token" "renew_before" {
   project = "myproject1"
