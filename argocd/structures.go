@@ -6,18 +6,18 @@ import (
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func expandApplicationDestinations(ds *schema.Set) (
-	result []application.ApplicationDestination) {
+func expandApplicationDestinations(ds *schema.Set) (result []application.ApplicationDestination) {
 	for _, dest := range ds.List() {
 		result = append(result, expandApplicationDestination(dest))
 	}
+
 	return
 }
 
-func expandSyncWindows(sws []interface{}) (
-	result []*application.SyncWindow) {
+func expandSyncWindows(sws []interface{}) (result []*application.SyncWindow) {
 	for _, _sw := range sws {
 		sw := _sw.(map[string]interface{})
+
 		result = append(
 			result,
 			&application.SyncWindow{
@@ -31,34 +31,35 @@ func expandSyncWindows(sws []interface{}) (
 			},
 		)
 	}
+
 	return
 }
 
-func expandK8SGroupKind(groupKinds *schema.Set) (
-	result []meta.GroupKind) {
+func expandK8SGroupKind(groupKinds *schema.Set) (result []meta.GroupKind) {
 	for _, _gk := range groupKinds.List() {
 		gk := _gk.(map[string]interface{})
+
 		result = append(result, meta.GroupKind{
 			Group: gk["group"].(string),
 			Kind:  gk["kind"].(string),
 		})
 	}
+
 	return
 }
 
-func flattenK8SGroupKinds(gks []meta.GroupKind) (
-	result []map[string]string) {
+func flattenK8SGroupKinds(gks []meta.GroupKind) (result []map[string]string) {
 	for _, gk := range gks {
 		result = append(result, map[string]string{
 			"group": gk.Group,
 			"kind":  gk.Kind,
 		})
 	}
+
 	return
 }
 
-func flattenSyncWindows(sws application.SyncWindows) (
-	result []map[string]interface{}) {
+func flattenSyncWindows(sws application.SyncWindows) (result []map[string]interface{}) {
 	for _, sw := range sws {
 		result = append(result, map[string]interface{}{
 			"applications": sw.Applications,
@@ -70,5 +71,6 @@ func flattenSyncWindows(sws application.SyncWindows) (
 			"schedule":     sw.Schedule,
 		})
 	}
+
 	return
 }

@@ -8,6 +8,8 @@ import (
 )
 
 func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds(t *testing.T) {
+	t.Parallel()
+
 	v0 := map[string]interface{}{
 		"spec": []interface{}{
 			map[string]interface{}{
@@ -57,6 +59,8 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds(t *testing.T) {
 }
 
 func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds_NoChange(t *testing.T) {
+	t.Parallel()
+
 	v0 := map[string]interface{}{
 		"spec": []interface{}{
 			map[string]interface{}{
@@ -81,6 +85,8 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds_NoChange(t *testing.T) {
 }
 
 func TestUpgradeSchemaApplication_V1V2_Default_NoChange(t *testing.T) {
+	t.Parallel()
+
 	v1 := map[string]interface{}{
 		"spec": []interface{}{
 			map[string]interface{}{
@@ -110,6 +116,8 @@ func TestUpgradeSchemaApplication_V1V2_Default_NoChange(t *testing.T) {
 }
 
 func TestUpgradeSchemaApplication_V1V2_WithKsonnet(t *testing.T) {
+	t.Parallel()
+
 	v1 := map[string]interface{}{
 		"spec": []interface{}{
 			map[string]interface{}{
@@ -140,6 +148,8 @@ func TestUpgradeSchemaApplication_V1V2_WithKsonnet(t *testing.T) {
 }
 
 func TestUpgradeSchemaApplication_V2V3_Default_NoChange(t *testing.T) {
+	t.Parallel()
+
 	v2 := map[string]interface{}{
 		"metadata": []interface{}{
 			map[string]interface{}{
@@ -174,11 +184,14 @@ func TestUpgradeSchemaApplication_V2V3_Default_NoChange(t *testing.T) {
 	}
 }
 func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
+	t.Parallel()
+
 	type stateUpgradeTestCases []struct {
 		name          string
 		sourceState   map[string]interface{}
 		expectedState map[string]interface{}
 	}
+
 	cases := stateUpgradeTestCases{
 		{
 			name: "no sync policy",
@@ -534,7 +547,11 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 	}
 
 	for _, tc := range cases {
+		tc := tc
+
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			actualState, err := resourceArgoCDApplicationStateUpgradeV3(context.TODO(), tc.sourceState, nil)
 			if err != nil {
 				t.Fatalf("error migrating state: %s", err)

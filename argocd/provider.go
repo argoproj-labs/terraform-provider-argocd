@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/url"
 	"sync"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
@@ -21,8 +22,6 @@ import (
 	// Import to initialize client auth plugins.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
-
-var apiClientConnOpts apiclient.ClientOptions
 
 // Used to handle concurrent access to ArgoCD common configuration
 var tokenMutexConfiguration = &sync.RWMutex{}
@@ -193,10 +192,7 @@ func Provider() *schema.Provider {
 	}
 }
 
-func initApiClient(d *schema.ResourceData) (
-	apiClient apiclient.Client,
-	err error) {
-
+func initApiClient(ctx context.Context, d *schema.ResourceData) (apiClient apiclient.Client, err error) {
 	var opts apiclient.ClientOptions
 
 	if v, ok := d.GetOk("server_addr"); ok {
@@ -207,12 +203,8 @@ func initApiClient(d *schema.ResourceData) (
 		if v.(bool) {
 			if v, ok := d.GetOk("config_path"); ok {
 				opts.ConfigPath = v.(string)
-			} else {
-				path, err := localconfig.DefaultLocalConfigPath()
-				if err != nil {
-					return nil, err
-				}
-				opts.ConfigPath = path
+			} else if opts.ConfigPath, err = localconfig.DefaultLocalConfigPath(); err != nil {
+				return nil, err
 			}
 		}
 	}
@@ -220,55 +212,73 @@ func initApiClient(d *schema.ResourceData) (
 	if v, ok := d.GetOk("plain_text"); ok {
 		opts.PlainText = v.(bool)
 	}
+
 	if v, ok := d.GetOk("insecure"); ok {
 		opts.Insecure = v.(bool)
 	}
+
 	if v, ok := d.GetOk("cert_file"); ok {
 		opts.CertFile = v.(string)
 	}
+
 	if v, ok := d.GetOk("client_cert_file"); ok {
 		opts.ClientCertFile = v.(string)
 	}
+
 	if v, ok := d.GetOk("client_cert_key"); ok {
 		opts.ClientCertKeyFile = v.(string)
 	}
+
 	if v, ok := d.GetOk("context"); ok {
 		opts.Context = v.(string)
 	}
+
 	if v, ok := d.GetOk("user_agent"); ok {
 		opts.UserAgent = v.(string)
 	}
+
 	if v, ok := d.GetOk("grpc_web"); ok {
 		opts.GRPCWeb = v.(bool)
 	}
+
 	if v, ok := d.GetOk("grpc_web_root_path"); ok {
 		opts.GRPCWebRootPath = v.(string)
 	}
+
 	if v, ok := d.GetOk("port_forward"); ok {
 		opts.PortForward = v.(bool)
 	}
+
 	if v, ok := d.GetOk("port_forward_with_namespace"); ok {
 		opts.PortForwardNamespace = v.(string)
 	}
+
 	if v, ok := d.GetOk("headers"); ok {
 		_headers := v.(*schema.Set).List()
+
 		var headers = make([]string, len(_headers))
+
 		for i, _header := range _headers {
 			headers[i] = _header.(string)
 		}
+
 		opts.Headers = headers
 	}
+
 	if _, ok := d.GetOk("kubernetes"); ok {
 		opts.KubeOverrides = &clientcmd.ConfigOverrides{}
 		if v, ok := k8sGetOk(d, "insecure"); ok {
 			opts.KubeOverrides.ClusterInfo.InsecureSkipTLSVerify = v.(bool)
 		}
+
 		if v, ok := k8sGetOk(d, "cluster_ca_certificate"); ok {
 			opts.KubeOverrides.ClusterInfo.CertificateAuthorityData = bytes.NewBufferString(v.(string)).Bytes()
 		}
+
 		if v, ok := k8sGetOk(d, "client_certificate"); ok {
 			opts.KubeOverrides.AuthInfo.ClientCertificateData = bytes.NewBufferString(v.(string)).Bytes()
 		}
+
 		if v, ok := k8sGetOk(d, "host"); ok {
 			// Server has to be the complete address of the kubernetes cluster (scheme://hostname:port), not just the hostname,
 			// because `overrides` are processed too late to be taken into account by `defaultServerUrlFor()`.
@@ -277,22 +287,29 @@ func initApiClient(d *schema.ResourceData) (
 			hasCA := len(opts.KubeOverrides.ClusterInfo.CertificateAuthorityData) != 0
 			hasCert := len(opts.KubeOverrides.AuthInfo.ClientCertificateData) != 0
 			defaultTLS := hasCA || hasCert || opts.KubeOverrides.ClusterInfo.InsecureSkipTLSVerify
-			host, _, err := rest.DefaultServerURL(v.(string), "", apimachineryschema.GroupVersion{}, defaultTLS)
+
+			var host *url.URL
+
+			host, _, err = rest.DefaultServerURL(v.(string), "", apimachineryschema.GroupVersion{}, defaultTLS)
 			if err != nil {
 				return nil, err
 			}
 
 			opts.KubeOverrides.ClusterInfo.Server = host.String()
 		}
+
 		if v, ok := k8sGetOk(d, "username"); ok {
 			opts.KubeOverrides.AuthInfo.Username = v.(string)
 		}
+
 		if v, ok := k8sGetOk(d, "password"); ok {
 			opts.KubeOverrides.AuthInfo.Password = v.(string)
 		}
+
 		if v, ok := k8sGetOk(d, "client_key"); ok {
 			opts.KubeOverrides.AuthInfo.ClientKeyData = bytes.NewBufferString(v.(string)).Bytes()
 		}
+
 		if v, ok := k8sGetOk(d, "token"); ok {
 			opts.KubeOverrides.AuthInfo.Token = v.(string)
 		}
@@ -304,6 +321,7 @@ func initApiClient(d *schema.ResourceData) (
 				exec.APIVersion = spec["api_version"].(string)
 				exec.Command = spec["command"].(string)
 				exec.Args = expandStringSlice(spec["args"].([]interface{}))
+
 				for kk, vv := range spec["env"].(map[string]interface{}) {
 					exec.Env = append(exec.Env, clientcmdapi.ExecEnvVar{Name: kk, Value: vv.(string)})
 				}
@@ -311,12 +329,10 @@ func initApiClient(d *schema.ResourceData) (
 				log.Printf("[ERROR] Failed to parse exec")
 				return nil, fmt.Errorf("failed to parse exec")
 			}
+
 			opts.KubeOverrides.AuthInfo.Exec = exec
 		}
 	}
-
-	// Export provider API client connections options for use in other spawned api clients
-	apiClientConnOpts = opts
 
 	authToken, authTokenOk := d.GetOk("auth_token")
 	switch authTokenOk {
@@ -325,27 +341,34 @@ func initApiClient(d *schema.ResourceData) (
 	case false:
 		userName, userNameOk := d.GetOk("username")
 		password, passwordOk := d.GetOk("password")
+
 		if userNameOk && passwordOk {
 			apiClient, err = apiclient.NewClient(&opts)
 			if err != nil {
 				return apiClient, err
 			}
+
 			closer, sc, err := apiClient.NewSessionClient()
 			if err != nil {
 				return apiClient, err
 			}
+
 			defer io.Close(closer)
+
 			sessionOpts := session.SessionCreateRequest{
 				Username: userName.(string),
 				Password: password.(string),
 			}
-			resp, err := sc.Create(context.Background(), &sessionOpts)
+
+			resp, err := sc.Create(ctx, &sessionOpts)
 			if err != nil {
 				return apiClient, err
 			}
+
 			opts.AuthToken = resp.Token
 		}
 	}
+
 	return apiclient.NewClient(&opts)
 }
 
@@ -496,7 +519,8 @@ func k8sGetOk(d *schema.ResourceData, key string) (interface{}, bool) {
 }
 
 func expandStringSlice(s []interface{}) []string {
-	result := make([]string, len(s), len(s))
+	result := make([]string, len(s))
+
 	for k, v := range s {
 		// Handle the Terraform parser bug which turns empty strings in lists to nil.
 		if v == nil {
@@ -505,5 +529,6 @@ func expandStringSlice(s []interface{}) []string {
 			result[k] = v.(string)
 		}
 	}
+
 	return result
 }

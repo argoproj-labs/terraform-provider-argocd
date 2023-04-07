@@ -10,6 +10,7 @@ func repositoryCredentialsSchema() map[string]*schema.Schema {
 			Type:        schema.TypeString,
 			Description: "URL that these credentials matches to.",
 			Required:    true,
+			ForceNew:    true,
 		},
 		"username": {
 			Type:        schema.TypeString,

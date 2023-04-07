@@ -22,6 +22,77 @@ func resourceArgoCDProjectToken() *schema.Resource {
 		ReadContext:   resourceArgoCDProjectTokenRead,
 		UpdateContext: resourceArgoCDProjectTokenUpdate,
 		DeleteContext: resourceArgoCDProjectTokenDelete,
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, m interface{}) error {
+			ia := d.Get("issued_at").(string)
+			if ia == "" {
+				// Blank issued_at indicates a new token - nothing to do here
+				return nil
+			}
+
+			issuedAt, err := convertStringToInt64(ia)
+			if err != nil {
+				return fmt.Errorf("invalid issued_at: %w", err)
+			}
+
+			if ra, ok := d.GetOk("renew_after"); ok {
+				renewAfterDuration, err := time.ParseDuration(ra.(string))
+				if err != nil {
+					return fmt.Errorf("invalid renew_after: %w", err)
+				}
+
+				if time.Now().Unix()-issuedAt > int64(renewAfterDuration.Seconds()) {
+					// Token is older than renewAfterDuration - force recreation
+					if err := d.SetNewComputed("issued_at"); err != nil {
+						return fmt.Errorf("failed to force new resource on field %q: %w", "issued_at", err)
+					}
+
+					return nil
+				}
+			}
+
+			ea, ok := d.GetOk("expires_at")
+			if !ok {
+				return nil
+			}
+
+			expiresAt, err := convertStringToInt64(ea.(string))
+			if err != nil {
+				return fmt.Errorf("invalid expires_at: %w", err)
+			}
+
+			if expiresAt == 0 {
+				// Token not set to expire - no need to check anything else
+				return nil
+			}
+
+			if expiresAt < time.Now().Unix() {
+				// Token has expired - force recreation
+				if err := d.SetNewComputed("expires_at"); err != nil {
+					return fmt.Errorf("failed to force new resource on field %q: %w", "expires_at", err)
+				}
+
+				return nil
+			}
+
+			rb, ok := d.GetOk("renew_before")
+			if !ok {
+				return nil
+			}
+
+			renewBeforeDuration, err := time.ParseDuration(rb.(string))
+			if err != nil {
+				return fmt.Errorf("invalid renew_before: %w", err)
+			}
+
+			if expiresAt-time.Now().Unix() < int64(renewBeforeDuration.Seconds()) {
+				// Token will expire within renewBeforeDuration - force recreation
+				if err := d.SetNewComputed("issued_at"); err != nil {
+					return fmt.Errorf("failed to force new resource on field %q: %w", "issued_at", err)
+				}
+			}
+
+			return nil
+		},
 
 		Schema: map[string]*schema.Schema{
 			"project": {
@@ -43,9 +114,15 @@ func resourceArgoCDProjectToken() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateDuration,
 			},
+			"renew_after": {
+				Type:         schema.TypeString,
+				Description:  "Duration to control token silent regeneration based on token age. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. If set, then the token will be regenerated if it is older than `renew_after`. I.e. if `currentDate - issued_at > renew_after`.",
+				Optional:     true,
+				ValidateFunc: validateDuration,
+			},
 			"renew_before": {
 				Type:         schema.TypeString,
-				Description:  "Duration to control token silent regeneration, valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. If `expires_in` is set, Terraform will regenerate the token if `expires_in - renew_before < currentDate`.",
+				Description:  "Duration to control token silent regeneration based on remaining token lifetime. If `expires_in` is set, Terraform will regenerate the token if `expires_at - currentDate < renew_before`. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`.",
 				Optional:     true,
 				ValidateFunc: validateDuration,
 				RequiredWith: []string{"expires_in"},
@@ -80,18 +157,15 @@ func resourceArgoCDProjectToken() *schema.Resource {
 
 func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
-	c := *server.ProjectClient
-	var claims jwt.StandardClaims
-	var expiresIn int64
 
 	projectName := d.Get("project").(string)
 	role := d.Get("role").(string)
@@ -103,9 +177,13 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
 	}
+
 	if d, ok := d.GetOk("description"); ok {
 		opts.Description = d.(string)
 	}
+
+	var expiresIn int64
+
 	_expiresIn, expiresInOk := d.GetOk("expires_in")
 	if expiresInOk {
 		expiresInDuration, err := time.ParseDuration(_expiresIn.(string))
@@ -118,6 +196,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 				},
 			}
 		}
+
 		expiresIn = int64(expiresInDuration.Seconds())
 		opts.ExpiresIn = expiresIn
 	}
@@ -134,21 +213,14 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 				},
 			}
 		}
+
 		renewBefore := int64(renewBeforeDuration.Seconds())
+
 		if renewBefore > expiresIn {
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("renew_before (%d) cannot be greater than expires_in (%d) for project %s", renewBefore, expiresIn, projectName),
-				},
-			}
-		}
-		// Arbitrary protection against misconfiguration
-		if 300 > expiresIn-renewBefore {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  "token will expire within 5 minutes, check your settings",
 				},
 			}
 		}
@@ -165,14 +237,19 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
+	c := *server.ProjectClient
+
 	tokenMutexProjectMap[projectName].Lock()
 	resp, err := c.CreateToken(ctx, opts)
+
 	// ensure issuedAt is unique upon multiple simultaneous resource creation invocations
 	// as this is the unique ID for old tokens
 	if !featureTokenIDSupported {
 		time.Sleep(1 * time.Second)
 	}
+
 	tokenMutexProjectMap[projectName].Unlock()
+
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -182,6 +259,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 			},
 		}
 	}
+
 	token, err := jwt.ParseString(resp.GetToken())
 	if err != nil {
 		return []diag.Diagnostic{
@@ -192,7 +270,9 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 			},
 		}
 	}
-	if err := json.Unmarshal(token.RawClaims(), &claims); err != nil {
+
+	var claims jwt.StandardClaims
+	if err = json.Unmarshal(token.RawClaims(), &claims); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -201,6 +281,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 			},
 		}
 	}
+
 	if claims.IssuedAt == nil {
 		return []diag.Diagnostic{
 			{
@@ -209,6 +290,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 			},
 		}
 	}
+
 	if expiresInOk {
 		if claims.ExpiresAt == nil {
 			return []diag.Diagnostic{
@@ -230,6 +312,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 			}
 		}
 	}
+
 	if err = d.Set("issued_at", convertInt64ToString(claims.IssuedAt.Unix())); err != nil {
 		return []diag.Diagnostic{
 			{
@@ -239,6 +322,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 			},
 		}
 	}
+
 	if err := d.Set("jwt", token.String()); err != nil {
 		return []diag.Diagnostic{
 			{
@@ -248,6 +332,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 			},
 		}
 	}
+
 	if featureTokenIDSupported {
 		if claims.ID == "" {
 			return []diag.Diagnostic{
@@ -257,31 +342,29 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 				},
 			}
 		}
+
 		d.SetId(claims.ID)
 	} else {
 		d.SetId(fmt.Sprintf("%s-%s-%d", projectName, role, claims.IssuedAt.Unix()))
 	}
+
 	return resourceArgoCDProjectTokenRead(ctx, d, meta)
 }
 
 func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var token *application.JWTToken
-	var expiresIn int64
-	var renewBefore int64
-	var requestTokenID string
-	var requestTokenIAT int64 = 0
-
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
+
 	c := *server.ProjectClient
+
 	projectName := d.Get("project").(string)
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
@@ -319,6 +402,11 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 			},
 		}
 	}
+
+	var requestTokenID string
+
+	var requestTokenIAT int64 = 0
+
 	if featureTokenIDSupported {
 		requestTokenID = d.Id()
 	} else {
@@ -340,6 +428,8 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
+	var token *application.JWTToken
+
 	tokenMutexProjectMap[projectName].RLock()
 	token, _, err = p.GetJWTToken(
 		d.Get("role").(string),
@@ -347,17 +437,13 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 		requestTokenID,
 	)
 	tokenMutexProjectMap[projectName].RUnlock()
+
 	if err != nil {
 		// Token has been deleted in an out-of-band fashion
 		d.SetId("")
 		return nil
 	}
 
-	computedExpiresIn := expiresIn - renewBefore
-	if err := isValidToken(token, computedExpiresIn); err != nil {
-		d.SetId("")
-		return nil
-	}
 	if err = d.Set("issued_at", convertInt64ToString(token.IssuedAt)); err != nil {
 		return []diag.Diagnostic{
 			{
@@ -367,6 +453,7 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 			},
 		}
 	}
+
 	if err = d.Set("expires_at", convertInt64ToString(token.ExpiresAt)); err != nil {
 		return []diag.Diagnostic{
 			{
@@ -376,12 +463,14 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 			},
 		}
 	}
+
 	return nil
 }
 
 func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var expiresIn int64
 	projectName := d.Get("project").(string)
+
+	var expiresIn int64
 
 	_expiresIn, expiresInOk := d.GetOk("expires_in")
 	if expiresInOk {
@@ -395,6 +484,7 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 				},
 			}
 		}
+
 		expiresIn = int64(expiresInDuration.Seconds())
 	}
 
@@ -410,6 +500,7 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 				},
 			}
 		}
+
 		renewBefore := int64(renewBeforeDuration.Seconds())
 		if renewBefore > expiresIn {
 			return []diag.Diagnostic{
@@ -421,22 +512,23 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 			}
 		}
 	}
-	return resourceArgoCDProjectRead(ctx, d, meta)
+
+	return resourceArgoCDProjectTokenRead(ctx, d, meta)
 }
 
 func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	server := meta.(*ServerInterface)
-	if err := server.initClients(); err != nil {
+	if err := server.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Failed to init clients"),
+				Summary:  "failed to init clients",
 				Detail:   err.Error(),
 			},
 		}
 	}
-	c := *server.ProjectClient
 
+	c := *server.ProjectClient
 	projectName := d.Get("project").(string)
 	role := d.Get("role").(string)
 	opts := &project.ProjectTokenDeleteRequest{
@@ -487,6 +579,8 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 	tokenMutexProjectMap[projectName].Unlock()
+
 	d.SetId("")
+
 	return nil
 }

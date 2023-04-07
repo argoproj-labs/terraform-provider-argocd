@@ -671,7 +671,10 @@ func TestAccArgoCDApplication_Info(t *testing.T) {
 }
 
 func TestProvider_headers(t *testing.T) {
+	t.Parallel()
+
 	name := acctest.RandomWithPrefix("test-acc")
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
@@ -1753,19 +1756,22 @@ resource "argocd_application" "simple" {
 }
 
 func testAccSkipFeatureIgnoreDiffJQPathExpressions() (bool, error) {
+	ctx := context.Background()
+
 	p, _ := testAccProviders["argocd"]()
-	_ = p.Configure(context.Background(), &terraform.ResourceConfig{})
+	_ = p.Configure(ctx, &terraform.ResourceConfig{})
+
 	server := p.Meta().(*ServerInterface)
-	err := server.initClients()
+
+	err := server.initClients(ctx)
 	if err != nil {
 		return false, err
 	}
+
 	featureSupported, err := server.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
 	if err != nil {
 		return false, err
 	}
-	if !featureSupported {
-		return true, nil
-	}
-	return false, nil
+
+	return !featureSupported, nil
 }

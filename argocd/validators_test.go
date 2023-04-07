@@ -7,6 +7,7 @@ import (
 )
 
 func Test_validateSSHPrivateKey(t *testing.T) {
+	t.Parallel()
 
 	tests := []struct {
 		name   string
@@ -27,12 +28,19 @@ func Test_validateSSHPrivateKey(t *testing.T) {
 			wantEs: nil,
 		},
 	}
+
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			gotWs, gotEs := validateSSHPrivateKey(tt.value, "ssh_private_key")
+
 			if !reflect.DeepEqual(gotWs, tt.wantWs) {
 				t.Errorf("validateSSHPrivateKey() gotWs = %v, want %v", gotWs, tt.wantWs)
 			}
+
 			if !reflect.DeepEqual(gotEs, tt.wantEs) {
 				t.Errorf("validateSSHPrivateKey() gotEs = %v, want %v", gotEs, tt.wantEs)
 			}
