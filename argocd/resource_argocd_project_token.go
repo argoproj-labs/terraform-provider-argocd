@@ -22,6 +22,77 @@ func resourceArgoCDProjectToken() *schema.Resource {
 		ReadContext:   resourceArgoCDProjectTokenRead,
 		UpdateContext: resourceArgoCDProjectTokenUpdate,
 		DeleteContext: resourceArgoCDProjectTokenDelete,
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, m interface{}) error {
+			ia := d.Get("issued_at").(string)
+			if ia == "" {
+				// Blank issued_at indicates a new token - nothing to do here
+				return nil
+			}
+
+			issuedAt, err := convertStringToInt64(ia)
+			if err != nil {
+				return fmt.Errorf("invalid issued_at: %w", err)
+			}
+
+			if ra, ok := d.GetOk("renew_after"); ok {
+				renewAfterDuration, err := time.ParseDuration(ra.(string))
+				if err != nil {
+					return fmt.Errorf("invalid renew_after: %w", err)
+				}
+
+				if time.Now().Unix()-issuedAt > int64(renewAfterDuration.Seconds()) {
+					// Token is older than renewAfterDuration - force recreation
+					if err := d.SetNewComputed("issued_at"); err != nil {
+						return fmt.Errorf("failed to force new resource on field %q: %w", "issued_at", err)
+					}
+
+					return nil
+				}
+			}
+
+			ea, ok := d.GetOk("expires_at")
+			if !ok {
+				return nil
+			}
+
+			expiresAt, err := convertStringToInt64(ea.(string))
+			if err != nil {
+				return fmt.Errorf("invalid expires_at: %w", err)
+			}
+
+			if expiresAt == 0 {
+				// Token not set to expire - no need to check anything else
+				return nil
+			}
+
+			if expiresAt < time.Now().Unix() {
+				// Token has expired - force recreation
+				if err := d.SetNewComputed("expires_at"); err != nil {
+					return fmt.Errorf("failed to force new resource on field %q: %w", "expires_at", err)
+				}
+
+				return nil
+			}
+
+			rb, ok := d.GetOk("renew_before")
+			if !ok {
+				return nil
+			}
+
+			renewBeforeDuration, err := time.ParseDuration(rb.(string))
+			if err != nil {
+				return fmt.Errorf("invalid renew_before: %w", err)
+			}
+
+			if expiresAt-time.Now().Unix() < int64(renewBeforeDuration.Seconds()) {
+				// Token will expire within renewBeforeDuration - force recreation
+				if err := d.SetNewComputed("issued_at"); err != nil {
+					return fmt.Errorf("failed to force new resource on field %q: %w", "issued_at", err)
+				}
+			}
+
+			return nil
+		},
 
 		Schema: map[string]*schema.Schema{
 			"project": {
@@ -43,9 +114,15 @@ func resourceArgoCDProjectToken() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateDuration,
 			},
+			"renew_after": {
+				Type:         schema.TypeString,
+				Description:  "Duration to control token silent regeneration based on token age. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. If set, then the token will be regenerated if it is older than `renew_after`. I.e. if `currentDate - issued_at > renew_after`.",
+				Optional:     true,
+				ValidateFunc: validateDuration,
+			},
 			"renew_before": {
 				Type:         schema.TypeString,
-				Description:  "Duration to control token silent regeneration, valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. If `expires_in` is set, Terraform will regenerate the token if `expires_in - renew_before < currentDate`.",
+				Description:  "Duration to control token silent regeneration based on remaining token lifetime. If `expires_in` is set, Terraform will regenerate the token if `expires_at - currentDate < renew_before`. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`.",
 				Optional:     true,
 				ValidateFunc: validateDuration,
 				RequiredWith: []string{"expires_in"},
@@ -138,21 +215,12 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 		}
 
 		renewBefore := int64(renewBeforeDuration.Seconds())
+
 		if renewBefore > expiresIn {
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("renew_before (%d) cannot be greater than expires_in (%d) for project %s", renewBefore, expiresIn, projectName),
-				},
-			}
-		}
-
-		// Arbitrary protection against misconfiguration
-		if 300 > expiresIn-renewBefore {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  "token will expire within 5 minutes, check your settings",
 				},
 			}
 		}
@@ -376,18 +444,6 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 		return nil
 	}
 
-	var expiresIn int64
-
-	var renewBefore int64
-
-	// TODO: Bug identified during refactoring/linting - is this really correct?
-	// Change introduced in https://github.com/oboukili/terraform-provider-argocd/pull/12/files
-	computedExpiresIn := expiresIn - renewBefore
-	if err = isValidToken(token, computedExpiresIn); err != nil {
-		d.SetId("")
-		return nil
-	}
-
 	if err = d.Set("issued_at", convertInt64ToString(token.IssuedAt)); err != nil {
 		return []diag.Diagnostic{
 			{
@@ -457,7 +513,7 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	return resourceArgoCDProjectRead(ctx, d, meta)
+	return resourceArgoCDProjectTokenRead(ctx, d, meta)
 }
 
 func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

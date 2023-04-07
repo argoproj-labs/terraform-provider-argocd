@@ -5,12 +5,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
-	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
-	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/argo-cd/v2/server/rbacpolicy"
-	"github.com/argoproj/argo-cd/v2/util/io"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -142,32 +138,6 @@ func validatePolicy(project string, role string, policy string) error {
 	if effect != "allow" && effect != "deny" {
 		return fmt.Errorf("invalid policy rule '%s': effect must be: 'allow' or 'deny'", policy)
 	}
-
-	return nil
-}
-
-func isValidToken(token *application.JWTToken, expiresIn int64) error {
-	// Check token expiry
-	if expiresIn > 0 && token.ExpiresAt < time.Now().Unix() {
-		return fmt.Errorf("token has expired")
-	}
-
-	// Check that token login works
-	opts := apiClientConnOpts
-	opts.AuthToken = token.String()
-	opts.Insecure = true
-
-	c, err := apiclient.NewClient(&opts)
-	if err != nil {
-		return err
-	}
-
-	closer, _, err := c.NewProjectClient()
-	if err != nil {
-		return err
-	}
-
-	defer io.Close(closer)
 
 	return nil
 }

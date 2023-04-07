@@ -23,8 +23,6 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
-var apiClientConnOpts apiclient.ClientOptions
-
 // Used to handle concurrent access to ArgoCD common configuration
 var tokenMutexConfiguration = &sync.RWMutex{}
 
@@ -335,9 +333,6 @@ func initApiClient(ctx context.Context, d *schema.ResourceData) (apiClient apicl
 			opts.KubeOverrides.AuthInfo.Exec = exec
 		}
 	}
-
-	// Export provider API client connections options for use in other spawned api clients
-	apiClientConnOpts = opts
 
 	authToken, authTokenOk := d.GetOk("auth_token")
 	switch authTokenOk {
