@@ -22,6 +22,11 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCredentialsSimple(
+					"https://github.com/oboukili/terraform-provider-argocd",
+				),
+			},
+			{
+				Config: testAccArgoCDRepositoryCredentialsSSH(
 					"https://private-git-repository.argocd.svc.cluster.local/project-1.git",
 					"git",
 					sshPrivateKey,
@@ -89,7 +94,15 @@ func TestAccArgoCDRepositoryCredentials_GitHubApp(t *testing.T) {
 	})
 }
 
-func testAccArgoCDRepositoryCredentialsSimple(repoUrl, username, sshPrivateKey string) string {
+func testAccArgoCDRepositoryCredentialsSimple(repoUrl string) string {
+	return fmt.Sprintf(`
+resource "argocd_repository_credentials" "simple" {
+  url             = "%s"
+}
+`, repoUrl)
+}
+
+func testAccArgoCDRepositoryCredentialsSSH(repoUrl, username, sshPrivateKey string) string {
 	return fmt.Sprintf(`
 resource "argocd_repository_credentials" "simple" {
   url             = "%s"
