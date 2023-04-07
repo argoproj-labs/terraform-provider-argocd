@@ -92,7 +92,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 
 	c := *server.ApplicationClient
 
-	app, err := c.Get(ctx, &applicationClient.ApplicationQuery{
+	apps, err := c.List(ctx, &applicationClient.ApplicationQuery{
 		Name:         &objectMeta.Name,
 		AppNamespace: &objectMeta.Namespace,
 	})
@@ -106,12 +106,22 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	if app != nil {
-		switch app.DeletionTimestamp {
+	if apps != nil {
+		if len(apps.Items) != 1 {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary:  fmt.Sprintf("found multiple applications matching name '%s' and namespace '%s'", objectMeta.Name, objectMeta.Namespace),
+					Detail:   err.Error(),
+				},
+			}
+		}
+
+		switch apps.Items[0].DeletionTimestamp {
 		case nil:
 		default:
 			// Pre-existing app is still in Kubernetes soft deletion queue
-			time.Sleep(time.Duration(*app.DeletionGracePeriodSeconds))
+			time.Sleep(time.Duration(*apps.Items[0].DeletionGracePeriodSeconds))
 		}
 	}
 
@@ -198,7 +208,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	app, err = c.Create(ctx, &applicationClient.ApplicationCreateRequest{
+	app, err := c.Create(ctx, &applicationClient.ApplicationCreateRequest{
 		Application: &application.Application{
 			ObjectMeta: objectMeta,
 			Spec:       spec,
@@ -229,20 +239,24 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
 		if err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-			var a *application.Application
-			if a, err = c.Get(ctx, &applicationClient.ApplicationQuery{
+			var list *application.ApplicationList
+			if list, err = c.List(ctx, &applicationClient.ApplicationQuery{
 				Name:         &app.Name,
 				AppNamespace: &app.Namespace,
 			}); err != nil {
 				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
 			}
 
-			if a.Status.Health.Status != health.HealthStatusHealthy {
-				return resource.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", a.Status.Health.Status))
+			if len(list.Items) != 1 {
+				return resource.NonRetryableError(fmt.Errorf("found multiple applications matching name '%s' and namespace '%s'", app.Name, app.Namespace))
 			}
 
-			if a.Status.Sync.Status != application.SyncStatusCodeSynced {
-				return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", a.Status.Sync.Status))
+			if list.Items[0].Status.Health.Status != health.HealthStatusHealthy {
+				return resource.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", list.Items[0].Status.Health.Status))
+			}
+
+			if list.Items[0].Status.Sync.Status != application.SyncStatusCodeSynced {
+				return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", list.Items[0].Status.Sync.Status))
 			}
 
 			return nil
@@ -278,7 +292,7 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 	appName := ids[0]
 	namespace := ids[1]
 
-	app, err := c.Get(ctx, &applicationClient.ApplicationQuery{
+	apps, err := c.List(ctx, &applicationClient.ApplicationQuery{
 		Name:         &appName,
 		AppNamespace: &namespace,
 	})
@@ -297,7 +311,17 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
-	err = flattenApplication(app, d)
+	if len(apps.Items) != 1 {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("found multiple applications matching name '%s' and namespace '%s'", appName, namespace),
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	err = flattenApplication(&apps.Items[0], d)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -429,7 +453,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 	appName := ids[0]
 	namespace := ids[1]
 
-	app, err := c.Get(ctx, &applicationClient.ApplicationQuery{
+	apps, err := c.List(ctx, &applicationClient.ApplicationQuery{
 		Name:         &appName,
 		AppNamespace: &namespace,
 	})
@@ -449,6 +473,16 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 	// 	 appRequest.ResourceVersion = app.ResourceVersion
 	// }
 
+	if len(apps.Items) != 1 {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("found multiple applications matching name '%s' and namespace '%s'", appName, namespace),
+				Detail:   err.Error(),
+			},
+		}
+	}
+
 	_, err = c.Update(ctx, appRequest)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -462,19 +496,24 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 
 	if wait, _ok := d.GetOk("wait"); _ok && wait.(bool) {
 		if err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-			var a *application.Application
-			if a, err = c.Get(ctx, &applicationClient.ApplicationQuery{
-				Name:         &app.Name,
-				AppNamespace: &app.Namespace,
+			var list *application.ApplicationList
+			if list, err = c.List(ctx, &applicationClient.ApplicationQuery{
+				Name:         &appName,
+				AppNamespace: &namespace,
 			}); err != nil {
-				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
+				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", list.Items[0].Name, err))
 			}
 
-			if a.Status.Health.Status != health.HealthStatusHealthy {
-				return resource.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", a.Status.Health.Status))
+			if len(list.Items) != 1 {
+				return resource.NonRetryableError(fmt.Errorf("found multiple applications matching name '%s' and namespace '%s'", appName, namespace))
 			}
-			if a.Status.Sync.Status != application.SyncStatusCodeSynced {
-				return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", a.Status.Sync.Status))
+
+			if list.Items[0].Status.Health.Status != health.HealthStatusHealthy {
+				return resource.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", list.Items[0].Status.Health.Status))
+			}
+
+			if list.Items[0].Status.Sync.Status != application.SyncStatusCodeSynced {
+				return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", list.Items[0].Status.Sync.Status))
 			}
 
 			return nil
@@ -526,7 +565,7 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
 		if err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
-			_, err := c.Get(ctx, &applicationClient.ApplicationQuery{
+			_, err := c.List(ctx, &applicationClient.ApplicationQuery{
 				Name:         &appName,
 				AppNamespace: &namespace,
 			})

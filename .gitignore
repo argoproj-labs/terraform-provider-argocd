@@ -6,3 +6,6 @@ terraform-provider-argocd
 # Env variables settings
 /scripts/testacc
 /scripts/testacc_prepare_env
+
+# debug build
+__debug_bin

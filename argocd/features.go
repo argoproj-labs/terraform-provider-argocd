@@ -43,7 +43,7 @@ var featureVersionConstraintsMap = map[int]*semver.Version{
 	featureClusterMetadata:             semver.MustParse("2.2.0"),
 	featureRepositoryCertificates:      semver.MustParse("1.2.0"),
 	featureApplicationHelmSkipCrds:     semver.MustParse("2.3.0"),
-	featureExecLogsPolicy:              semver.MustParse("2.4.0"),
+	featureExecLogsPolicy:              semver.MustParse("2.4.4"),
 	featureProjectSourceNamespaces:     semver.MustParse("2.5.0"),
 }
 
