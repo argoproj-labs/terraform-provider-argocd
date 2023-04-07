@@ -262,11 +262,6 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 	tokenMutexConfiguration.Unlock()
 
 	if err != nil {
-		if strings.Contains(err.Error(), "NotFound") {
-			// Repository has already been deleted in an out-of-band fashion
-			d.SetId("")
-			return nil
-		}
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
