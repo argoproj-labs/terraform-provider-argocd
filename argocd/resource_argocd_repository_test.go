@@ -85,6 +85,7 @@ func TestAccArgoCDRepository(t *testing.T) {
 
 func TestAccArgoCDRepositoryScoped(t *testing.T) {
 	projectName := acctest.RandString(10)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedRepositories) },
 		ProviderFactories: testAccProviders,
@@ -176,21 +177,21 @@ func TestAccArgoCDRepository_GitHubApp(t *testing.T) {
 }
 
 func testAccArgoCDRepositorySimple() string {
-	return fmt.Sprintf(`
+	return `
 resource "argocd_repository" "simple" {
   repo = "https://github.com/kubernetes-sigs/kustomize"
 }
-`)
+`
 }
 
 func testAccArgoCDRepositoryHelm() string {
-	return fmt.Sprintf(`
+	return `
 resource "argocd_repository" "helm" {
   repo = "https://helm.nginx.com/stable"
   name = "nginx-stable"
   type = "helm"
 }
-`)
+`
 }
 
 func testAccArgoCDRepositoryHelmProjectScoped(project string) string {
@@ -286,18 +287,22 @@ func testCheckMultipleResourceAttr(name, key, value string, count int) resource.
 		for i := 0; i < count; i++ {
 			ms := s.RootModule()
 			_name := fmt.Sprintf("%s.%d", name, i)
+
 			rs, ok := ms.Resources[_name]
 			if !ok {
 				return fmt.Errorf("not found: %s in %s", _name, ms.Path)
 			}
+
 			is := rs.Primary
 			if is == nil {
 				return fmt.Errorf("no primary instance: %s in %s", _name, ms.Path)
 			}
+
 			if val, ok := is.Attributes[key]; !ok || val != value {
 				return fmt.Errorf("%s: Attribute '%s' expected to be set and have value '%s': %s", _name, key, value, val)
 			}
 		}
+
 		return nil
 	}
 }

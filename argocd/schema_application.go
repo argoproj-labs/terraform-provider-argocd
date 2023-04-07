@@ -153,10 +153,10 @@ func applicationSpecSchemaV0() *schema.Schema {
 							},
 							"directory": {
 								Type: schema.TypeList,
-								DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 									// Avoid drift when recurse is explicitly set to false
 									// Also ignore the directory node if both recurse & jsonnet are not set or ignored
-									if k == "spec.0.source.0.directory.0.recurse" && old == "" && new == "false" {
+									if k == "spec.0.source.0.directory.0.recurse" && oldValue == "" && newValue == "false" {
 										return true
 									}
 									if k == "spec.0.source.0.directory.#" {
@@ -564,10 +564,10 @@ func applicationSpecSchemaV1() *schema.Schema {
 							},
 							"directory": {
 								Type: schema.TypeList,
-								DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 									// Avoid drift when recurse is explicitly set to false
 									// Also ignore the directory node if both recurse & jsonnet are not set or ignored
-									if k == "spec.0.source.0.directory.0.recurse" && old == "" && new == "false" {
+									if k == "spec.0.source.0.directory.0.recurse" && oldValue == "" && newValue == "false" {
 										return true
 									}
 									if k == "spec.0.source.0.directory.#" {
@@ -963,10 +963,10 @@ func applicationSpecSchemaV2() *schema.Schema {
 							"directory": {
 								Type:        schema.TypeList,
 								Description: "Path/directory specific options.",
-								DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 									// Avoid drift when recurse is explicitly set to false
 									// Also ignore the directory node if both recurse & jsonnet are not set or ignored
-									if k == "spec.0.source.0.directory.0.recurse" && old == "" && new == "false" {
+									if k == "spec.0.source.0.directory.0.recurse" && oldValue == "" && newValue == "false" {
 										return true
 									}
 									if k == "spec.0.source.0.directory.#" {
@@ -1403,10 +1403,10 @@ func applicationSpecSchemaV4() *schema.Schema {
 							"directory": {
 								Type:        schema.TypeList,
 								Description: "Path/directory specific options.",
-								DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 									// Avoid drift when recurse is explicitly set to false
 									// Also ignore the directory node if both recurse & jsonnet are not set or ignored
-									if k == "spec.0.source.0.directory.0.recurse" && old == "" && new == "false" {
+									if k == "spec.0.source.0.directory.0.recurse" && oldValue == "" && newValue == "false" {
 										return true
 									}
 									if k == "spec.0.source.0.directory.#" {
@@ -1740,12 +1740,14 @@ func resourceArgoCDApplicationStateUpgradeV0(_ context.Context, rawState map[str
 	}
 
 	spec := _spec[0].(map[string]interface{})
+
 	_source, ok := spec["source"].([]interface{})
 	if !ok || len(_source) == 0 {
 		return rawState, nil
 	}
 
 	source := _source[0].(map[string]interface{})
+
 	_helm, ok := source["helm"].([]interface{})
 	if !ok || len(_helm) == 0 {
 		return rawState, nil
@@ -1764,12 +1766,14 @@ func resourceArgoCDApplicationStateUpgradeV1(_ context.Context, rawState map[str
 	}
 
 	spec := _spec[0].(map[string]interface{})
+
 	_source, ok := spec["source"].([]interface{})
 	if !ok || len(_source) == 0 {
 		return rawState, nil
 	}
 
 	source := _source[0].(map[string]interface{})
+
 	_ksonnet, ok := source["ksonnet"].([]interface{})
 	if !ok || len(_ksonnet) == 0 {
 		return rawState, nil
@@ -1797,6 +1801,7 @@ func resourceArgoCDApplicationStateUpgradeV3(_ context.Context, rawState map[str
 	}
 
 	spec := _spec[0].(map[string]interface{})
+
 	_syncPolicy, ok := spec["sync_policy"].([]interface{})
 	if !ok || len(_syncPolicy) == 0 {
 		return rawState, nil
@@ -1804,7 +1809,8 @@ func resourceArgoCDApplicationStateUpgradeV3(_ context.Context, rawState map[str
 
 	syncPolicy := _syncPolicy[0].(map[string]interface{})
 
-	if automated, ok := syncPolicy["automated"].(map[string]interface{}); ok {
+	automated, ok := syncPolicy["automated"].(map[string]interface{})
+	if ok {
 		updated := make(map[string]interface{}, 0)
 		for k, v := range automated {
 			updated[k] = v

@@ -150,21 +150,25 @@ func generateSSHPrivateKey() (privateKey string, err error) {
 	if err != nil {
 		return
 	}
+
 	err = pk.Validate()
 	if err != nil {
 		return
 	}
+
 	privDER := x509.MarshalPKCS1PrivateKey(pk)
 	privBlock := pem.Block{
 		Type:    "RSA PRIVATE KEY",
 		Headers: nil,
 		Bytes:   privDER,
 	}
+
 	return string(pem.EncodeToMemory(&privBlock)), nil
 }
 
 func mustGenerateSSHPrivateKey(t *testing.T) string {
 	pk, err := generateSSHPrivateKey()
 	assert.NoError(t, err)
+
 	return pk
 }
