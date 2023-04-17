@@ -219,6 +219,8 @@ Optional:
 
 Optional:
 
+- `exclude` (String) Glob pattern to match paths against that should be explicitly excluded from being used during manifest generation. This takes precedence over the `include` field. To match multiple patterns, wrap the patterns in {} and separate them with commas. For example: '{config.yaml,env-use2/*}'
+- `include` (String) Glob pattern to match paths against that should be explicitly included during manifest generation. If this field is set, only matching manifests will be included. To match multiple patterns, wrap the patterns in {} and separate them with commas. For example: '{*.yml,*.yaml}'
 - `jsonnet` (Block List, Max: 1) Jsonnet specific options. (see [below for nested schema](#nestedblock--spec--source--directory--jsonnet))
 - `recurse` (Boolean) Whether to scan a directory recursively for manifests.
 

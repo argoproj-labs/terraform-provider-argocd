@@ -141,6 +141,14 @@ func expandApplicationSourceDirectory(in []interface{}) *application.Application
 		result.Recurse = v.(bool)
 	}
 
+	if v, ok := a["exclude"]; ok {
+		result.Exclude = v.(string)
+	}
+
+	if v, ok := a["include"]; ok {
+		result.Include = v.(string)
+	}
+
 	if aj, ok := a["jsonnet"].([]interface{}); ok {
 		jsonnet := application.ApplicationSourceJsonnet{}
 
@@ -672,6 +680,8 @@ func flattenApplicationSourceDirectory(as []*application.ApplicationSourceDirect
 
 			m := make(map[string]interface{})
 			m["recurse"] = a.Recurse
+			m["exclude"] = a.Exclude
+			m["include"] = a.Include
 
 			if len(jsonnet) > 0 {
 				m["jsonnet"] = []map[string][]interface{}{jsonnet}
