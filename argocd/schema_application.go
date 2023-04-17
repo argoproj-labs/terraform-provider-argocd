@@ -1485,6 +1485,14 @@ func applicationSpecSchemaV4() *schema.Schema {
 															},
 														},
 													},
+													"libs": {
+														Type:        schema.TypeList,
+														Description: "Additional library search dirs.",
+														Optional:    true,
+														Elem: &schema.Schema{
+															Type: schema.TypeString,
+														},
+													},
 												},
 											},
 										},
