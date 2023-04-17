@@ -1488,6 +1488,16 @@ func applicationSpecSchemaV4() *schema.Schema {
 												},
 											},
 										},
+										"exclude": {
+											Type:        schema.TypeString,
+											Description: "Glob pattern to match paths against that should be explicitly excluded from being used during manifest generation. This takes precedence over the `include` field. To match multiple patterns, wrap the patterns in {} and separate them with commas. For example: '{config.yaml,env-use2/*}'",
+											Optional:    true,
+										},
+										"include": {
+											Type:        schema.TypeString,
+											Description: "Glob pattern to match paths against that should be explicitly included during manifest generation. If this field is set, only matching manifests will be included. To match multiple patterns, wrap the patterns in {} and separate them with commas. For example: '{*.yml,*.yaml}'",
+											Optional:    true,
+										},
 									},
 								},
 							},

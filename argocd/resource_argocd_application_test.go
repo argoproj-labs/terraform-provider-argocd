@@ -423,6 +423,38 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplication__DirectoryIncludeExclude(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplication_DirectoryIncludeExclude(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.include",
+						"*.yaml",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.exclude",
+						"config.yaml",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application.directory",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplication_EmptySyncPolicyBlock(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -1191,6 +1223,38 @@ resource "argocd_application" "directory" {
   }
 }
 	`, name, strconv.FormatBool(recurse))
+}
+
+func testAccArgoCDApplication_DirectoryIncludeExclude(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "directory" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://github.com/argoproj/argocd-example-apps"
+      path            = "guestbook"
+      target_revision = "HEAD"
+      directory {
+        recurse = true
+		exclude = "config.yaml"
+		include = "*.yaml"
+      }
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
 }
 
 func testAccArgoCDApplicationSyncPolicy(name string) string {
