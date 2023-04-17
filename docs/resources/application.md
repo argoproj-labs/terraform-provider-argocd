@@ -187,13 +187,10 @@ Optional:
 <a id="nestedblock--spec--destination"></a>
 ### Nested Schema for `spec.destination`
 
-Required:
-
-- `namespace` (String) Target namespace for the application's resources. The namespace will only be set for namespace-scoped resources that have not set a value for .metadata.namespace.
-
 Optional:
 
 - `name` (String) Name of the target cluster. Can be used instead of `server`.
+- `namespace` (String) Target namespace for the application's resources. The namespace will only be set for namespace-scoped resources that have not set a value for .metadata.namespace.
 - `server` (String) URL of the target cluster and must be set to the Kubernetes control plane API.
 
 
