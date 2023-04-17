@@ -317,6 +317,35 @@ ingress:
 	})
 }
 
+func TestAccArgoCDApplication_OptionalDestinationNamespace(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplication_OptionalDestinationNamespace(acctest.RandomWithPrefix("test-acc")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.simple",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.simple",
+						"spec.0.destination.0.namespace",
+						"", // optional strings are maintained in state as blank strings
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application.simple",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplication_NoSyncPolicyBlock(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -1320,6 +1349,30 @@ resource "argocd_application" "ignore_differences_jqpe" {
   }
 }
 	`, name)
+}
+
+func testAccArgoCDApplication_OptionalDestinationNamespace(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "simple" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+  spec {
+    source {
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
+      chart           = "redis"
+      target_revision = "16.9.11"
+      helm {
+        release_name = "testing"
+      }
+    }
+    destination {
+      server    = "https://kubernetes.default.svc"
+    }
+  }
+}
+`, name)
 }
 
 func testAccArgoCDApplicationNoSyncPolicy(name string) string {

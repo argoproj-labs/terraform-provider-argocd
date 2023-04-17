@@ -1254,7 +1254,7 @@ func applicationSpecSchemaV4() *schema.Schema {
 							"namespace": {
 								Type:        schema.TypeString,
 								Description: "Target namespace for the application's resources. The namespace will only be set for namespace-scoped resources that have not set a value for .metadata.namespace.",
-								Required:    true,
+								Optional:    true,
 							},
 							"name": {
 								Type:        schema.TypeString,
