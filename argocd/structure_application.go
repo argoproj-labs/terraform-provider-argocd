@@ -173,6 +173,12 @@ func expandApplicationSourceDirectory(in []interface{}) *application.Application
 					}
 				}
 			}
+
+			if libs, ok := j["libs"].([]interface{}); ok && len(libs) > 0 {
+				for _, lib := range libs {
+					jsonnet.Libs = append(jsonnet.Libs, lib.(string))
+				}
+			}
 		}
 
 		result.Jsonnet = jsonnet
@@ -658,6 +664,10 @@ func flattenApplicationSourceDirectory(as []*application.ApplicationSourceDirect
 					"name":  jtla.Name,
 					"value": jtla.Value,
 				})
+			}
+
+			for _, lib := range a.Jsonnet.Libs {
+				jsonnet["libs"] = append(jsonnet["libs"], lib)
 			}
 
 			m := make(map[string]interface{})

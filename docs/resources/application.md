@@ -228,6 +228,7 @@ Optional:
 Optional:
 
 - `ext_var` (Block List) List of Jsonnet External Variables. (see [below for nested schema](#nestedblock--spec--source--directory--jsonnet--ext_var))
+- `libs` (List of String) Additional library search dirs.
 - `tla` (Block Set) List of Jsonnet Top-level Arguments (see [below for nested schema](#nestedblock--spec--source--directory--jsonnet--tla))
 
 <a id="nestedblock--spec--source--directory--jsonnet--ext_var"></a>
