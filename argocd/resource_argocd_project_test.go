@@ -281,6 +281,14 @@ resource "argocd_project" "simple" {
       group = "rbac.authorization.k8s.io"
       kind  = "ClusterRole"
     }
+    cluster_resource_whitelist {
+      group = ""
+      kind  = "Namespace"
+    }
+    cluster_resource_blacklist {
+      group = ""
+      kind  = "ResourceQuota"
+    }
     cluster_resource_blacklist {
       group = "*"
       kind  = "*"

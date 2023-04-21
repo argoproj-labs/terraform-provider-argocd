@@ -73,9 +73,6 @@ func validateRoleName(value interface{}, key string) (ws []string, es []error) {
 
 func validateGroupName(value interface{}, key string) (ws []string, es []error) {
 	v := value.(string)
-	if strings.TrimSpace(v) == "" {
-		es = append(es, fmt.Errorf("%s: group '%s' is empty", key, v))
-	}
 
 	invalidChars := regexp.MustCompile("[,\n\r\t]")
 	if invalidChars.MatchString(v) {
