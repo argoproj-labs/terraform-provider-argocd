@@ -471,7 +471,7 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 	})
 }
 
-func TestAccArgoCDApplication__DirectoryIncludeExclude(t *testing.T) {
+func TestAccArgoCDApplication_DirectoryIncludeExclude(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.ParallelTest(t, resource.TestCase{
