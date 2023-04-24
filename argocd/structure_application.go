@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -15,18 +14,16 @@ import (
 func expandApplication(d *schema.ResourceData) (
 	metadata meta.ObjectMeta,
 	spec application.ApplicationSpec,
-	diags diag.Diagnostics) {
+	err error) {
 	metadata = expandMetadata(d)
-	spec, diags = expandApplicationSpec(d)
+	spec, err = expandApplicationSpec(d.Get("spec.0").(map[string]interface{}))
 
 	return
 }
 
-func expandApplicationSpec(d *schema.ResourceData) (
+func expandApplicationSpec(s map[string]interface{}) (
 	spec application.ApplicationSpec,
-	diags diag.Diagnostics) {
-	s := d.Get("spec.0").(map[string]interface{})
-
+	err error) {
 	if v, ok := s["project"]; ok {
 		spec.Project = v.(string)
 	}
@@ -37,8 +34,8 @@ func expandApplicationSpec(d *schema.ResourceData) (
 	}
 
 	if v, ok := s["info"]; ok {
-		spec.Info, diags = expandApplicationInfo(v.(*schema.Set))
-		if len(diags) > 0 {
+		spec.Info, err = expandApplicationInfo(v.(*schema.Set))
+		if err != nil {
 			return
 		}
 	}
@@ -48,8 +45,8 @@ func expandApplicationSpec(d *schema.ResourceData) (
 	}
 
 	if v, ok := s["sync_policy"].([]interface{}); ok && len(v) > 0 {
-		spec.SyncPolicy, diags = expandApplicationSyncPolicy(v[0])
-		if len(diags) > 0 {
+		spec.SyncPolicy, err = expandApplicationSyncPolicy(v[0])
+		if err != nil {
 			return
 		}
 	}
@@ -62,7 +59,7 @@ func expandApplicationSpec(d *schema.ResourceData) (
 		spec.Sources = expandApplicationSource(v)
 	}
 
-	return spec, diags
+	return spec, nil
 }
 
 func expandApplicationSource(_ass []interface{}) []application.ApplicationSource {
@@ -305,7 +302,7 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 	return result
 }
 
-func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, diag.Diagnostics) {
+func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, error) {
 	if sp == nil {
 		return &application.SyncPolicy{}, nil
 	}
@@ -359,13 +356,7 @@ func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, diag.
 
 				retry.Limit, err = convertStringToInt64(v.(string))
 				if err != nil {
-					return nil, []diag.Diagnostic{
-						{
-							Severity: diag.Error,
-							Summary:  "Error converting retry limit to integer",
-							Detail:   err.Error(),
-						},
-					}
+					return nil, fmt.Errorf("failed to convert retry limit to integer: %w", err)
 				}
 			}
 
@@ -387,13 +378,7 @@ func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, diag.
 					if v, ok := b["factor"]; ok {
 						factor, err := convertStringToInt64Pointer(v.(string))
 						if err != nil {
-							return nil, []diag.Diagnostic{
-								{
-									Severity: diag.Error,
-									Summary:  "Error converting backoff factor to integer",
-									Detail:   err.Error(),
-								},
-							}
+							return nil, fmt.Errorf("failed to convert backoff factor to integer: %w", err)
 						}
 
 						retry.Backoff.Factor = factor
@@ -452,7 +437,7 @@ func expandApplicationIgnoreDifferences(ids []interface{}) (
 }
 
 func expandApplicationInfo(infos *schema.Set) (
-	result []application.Info, diags diag.Diagnostics) {
+	result []application.Info, err error) {
 	for _, i := range infos.List() {
 		item := i.(map[string]interface{})
 		info := application.Info{}
@@ -469,15 +454,18 @@ func expandApplicationInfo(infos *schema.Set) (
 		}
 
 		if !fieldSet {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "spec.info: cannot be empty. Must only contains 'name' or 'value' fields.",
-			})
-
-			return
+			return result, fmt.Errorf("spec.info: cannot be empty - must only contains 'name' or 'value' fields")
 		}
 
 		result = append(result, info)
+	}
+
+	return
+}
+
+func expandApplicationDestinations(ds *schema.Set) (result []application.ApplicationDestination) {
+	for _, dest := range ds.List() {
+		result = append(result, expandApplicationDestination(dest))
 	}
 
 	return
@@ -495,6 +483,27 @@ func expandApplicationDestination(dest interface{}) (
 		Namespace: d["namespace"].(string),
 		Name:      d["name"].(string),
 	}
+}
+
+func expandSyncWindows(sws []interface{}) (result []*application.SyncWindow) {
+	for _, _sw := range sws {
+		sw := _sw.(map[string]interface{})
+
+		result = append(
+			result,
+			&application.SyncWindow{
+				Applications: expandStringList(sw["applications"].([]interface{})),
+				Clusters:     expandStringList(sw["clusters"].([]interface{})),
+				Duration:     sw["duration"].(string),
+				Kind:         sw["kind"].(string),
+				ManualSync:   sw["manual_sync"].(bool),
+				Namespaces:   expandStringList(sw["namespaces"].([]interface{})),
+				Schedule:     sw["schedule"].(string),
+			},
+		)
+	}
+
+	return
 }
 
 // Flatten

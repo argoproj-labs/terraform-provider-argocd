@@ -1,38 +1,37 @@
 package argocd
 
 import (
+	"fmt"
+	"strconv"
+	"strings"
+
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func expandApplicationDestinations(ds *schema.Set) (result []application.ApplicationDestination) {
-	for _, dest := range ds.List() {
-		result = append(result, expandApplicationDestination(dest))
+func expandIntOrString(s string) (*intstr.IntOrString, error) {
+	if len(s) == 0 {
+		return nil, nil
 	}
 
-	return
-}
-
-func expandSyncWindows(sws []interface{}) (result []*application.SyncWindow) {
-	for _, _sw := range sws {
-		sw := _sw.(map[string]interface{})
-
-		result = append(
-			result,
-			&application.SyncWindow{
-				Applications: expandStringList(sw["applications"].([]interface{})),
-				Clusters:     expandStringList(sw["clusters"].([]interface{})),
-				Duration:     sw["duration"].(string),
-				Kind:         sw["kind"].(string),
-				ManualSync:   sw["manual_sync"].(bool),
-				Namespaces:   expandStringList(sw["namespaces"].([]interface{})),
-				Schedule:     sw["schedule"].(string),
-			},
-		)
+	if strings.HasSuffix(s, "%") {
+		return &intstr.IntOrString{
+			StrVal: s,
+			Type:   intstr.String,
+		}, nil
 	}
 
-	return
+	i, err := strconv.ParseInt(s, 10, 32)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert string to int32: %w", err)
+	}
+
+	return &intstr.IntOrString{
+		IntVal: int32(i),
+		Type:   intstr.Int,
+	}, nil
 }
 
 func expandK8SGroupKind(groupKinds *schema.Set) (result []meta.GroupKind) {
@@ -48,6 +47,26 @@ func expandK8SGroupKind(groupKinds *schema.Set) (result []meta.GroupKind) {
 	return
 }
 
+func expandSecretRef(sr map[string]interface{}) *application.SecretRef {
+	return &application.SecretRef{
+		Key:        sr["key"].(string),
+		SecretName: sr["secret_name"].(string),
+	}
+}
+
+func flattenIntOrString(ios *intstr.IntOrString) string {
+	if ios == nil {
+		return ""
+	}
+
+	switch {
+	case ios.StrVal != "":
+		return ios.StrVal
+	default:
+		return strconv.Itoa(int(ios.IntVal))
+	}
+}
+
 func flattenK8SGroupKinds(gks []meta.GroupKind) (result []map[string]string) {
 	for _, gk := range gks {
 		result = append(result, map[string]string{
@@ -57,6 +76,15 @@ func flattenK8SGroupKinds(gks []meta.GroupKind) (result []map[string]string) {
 	}
 
 	return
+}
+
+func flattenSecretRef(sr application.SecretRef) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"key":         sr.Key,
+			"secret_name": sr.SecretName,
+		},
+	}
 }
 
 func flattenSyncWindows(sws application.SyncWindows) (result []map[string]interface{}) {
@@ -73,4 +101,14 @@ func flattenSyncWindows(sws application.SyncWindows) (result []map[string]interf
 	}
 
 	return
+}
+
+func newStringSet(f schema.SchemaSetFunc, in []string) *schema.Set {
+	var out = make([]interface{}, len(in))
+
+	for i, v := range in {
+		out[i] = v
+	}
+
+	return schema.NewSet(f, out)
 }

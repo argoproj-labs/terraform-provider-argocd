@@ -28,7 +28,7 @@ func resourceArgoCDApplication() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("applications.argoproj.io"),
-			"spec":     applicationSpecSchemaV4(),
+			"spec":     applicationSpecSchemaV4(false),
 			"wait": {
 				Type:        schema.TypeBool,
 				Description: "Upon application creation or update, wait for application health/sync status to be healthy/Synced, upon application deletion, wait for application to be removed, when set to true. Wait timeouts are controlled by Terraform Create, Update and Delete resource timeouts (all default to 5 minutes). **Note**: if ArgoCD decides not to sync an application (e.g. because the project to which the application belongs has a `sync_window` applied) then you will experience an expected timeout event if `wait = true`.",
@@ -74,9 +74,15 @@ func resourceArgoCDApplication() *schema.Resource {
 }
 
 func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	objectMeta, spec, diags := expandApplication(d)
-	if diags != nil {
-		return diags
+	objectMeta, spec, err := expandApplication(d)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("application %s could not be created", objectMeta.Name),
+				Detail:   err.Error(),
+			},
+		}
 	}
 
 	si := meta.(*ServerInterface)
@@ -383,9 +389,21 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	objectMeta, spec, diags := expandApplication(d)
-	if diags != nil {
-		return diags
+	ids := strings.Split(d.Id(), ":")
+	appQuery := &applicationClient.ApplicationQuery{
+		Name:         &ids[0],
+		AppNamespace: &ids[1],
+	}
+
+	objectMeta, spec, err := expandApplication(d)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("application %s could not be updated", *appQuery.Name),
+				Detail:   err.Error(),
+			},
+		}
 	}
 
 	featureApplicationLevelSyncOptionsSupported, err := si.isFeatureSupported(featureApplicationLevelSyncOptions)
@@ -492,12 +510,6 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 				},
 			}
 		}
-	}
-
-	ids := strings.Split(d.Id(), ":")
-	appQuery := &applicationClient.ApplicationQuery{
-		Name:         &ids[0],
-		AppNamespace: &ids[1],
 	}
 
 	apps, err := si.ApplicationClient.List(ctx, appQuery)
