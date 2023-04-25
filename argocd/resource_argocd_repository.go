@@ -91,7 +91,7 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 				return resource.RetryableError(fmt.Errorf("handshake failed for repository %s, retrying in case a repository certificate has been set recently", repo.Repo))
 			}
 
-			return resource.NonRetryableError(fmt.Errorf("repository %s not found: %s", repo.Repo, err))
+			return resource.NonRetryableError(fmt.Errorf("failed to create repository %s : %w", repo.Repo, err))
 		} else if r == nil {
 			return resource.NonRetryableError(fmt.Errorf("ArgoCD did not return an error or a repository result: %s", err))
 		} else if r.ConnectionState.Status == application.ConnectionStatusFailed {
