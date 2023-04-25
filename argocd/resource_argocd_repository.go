@@ -139,7 +139,7 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	r := &application.Repository{}
+	var r *application.Repository
 
 	if featureRepositoryGetSupported {
 		tokenMutexConfiguration.RLock()
