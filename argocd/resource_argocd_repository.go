@@ -28,8 +28,8 @@ func resourceArgoCDRepository() *schema.Resource {
 }
 
 func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -38,8 +38,6 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 			},
 		}
 	}
-
-	c := *server.RepositoryClient
 
 	repo, err := expandRepository(d)
 	if err != nil {
@@ -52,7 +50,7 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	featureProjectScopedRepositoriesSupported, err := server.isFeatureSupported(featureProjectScopedRepositories)
+	featureProjectScopedRepositoriesSupported, err := si.isFeatureSupported(featureProjectScopedRepositories)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -78,7 +76,7 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 
 		var r *application.Repository
 
-		r, err = c.CreateRepository(
+		r, err = si.RepositoryClient.CreateRepository(
 			ctx,
 			&repository.RepoCreateRequest{
 				Repo:   repo,
@@ -119,8 +117,8 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -130,10 +128,7 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	c := *server.RepositoryClient
-	r := &application.Repository{}
-
-	featureRepositoryGetSupported, err := server.isFeatureSupported(featureRepositoryGet)
+	featureRepositoryGetSupported, err := si.isFeatureSupported(featureRepositoryGet)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -144,9 +139,11 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
+	r := &application.Repository{}
+
 	if featureRepositoryGetSupported {
 		tokenMutexConfiguration.RLock()
-		r, err = c.Get(ctx, &repository.RepoQuery{
+		r, err = si.RepositoryClient.Get(ctx, &repository.RepoQuery{
 			Repo:         d.Id(),
 			ForceRefresh: true,
 		})
@@ -171,7 +168,7 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 		var rl *application.RepositoryList
 
 		tokenMutexConfiguration.RLock()
-		rl, err = c.ListRepositories(ctx, &repository.RepoQuery{
+		rl, err = si.RepositoryClient.ListRepositories(ctx, &repository.RepoQuery{
 			Repo:         d.Id(),
 			ForceRefresh: true,
 		})
@@ -222,8 +219,8 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -232,8 +229,6 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 			},
 		}
 	}
-
-	c := *server.RepositoryClient
 
 	repo, err := expandRepository(d)
 	if err != nil {
@@ -246,7 +241,7 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	featureProjectScopedRepositoriesSupported, err := server.isFeatureSupported(featureProjectScopedRepositories)
+	featureProjectScopedRepositoriesSupported, err := si.isFeatureSupported(featureProjectScopedRepositories)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -270,7 +265,7 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	tokenMutexConfiguration.Lock()
-	r, err := c.UpdateRepository(
+	r, err := si.RepositoryClient.UpdateRepository(
 		ctx,
 		&repository.RepoUpdateRequest{Repo: repo},
 	)
@@ -311,8 +306,8 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceArgoCDRepositoryDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -322,10 +317,8 @@ func resourceArgoCDRepositoryDelete(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	c := *server.RepositoryClient
-
 	tokenMutexConfiguration.Lock()
-	_, err := c.DeleteRepository(
+	_, err := si.RepositoryClient.DeleteRepository(
 		ctx,
 		&repository.RepoQuery{Repo: d.Id()},
 	)

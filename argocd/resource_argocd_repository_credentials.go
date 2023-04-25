@@ -29,8 +29,8 @@ func resourceArgoCDRepositoryCredentials() *schema.Resource {
 }
 
 func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -39,8 +39,6 @@ func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.Re
 			},
 		}
 	}
-
-	c := *server.RepoCredsClient
 
 	repoCreds, err := expandRepositoryCredentials(d)
 	if err != nil {
@@ -54,7 +52,7 @@ func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.Re
 	}
 
 	tokenMutexConfiguration.Lock()
-	rc, err := c.CreateRepositoryCredentials(
+	rc, err := si.RepoCredsClient.CreateRepositoryCredentials(
 		ctx,
 		&repocreds.RepoCredsCreateRequest{
 			Creds:  repoCreds,
@@ -79,8 +77,8 @@ func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.Re
 }
 
 func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -90,11 +88,8 @@ func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.Reso
 		}
 	}
 
-	c := *server.RepoCredsClient
-	rc := application.RepoCreds{}
-
 	tokenMutexConfiguration.RLock()
-	rcl, err := c.ListRepositoryCredentials(ctx, &repocreds.RepoCredsQuery{
+	rcl, err := si.RepoCredsClient.ListRepositoryCredentials(ctx, &repocreds.RepoCredsQuery{
 		Url: d.Id(),
 	})
 	tokenMutexConfiguration.RUnlock()
@@ -114,6 +109,8 @@ func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.Reso
 		return nil
 	}
 
+	rc := application.RepoCreds{}
+
 	for i, _rc := range rcl.Items {
 		if _rc.URL == d.Id() {
 			rc = _rc
@@ -131,8 +128,8 @@ func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.Reso
 }
 
 func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -141,8 +138,6 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 			},
 		}
 	}
-
-	c := *server.RepoCredsClient
 
 	repoCreds, err := expandRepositoryCredentials(d)
 	if err != nil {
@@ -156,7 +151,7 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 	}
 
 	tokenMutexConfiguration.Lock()
-	r, err := c.UpdateRepositoryCredentials(
+	r, err := si.RepoCredsClient.UpdateRepositoryCredentials(
 		ctx,
 		&repocreds.RepoCredsUpdateRequest{
 			Creds: repoCreds},
@@ -179,8 +174,8 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 }
 
 func resourceArgoCDRepositoryCredentialsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -190,10 +185,8 @@ func resourceArgoCDRepositoryCredentialsDelete(ctx context.Context, d *schema.Re
 		}
 	}
 
-	c := *server.RepoCredsClient
-
 	tokenMutexConfiguration.Lock()
-	_, err := c.DeleteRepositoryCredentials(
+	_, err := si.RepoCredsClient.DeleteRepositoryCredentials(
 		ctx,
 		&repocreds.RepoCredsDeleteRequest{Url: d.Id()},
 	)

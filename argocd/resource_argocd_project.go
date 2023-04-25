@@ -44,8 +44,8 @@ func resourceArgoCDProject() *schema.Resource {
 }
 
 func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -66,7 +66,6 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	c := *server.ProjectClient
 	projectName := objectMeta.Name
 
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
@@ -74,7 +73,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	tokenMutexProjectMap[projectName].RLock()
-	p, err := c.Get(ctx, &projectClient.ProjectQuery{
+	p, err := si.ProjectClient.Get(ctx, &projectClient.ProjectQuery{
 		Name: projectName,
 	})
 	tokenMutexProjectMap[projectName].RUnlock()
@@ -100,7 +99,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	featureProjectSourceNamespacesSupported, err := server.isFeatureSupported(featureProjectSourceNamespaces)
+	featureProjectSourceNamespacesSupported, err := si.isFeatureSupported(featureProjectSourceNamespaces)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -124,7 +123,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	tokenMutexProjectMap[projectName].Lock()
-	p, err = c.Create(ctx, &projectClient.ProjectCreateRequest{
+	p, err = si.ProjectClient.Create(ctx, &projectClient.ProjectCreateRequest{
 		Project: &application.AppProject{
 			ObjectMeta: objectMeta,
 			Spec:       spec,
@@ -159,8 +158,8 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -170,7 +169,6 @@ func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	c := *server.ProjectClient
 	projectName := d.Id()
 
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
@@ -178,7 +176,7 @@ func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	tokenMutexProjectMap[projectName].RLock()
-	p, err := c.Get(ctx, &projectClient.ProjectQuery{
+	p, err := si.ProjectClient.Get(ctx, &projectClient.ProjectQuery{
 		Name: projectName,
 	})
 	tokenMutexProjectMap[projectName].RUnlock()
@@ -216,8 +214,8 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		return resourceArgoCDProjectRead(ctx, d, meta)
 	}
 
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -238,7 +236,6 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	c := *server.ProjectClient
 	projectName := objectMeta.Name
 
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
@@ -253,7 +250,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	tokenMutexProjectMap[projectName].RLock()
-	p, err := c.Get(ctx, &projectClient.ProjectQuery{
+	p, err := si.ProjectClient.Get(ctx, &projectClient.ProjectQuery{
 		Name: d.Id(),
 	})
 	tokenMutexProjectMap[projectName].RUnlock()
@@ -300,7 +297,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	tokenMutexProjectMap[projectName].Lock()
-	_, err = c.Update(ctx, projectRequest)
+	_, err = si.ProjectClient.Update(ctx, projectRequest)
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil {
@@ -317,8 +314,8 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -328,7 +325,6 @@ func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	c := *server.ProjectClient
 	projectName := d.Id()
 
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
@@ -336,7 +332,7 @@ func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	tokenMutexProjectMap[projectName].Lock()
-	_, err := c.Delete(ctx, &projectClient.ProjectQuery{Name: projectName})
+	_, err := si.ProjectClient.Delete(ctx, &projectClient.ProjectQuery{Name: projectName})
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
