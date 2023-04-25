@@ -127,7 +127,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 
 	tokenMutexClusters.Lock()
 	c, err := client.Create(ctx, &clusterClient.ClusterCreateRequest{
-		Cluster: cluster, Upsert: true})
+		Cluster: cluster, Upsert: false})
 	tokenMutexClusters.Unlock()
 
 	if err != nil {
