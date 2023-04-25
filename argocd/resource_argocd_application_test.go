@@ -471,6 +471,32 @@ func TestAccArgoCDApplication_Recurse(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplication_EmptyDirectory(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplication_EmptyDirectory(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(
+						"argocd_application.directory",
+						"spec.0.source.0.directory.0.recurse",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application.directory",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplication_DirectoryIncludeExclude(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
@@ -922,6 +948,40 @@ func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureMultipleApplicationSources) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationMultipleSources(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.multiple_sources",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.multiple_sources",
+						"spec.0.source.0.chart",
+						"elasticsearch",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.multiple_sources",
+						"spec.0.source.1.path",
+						"guestbook",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application.multiple_sources",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func testAccArgoCDApplicationSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "simple" {
@@ -1275,6 +1335,34 @@ resource "argocd_application" "directory" {
   }
 }
 	`, name, strconv.FormatBool(recurse))
+}
+
+func testAccArgoCDApplication_EmptyDirectory(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "directory" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://github.com/argoproj/argocd-example-apps"
+      path            = "guestbook"
+      target_revision = "HEAD"
+      directory {}
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+    `, name)
 }
 
 func testAccArgoCDApplication_DirectoryIncludeExclude(name string) string {
@@ -1893,6 +1981,37 @@ resource "argocd_application" "simple" {
   }
 }
 	`, name)
+}
+
+func testAccArgoCDApplicationMultipleSources() string {
+	return `
+resource "argocd_application" "multiple_sources" {
+  metadata {
+    name      = "multiple-sources"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "default" 
+	
+	source {
+		repo_url        = "https://helm.elastic.co"
+		chart           = "elasticsearch"
+		target_revision = "8.5.1"
+	}
+
+	source {
+		repo_url        = "https://github.com/argoproj/argocd-example-apps.git"
+		path            = "guestbook"
+		target_revision = "HEAD"
+	}
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}`
 }
 
 func testAccSkipFeatureIgnoreDiffJQPathExpressions() (bool, error) {

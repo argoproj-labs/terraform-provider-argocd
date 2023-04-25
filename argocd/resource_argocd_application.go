@@ -181,6 +181,31 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	featureMultipleApplicationSourcesSupported, err := si.isFeatureSupported(featureMultipleApplicationSources)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	} else if !featureMultipleApplicationSourcesSupported {
+		if len(spec.Sources) > 1 {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary: fmt.Sprintf(
+						"multiple application sources is only supported from ArgoCD %s onwards",
+						featureVersionConstraintsMap[featureMultipleApplicationSources].String()),
+				},
+			}
+		}
+
+		spec.Source = &spec.Sources[0]
+		spec.Sources = nil
+	}
+
 	featureApplicationHelmSkipCrdsSupported, err := si.isFeatureSupported(featureApplicationHelmSkipCrds)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -408,6 +433,31 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 				Detail: err.Error(),
 			},
 		}
+	}
+
+	featureMultipleApplicationSourcesSupported, err := si.isFeatureSupported(featureMultipleApplicationSources)
+	if err != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  "feature not supported",
+				Detail:   err.Error(),
+			},
+		}
+	} else if !featureMultipleApplicationSourcesSupported {
+		if len(spec.Sources) > 1 {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary: fmt.Sprintf(
+						"multiple application sources is only supported from ArgoCD %s onwards",
+						featureVersionConstraintsMap[featureMultipleApplicationSources].String()),
+				},
+			}
+		}
+
+		spec.Source = &spec.Sources[0]
+		spec.Sources = nil
 	}
 
 	featureApplicationHelmSkipCrdsSupported, err := si.isFeatureSupported(featureApplicationHelmSkipCrds)
