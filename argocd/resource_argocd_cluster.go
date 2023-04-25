@@ -25,8 +25,8 @@ func resourceArgoCDCluster() *schema.Resource {
 }
 
 func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -47,7 +47,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	featureProjectScopedClustersSupported, err := server.isFeatureSupported(featureProjectScopedClusters)
+	featureProjectScopedClustersSupported, err := si.isFeatureSupported(featureProjectScopedClusters)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -68,7 +68,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	featureClusterMetadataSupported, err := server.isFeatureSupported(featureClusterMetadata)
+	featureClusterMetadataSupported, err := si.isFeatureSupported(featureClusterMetadata)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -88,13 +88,11 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	client := *server.ClusterClient
-
 	// Need a full lock here to avoid race conditions between List existing clusters and creating a new one
 	tokenMutexClusters.Lock()
 
 	// Cluster are unique by "server address" so we should check there is no existing cluster with this address before
-	existingClusters, err := client.List(ctx, &clusterClient.ClusterQuery{
+	existingClusters, err := si.ClusterClient.List(ctx, &clusterClient.ClusterQuery{
 		Id: &clusterClient.ClusterID{
 			Type:  "server",
 			Value: cluster.Server, // TODO: not used by backend, upstream bug ?
@@ -130,7 +128,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	c, err := client.Create(ctx, &clusterClient.ClusterCreateRequest{
+	c, err := si.ClusterClient.Create(ctx, &clusterClient.ClusterCreateRequest{
 		Cluster: cluster, Upsert: false})
 	tokenMutexClusters.Unlock()
 
@@ -155,8 +153,8 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -166,10 +164,8 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	client := *server.ClusterClient
-
 	tokenMutexClusters.RLock()
-	c, err := client.Get(ctx, getClusterQueryFromID(d))
+	c, err := si.ClusterClient.Get(ctx, getClusterQueryFromID(d))
 	tokenMutexClusters.RUnlock()
 
 	if err != nil {
@@ -201,8 +197,8 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -211,8 +207,6 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 			},
 		}
 	}
-
-	client := *server.ClusterClient
 
 	cluster, err := expandCluster(d)
 	if err != nil {
@@ -225,7 +219,7 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	featureProjectScopedClustersSupported, err := server.isFeatureSupported(featureProjectScopedClusters)
+	featureProjectScopedClustersSupported, err := si.isFeatureSupported(featureProjectScopedClusters)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -246,7 +240,7 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	featureClusterMetadataSupported, err := server.isFeatureSupported(featureClusterMetadata)
+	featureClusterMetadataSupported, err := si.isFeatureSupported(featureClusterMetadata)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -267,7 +261,7 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	tokenMutexClusters.Lock()
-	_, err = client.Update(ctx, &clusterClient.ClusterUpdateRequest{Cluster: cluster})
+	_, err = si.ClusterClient.Update(ctx, &clusterClient.ClusterUpdateRequest{Cluster: cluster})
 	tokenMutexClusters.Unlock()
 
 	if err != nil {
@@ -284,8 +278,8 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -295,10 +289,8 @@ func resourceArgoCDClusterDelete(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	client := *server.ClusterClient
-
 	tokenMutexClusters.Lock()
-	_, err := client.Delete(ctx, getClusterQueryFromID(d))
+	_, err := si.ClusterClient.Delete(ctx, getClusterQueryFromID(d))
 	tokenMutexClusters.Unlock()
 
 	if err != nil {

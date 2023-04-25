@@ -48,13 +48,13 @@ var featureVersionConstraintsMap = map[int]*semver.Version{
 }
 
 type ServerInterface struct {
-	ApiClient            *apiclient.Client
-	ApplicationClient    *application.ApplicationServiceClient
-	CertificateClient    *certificate.CertificateServiceClient
-	ClusterClient        *cluster.ClusterServiceClient
-	ProjectClient        *project.ProjectServiceClient
-	RepositoryClient     *repository.RepositoryServiceClient
-	RepoCredsClient      *repocreds.RepoCredsServiceClient
+	ApiClient            apiclient.Client
+	ApplicationClient    application.ApplicationServiceClient
+	CertificateClient    certificate.CertificateServiceClient
+	ClusterClient        cluster.ClusterServiceClient
+	ProjectClient        project.ProjectServiceClient
+	RepositoryClient     repository.RepositoryServiceClient
+	RepoCredsClient      repocreds.RepoCredsServiceClient
 	ServerVersion        *semver.Version
 	ServerVersionMessage *version.VersionMessage
 	ProviderData         *schema.ResourceData
@@ -79,64 +79,64 @@ func (p *ServerInterface) initClients(ctx context.Context) error {
 			return err
 		}
 
-		p.ApiClient = &apiClient
+		p.ApiClient = apiClient
 	}
 
 	if p.ClusterClient == nil {
-		_, clusterClient, err := (*p.ApiClient).NewClusterClient()
+		_, clusterClient, err := p.ApiClient.NewClusterClient()
 		if err != nil {
 			return err
 		}
 
-		p.ClusterClient = &clusterClient
+		p.ClusterClient = clusterClient
 	}
 
 	if p.CertificateClient == nil {
-		_, certClient, err := (*p.ApiClient).NewCertClient()
+		_, certClient, err := p.ApiClient.NewCertClient()
 		if err != nil {
 			return err
 		}
 
-		p.CertificateClient = &certClient
+		p.CertificateClient = certClient
 	}
 
 	if p.ApplicationClient == nil {
-		_, applicationClient, err := (*p.ApiClient).NewApplicationClient()
+		_, applicationClient, err := p.ApiClient.NewApplicationClient()
 		if err != nil {
 			return err
 		}
 
-		p.ApplicationClient = &applicationClient
+		p.ApplicationClient = applicationClient
 	}
 
 	if p.ProjectClient == nil {
-		_, projectClient, err := (*p.ApiClient).NewProjectClient()
+		_, projectClient, err := p.ApiClient.NewProjectClient()
 		if err != nil {
 			return err
 		}
 
-		p.ProjectClient = &projectClient
+		p.ProjectClient = projectClient
 	}
 
 	if p.RepositoryClient == nil {
-		_, repositoryClient, err := (*p.ApiClient).NewRepoClient()
+		_, repositoryClient, err := p.ApiClient.NewRepoClient()
 		if err != nil {
 			return err
 		}
 
-		p.RepositoryClient = &repositoryClient
+		p.RepositoryClient = repositoryClient
 	}
 
 	if p.RepoCredsClient == nil {
-		_, repoCredsClient, err := (*p.ApiClient).NewRepoCredsClient()
+		_, repoCredsClient, err := p.ApiClient.NewRepoCredsClient()
 		if err != nil {
 			return err
 		}
 
-		p.RepoCredsClient = &repoCredsClient
+		p.RepoCredsClient = repoCredsClient
 	}
 
-	acCloser, versionClient, err := (*p.ApiClient).NewVersionClient()
+	acCloser, versionClient, err := p.ApiClient.NewVersionClient()
 	if err != nil {
 		return err
 	}

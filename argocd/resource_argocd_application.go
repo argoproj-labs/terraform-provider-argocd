@@ -79,8 +79,8 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		return diags
 	}
 
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -90,9 +90,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	c := *server.ApplicationClient
-
-	apps, err := c.List(ctx, &applicationClient.ApplicationQuery{
+	apps, err := si.ApplicationClient.List(ctx, &applicationClient.ApplicationQuery{
 		Name:         &objectMeta.Name,
 		AppNamespace: &objectMeta.Namespace,
 	})
@@ -125,7 +123,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
+	featureApplicationLevelSyncOptionsSupported, err := si.isFeatureSupported(featureApplicationLevelSyncOptions)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -150,7 +148,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	featureIgnoreDiffJQPathExpressionsSupported, err := server.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
+	featureIgnoreDiffJQPathExpressionsSupported, err := si.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -183,7 +181,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	featureApplicationHelmSkipCrdsSupported, err := server.isFeatureSupported(featureApplicationHelmSkipCrds)
+	featureApplicationHelmSkipCrdsSupported, err := si.isFeatureSupported(featureApplicationHelmSkipCrds)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -208,7 +206,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	app, err := c.Create(ctx, &applicationClient.ApplicationCreateRequest{
+	app, err := si.ApplicationClient.Create(ctx, &applicationClient.ApplicationCreateRequest{
 		Application: &application.Application{
 			ObjectMeta: objectMeta,
 			Spec:       spec,
@@ -240,7 +238,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
 		if err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 			var list *application.ApplicationList
-			if list, err = c.List(ctx, &applicationClient.ApplicationQuery{
+			if list, err = si.ApplicationClient.List(ctx, &applicationClient.ApplicationQuery{
 				Name:         &app.Name,
 				AppNamespace: &app.Namespace,
 			}); err != nil {
@@ -275,8 +273,8 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -286,13 +284,11 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
-	c := *server.ApplicationClient
-
 	ids := strings.Split(d.Id(), ":")
 	appName := ids[0]
 	namespace := ids[1]
 
-	apps, err := c.List(ctx, &applicationClient.ApplicationQuery{
+	apps, err := si.ApplicationClient.List(ctx, &applicationClient.ApplicationQuery{
 		Name:         &appName,
 		AppNamespace: &namespace,
 	})
@@ -340,8 +336,8 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		return resourceArgoCDApplicationRead(ctx, d, meta)
 	}
 
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -356,7 +352,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		return diags
 	}
 
-	featureApplicationLevelSyncOptionsSupported, err := server.isFeatureSupported(featureApplicationLevelSyncOptions)
+	featureApplicationLevelSyncOptionsSupported, err := si.isFeatureSupported(featureApplicationLevelSyncOptions)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -381,7 +377,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	featureIgnoreDiffJQPathExpressionsSupported, err := server.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
+	featureIgnoreDiffJQPathExpressionsSupported, err := si.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -414,7 +410,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	featureApplicationHelmSkipCrdsSupported, err := server.isFeatureSupported(featureApplicationHelmSkipCrds)
+	featureApplicationHelmSkipCrdsSupported, err := si.isFeatureSupported(featureApplicationHelmSkipCrds)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -437,14 +433,13 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	c := *server.ApplicationClient
 	ids := strings.Split(d.Id(), ":")
 	appQuery := &applicationClient.ApplicationQuery{
 		Name:         &ids[0],
 		AppNamespace: &ids[1],
 	}
 
-	apps, err := c.List(ctx, appQuery)
+	apps, err := si.ApplicationClient.List(ctx, appQuery)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -471,7 +466,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	if _, err = c.Update(ctx, &applicationClient.ApplicationUpdateRequest{
+	if _, err = si.ApplicationClient.Update(ctx, &applicationClient.ApplicationUpdateRequest{
 		Application: &application.Application{
 			ObjectMeta: objectMeta,
 			Spec:       spec,
@@ -493,7 +488,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 	if wait, _ok := d.GetOk("wait"); _ok && wait.(bool) {
 		if err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
 			var list *application.ApplicationList
-			if list, err = c.List(ctx, appQuery); err != nil {
+			if list, err = si.ApplicationClient.List(ctx, appQuery); err != nil {
 				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", list.Items[0].Name, err))
 			}
 
@@ -529,8 +524,8 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -540,13 +535,12 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	c := *server.ApplicationClient
 	ids := strings.Split(d.Id(), ":")
 	appName := ids[0]
 	namespace := ids[1]
 	cascade := d.Get("cascade").(bool)
 
-	if _, err := c.Delete(ctx, &applicationClient.ApplicationDeleteRequest{
+	if _, err := si.ApplicationClient.Delete(ctx, &applicationClient.ApplicationDeleteRequest{
 		Name:         &appName,
 		Cascade:      &cascade,
 		AppNamespace: &namespace,
@@ -562,7 +556,7 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
 		if err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
-			_, err := c.List(ctx, &applicationClient.ApplicationQuery{
+			_, err := si.ApplicationClient.List(ctx, &applicationClient.ApplicationQuery{
 				Name:         &appName,
 				AppNamespace: &namespace,
 			})

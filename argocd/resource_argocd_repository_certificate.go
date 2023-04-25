@@ -26,8 +26,8 @@ func resourceArgoCDRepositoryCertificates() *schema.Resource {
 }
 
 func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -37,7 +37,7 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 		}
 	}
 
-	if featureRepositoryCertificateSupported, err := server.isFeatureSupported(featureRepositoryCertificates); err != nil {
+	if featureRepositoryCertificateSupported, err := si.isFeatureSupported(featureRepositoryCertificates); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -56,14 +56,13 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 		}
 	}
 
-	c := *server.CertificateClient
-	repoCertificate := expandRepositoryCertificate(d)
-
 	// Not doing a RLock here because we can have a race-condition between the ListCertificates & CreateCertificate
 	tokenMutexConfiguration.Lock()
 
+	repoCertificate := expandRepositoryCertificate(d)
+
 	if repoCertificate.CertType == "https" {
-		rcl, err := c.ListCertificates(ctx, &certificate.RepositoryCertificateQuery{
+		rcl, err := si.CertificateClient.ListCertificates(ctx, &certificate.RepositoryCertificateQuery{
 			HostNamePattern: repoCertificate.ServerName,
 			CertType:        repoCertificate.CertType,
 			CertSubType:     repoCertificate.CertSubType,
@@ -98,7 +97,7 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 		},
 	}
 
-	rc, err := c.CreateCertificate(
+	rc, err := si.CertificateClient.CreateCertificate(
 		ctx,
 		&certificate.RepositoryCertificateCreateRequest{
 			Certificates: &certs,
@@ -185,8 +184,8 @@ func fromId(id string) (string, string, string, error) {
 }
 
 func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -196,7 +195,7 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 		}
 	}
 
-	featureRepositoryCertificateSupported, err := server.isFeatureSupported(featureRepositoryCertificates)
+	featureRepositoryCertificateSupported, err := si.isFeatureSupported(featureRepositoryCertificates)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -218,9 +217,6 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 		}
 	}
 
-	c := *server.CertificateClient
-	repoCertificate := application.RepositoryCertificate{}
-
 	certType, certSubType, serverName, err := fromId(d.Id())
 	if err != nil {
 		return []diag.Diagnostic{
@@ -233,7 +229,7 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 	}
 
 	tokenMutexConfiguration.RLock()
-	rcl, err := c.ListCertificates(ctx, &certificate.RepositoryCertificateQuery{
+	rcl, err := si.CertificateClient.ListCertificates(ctx, &certificate.RepositoryCertificateQuery{
 		HostNamePattern: serverName,
 		CertType:        certType,
 		CertSubType:     certSubType,
@@ -253,6 +249,8 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 		d.SetId("")
 		return nil
 	}
+
+	repoCertificate := application.RepositoryCertificate{}
 
 	for i, _rc := range rcl.Items {
 		var resourceId string
@@ -295,8 +293,8 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 }
 
 func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -306,7 +304,7 @@ func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.R
 		}
 	}
 
-	featureRepositoryCertificateSupported, err := server.isFeatureSupported(featureRepositoryCertificates)
+	featureRepositoryCertificateSupported, err := si.isFeatureSupported(featureRepositoryCertificates)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -328,8 +326,6 @@ func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.R
 		}
 	}
 
-	c := *server.CertificateClient
-
 	certType, certSubType, serverName, err := fromId(d.Id())
 	if err != nil {
 		return []diag.Diagnostic{
@@ -348,7 +344,7 @@ func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.R
 	}
 
 	tokenMutexConfiguration.Lock()
-	_, err = c.DeleteCertificate(
+	_, err = si.CertificateClient.DeleteCertificate(
 		ctx,
 		&query,
 	)

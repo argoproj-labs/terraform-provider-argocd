@@ -156,8 +156,8 @@ func resourceArgoCDProjectToken() *schema.Resource {
 }
 
 func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -226,7 +226,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	featureTokenIDSupported, err := server.isFeatureSupported(featureTokenIDs)
+	featureTokenIDSupported, err := si.isFeatureSupported(featureTokenIDs)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -237,10 +237,8 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	c := *server.ProjectClient
-
 	tokenMutexProjectMap[projectName].Lock()
-	resp, err := c.CreateToken(ctx, opts)
+	resp, err := si.ProjectClient.CreateToken(ctx, opts)
 
 	// ensure issuedAt is unique upon multiple simultaneous resource creation invocations
 	// as this is the unique ID for old tokens
@@ -352,8 +350,8 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -363,8 +361,6 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	c := *server.ProjectClient
-
 	projectName := d.Get("project").(string)
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
@@ -372,7 +368,7 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 
 	// Delete token from state if project has been deleted in an out-of-band fashion
 	tokenMutexProjectMap[projectName].RLock()
-	p, err := c.Get(ctx, &project.ProjectQuery{
+	p, err := si.ProjectClient.Get(ctx, &project.ProjectQuery{
 		Name: projectName,
 	})
 	tokenMutexProjectMap[projectName].RUnlock()
@@ -392,7 +388,7 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	featureTokenIDSupported, err := server.isFeatureSupported(featureTokenIDs)
+	featureTokenIDSupported, err := si.isFeatureSupported(featureTokenIDs)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -517,8 +513,8 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	server := meta.(*ServerInterface)
-	if err := server.initClients(ctx); err != nil {
+	si := meta.(*ServerInterface)
+	if err := si.initClients(ctx); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -528,7 +524,6 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	c := *server.ProjectClient
 	projectName := d.Get("project").(string)
 	role := d.Get("role").(string)
 	opts := &project.ProjectTokenDeleteRequest{
@@ -540,7 +535,7 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
 	}
 
-	featureTokenIDSupported, err := server.isFeatureSupported(featureTokenIDs)
+	featureTokenIDSupported, err := si.isFeatureSupported(featureTokenIDs)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -569,7 +564,7 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 	}
 
 	tokenMutexProjectMap[projectName].Lock()
-	if _, err := c.DeleteToken(ctx, opts); err != nil {
+	if _, err := si.ProjectClient.DeleteToken(ctx, opts); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
