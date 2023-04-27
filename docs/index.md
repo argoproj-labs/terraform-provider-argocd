@@ -35,6 +35,14 @@ provider "argocd" {
 - `client_cert_key` (String) Client certificate key.
 - `config_path` (String) Override the default config path of `$HOME/.config/argocd/config`. Only relevant when `use_local_config`. Can be set through the `ARGOCD_CONFIG_PATH` environment variable.
 - `context` (String) Kubernetes context to load from an existing `.kube/config` file. Can be set through `ARGOCD_CONTEXT` environment variable.
+- `core` (Boolean) Configure direct access using Kubernetes API server.
+
+  **Warning**: this feature works by starting a local ArgoCD API server that talks directly to the Kubernetes API using the **current context in the default kubeconfig** (`~/.kube/config`). This behavior cannot be overridden using either environment variables or the `kubernetes` block in the provider configuration at present).
+
+  If the server fails to start (e.g. your kubeconfig is misconfigured) then the provider will fail as a result of the `argocd` module forcing it to exit and no logs will be available to help you debug this. The error message will be similar to
+  > `The plugin encountered an error, and failed to respond to the plugin.(*GRPCProvider).ReadResource call. The plugin logs may contain more details.`
+
+  To debug this, you will need to login via the ArgoCD CLI using `argocd login --core` and then running an operation. E.g. `argocd app list`.
 - `grpc_web` (Boolean) Whether to use gRPC web proxy client. Useful if Argo CD server is behind proxy which does not support HTTP2.
 - `grpc_web_root_path` (String) Use the gRPC web proxy client and set the web root, e.g. `argo-cd`. Useful if the Argo CD server is behind a proxy at a non-root path.
 - `headers` (Set of String) Additional headers to add to each request to the ArgoCD server.

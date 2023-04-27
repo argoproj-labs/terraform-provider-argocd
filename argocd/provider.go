@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 	"net/url"
 	"sync"
 
+	"github.com/argoproj/argo-cd/v2/cmd/argocd/commands/headless"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/session"
 	"github.com/argoproj/argo-cd/v2/util/io"
@@ -17,6 +17,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 
 	apimachineryschema "k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/runtime"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	// Import to initialize client auth plugins.
@@ -32,6 +33,8 @@ var tokenMutexClusters = &sync.RWMutex{}
 // Used to handle concurrent access to each ArgoCD project
 var tokenMutexProjectMap = make(map[string]*sync.RWMutex, 0)
 
+var runtimeErrorHandlers []func(error)
+
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
@@ -41,6 +44,7 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_SERVER", nil),
 				Description: "ArgoCD server address with port. Can be set through the `ARGOCD_SERVER` environment variable.",
 				AtLeastOneOf: []string{
+					"core",
 					"port_forward",
 					"port_forward_with_namespace",
 					"use_local_config",
@@ -52,10 +56,11 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_AUTH_TOKEN", nil),
 				Description: "ArgoCD authentication token, takes precedence over `username`/`password`. Can be set through the `ARGOCD_AUTH_TOKEN` environment variable.",
 				ConflictsWith: []string{
-					"username",
+					"config_path",
+					"core",
 					"password",
 					"use_local_config",
-					"config_path",
+					"username",
 				},
 			},
 			"username": {
@@ -65,10 +70,12 @@ func Provider() *schema.Provider {
 				Description: "Authentication username. Can be set through the `ARGOCD_AUTH_USERNAME` environment variable.",
 				ConflictsWith: []string{
 					"auth_token",
-					"use_local_config",
 					"config_path",
+					"core",
+					"use_local_config",
 				},
 				AtLeastOneOf: []string{
+					"core",
 					"password",
 					"auth_token",
 					"use_local_config",
@@ -81,11 +88,13 @@ func Provider() *schema.Provider {
 				Description: "Authentication password. Can be set through the `ARGOCD_AUTH_PASSWORD` environment variable.",
 				ConflictsWith: []string{
 					"auth_token",
-					"use_local_config",
 					"config_path",
+					"core",
+					"use_local_config",
 				},
 				AtLeastOneOf: []string{
 					"username",
+					"core",
 					"auth_token",
 					"use_local_config",
 				},
@@ -116,10 +125,34 @@ func Provider() *schema.Provider {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_CONTEXT", nil),
 				Description: "Kubernetes context to load from an existing `.kube/config` file. Can be set through `ARGOCD_CONTEXT` environment variable.",
+				ConflictsWith: []string{
+					"core",
+					"username",
+					"password",
+					"auth_token",
+				},
 			},
 			"user_agent": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"core": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: "Configure direct access using Kubernetes API server.\n\n  " +
+					"**Warning**: this feature works by starting a local ArgoCD API server that talks directly to the Kubernetes API using the **current context " +
+					"in the default kubeconfig** (`~/.kube/config`). This behavior cannot be overridden using either environment variables or the `kubernetes` block " +
+					"in the provider configuration at present).\n\n  If the server fails to start (e.g. your kubeconfig is misconfigured) then the provider will " +
+					"fail as a result of the `argocd` module forcing it to exit and no logs will be available to help you debug this. The error message will be " +
+					"similar to\n  > `The plugin encountered an error, and failed to respond to the plugin.(*GRPCProvider).ReadResource call. The plugin logs may " +
+					"contain more details.`\n\n  To debug this, you will need to login via the ArgoCD CLI using `argocd login --core` and then running an operation. " +
+					"E.g. `argocd app list`.",
+				ConflictsWith: []string{
+					"auth_token",
+					"use_local_config",
+					"password",
+					"username",
+				},
 			},
 			"grpc_web": {
 				Type:        schema.TypeBool,
@@ -136,9 +169,10 @@ func Provider() *schema.Provider {
 				Optional:    true,
 				Description: "Use the authentication settings found in the local config file. Useful when you have previously logged in using SSO. Conflicts with `auth_token`, `username` and `password`.",
 				ConflictsWith: []string{
-					"username",
-					"password",
 					"auth_token",
+					"core",
+					"password",
+					"username",
 				},
 			},
 			"config_path": {
@@ -147,9 +181,10 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_CONFIG_PATH", nil),
 				Description: "Override the default config path of `$HOME/.config/argocd/config`. Only relevant when `use_local_config`. Can be set through the `ARGOCD_CONFIG_PATH` environment variable.",
 				ConflictsWith: []string{
-					"username",
-					"password",
 					"auth_token",
+					"core",
+					"password",
+					"username",
 				},
 			},
 			"port_forward": {
@@ -390,6 +425,26 @@ func initApiClient(ctx context.Context, d *schema.ResourceData) (apiClient apicl
 			}
 
 			opts.AuthToken = resp.Token
+		}
+	}
+
+	if v, ok := d.Get("core").(bool); ok && v {
+		opts.ServerAddr = "kubernetes"
+		opts.Core = true
+
+		// HACK: `headless.StartLocalServer` manipulates this global variable
+		// when starting the local server without checking it's length/contents
+		// which leads to a panic if called multiple times. So, we need to
+		// ensure we "reset" it before calling the method.
+		if runtimeErrorHandlers == nil {
+			runtimeErrorHandlers = runtime.ErrorHandlers
+		} else {
+			runtime.ErrorHandlers = runtimeErrorHandlers
+		}
+
+		err := headless.StartLocalServer(ctx, &opts, "", nil, nil)
+		if err != nil {
+			return nil, fmt.Errorf("failed to start local server: %w", err)
 		}
 	}
 

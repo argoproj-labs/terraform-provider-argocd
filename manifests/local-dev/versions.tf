@@ -32,4 +32,8 @@ provider "argocd" {
 #   }
 # }
 
+# provider "argocd" {
+#   core = true
+# }
+
 provider "kind" {}
