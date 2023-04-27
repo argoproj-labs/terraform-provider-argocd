@@ -11,16 +11,80 @@ The ArgoCD Provider provides lifecycle management of
 
 **NB**: The provider is not concerned with the installation/configuration of
 ArgoCD itself. To make use of the provider, you will need to have an existing
-ArgoCD installation and, the ArgoCD API server must be
-[accessible](https://argo-cd.readthedocs.io/en/stable/getting_started/#3-access-the-argo-cd-api-server)
-from where you are running Terraform.
+ArgoCD installation.
+
+The correct provider configuration largely depends on whether or not your 
+ArgoCD API server is exposed or not.
+
+If your ArgoCD API server is exposed, then:
+- use `server_addr` along with a `username`/`password` or `auth_token`. 
+- use `use_local_config` if you have (pre)authenticated via the ArgoCD CLI (E.g.
+  via SSO using `argocd login --sso`.
+
+If you have not exposed your ArgoCD API server or have not deployed the API
+server ([ArgoCD
+core](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/#core)),
+see below for options. **Note**: in both these cases, you need sufficient access
+to the Kubernetes API to perform any actions.
+- use `port_forward_with_namespace` and optionally `kubernetes` configuration
+  (to temporarily expose the ArgoCD API server using port forwarding) along with
+  a `username`/`password` or `auth_token`.
+- use `core` to run a local ArgoCD API server that communicates directly with
+  the Kubernetes API. **NB**: When using `core`, take note of the warning in 
+  the docs below.
+
+If you are struggling to determine the correct configuration for the provider or
+the provider is behaving strangely and failing to connect for whatever reason,
+then we would suggest that you first figure out what combination of parameters
+work to log in using the ArgoCD CLI (`argocd login`) and then set the provider
+configuration to match what you used in the CLI. See also the ArgoCD [Getting
+Started](https://argo-cd.readthedocs.io/en/stable/getting_started/#3-access-the-argo-cd-api-server)
+docs.
 
 ## Example Usage
 
 ```terraform
+# Exposed ArgoCD API - authenticated using authentication token.
 provider "argocd" {
   server_addr = "argocd.local:443"
   auth_token  = "1234..."
+}
+
+# Exposed ArgoCD API - authenticated using `username`/`password`
+provider "argocd" {
+  server_addr = "argocd.local:443"
+  username    = "foo"
+  password    = local.password
+}
+
+# Exposed ArgoCD API - (pre)authenticated using local ArgoCD config (e.g. when
+# you have previously logged in using SSO).
+provider "argocd" {
+  use_local_config = true
+  # context = "foo" # Use explicit context from ArgoCD config instead of `current-context`.
+}
+
+# Unexposed ArgoCD API - using port-forwarding to temporarily expose ArgoCD API
+# and authenticating using `auth_token`.
+provider "argocd" {
+  auth_token   = "1234..."
+  port_forward = true
+}
+
+# Unexposed ArgoCD API - using port-forwarding to temporarily expose ArgoCD API
+# whilst overriding the current context in kubeconfig.
+provider "argocd" {
+  auth_token                  = "1234..."
+  port_forward_with_namespace = "custom-argocd-namespace"
+  kubernetes {
+    config_context = "kind-argocd"
+  }
+}
+
+# Unexposed ArgoCD API - using `core` to run ArgoCD server locally and
+# communicate directly with the Kubernetes API.
+provider "argocd" {
+  core = true
 }
 ```
 
