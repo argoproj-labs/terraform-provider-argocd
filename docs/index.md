@@ -64,8 +64,9 @@ provider "argocd" {
   # context = "foo" # Use explicit context from ArgoCD config instead of `current-context`.
 }
 
-# Unexposed ArgoCD API - using port-forwarding to temporarily expose ArgoCD API
-# and authenticating using `auth_token`.
+# Unexposed ArgoCD API - using the current Kubernetes context and
+# port-forwarding to temporarily expose ArgoCD API and authenticating using
+# `auth_token`.
 provider "argocd" {
   auth_token   = "1234..."
   port_forward = true
