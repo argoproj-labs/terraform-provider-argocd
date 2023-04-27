@@ -188,12 +188,14 @@ func Provider() *schema.Provider {
 				},
 			},
 			"port_forward": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: "Connect to a random argocd-server port using port forwarding.",
+				Optional:    true,
 			},
 			"port_forward_with_namespace": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Namespace name which should be used for port forwarding.",
+				Optional:    true,
 			},
 			"headers": {
 				Type:        schema.TypeSet,
@@ -211,7 +213,7 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
-				Description: "Kubernetes configuration.",
+				Description: "Kubernetes configuration overrides.  Only relevant when `port_forward = true` or `port_forward_with_namespace = \"foo\"`. The kubeconfig file that is used can be overridden using the [`KUBECONFIG` environment variable](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)).",
 				Elem:        kubernetesResource(),
 			},
 		},

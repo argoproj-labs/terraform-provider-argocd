@@ -47,11 +47,11 @@ provider "argocd" {
 - `grpc_web_root_path` (String) Use the gRPC web proxy client and set the web root, e.g. `argo-cd`. Useful if the Argo CD server is behind a proxy at a non-root path.
 - `headers` (Set of String) Additional headers to add to each request to the ArgoCD server.
 - `insecure` (Boolean) Whether to skip TLS server certificate. Can be set through the `ARGOCD_INSECURE` environment variable.
-- `kubernetes` (Block List, Max: 1) Kubernetes configuration. (see [below for nested schema](#nestedblock--kubernetes))
+- `kubernetes` (Block List, Max: 1) Kubernetes configuration overrides.  Only relevant when `port_forward = true` or `port_forward_with_namespace = "foo"`. The kubeconfig file that is used can be overridden using the [`KUBECONFIG` environment variable](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)). (see [below for nested schema](#nestedblock--kubernetes))
 - `password` (String) Authentication password. Can be set through the `ARGOCD_AUTH_PASSWORD` environment variable.
 - `plain_text` (Boolean) Whether to initiate an unencrypted connection to ArgoCD server.
-- `port_forward` (Boolean)
-- `port_forward_with_namespace` (String)
+- `port_forward` (Boolean) Connect to a random argocd-server port using port forwarding.
+- `port_forward_with_namespace` (String) Namespace name which should be used for port forwarding.
 - `server_addr` (String) ArgoCD server address with port. Can be set through the `ARGOCD_SERVER` environment variable.
 - `use_local_config` (Boolean) Use the authentication settings found in the local config file. Useful when you have previously logged in using SSO. Conflicts with `auth_token`, `username` and `password`.
 - `user_agent` (String)
