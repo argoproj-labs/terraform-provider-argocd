@@ -267,6 +267,7 @@ func initApiClient(ctx context.Context, d *schema.ResourceData) (apiClient apicl
 
 	if _, ok := d.GetOk("kubernetes"); ok {
 		opts.KubeOverrides = &clientcmd.ConfigOverrides{}
+
 		if v, ok := k8sGetOk(d, "insecure"); ok {
 			opts.KubeOverrides.ClusterInfo.InsecureSkipTLSVerify = v.(bool)
 		}
@@ -277,6 +278,25 @@ func initApiClient(ctx context.Context, d *schema.ResourceData) (apiClient apicl
 
 		if v, ok := k8sGetOk(d, "client_certificate"); ok {
 			opts.KubeOverrides.AuthInfo.ClientCertificateData = bytes.NewBufferString(v.(string)).Bytes()
+		}
+
+		kubectx, ctxOk := k8sGetOk(d, "config_context")
+		authInfo, authInfoOk := k8sGetOk(d, "config_context_auth_info")
+		cluster, clusterOk := k8sGetOk(d, "config_context_cluster")
+
+		if ctxOk || authInfoOk || clusterOk {
+			if ctxOk {
+				opts.KubeOverrides.CurrentContext = kubectx.(string)
+			}
+
+			opts.KubeOverrides.Context = clientcmdapi.Context{}
+			if authInfoOk {
+				opts.KubeOverrides.Context.AuthInfo = authInfo.(string)
+			}
+
+			if clusterOk {
+				opts.KubeOverrides.Context.Cluster = cluster.(string)
+			}
 		}
 
 		if v, ok := k8sGetOk(d, "host"); ok {
@@ -326,7 +346,6 @@ func initApiClient(ctx context.Context, d *schema.ResourceData) (apiClient apicl
 					exec.Env = append(exec.Env, clientcmdapi.ExecEnvVar{Name: kk, Value: vv.(string)})
 				}
 			} else {
-				log.Printf("[ERROR] Failed to parse exec")
 				return nil, fmt.Errorf("failed to parse exec")
 			}
 
