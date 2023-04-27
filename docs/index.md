@@ -60,8 +60,6 @@ Optional:
 - `config_context` (String) Context to choose from the config file. Can be sourced from `KUBE_CTX`.
 - `config_context_auth_info` (String)
 - `config_context_cluster` (String)
-- `config_path` (String) Path to the kube config file. Can be sourced from `KUBE_CONFIG_PATH`.
-- `config_paths` (List of String) A list of paths to the kube config files. Can be sourced from `KUBE_CONFIG_PATHS`.
 - `exec` (Block List, Max: 1) Configuration block to use an [exec-based credential plugin](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#client-go-credential-plugins), e.g. call an external command to receive user credentials. (see [below for nested schema](#nestedblock--kubernetes--exec))
 - `host` (String) The hostname (in form of URI) of the Kubernetes API. Can be sourced from `KUBE_HOST`.
 - `insecure` (Boolean) Whether server should be accessed without verifying the TLS certificate. Can be sourced from `KUBE_INSECURE`.

@@ -436,19 +436,6 @@ func kubernetesResource() *schema.Resource {
 				DefaultFunc: schema.EnvDefaultFunc("KUBE_CLUSTER_CA_CERT_DATA", ""),
 				Description: "PEM-encoded root certificates bundle for TLS authentication. Can be sourced from `KUBE_CLUSTER_CA_CERT_DATA`.",
 			},
-			"config_paths": {
-				Type:        schema.TypeList,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Description: "A list of paths to the kube config files. Can be sourced from `KUBE_CONFIG_PATHS`.",
-			},
-			"config_path": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				DefaultFunc:   schema.EnvDefaultFunc("KUBE_CONFIG_PATH", nil),
-				Description:   "Path to the kube config file. Can be sourced from `KUBE_CONFIG_PATH`.",
-				ConflictsWith: []string{"kubernetes.0.config_paths"},
-			},
 			"config_context": {
 				Type:        schema.TypeString,
 				Optional:    true,
