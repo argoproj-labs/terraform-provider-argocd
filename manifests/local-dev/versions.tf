@@ -18,4 +18,18 @@ provider "argocd" {
   password    = "acceptancetesting"
 }
 
+# provider "argocd" {
+#   context          = "localhost:8080"
+#   use_local_config = true # Note: you will need to log in via the ArgoCD CLI first (`argocd login localhost:8080 --username admin --password acceptancetesting --insecure`) for this to work
+# }
+
+# provider "argocd" {
+#   port_forward = true
+#   username     = "admin"
+#   password     = "acceptancetesting"
+#   kubernetes {
+#     config_context = "kind-argocd"
+#   }
+# }
+
 provider "kind" {}

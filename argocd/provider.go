@@ -37,9 +37,14 @@ func Provider() *schema.Provider {
 		Schema: map[string]*schema.Schema{
 			"server_addr": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_SERVER", nil),
 				Description: "ArgoCD server address with port. Can be set through the `ARGOCD_SERVER` environment variable.",
+				AtLeastOneOf: []string{
+					"port_forward",
+					"port_forward_with_namespace",
+					"use_local_config",
+				},
 			},
 			"auth_token": {
 				Type:        schema.TypeString,
