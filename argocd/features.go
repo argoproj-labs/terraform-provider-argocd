@@ -31,6 +31,7 @@ const (
 	featureApplicationHelmSkipCrds
 	featureExecLogsPolicy
 	featureProjectSourceNamespaces
+	featureMultipleApplicationSources
 )
 
 var featureVersionConstraintsMap = map[int]*semver.Version{
@@ -45,6 +46,7 @@ var featureVersionConstraintsMap = map[int]*semver.Version{
 	featureApplicationHelmSkipCrds:     semver.MustParse("2.3.0"),
 	featureExecLogsPolicy:              semver.MustParse("2.4.4"),
 	featureProjectSourceNamespaces:     semver.MustParse("2.5.0"),
+	featureMultipleApplicationSources:  semver.MustParse("2.6.3"), // Whilst the feature was introduced in 2.6.0 there was a bug that affects refresh of applications (and hence `wait` within this provider) that was only fixed in https://github.com/argoproj/argo-cd/pull/12576
 }
 
 type ServerInterface struct {

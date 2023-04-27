@@ -58,49 +58,56 @@ func expandApplicationSpec(d *schema.ResourceData) (
 		spec.Destination = expandApplicationDestination(v.(*schema.Set).List()[0])
 	}
 
-	if v, ok := s["source"]; ok {
-		spec.Source = expandApplicationSource(v.([]interface{})[0])
+	if v, ok := s["source"].([]interface{}); ok && len(v) > 0 {
+		spec.Sources = expandApplicationSource(v)
 	}
 
 	return spec, diags
 }
 
-func expandApplicationSource(_as interface{}) (
-	result application.ApplicationSource) {
-	as := _as.(map[string]interface{})
-	if v, ok := as["repo_url"]; ok {
-		result.RepoURL = v.(string)
+func expandApplicationSource(_ass []interface{}) []application.ApplicationSource {
+	ass := make([]application.ApplicationSource, len(_ass))
+
+	for i, v := range _ass {
+		as := v.(map[string]interface{})
+		s := application.ApplicationSource{}
+
+		if v, ok := as["repo_url"]; ok {
+			s.RepoURL = v.(string)
+		}
+
+		if v, ok := as["path"]; ok {
+			s.Path = v.(string)
+		}
+
+		if v, ok := as["target_revision"]; ok {
+			s.TargetRevision = v.(string)
+		}
+
+		if v, ok := as["chart"]; ok {
+			s.Chart = v.(string)
+		}
+
+		if v, ok := as["helm"]; ok {
+			s.Helm = expandApplicationSourceHelm(v.([]interface{}))
+		}
+
+		if v, ok := as["kustomize"]; ok {
+			s.Kustomize = expandApplicationSourceKustomize(v.([]interface{}))
+		}
+
+		if v, ok := as["directory"].([]interface{}); ok && len(v) > 0 {
+			s.Directory = expandApplicationSourceDirectory(v[0])
+		}
+
+		if v, ok := as["plugin"]; ok {
+			s.Plugin = expandApplicationSourcePlugin(v.([]interface{}))
+		}
+
+		ass[i] = s
 	}
 
-	if v, ok := as["path"]; ok {
-		result.Path = v.(string)
-	}
-
-	if v, ok := as["target_revision"]; ok {
-		result.TargetRevision = v.(string)
-	}
-
-	if v, ok := as["chart"]; ok {
-		result.Chart = v.(string)
-	}
-
-	if v, ok := as["helm"]; ok {
-		result.Helm = expandApplicationSourceHelm(v.([]interface{}))
-	}
-
-	if v, ok := as["kustomize"]; ok {
-		result.Kustomize = expandApplicationSourceKustomize(v.([]interface{}))
-	}
-
-	if v, ok := as["directory"]; ok {
-		result.Directory = expandApplicationSourceDirectory(v.([]interface{}))
-	}
-
-	if v, ok := as["plugin"]; ok {
-		result.Plugin = expandApplicationSourcePlugin(v.([]interface{}))
-	}
-
-	return result
+	return ass
 }
 
 func expandApplicationSourcePlugin(in []interface{}) *application.ApplicationSourcePlugin {
@@ -129,14 +136,14 @@ func expandApplicationSourcePlugin(in []interface{}) *application.ApplicationSou
 	return result
 }
 
-func expandApplicationSourceDirectory(in []interface{}) *application.ApplicationSourceDirectory {
-	if len(in) == 0 || in[0] == nil {
-		return nil
-	}
-
+func expandApplicationSourceDirectory(in interface{}) *application.ApplicationSourceDirectory {
 	result := &application.ApplicationSourceDirectory{}
 
-	a := in[0].(map[string]interface{})
+	if in == nil {
+		return result
+	}
+
+	a := in.(map[string]interface{})
 	if v, ok := a["recurse"]; ok {
 		result.Recurse = v.(bool)
 	}
@@ -513,10 +520,15 @@ func flattenApplicationSpec(s application.ApplicationSpec) []map[string]interfac
 		"ignore_difference": flattenApplicationIgnoreDifferences(s.IgnoreDifferences),
 		"info":              flattenApplicationInfo(s.Info),
 		"project":           s.Project,
-		"source": flattenApplicationSource(
-			[]application.ApplicationSource{s.Source},
-		),
-		"sync_policy": flattenApplicationSyncPolicy(s.SyncPolicy),
+		"sync_policy":       flattenApplicationSyncPolicy(s.SyncPolicy),
+	}
+
+	if s.Source != nil {
+		spec["source"] = flattenApplicationSource(
+			[]application.ApplicationSource{*s.Source},
+		)
+	} else {
+		spec["source"] = flattenApplicationSource(s.Sources)
 	}
 
 	if s.RevisionHistoryLimit != nil {
@@ -656,7 +668,7 @@ func flattenApplicationSourcePlugin(as []*application.ApplicationSourcePlugin) (
 func flattenApplicationSourceDirectory(as []*application.ApplicationSourceDirectory) (
 	result []map[string]interface{}) {
 	for _, a := range as {
-		if a != nil {
+		if a != nil && !a.IsZero() {
 			jsonnet := make(map[string][]interface{}, 0)
 			for _, jev := range a.Jsonnet.ExtVars {
 				jsonnet["ext_var"] = append(jsonnet["ext_var"], map[string]interface{}{
@@ -678,10 +690,11 @@ func flattenApplicationSourceDirectory(as []*application.ApplicationSourceDirect
 				jsonnet["libs"] = append(jsonnet["libs"], lib)
 			}
 
-			m := make(map[string]interface{})
-			m["recurse"] = a.Recurse
-			m["exclude"] = a.Exclude
-			m["include"] = a.Include
+			m := map[string]interface{}{
+				"recurse": a.Recurse,
+				"exclude": a.Exclude,
+				"include": a.Include,
+			}
 
 			if len(jsonnet) > 0 {
 				m["jsonnet"] = []map[string][]interface{}{jsonnet}

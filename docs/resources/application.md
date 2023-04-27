@@ -174,7 +174,7 @@ Read-Only:
 Required:
 
 - `destination` (Block Set, Min: 1, Max: 1) Reference to the Kubernetes server and namespace in which the application will be deployed. (see [below for nested schema](#nestedblock--spec--destination))
-- `source` (Block List, Min: 1, Max: 1) Location of the application's manifests or chart. (see [below for nested schema](#nestedblock--spec--source))
+- `source` (Block List, Min: 1) Location of the application's manifests or chart. (see [below for nested schema](#nestedblock--spec--source))
 
 Optional:
 

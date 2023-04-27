@@ -154,6 +154,9 @@ func applicationSpecSchemaV0() *schema.Schema {
 							"directory": {
 								Type: schema.TypeList,
 								DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+									// TODO: This can be removed once v2.6.7 is the oldest supported version
+									// as the API returns `Zero` Directory objects now.
+
 									// Avoid drift when recurse is explicitly set to false
 									// Also ignore the directory node if both recurse & jsonnet are not set or ignored
 									if k == "spec.0.source.0.directory.0.recurse" && oldValue == "" && newValue == "false" {
@@ -1268,8 +1271,6 @@ func applicationSpecSchemaV4() *schema.Schema {
 					Type:        schema.TypeList,
 					Description: "Location of the application's manifests or chart.",
 					Required:    true,
-					MinItems:    1,
-					MaxItems:    1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"repo_url": {

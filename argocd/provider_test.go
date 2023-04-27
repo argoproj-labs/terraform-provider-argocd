@@ -1,10 +1,13 @@
 package argocd
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
 	"github.com/Masterminds/semver"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -24,6 +27,26 @@ func TestProvider(t *testing.T) {
 	if err := Provider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
+}
+
+func TestProvider_headers(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf("%s %s", `
+                provider "argocd" {
+                    headers = [
+                        "Hello: HiThere",
+                    ]
+                }`, testAccArgoCDApplicationSimple(acctest.RandomWithPrefix("test-acc"), "9.4.1", false),
+				),
+			},
+		},
+	})
 }
 
 func testAccPreCheck(t *testing.T) {
