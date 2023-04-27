@@ -34,7 +34,7 @@ provider "argocd" {
 - `client_cert_file` (String) Client certificate.
 - `client_cert_key` (String) Client certificate key.
 - `config_path` (String) Override the default config path of `$HOME/.config/argocd/config`. Only relevant when `use_local_config`. Can be set through the `ARGOCD_CONFIG_PATH` environment variable.
-- `context` (String) Kubernetes context to load from an existing `.kube/config` file. Can be set through `ARGOCD_CONTEXT` environment variable.
+- `context` (String) Context to choose when using a local ArgoCD config file. Only relevant when `use_local_config`. Can be set through `ARGOCD_CONTEXT` environment variable.
 - `core` (Boolean) Configure direct access using Kubernetes API server.
 
   **Warning**: this feature works by starting a local ArgoCD API server that talks directly to the Kubernetes API using the **current context in the default kubeconfig** (`~/.kube/config`). This behavior cannot be overridden using either environment variables or the `kubernetes` block in the provider configuration at present).
