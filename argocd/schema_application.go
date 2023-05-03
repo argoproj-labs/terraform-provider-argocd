@@ -1351,9 +1351,9 @@ func applicationSpecSchemaV4() *schema.Schema {
 											Optional:    true,
 										},
 										"pass_credentials": {
-											Type:		schema.TypeBool,
+											Type:        schema.TypeBool,
 											Description: "If true then adds --pass-credentials to Helm commands to pass credentials to all domains",
-											Optional: true,
+											Optional:    true,
 										},
 									},
 								},
