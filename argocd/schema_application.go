@@ -1350,6 +1350,11 @@ func applicationSpecSchemaV4() *schema.Schema {
 											Description: "Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).",
 											Optional:    true,
 										},
+										"pass_credentials": {
+											Type:		schema.TypeBool,
+											Description: "If true then adds --pass-credentials to Helm commands to pass credentials to all domains",
+											Optional: true,
+										},
 									},
 								},
 							},
