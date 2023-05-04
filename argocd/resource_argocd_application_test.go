@@ -13,42 +13,42 @@ import (
 )
 
 func TestAccArgoCDApplication(t *testing.T) {
-	commonName := acctest.RandomWithPrefix("test-acc")
+	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDApplicationSimple(commonName, "8.0.0", false),
+				Config: testAccArgoCDApplicationSimple(name, "8.0.0", false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
-						"argocd_application.simple",
+						"argocd_application."+name,
 						"metadata.0.uid",
 					),
 					resource.TestCheckResourceAttr(
-						"argocd_application.simple",
+						"argocd_application."+name,
 						"spec.0.source.0.target_revision",
 						"8.0.0",
 					),
 				),
 			},
 			{
-				ResourceName:            "argocd_application.simple",
+				ResourceName:            "argocd_application." + name,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
 			},
 			{
 				// Update
-				Config: testAccArgoCDApplicationSimple(commonName, "9.0.0", false),
+				Config: testAccArgoCDApplicationSimple(name, "9.0.0", false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
-						"argocd_application.simple",
+						"argocd_application."+name,
 						"metadata.0.uid",
 					),
 					resource.TestCheckResourceAttr(
-						"argocd_application.simple",
+						"argocd_application."+name,
 						"spec.0.source.0.target_revision",
 						"9.0.0",
 					),
@@ -56,15 +56,15 @@ func TestAccArgoCDApplication(t *testing.T) {
 			},
 			{
 				// Update with wait = true
-				Config: testAccArgoCDApplicationSimple(commonName, "9.4.1", true),
+				Config: testAccArgoCDApplicationSimple(name, "9.4.1", true),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"argocd_application.simple",
+						"argocd_application."+name,
 						"wait",
 						"true",
 					),
 					resource.TestCheckResourceAttr(
-						"argocd_application.simple",
+						"argocd_application."+name,
 						"spec.0.source.0.target_revision",
 						"9.4.1",
 					),
@@ -266,18 +266,18 @@ func TestAccArgoCDApplication_OptionalDestinationNamespace(t *testing.T) {
 				Config: testAccArgoCDApplication_OptionalDestinationNamespace(acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
-						"argocd_application.simple",
+						"argocd_application.no_namespace",
 						"metadata.0.uid",
 					),
 					resource.TestCheckResourceAttr(
-						"argocd_application.simple",
+						"argocd_application.no_namespace",
 						"spec.0.destination.0.namespace",
 						"", // optional strings are maintained in state as blank strings
 					),
 				),
 			},
 			{
-				ResourceName:            "argocd_application.simple",
+				ResourceName:            "argocd_application.no_namespace",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"wait", "cascade"},
@@ -578,15 +578,15 @@ func TestAccArgoCDApplication_NoSyncPolicyBlock(t *testing.T) {
 				Config: testAccArgoCDApplicationNoSyncPolicy(acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
-						"argocd_application.simple",
+						"argocd_application.no_sync_policy",
 						"metadata.0.uid",
 					),
 					resource.TestCheckNoResourceAttr(
-						"argocd_application.simple",
+						"argocd_application.no_sync_policy",
 						"spec.0.sync_policy.0.retry.0.backoff.0.duration",
 					),
 					resource.TestCheckNoResourceAttr(
-						"argocd_application.simple",
+						"argocd_application.no_sync_policy",
 						"spec.0.sync_policy.0.automated.0.prune",
 					),
 				),
@@ -604,15 +604,15 @@ func TestAccArgoCDApplication_EmptySyncPolicyBlock(t *testing.T) {
 				Config: testAccArgoCDApplicationEmptySyncPolicy(acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
-						"argocd_application.simple",
+						"argocd_application.empty_sync_policy",
 						"metadata.0.uid",
 					),
 					resource.TestCheckNoResourceAttr(
-						"argocd_application.simple",
+						"argocd_application.empty_sync_policy",
 						"spec.0.sync_policy.0.retry.0.backoff.0.duration",
 					),
 					resource.TestCheckNoResourceAttr(
-						"argocd_application.simple",
+						"argocd_application.empty_sync_policy",
 						"spec.0.sync_policy.0.automated.0.prune",
 					),
 				),
@@ -630,15 +630,15 @@ func TestAccArgoCDApplication_NoAutomatedBlock(t *testing.T) {
 				Config: testAccArgoCDApplicationNoAutomated(acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
-						"argocd_application.simple",
+						"argocd_application.no_automated",
 						"metadata.0.uid",
 					),
 					resource.TestCheckResourceAttrSet(
-						"argocd_application.simple",
+						"argocd_application.no_automated",
 						"spec.0.sync_policy.0.retry.0.backoff.0.duration",
 					),
 					resource.TestCheckNoResourceAttr(
-						"argocd_application.simple",
+						"argocd_application.no_automated",
 						"spec.0.sync_policy.0.automated.0.prune",
 					),
 				),
@@ -656,15 +656,15 @@ func TestAccArgoCDApplication_EmptyAutomatedBlock(t *testing.T) {
 				Config: testAccArgoCDApplicationEmptyAutomated(acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
-						"argocd_application.simple",
+						"argocd_application.empty_automated",
 						"metadata.0.uid",
 					),
 					resource.TestCheckResourceAttrSet(
-						"argocd_application.simple",
+						"argocd_application.empty_automated",
 						"spec.0.sync_policy.0.automated.#",
 					),
 					resource.TestCheckNoResourceAttr(
-						"argocd_application.simple",
+						"argocd_application.empty_automated",
 						"spec.0.sync_policy.0.automated.0.prune",
 					),
 				),
@@ -967,7 +967,7 @@ func TestAccArgoCDApplication_SkipCrds(t *testing.T) {
 }
 
 func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
-	name := acctest.RandomWithPrefix("test-acc-custom-namespace")
+	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectSourceNamespaces) },
@@ -977,13 +977,13 @@ func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
 				Config: testAccArgoCDApplicationCustomNamespace(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
-						"argocd_application.simple",
+						"argocd_application.custom_namespace",
 						"metadata.0.uid",
 					),
 				),
 			},
 			{
-				ResourceName:            "argocd_application.simple",
+				ResourceName:            "argocd_application.custom_namespace",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"wait", "cascade"},
@@ -1028,21 +1028,22 @@ func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 
 func TestAccArgoCDApplication_Wait(t *testing.T) {
 	chartRevision := "9.4.1"
+	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDApplicationSimple(acctest.RandomWithPrefix("test-acc"), chartRevision, true),
+				Config: testAccArgoCDApplicationSimple(name, chartRevision, true),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"argocd_application.simple",
+						"argocd_application."+name,
 						"wait",
 						"true",
 					),
 					resource.TestCheckResourceAttr(
-						"argocd_application.simple",
+						"argocd_application."+name,
 						"spec.0.source.0.target_revision",
 						chartRevision,
 					),
@@ -1054,7 +1055,7 @@ func TestAccArgoCDApplication_Wait(t *testing.T) {
 
 func testAccArgoCDApplicationSimple(name, targetRevision string, wait bool) string {
 	return fmt.Sprintf(`
-resource "argocd_application" "simple" {
+resource "argocd_application" "%[1]s" {
   metadata {
     name      = "%[1]s"
     namespace = "argocd"
@@ -1561,7 +1562,7 @@ resource "argocd_application" "ignore_differences_jqpe" {
 
 func testAccArgoCDApplication_OptionalDestinationNamespace(name string) string {
 	return fmt.Sprintf(`
-resource "argocd_application" "simple" {
+resource "argocd_application" "no_namespace" {
   metadata {
     name      = "%s"
     namespace = "argocd"
@@ -1585,7 +1586,7 @@ resource "argocd_application" "simple" {
 
 func testAccArgoCDApplicationNoSyncPolicy(name string) string {
 	return fmt.Sprintf(`
-resource "argocd_application" "simple" {
+resource "argocd_application" "no_sync_policy" {
   metadata {
     name      = "%s"
     namespace = "argocd"
@@ -1610,7 +1611,7 @@ resource "argocd_application" "simple" {
 
 func testAccArgoCDApplicationEmptySyncPolicy(name string) string {
 	return fmt.Sprintf(`
-resource "argocd_application" "simple" {
+resource "argocd_application" "empty_sync_policy" {
   metadata {
     name      = "%s"
     namespace = "argocd"
@@ -1637,7 +1638,7 @@ resource "argocd_application" "simple" {
 
 func testAccArgoCDApplicationNoAutomated(name string) string {
 	return fmt.Sprintf(`
-resource "argocd_application" "simple" {
+resource "argocd_application" "no_automated" {
   metadata {
     name      = "%s"
     namespace = "argocd"
@@ -1672,7 +1673,7 @@ resource "argocd_application" "simple" {
 
 func testAccArgoCDApplicationEmptyAutomated(name string) string {
 	return fmt.Sprintf(`
-resource "argocd_application" "simple" {
+resource "argocd_application" "empty_automated" {
   metadata {
     name      = "%s"
     namespace = "argocd"
@@ -1964,7 +1965,7 @@ resource "argocd_application" "crds" {
 
 func testAccArgoCDApplicationCustomNamespace(name string) string {
 	return fmt.Sprintf(`
-resource "argocd_project" "simple" {
+resource "argocd_project" "custom_namespace" {
   metadata {
     name      = "%[1]s"
     namespace = "argocd"
@@ -1982,14 +1983,14 @@ resource "argocd_project" "simple" {
   }
 }
 
-resource "argocd_application" "simple" {
+resource "argocd_application" "custom_namespace" {
   metadata {
     name      = "%[1]s"
     namespace = "mynamespace-1"
   }
 
   spec {
-    project = argocd_project.simple.metadata[0].name
+    project = argocd_project.custom_namespace.metadata[0].name
     source {
       repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
       chart           = "redis"

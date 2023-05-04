@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAccArgoCDRepository(t *testing.T) {
+func TestAccArgoCDRepository_Simple(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
@@ -30,6 +30,24 @@ func TestAccArgoCDRepository(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				Config: testAccArgoCDRepositoryPublicUsageInApplication(acctest.RandString(10)),
+				Check: resource.TestCheckResourceAttrSet(
+					"argocd_application.public",
+					"metadata.0.uid",
+				),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDRepository_Helm(t *testing.T) {
+	projectName := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
 				Config: testAccArgoCDRepositoryHelm(),
 				Check: resource.TestCheckResourceAttr(
 					"argocd_repository.helm",
@@ -43,54 +61,6 @@ func TestAccArgoCDRepository(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccArgoCDRepositoryPublicUsageInApplication(acctest.RandString(10)),
-				Check: resource.TestCheckResourceAttrSet(
-					"argocd_application.public",
-					"metadata.0.uid",
-				),
-			},
-			{
-				Config: testAccArgoCDRepositoryPrivateGitSSH("git@private-git-repository.argocd.svc.cluster.local:~/project-1.git"),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"argocd_repository.private",
-						"connection_state_status",
-						"Successful",
-					),
-					resource.TestCheckResourceAttr(
-						"argocd_repository.private",
-						"inherited_creds",
-						"false",
-					),
-				),
-			},
-			{
-				ResourceName:            "argocd_repository.private",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ssh_private_key"},
-			},
-			{
-				Config: testAccArgoCDRepositoryMultiplePrivateGitSSH(10),
-				Check: testCheckMultipleResourceAttr(
-					"argocd_repository.private",
-					"connection_state_status",
-					"Successful",
-					10,
-				),
-			},
-		},
-	})
-}
-
-func TestAccArgoCDRepositoryScoped(t *testing.T) {
-	projectName := acctest.RandString(10)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedRepositories) },
-		ProviderFactories: testAccProviders,
-		Steps: []resource.TestStep{
-			{
 				Config: testAccArgoCDRepositoryHelmProjectScoped(projectName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -103,6 +73,45 @@ func TestAccArgoCDRepositoryScoped(t *testing.T) {
 						"project",
 						projectName,
 					),
+				),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDRepository_PrivateSSH(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDRepositoryPrivateGitSSH("git@private-git-repository.argocd.svc.cluster.local:~/project-1.git"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.private_ssh",
+						"connection_state_status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.private_ssh",
+						"inherited_creds",
+						"false",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_repository.private_ssh",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ssh_private_key"},
+			},
+			{
+				Config: testAccArgoCDRepositoryMultiplePrivateGitSSH(10),
+				Check: testCheckMultipleResourceAttr(
+					"argocd_repository.private_ssh",
+					"connection_state_status",
+					"Successful",
+					10,
 				),
 			},
 		},
@@ -246,7 +255,7 @@ resource "argocd_application" "public" {
 
 func testAccArgoCDRepositoryPrivateGitSSH(repoUrl string) string {
 	return fmt.Sprintf(`
-resource "argocd_repository" "private" {
+resource "argocd_repository" "private_ssh" {
   repo            = "%s"
   type            = "git"
   insecure        = true
@@ -257,7 +266,7 @@ resource "argocd_repository" "private" {
 
 func testAccArgoCDRepositoryMultiplePrivateGitSSH(repoCount int) string {
 	return fmt.Sprintf(`
-resource "argocd_repository" "private" {
+resource "argocd_repository" "private_ssh" {
   count           = %d
   repo            = format("git@private-git-repository.argocd.svc.cluster.local:~/project-%%d.git", count.index+1)
   type            = "git"
