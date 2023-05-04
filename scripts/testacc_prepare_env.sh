@@ -3,7 +3,7 @@
 
 export PATH=$PATH:.
 
-argocd_version=${ARGOCD_VERSION:-v2.6.7}
+argocd_version=${ARGOCD_VERSION:-v2.7.1}
 k8s_version=${ARGOCD_KUBERNETES_VERSION:-v1.24.7}
 
 echo "\n--- Kustomize sanity checks\n"
