@@ -272,6 +272,10 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 		result.ReleaseName = v.(string)
 	}
 
+	if v, ok := a["pass_credentials"]; ok {
+		result.PassCredentials = v.(bool)
+	}
+
 	if parameters, ok := a["parameter"]; ok {
 		for _, _p := range parameters.(*schema.Set).List() {
 			p := _p.(map[string]interface{})
@@ -744,11 +748,12 @@ func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (
 			}
 
 			result = append(result, map[string]interface{}{
-				"parameter":    parameters,
-				"release_name": a.ReleaseName,
-				"skip_crds":    a.SkipCrds,
-				"value_files":  a.ValueFiles,
-				"values":       a.Values,
+				"parameter":        parameters,
+				"release_name":     a.ReleaseName,
+				"skip_crds":        a.SkipCrds,
+				"value_files":      a.ValueFiles,
+				"values":           a.Values,
+				"pass_credentials": a.PassCredentials,
 			})
 		}
 	}
