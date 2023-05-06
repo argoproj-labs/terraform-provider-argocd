@@ -11,16 +11,81 @@ The ArgoCD Provider provides lifecycle management of
 
 **NB**: The provider is not concerned with the installation/configuration of
 ArgoCD itself. To make use of the provider, you will need to have an existing
-ArgoCD installation and, the ArgoCD API server must be
-[accessible](https://argo-cd.readthedocs.io/en/stable/getting_started/#3-access-the-argo-cd-api-server)
-from where you are running Terraform.
+ArgoCD installation.
+
+The correct provider configuration largely depends on whether or not your 
+ArgoCD API server is exposed or not.
+
+If your ArgoCD API server is exposed, then:
+- use `server_addr` along with a `username`/`password` or `auth_token`. 
+- use `use_local_config` if you have (pre)authenticated via the ArgoCD CLI (E.g.
+  via SSO using `argocd login --sso`.
+
+If you have not exposed your ArgoCD API server or have not deployed the API
+server ([ArgoCD
+core](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/#core)),
+see below for options. **Note**: in both these cases, you need sufficient access
+to the Kubernetes API to perform any actions.
+- use `port_forward_with_namespace` and optionally `kubernetes` configuration
+  (to temporarily expose the ArgoCD API server using port forwarding) along with
+  a `username`/`password` or `auth_token`.
+- use `core` to run a local ArgoCD API server that communicates directly with
+  the Kubernetes API. **NB**: When using `core`, take note of the warning in 
+  the docs below.
+
+If you are struggling to determine the correct configuration for the provider or
+the provider is behaving strangely and failing to connect for whatever reason,
+then we would suggest that you first figure out what combination of parameters
+work to log in using the ArgoCD CLI (`argocd login`) and then set the provider
+configuration to match what you used in the CLI. See also the ArgoCD [Getting
+Started](https://argo-cd.readthedocs.io/en/stable/getting_started/#3-access-the-argo-cd-api-server)
+docs.
 
 ## Example Usage
 
 ```terraform
+# Exposed ArgoCD API - authenticated using authentication token.
 provider "argocd" {
   server_addr = "argocd.local:443"
   auth_token  = "1234..."
+}
+
+# Exposed ArgoCD API - authenticated using `username`/`password`
+provider "argocd" {
+  server_addr = "argocd.local:443"
+  username    = "foo"
+  password    = local.password
+}
+
+# Exposed ArgoCD API - (pre)authenticated using local ArgoCD config (e.g. when
+# you have previously logged in using SSO).
+provider "argocd" {
+  use_local_config = true
+  # context = "foo" # Use explicit context from ArgoCD config instead of `current-context`.
+}
+
+# Unexposed ArgoCD API - using the current Kubernetes context and
+# port-forwarding to temporarily expose ArgoCD API and authenticating using
+# `auth_token`.
+provider "argocd" {
+  auth_token   = "1234..."
+  port_forward = true
+}
+
+# Unexposed ArgoCD API - using port-forwarding to temporarily expose ArgoCD API
+# whilst overriding the current context in kubeconfig.
+provider "argocd" {
+  auth_token                  = "1234..."
+  port_forward_with_namespace = "custom-argocd-namespace"
+  kubernetes {
+    config_context = "kind-argocd"
+  }
+}
+
+# Unexposed ArgoCD API - using `core` to run ArgoCD server locally and
+# communicate directly with the Kubernetes API.
+provider "argocd" {
+  core = true
 }
 ```
 
@@ -34,16 +99,24 @@ provider "argocd" {
 - `client_cert_file` (String) Client certificate.
 - `client_cert_key` (String) Client certificate key.
 - `config_path` (String) Override the default config path of `$HOME/.config/argocd/config`. Only relevant when `use_local_config`. Can be set through the `ARGOCD_CONFIG_PATH` environment variable.
-- `context` (String) Kubernetes context to load from an existing `.kube/config` file. Can be set through `ARGOCD_CONTEXT` environment variable.
+- `context` (String) Context to choose when using a local ArgoCD config file. Only relevant when `use_local_config`. Can be set through `ARGOCD_CONTEXT` environment variable.
+- `core` (Boolean) Configure direct access using Kubernetes API server.
+
+  **Warning**: this feature works by starting a local ArgoCD API server that talks directly to the Kubernetes API using the **current context in the default kubeconfig** (`~/.kube/config`). This behavior cannot be overridden using either environment variables or the `kubernetes` block in the provider configuration at present).
+
+  If the server fails to start (e.g. your kubeconfig is misconfigured) then the provider will fail as a result of the `argocd` module forcing it to exit and no logs will be available to help you debug this. The error message will be similar to
+  > `The plugin encountered an error, and failed to respond to the plugin.(*GRPCProvider).ReadResource call. The plugin logs may contain more details.`
+
+  To debug this, you will need to login via the ArgoCD CLI using `argocd login --core` and then running an operation. E.g. `argocd app list`.
 - `grpc_web` (Boolean) Whether to use gRPC web proxy client. Useful if Argo CD server is behind proxy which does not support HTTP2.
 - `grpc_web_root_path` (String) Use the gRPC web proxy client and set the web root, e.g. `argo-cd`. Useful if the Argo CD server is behind a proxy at a non-root path.
 - `headers` (Set of String) Additional headers to add to each request to the ArgoCD server.
 - `insecure` (Boolean) Whether to skip TLS server certificate. Can be set through the `ARGOCD_INSECURE` environment variable.
-- `kubernetes` (Block List, Max: 1) Kubernetes configuration. (see [below for nested schema](#nestedblock--kubernetes))
+- `kubernetes` (Block List, Max: 1) Kubernetes configuration overrides.  Only relevant when `port_forward = true` or `port_forward_with_namespace = "foo"`. The kubeconfig file that is used can be overridden using the [`KUBECONFIG` environment variable](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)). (see [below for nested schema](#nestedblock--kubernetes))
 - `password` (String) Authentication password. Can be set through the `ARGOCD_AUTH_PASSWORD` environment variable.
 - `plain_text` (Boolean) Whether to initiate an unencrypted connection to ArgoCD server.
-- `port_forward` (Boolean)
-- `port_forward_with_namespace` (String)
+- `port_forward` (Boolean) Connect to a random argocd-server port using port forwarding.
+- `port_forward_with_namespace` (String) Namespace name which should be used for port forwarding.
 - `server_addr` (String) ArgoCD server address with port. Can be set through the `ARGOCD_SERVER` environment variable.
 - `use_local_config` (Boolean) Use the authentication settings found in the local config file. Useful when you have previously logged in using SSO. Conflicts with `auth_token`, `username` and `password`.
 - `user_agent` (String)
@@ -60,8 +133,6 @@ Optional:
 - `config_context` (String) Context to choose from the config file. Can be sourced from `KUBE_CTX`.
 - `config_context_auth_info` (String)
 - `config_context_cluster` (String)
-- `config_path` (String) Path to the kube config file. Can be sourced from `KUBE_CONFIG_PATH`.
-- `config_paths` (List of String) A list of paths to the kube config files. Can be sourced from `KUBE_CONFIG_PATHS`.
 - `exec` (Block List, Max: 1) Configuration block to use an [exec-based credential plugin](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#client-go-credential-plugins), e.g. call an external command to receive user credentials. (see [below for nested schema](#nestedblock--kubernetes--exec))
 - `host` (String) The hostname (in form of URI) of the Kubernetes API. Can be sourced from `KUBE_HOST`.
 - `insecure` (Boolean) Whether server should be accessed without verifying the TLS certificate. Can be sourced from `KUBE_INSECURE`.
