@@ -235,24 +235,31 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 
 	projectName := objectMeta.Name
 
-	if _, ok := tokenMutexProjectMap[projectName]; !ok {
-		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
-	}
-
-	tokenMutexProjectMap[projectName].RLock()
-	p, err := si.ProjectClient.Get(ctx, &projectClient.ProjectQuery{
-		Name: d.Id(),
-	})
-	tokenMutexProjectMap[projectName].RUnlock()
-
+	featureProjectSourceNamespacesSupported, err := si.isFeatureSupported(featureProjectSourceNamespaces)
 	if err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  "failed to get project",
+				Summary:  "feature not supported",
 				Detail:   err.Error(),
 			},
 		}
+	} else if !featureProjectSourceNamespacesSupported {
+		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
+		if sourceNamespacesOk {
+			return []diag.Diagnostic{
+				{
+					Severity: diag.Error,
+					Summary: fmt.Sprintf(
+						"project source_namespaces is only supported from ArgoCD %s onwards",
+						featureVersionConstraintsMap[featureProjectSourceNamespaces].String()),
+				},
+			}
+		}
+	}
+
+	if _, ok := tokenMutexProjectMap[projectName]; !ok {
+		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
 	}
 
 	projectRequest := &projectClient.ProjectUpdateRequest{
@@ -262,7 +269,22 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		},
 	}
 
-	if p != nil {
+	tokenMutexProjectMap[projectName].Lock()
+
+	p, err := si.ProjectClient.Get(ctx, &projectClient.ProjectQuery{
+		Name: d.Id(),
+	})
+	if err != nil {
+		tokenMutexProjectMap[projectName].Unlock()
+
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("failed to get existing project %s", projectName),
+				Detail:   err.Error(),
+			},
+		}
+	} else if p != nil {
 		// Kubernetes API requires providing the up-to-date correct ResourceVersion for updates
 		projectRequest.Project.ResourceVersion = p.ResourceVersion
 
@@ -279,6 +301,8 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 				// i == -1 means the role does not exist
 				// and was recently added within Terraform tf files
 				if i != -1 {
+					tokenMutexProjectMap[projectName].Unlock()
+
 					return []diag.Diagnostic{
 						{
 							Severity: diag.Error,
@@ -293,8 +317,8 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	tokenMutexProjectMap[projectName].Lock()
 	_, err = si.ProjectClient.Update(ctx, projectRequest)
+
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil {
