@@ -242,13 +242,6 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
 	}
 
-	projectRequest := &projectClient.ProjectUpdateRequest{
-		Project: &application.AppProject{
-			ObjectMeta: objectMeta,
-			Spec:       spec,
-		},
-	}
-
 	tokenMutexProjectMap[projectName].RLock()
 	p, err := si.ProjectClient.Get(ctx, &projectClient.ProjectQuery{
 		Name: d.Id(),
@@ -263,6 +256,13 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 				Detail:   err.Error(),
 			},
 		}
+	}
+
+	projectRequest := &projectClient.ProjectUpdateRequest{
+		Project: &application.AppProject{
+			ObjectMeta: objectMeta,
+			Spec:       spec,
+		},
 	}
 
 	if p != nil {
