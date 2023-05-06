@@ -110,7 +110,7 @@ func TestAccArgoCDProjectToken_RenewBefore(t *testing.T) {
 func TestAccArgoCDProjectToken_RenewAfter(t *testing.T) {
 	resourceName := "argocd_project_token.renew_after"
 
-	renewAfterSeconds := 1
+	renewAfterSeconds := 2
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -120,16 +120,20 @@ func TestAccArgoCDProjectToken_RenewAfter(t *testing.T) {
 				Config: testAccArgoCDProjectTokenRenewAfter(renewAfterSeconds),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "renew_after", fmt.Sprintf("%ds", renewAfterSeconds)),
-					testDelay(renewAfterSeconds+1),
 				),
-				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccArgoCDProjectTokenRenewAfter(renewAfterSeconds),
 				Check: resource.ComposeTestCheckFunc(
-					testDelay(renewAfterSeconds),
+					testDelay(renewAfterSeconds + 1),
 				),
 				ExpectNonEmptyPlan: true, // token should be recreated when refreshed at end of step due to delay above
+			},
+			{
+				Config: testAccArgoCDProjectTokenRenewAfter(renewAfterSeconds),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "renew_after", fmt.Sprintf("%ds", renewAfterSeconds)),
+				),
 			},
 		},
 	})
