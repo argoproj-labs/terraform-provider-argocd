@@ -564,7 +564,12 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 	}
 
 	tokenMutexProjectMap[projectName].Lock()
-	if _, err := si.ProjectClient.DeleteToken(ctx, opts); err != nil {
+
+	_, err = si.ProjectClient.DeleteToken(ctx, opts)
+
+	tokenMutexProjectMap[projectName].Unlock()
+
+	if err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -573,7 +578,6 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 			},
 		}
 	}
-	tokenMutexProjectMap[projectName].Unlock()
 
 	d.SetId("")
 
