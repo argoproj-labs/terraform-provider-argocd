@@ -98,28 +98,32 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application %s could not be created", objectMeta.Name),
+				Summary:  fmt.Sprintf("failed to get application %s", objectMeta.Name),
 				Detail:   err.Error(),
 			},
 		}
 	}
 
 	if apps != nil {
-		if len(apps.Items) != 1 {
+		l := len(apps.Items)
+
+		switch {
+		case l < 1:
+			break
+		case l == 1:
+			switch apps.Items[0].DeletionTimestamp {
+			case nil:
+			default:
+				// Pre-existing app is still in Kubernetes soft deletion queue
+				time.Sleep(time.Duration(*apps.Items[0].DeletionGracePeriodSeconds))
+			}
+		case l > 1:
 			return []diag.Diagnostic{
 				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("found multiple applications matching name '%s' and namespace '%s'", objectMeta.Name, objectMeta.Namespace),
-					Detail:   err.Error(),
 				},
 			}
-		}
-
-		switch apps.Items[0].DeletionTimestamp {
-		case nil:
-		default:
-			// Pre-existing app is still in Kubernetes soft deletion queue
-			time.Sleep(time.Duration(*apps.Items[0].DeletionGracePeriodSeconds))
 		}
 	}
 
@@ -271,7 +275,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 			}
 
 			if len(list.Items) != 1 {
-				return resource.NonRetryableError(fmt.Errorf("found multiple applications matching name '%s' and namespace '%s'", app.Name, app.Namespace))
+				return resource.NonRetryableError(fmt.Errorf("found unexpected number of applications matching name '%s' and namespace '%s'. Items: %d", app.Name, app.Namespace, len(list.Items)))
 			}
 
 			if list.Items[0].Status.Health.Status != health.HealthStatusHealthy {
@@ -326,18 +330,25 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application %s not found", appName),
+				Summary:  fmt.Sprintf("failed to get application %s", appName),
 				Detail:   err.Error(),
 			},
 		}
 	}
 
-	if len(apps.Items) != 1 {
+	l := len(apps.Items)
+
+	switch {
+	case l < 1:
+		d.SetId("")
+		return diag.Diagnostics{}
+	case l == 1:
+		break
+	case l > 1:
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("found multiple applications matching name '%s' and namespace '%s'", appName, namespace),
-				Detail:   err.Error(),
 			},
 		}
 	}
@@ -506,7 +517,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 	// 	 appRequest.ResourceVersion = app.ResourceVersion
 	// }
 
-	if len(apps.Items) != 1 {
+	if len(apps.Items) > 1 {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -543,7 +554,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 			}
 
 			if len(list.Items) != 1 {
-				return resource.NonRetryableError(fmt.Errorf("found multiple applications matching name '%s' and namespace '%s'", *appQuery.Name, *appQuery.AppNamespace))
+				return resource.NonRetryableError(fmt.Errorf("found unexpected number of applications matching name '%s' and namespace '%s'. Items: %d", *appQuery.Name, *appQuery.AppNamespace, len(list.Items)))
 			}
 
 			if list.Items[0].Status.ReconciledAt.Equal(apps.Items[0].Status.ReconciledAt) {
@@ -606,17 +617,20 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
 		if err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
-			_, err := si.ApplicationClient.List(ctx, &applicationClient.ApplicationQuery{
+			apps, err := si.ApplicationClient.List(ctx, &applicationClient.ApplicationQuery{
 				Name:         &appName,
 				AppNamespace: &namespace,
 			})
 
-			if err == nil {
-				return resource.RetryableError(fmt.Errorf("application %s is still present", appName))
-			}
-
-			if !strings.Contains(err.Error(), "NotFound") {
-				return resource.NonRetryableError(err)
+			switch err {
+			case nil:
+				if apps != nil && len(apps.Items) > 0 {
+					return resource.RetryableError(fmt.Errorf("application %s is still present", appName))
+				}
+			default:
+				if !strings.Contains(err.Error(), "NotFound") {
+					return resource.NonRetryableError(err)
+				}
 			}
 
 			d.SetId("")
