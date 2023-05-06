@@ -1128,6 +1128,8 @@ resource "argocd_application" "helm" {
           value = "standalone"
         }
 
+        pass_credentials = true
+
         value_files = ["values.yaml"]
 
         values = <<EOT

@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 	"net/url"
 	"sync"
 
+	"github.com/argoproj/argo-cd/v2/cmd/argocd/commands/headless"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/session"
 	"github.com/argoproj/argo-cd/v2/util/io"
@@ -17,6 +17,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 
 	apimachineryschema "k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/runtime"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	// Import to initialize client auth plugins.
@@ -32,14 +33,22 @@ var tokenMutexClusters = &sync.RWMutex{}
 // Used to handle concurrent access to each ArgoCD project
 var tokenMutexProjectMap = make(map[string]*sync.RWMutex, 0)
 
+var runtimeErrorHandlers []func(error)
+
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"server_addr": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_SERVER", nil),
 				Description: "ArgoCD server address with port. Can be set through the `ARGOCD_SERVER` environment variable.",
+				AtLeastOneOf: []string{
+					"core",
+					"port_forward",
+					"port_forward_with_namespace",
+					"use_local_config",
+				},
 			},
 			"auth_token": {
 				Type:        schema.TypeString,
@@ -47,10 +56,11 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_AUTH_TOKEN", nil),
 				Description: "ArgoCD authentication token, takes precedence over `username`/`password`. Can be set through the `ARGOCD_AUTH_TOKEN` environment variable.",
 				ConflictsWith: []string{
-					"username",
+					"config_path",
+					"core",
 					"password",
 					"use_local_config",
-					"config_path",
+					"username",
 				},
 			},
 			"username": {
@@ -60,10 +70,12 @@ func Provider() *schema.Provider {
 				Description: "Authentication username. Can be set through the `ARGOCD_AUTH_USERNAME` environment variable.",
 				ConflictsWith: []string{
 					"auth_token",
-					"use_local_config",
 					"config_path",
+					"core",
+					"use_local_config",
 				},
 				AtLeastOneOf: []string{
+					"core",
 					"password",
 					"auth_token",
 					"use_local_config",
@@ -76,11 +88,13 @@ func Provider() *schema.Provider {
 				Description: "Authentication password. Can be set through the `ARGOCD_AUTH_PASSWORD` environment variable.",
 				ConflictsWith: []string{
 					"auth_token",
-					"use_local_config",
 					"config_path",
+					"core",
+					"use_local_config",
 				},
 				AtLeastOneOf: []string{
 					"username",
+					"core",
 					"auth_token",
 					"use_local_config",
 				},
@@ -110,11 +124,35 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_CONTEXT", nil),
-				Description: "Kubernetes context to load from an existing `.kube/config` file. Can be set through `ARGOCD_CONTEXT` environment variable.",
+				Description: "Context to choose when using a local ArgoCD config file. Only relevant when `use_local_config`. Can be set through `ARGOCD_CONTEXT` environment variable.",
+				ConflictsWith: []string{
+					"core",
+					"username",
+					"password",
+					"auth_token",
+				},
 			},
 			"user_agent": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"core": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: "Configure direct access using Kubernetes API server.\n\n  " +
+					"**Warning**: this feature works by starting a local ArgoCD API server that talks directly to the Kubernetes API using the **current context " +
+					"in the default kubeconfig** (`~/.kube/config`). This behavior cannot be overridden using either environment variables or the `kubernetes` block " +
+					"in the provider configuration at present).\n\n  If the server fails to start (e.g. your kubeconfig is misconfigured) then the provider will " +
+					"fail as a result of the `argocd` module forcing it to exit and no logs will be available to help you debug this. The error message will be " +
+					"similar to\n  > `The plugin encountered an error, and failed to respond to the plugin.(*GRPCProvider).ReadResource call. The plugin logs may " +
+					"contain more details.`\n\n  To debug this, you will need to login via the ArgoCD CLI using `argocd login --core` and then running an operation. " +
+					"E.g. `argocd app list`.",
+				ConflictsWith: []string{
+					"auth_token",
+					"use_local_config",
+					"password",
+					"username",
+				},
 			},
 			"grpc_web": {
 				Type:        schema.TypeBool,
@@ -131,9 +169,10 @@ func Provider() *schema.Provider {
 				Optional:    true,
 				Description: "Use the authentication settings found in the local config file. Useful when you have previously logged in using SSO. Conflicts with `auth_token`, `username` and `password`.",
 				ConflictsWith: []string{
-					"username",
-					"password",
 					"auth_token",
+					"core",
+					"password",
+					"username",
 				},
 			},
 			"config_path": {
@@ -142,18 +181,21 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_CONFIG_PATH", nil),
 				Description: "Override the default config path of `$HOME/.config/argocd/config`. Only relevant when `use_local_config`. Can be set through the `ARGOCD_CONFIG_PATH` environment variable.",
 				ConflictsWith: []string{
-					"username",
-					"password",
 					"auth_token",
+					"core",
+					"password",
+					"username",
 				},
 			},
 			"port_forward": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Description: "Connect to a random argocd-server port using port forwarding.",
+				Optional:    true,
 			},
 			"port_forward_with_namespace": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Description: "Namespace name which should be used for port forwarding.",
+				Optional:    true,
 			},
 			"headers": {
 				Type:        schema.TypeSet,
@@ -171,7 +213,7 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
-				Description: "Kubernetes configuration.",
+				Description: "Kubernetes configuration overrides.  Only relevant when `port_forward = true` or `port_forward_with_namespace = \"foo\"`. The kubeconfig file that is used can be overridden using the [`KUBECONFIG` environment variable](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)).",
 				Elem:        kubernetesResource(),
 			},
 		},
@@ -267,6 +309,7 @@ func initApiClient(ctx context.Context, d *schema.ResourceData) (apiClient apicl
 
 	if _, ok := d.GetOk("kubernetes"); ok {
 		opts.KubeOverrides = &clientcmd.ConfigOverrides{}
+
 		if v, ok := k8sGetOk(d, "insecure"); ok {
 			opts.KubeOverrides.ClusterInfo.InsecureSkipTLSVerify = v.(bool)
 		}
@@ -277,6 +320,25 @@ func initApiClient(ctx context.Context, d *schema.ResourceData) (apiClient apicl
 
 		if v, ok := k8sGetOk(d, "client_certificate"); ok {
 			opts.KubeOverrides.AuthInfo.ClientCertificateData = bytes.NewBufferString(v.(string)).Bytes()
+		}
+
+		kubectx, ctxOk := k8sGetOk(d, "config_context")
+		authInfo, authInfoOk := k8sGetOk(d, "config_context_auth_info")
+		cluster, clusterOk := k8sGetOk(d, "config_context_cluster")
+
+		if ctxOk || authInfoOk || clusterOk {
+			if ctxOk {
+				opts.KubeOverrides.CurrentContext = kubectx.(string)
+			}
+
+			opts.KubeOverrides.Context = clientcmdapi.Context{}
+			if authInfoOk {
+				opts.KubeOverrides.Context.AuthInfo = authInfo.(string)
+			}
+
+			if clusterOk {
+				opts.KubeOverrides.Context.Cluster = cluster.(string)
+			}
 		}
 
 		if v, ok := k8sGetOk(d, "host"); ok {
@@ -326,7 +388,6 @@ func initApiClient(ctx context.Context, d *schema.ResourceData) (apiClient apicl
 					exec.Env = append(exec.Env, clientcmdapi.ExecEnvVar{Name: kk, Value: vv.(string)})
 				}
 			} else {
-				log.Printf("[ERROR] Failed to parse exec")
 				return nil, fmt.Errorf("failed to parse exec")
 			}
 
@@ -366,6 +427,26 @@ func initApiClient(ctx context.Context, d *schema.ResourceData) (apiClient apicl
 			}
 
 			opts.AuthToken = resp.Token
+		}
+	}
+
+	if v, ok := d.Get("core").(bool); ok && v {
+		opts.ServerAddr = "kubernetes"
+		opts.Core = true
+
+		// HACK: `headless.StartLocalServer` manipulates this global variable
+		// when starting the local server without checking it's length/contents
+		// which leads to a panic if called multiple times. So, we need to
+		// ensure we "reset" it before calling the method.
+		if runtimeErrorHandlers == nil {
+			runtimeErrorHandlers = runtime.ErrorHandlers
+		} else {
+			runtime.ErrorHandlers = runtimeErrorHandlers
+		}
+
+		err := headless.StartLocalServer(ctx, &opts, "", nil, nil)
+		if err != nil {
+			return nil, fmt.Errorf("failed to start local server: %w", err)
 		}
 	}
 
@@ -416,19 +497,6 @@ func kubernetesResource() *schema.Resource {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("KUBE_CLUSTER_CA_CERT_DATA", ""),
 				Description: "PEM-encoded root certificates bundle for TLS authentication. Can be sourced from `KUBE_CLUSTER_CA_CERT_DATA`.",
-			},
-			"config_paths": {
-				Type:        schema.TypeList,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Description: "A list of paths to the kube config files. Can be sourced from `KUBE_CONFIG_PATHS`.",
-			},
-			"config_path": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				DefaultFunc:   schema.EnvDefaultFunc("KUBE_CONFIG_PATH", nil),
-				Description:   "Path to the kube config file. Can be sourced from `KUBE_CONFIG_PATH`.",
-				ConflictsWith: []string{"kubernetes.0.config_paths"},
 			},
 			"config_context": {
 				Type:        schema.TypeString,
