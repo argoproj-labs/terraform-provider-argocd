@@ -112,7 +112,8 @@ func TestAccArgoCDProjectToken_RenewAfter(t *testing.T) {
 
 	renewAfterSeconds := 2
 
-	resource.ParallelTest(t, resource.TestCase{
+	// Note: not running in parallel as this is a time sensitive test case
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
