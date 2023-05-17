@@ -9,5 +9,6 @@ resources:
   - proxy-service.yml
   - cluster-rbac.yml
 patchesStrategicMerge:
-  - patches/secret.yml
+  - patches/argocd-cm.yml
   - patches/argocd-cmd-params-cm.yml
+  - patches/secret.yml
