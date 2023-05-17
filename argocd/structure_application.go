@@ -515,17 +515,22 @@ func expandSyncWindows(sws []interface{}) (result []*application.SyncWindow) {
 // Flatten
 
 func flattenApplication(app *application.Application, d *schema.ResourceData) error {
-	fMetadata := flattenMetadata(app.ObjectMeta, d)
-	fSpec := flattenApplicationSpec(app.Spec)
+	metadata := flattenMetadata(app.ObjectMeta, d)
+	if err := d.Set("metadata", metadata); err != nil {
+		e, _ := json.MarshalIndent(metadata, "", "\t")
+		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
+	}
 
-	if err := d.Set("spec", fSpec); err != nil {
-		e, _ := json.MarshalIndent(fSpec, "", "\t")
+	spec := flattenApplicationSpec(app.Spec)
+	if err := d.Set("spec", spec); err != nil {
+		e, _ := json.MarshalIndent(spec, "", "\t")
 		return fmt.Errorf("error persisting spec: %s\n%s", err, e)
 	}
 
-	if err := d.Set("metadata", fMetadata); err != nil {
-		e, _ := json.MarshalIndent(fMetadata, "", "\t")
-		return fmt.Errorf("error persisting metadata: %s\n%s", err, e)
+	status := flattenApplicationStatus(app.Status)
+	if err := d.Set("status", status); err != nil {
+		e, _ := json.MarshalIndent(status, "", "\t")
+		return fmt.Errorf("error persisting status: %s\n%s", err, e)
 	}
 
 	return nil
@@ -778,4 +783,108 @@ func flattenApplicationDestinations(ds []application.ApplicationDestination) (re
 	}
 
 	return
+}
+
+func flattenApplicationStatus(s application.ApplicationStatus) []map[string]interface{} {
+	status := map[string]interface{}{
+		"conditions": flattenApplicationConditions(s.Conditions),
+		"health":     flattenApplicationHealthStatus(s.Health),
+		"resources":  flattenApplicationResourceStatuses(s.Resources),
+		"summary":    flattenApplicationSummary(s.Summary),
+		"sync":       flattenApplicationSyncStatus(s.Sync),
+	}
+
+	if s.OperationState != nil {
+		status["operation_state"] = flattenApplicationOperationState(*s.OperationState)
+	}
+
+	if s.ReconciledAt != nil {
+		status["reconciled_at"] = s.ReconciledAt.String()
+	}
+
+	return []map[string]interface{}{status}
+}
+
+func flattenApplicationConditions(aacs []application.ApplicationCondition) []map[string]interface{} {
+	acs := make([]map[string]interface{}, len(aacs))
+
+	for i, v := range aacs {
+		acs[i] = map[string]interface{}{
+			"message": v.Message,
+			"type":    v.Type,
+		}
+
+		if v.LastTransitionTime != nil {
+			acs[i]["last_transition_time"] = v.LastTransitionTime.String()
+		}
+	}
+
+	return acs
+}
+
+func flattenApplicationHealthStatus(hs application.HealthStatus) []map[string]interface{} {
+	h := map[string]interface{}{
+		"message": hs.Message,
+		"status":  hs.Status,
+	}
+
+	return []map[string]interface{}{h}
+}
+
+func flattenApplicationSyncStatus(ss application.SyncStatus) []map[string]interface{} {
+	s := map[string]interface{}{
+		"revision":  ss.Revision,
+		"revisions": ss.Revisions,
+		"status":    ss.Status,
+	}
+
+	return []map[string]interface{}{s}
+}
+
+func flattenApplicationResourceStatuses(arss []application.ResourceStatus) []map[string]interface{} {
+	rss := make([]map[string]interface{}, len(arss))
+
+	for i, v := range arss {
+		rss[i] = map[string]interface{}{
+			"group":            v.Group,
+			"hook":             v.Hook,
+			"kind":             v.Kind,
+			"name":             v.Name,
+			"namespace":        v.Namespace,
+			"requires_pruning": v.RequiresPruning,
+			"status":           v.Status,
+			"sync_wave":        convertInt64ToString(v.SyncWave),
+			"version":          v.Version,
+		}
+
+		if v.Health != nil {
+			rss[i]["health"] = flattenApplicationHealthStatus(*v.Health)
+		}
+	}
+
+	return rss
+}
+
+func flattenApplicationSummary(as application.ApplicationSummary) []map[string]interface{} {
+	s := map[string]interface{}{
+		"external_urls": as.ExternalURLs,
+		"images":        as.Images,
+	}
+
+	return []map[string]interface{}{s}
+}
+
+func flattenApplicationOperationState(os application.OperationState) []map[string]interface{} {
+	s := map[string]interface{}{
+		"message":     os.Message,
+		"phase":       os.Phase,
+		"retry_count": convertInt64ToString(os.RetryCount),
+		"started_at":  os.StartedAt.String(),
+	}
+
+	if os.FinishedAt != nil {
+		s["finished_at"] = os.FinishedAt.String()
+	}
+
+	return []map[string]interface{}{s}
 }

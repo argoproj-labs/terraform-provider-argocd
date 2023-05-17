@@ -182,6 +182,7 @@ resource "argocd_application" "multiple_sources" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `status` (List of Object) Status information for the application. **Note**: this is not guaranteed to be up to date immediately after creating/updating an application unless `wait=true`. (see [below for nested schema](#nestedatt--status))
 
 <a id="nestedblock--metadata"></a>
 ### Nested Schema for `metadata`
@@ -421,6 +422,95 @@ Optional:
 - `create` (String)
 - `delete` (String)
 - `update` (String)
+
+
+<a id="nestedatt--status"></a>
+### Nested Schema for `status`
+
+Read-Only:
+
+- `conditions` (List of Object) (see [below for nested schema](#nestedobjatt--status--conditions))
+- `health` (List of Object) (see [below for nested schema](#nestedobjatt--status--health))
+- `operation_state` (List of Object) (see [below for nested schema](#nestedobjatt--status--operation_state))
+- `reconciled_at` (String)
+- `resources` (List of Object) (see [below for nested schema](#nestedobjatt--status--resources))
+- `summary` (List of Object) (see [below for nested schema](#nestedobjatt--status--summary))
+- `sync` (List of Object) (see [below for nested schema](#nestedobjatt--status--sync))
+
+<a id="nestedobjatt--status--conditions"></a>
+### Nested Schema for `status.conditions`
+
+Read-Only:
+
+- `last_transition_time` (String)
+- `message` (String)
+- `type` (String)
+
+
+<a id="nestedobjatt--status--health"></a>
+### Nested Schema for `status.health`
+
+Read-Only:
+
+- `message` (String)
+- `status` (String)
+
+
+<a id="nestedobjatt--status--operation_state"></a>
+### Nested Schema for `status.operation_state`
+
+Read-Only:
+
+- `finished_at` (String)
+- `message` (String)
+- `phase` (String)
+- `retry_count` (String)
+- `started_at` (String)
+
+
+<a id="nestedobjatt--status--resources"></a>
+### Nested Schema for `status.resources`
+
+Read-Only:
+
+- `group` (String)
+- `health` (List of Object) (see [below for nested schema](#nestedobjatt--status--resources--health))
+- `hook` (Boolean)
+- `kind` (String)
+- `name` (String)
+- `namespace` (String)
+- `requires_pruning` (Boolean)
+- `status` (String)
+- `sync_wave` (String)
+- `version` (String)
+
+<a id="nestedobjatt--status--resources--health"></a>
+### Nested Schema for `status.resources.health`
+
+Read-Only:
+
+- `message` (String)
+- `status` (String)
+
+
+
+<a id="nestedobjatt--status--summary"></a>
+### Nested Schema for `status.summary`
+
+Read-Only:
+
+- `external_urls` (List of String)
+- `images` (List of String)
+
+
+<a id="nestedobjatt--status--sync"></a>
+### Nested Schema for `status.sync`
+
+Read-Only:
+
+- `revision` (String)
+- `revisions` (List of String)
+- `status` (String)
 
 ## Import
 

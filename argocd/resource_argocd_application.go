@@ -42,6 +42,7 @@ func resourceArgoCDApplication() *schema.Resource {
 				Optional:    true,
 				Default:     true,
 			},
+			"status": applicationStatusSchema(),
 		},
 		SchemaVersion: 4,
 		StateUpgraders: []schema.StateUpgrader{

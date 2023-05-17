@@ -30,13 +30,17 @@ func TestAccArgoCDApplication(t *testing.T) {
 						"spec.0.source.0.target_revision",
 						"8.0.0",
 					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application."+name,
+						"status.0.%",
+					),
 				),
 			},
 			{
 				ResourceName:            "argocd_application." + name,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
 			},
 			{
 				// Update
@@ -67,7 +71,23 @@ func TestAccArgoCDApplication(t *testing.T) {
 						"spec.0.source.0.target_revision",
 						"9.4.1",
 					),
+					resource.TestCheckResourceAttr(
+						"argocd_application."+name,
+						"status.0.health.0.status",
+						"Healthy",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application."+name,
+						"status.0.sync.0.status",
+						"Synced",
+					),
 				),
+			},
+			{
+				ResourceName:            "argocd_application." + name,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
 			},
 		},
 	})
@@ -129,7 +149,7 @@ ingress:
 				ResourceName:            "argocd_application.helm",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
 			},
 		},
 	})
@@ -178,7 +198,7 @@ func TestAccArgoCDApplication_Kustomize(t *testing.T) {
 				ResourceName:            "argocd_application.kustomize",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
 			},
 		},
 	})
@@ -213,7 +233,7 @@ func TestAccArgoCDApplication_IgnoreDifferences(t *testing.T) {
 				ResourceName:            "argocd_application.ignore_differences",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status"},
 			},
 			{
 				Config: testAccArgoCDApplicationIgnoreDiffJQPathExpressions(
@@ -239,7 +259,7 @@ func TestAccArgoCDApplication_IgnoreDifferences(t *testing.T) {
 				ResourceName:            "argocd_application.ignore_differences_jqpe",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status"},
 			},
 		},
 	})
@@ -273,7 +293,7 @@ func TestAccArgoCDApplication_RevisionHistoryLimit(t *testing.T) {
 				ResourceName:            "argocd_application.revision_history_limit",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status"},
 			},
 		},
 	})
@@ -302,7 +322,7 @@ func TestAccArgoCDApplication_OptionalDestinationNamespace(t *testing.T) {
 				ResourceName:            "argocd_application.no_namespace",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status"},
 			},
 		},
 	})
@@ -387,7 +407,7 @@ func TestAccArgoCDApplication_DirectoryJsonnet(t *testing.T) {
 				ResourceName:            "argocd_application.directory",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
 			},
 		},
 	})
@@ -493,7 +513,7 @@ func TestAccArgoCDApplication_EmptyDirectory(t *testing.T) {
 				ResourceName:            "argocd_application.directory",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
 			},
 		},
 	})
@@ -525,7 +545,7 @@ func TestAccArgoCDApplication_DirectoryIncludeExclude(t *testing.T) {
 				ResourceName:            "argocd_application.directory",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
 			},
 		},
 	})
@@ -585,7 +605,7 @@ func TestAccArgoCDApplication_SyncPolicy(t *testing.T) {
 				ResourceName:            "argocd_application.sync_policy",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
 			},
 		},
 	})
@@ -937,7 +957,7 @@ func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
 				ResourceName:            "argocd_application.custom_namespace",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status"},
 			},
 		},
 	})
@@ -971,7 +991,7 @@ func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 				ResourceName:            "argocd_application.multiple_sources",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
 			},
 		},
 	})
@@ -1009,7 +1029,7 @@ func TestAccArgoCDApplication_HelmValuesFromExternalGitRepo(t *testing.T) {
 				ResourceName:            "argocd_application.helm_values_external",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
 			},
 		},
 	})
