@@ -80,6 +80,10 @@ func expandApplicationSource(_ass []interface{}) []application.ApplicationSource
 			s.Path = v.(string)
 		}
 
+		if v, ok := as["ref"]; ok {
+			s.Ref = v.(string)
+		}
+
 		if v, ok := as["target_revision"]; ok {
 			s.TargetRevision = v.(string)
 		}
@@ -639,6 +643,7 @@ func flattenApplicationSource(source []application.ApplicationSource) (
 			"plugin": flattenApplicationSourcePlugin(
 				[]*application.ApplicationSourcePlugin{s.Plugin},
 			),
+			"ref":             s.Ref,
 			"repo_url":        s.RepoURL,
 			"target_revision": s.TargetRevision,
 		})

@@ -1026,6 +1026,44 @@ func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplication_HelmValuesFromExternalGitRepo(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureMultipleApplicationSources) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationHelmValuesFromExternalGitRepo(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.helm_values_external",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.helm_values_external",
+						"spec.0.source.0.chart",
+						"wordpress",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.helm_values_external",
+						"spec.0.source.0.helm.0.value_files.#",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.helm_values_external",
+						"spec.0.source.1.ref",
+						"values",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application.helm_values_external",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplication_Wait(t *testing.T) {
 	chartRevision := "9.4.1"
 	name := acctest.RandomWithPrefix("test-acc")
@@ -2041,6 +2079,40 @@ resource "argocd_application" "multiple_sources" {
 		path            = "guestbook"
 		target_revision = "HEAD"
 	}
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}`
+}
+
+func testAccArgoCDApplicationHelmValuesFromExternalGitRepo() string {
+	return `
+resource "argocd_application" "helm_values_external" {
+  metadata {
+    name      = "helm-values-external"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "default" 
+  
+    source {
+      repo_url        = "https://charts.helm.sh/stable"
+      chart           = "wordpress"
+      target_revision = "9.0.3"
+      helm {
+        value_files = ["$values/helm-dependency/values.yaml"]
+      }
+    }
+
+    source {
+      repo_url        = "https://github.com/argoproj/argocd-example-apps.git"
+      target_revision = "HEAD"
+      ref             = "values"
+    }
 
     destination {
       server    = "https://kubernetes.default.svc"
