@@ -2028,8 +2028,8 @@ resource "argocd_application" "multiple_sources" {
   }
 
   spec {
-    project = "default" 
-	
+    project = "default"
+
 	source {
 		repo_url        = "https://helm.elastic.co"
 		chart           = "elasticsearch"
@@ -2069,4 +2069,154 @@ func testAccSkipFeatureIgnoreDiffJQPathExpressions() (bool, error) {
 	}
 
 	return !featureSupported, nil
+}
+
+func testAccArgoCDApplicationHelmVersionRange() string {
+	return `
+resource "argocd_application" "helm_version_range" {
+  metadata {
+    name      = "helm-version-range"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "default"
+
+	source {
+		repo_url        = "https://helm.elastic.co"
+		chart           = "elasticsearch"
+		target_revision = ">8.0,<9.0"
+	}
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}`
+}
+
+func TestAccArgoCDApplication_HelmVersionRange(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationHelmVersionRange(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.spec.0.source.0.target_revision",
+						"spec.0.source.0.target_revision",
+						"v8.5.1",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application.spec.0.source.0.target_revision",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade"},
+			},
+		},
+	})
+}
+
+func testAccArgoCDApplicationHelmVersionGlob() string {
+	return `
+resource "argocd_application" "helm_version_glob" {
+  metadata {
+    name      = "helm-version-glob"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "default" 
+	
+	source {
+		repo_url        = "https://helm.elastic.co"
+		chart           = "elasticsearch"
+		target_revision = "8.*"
+	}
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}`
+}
+
+func TestAccArgoCDApplication_HelmVersionGlob(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationHelmVersionGlob(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.spec.0.source.0.target_revision",
+						"spec.0.source.0.target_revision",
+						"v8.5.1",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application.spec.0.source.0.target_revision",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade"},
+			},
+		},
+	})
+}
+
+func testAccArgoCDApplicationHelmGlob() string {
+	return `
+resource "argocd_application" "helm_glob" {
+  metadata {
+    name      = "helm-glob"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "default"
+
+	source {
+		repo_url        = "https://helm.elastic.co"
+		chart           = "elasticsearch"
+		target_revision = "*"
+	}
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}`
+}
+
+func TestAccArgoCDApplication_HelmGlob(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationHelmGlob(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.spec.0.source.0.target_revision",
+						"spec.0.source.0.target_revision",
+						"v8.5.1",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application.spec.0.source.0.target_revision",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade"},
+			},
+		},
+	})
 }
