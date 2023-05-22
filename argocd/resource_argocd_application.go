@@ -133,24 +133,13 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	featureMultipleApplicationSourcesSupported, err := si.isFeatureSupported(featureMultipleApplicationSources)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
 	l := len(spec.Sources)
 
 	switch {
 	case l == 1:
 		spec.Source = &spec.Sources[0]
 		spec.Sources = nil
-	case l > 1 && !featureMultipleApplicationSourcesSupported:
+	case l > 1 && !!si.isFeatureSupported(featureMultipleApplicationSources):
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -326,24 +315,13 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	featureMultipleApplicationSourcesSupported, err := si.isFeatureSupported(featureMultipleApplicationSources)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
 	l := len(spec.Sources)
 
 	switch {
 	case l == 1:
 		spec.Source = &spec.Sources[0]
 		spec.Sources = nil
-	case l > 1 && !featureMultipleApplicationSourcesSupported:
+	case l > 1 && !!si.isFeatureSupported(featureMultipleApplicationSources):
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,

@@ -41,16 +41,7 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	featureApplicationSetSupported, err := si.isFeatureSupported(featureApplicationSet)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureApplicationSetSupported {
+	if !si.isFeatureSupported(featureApplicationSet) {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -61,18 +52,7 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	featureMultipleApplicationSourcesSupported, err := si.isFeatureSupported(featureMultipleApplicationSources)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	objectMeta, spec, err := expandApplicationSet(d, featureMultipleApplicationSourcesSupported)
+	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(featureMultipleApplicationSources))
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -83,17 +63,7 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	featureApplicationSetProgressiveSyncSupported, err := si.isFeatureSupported(featureApplicationSetProgressiveSync)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureApplicationSetProgressiveSyncSupported &&
-		spec.Strategy != nil {
+	if !si.isFeatureSupported(featureApplicationSetProgressiveSync) && spec.Strategy != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -197,16 +167,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	featureApplicationSetSupported, err := si.isFeatureSupported(featureApplicationSet)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureApplicationSetSupported {
+	if !si.isFeatureSupported(featureApplicationSet) {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -221,18 +182,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 		return nil
 	}
 
-	featureMultipleApplicationSourcesSupported, err := si.isFeatureSupported(featureMultipleApplicationSources)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	objectMeta, spec, err := expandApplicationSet(d, featureMultipleApplicationSourcesSupported)
+	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(featureMultipleApplicationSources))
 	if err != nil {
 		return []diag.Diagnostic{
 			{
@@ -243,17 +193,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	featureApplicationSetProgressiveSyncSupported, err := si.isFeatureSupported(featureApplicationSetProgressiveSync)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureApplicationSetProgressiveSyncSupported &&
-		spec.Strategy != nil {
+	if !si.isFeatureSupported(featureApplicationSetProgressiveSync) && spec.Strategy != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,

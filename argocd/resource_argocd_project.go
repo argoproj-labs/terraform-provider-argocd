@@ -68,16 +68,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 
 	projectName := objectMeta.Name
 
-	featureProjectSourceNamespacesSupported, err := si.isFeatureSupported(featureProjectSourceNamespaces)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureProjectSourceNamespacesSupported {
+	if !si.isFeatureSupported(featureProjectSourceNamespaces) {
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
 			return []diag.Diagnostic{
@@ -233,18 +224,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	projectName := objectMeta.Name
-
-	featureProjectSourceNamespacesSupported, err := si.isFeatureSupported(featureProjectSourceNamespaces)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureProjectSourceNamespacesSupported {
+	if !si.isFeatureSupported(featureProjectSourceNamespaces) {
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
 			return []diag.Diagnostic{
@@ -257,6 +237,8 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 			}
 		}
 	}
+
+	projectName := objectMeta.Name
 
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}

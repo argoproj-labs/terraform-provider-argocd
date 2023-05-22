@@ -188,15 +188,8 @@ func (p *ServerInterface) initClients(ctx context.Context) error {
 
 // Checks that a specific feature is available for the current ArgoCD server version.
 // 'feature' argument must match one of the predefined feature* constants.
-func (p *ServerInterface) isFeatureSupported(feature int) (bool, error) {
+func (p *ServerInterface) isFeatureSupported(feature int) bool {
 	versionConstraint, ok := featureVersionConstraintsMap[feature]
-	if !ok {
-		return false, fmt.Errorf("feature constraint is not handled by the provider")
-	}
 
-	if i := versionConstraint.Compare(p.ServerVersion); i == 1 {
-		return false, nil
-	}
-
-	return true, nil
+	return ok && versionConstraint.Compare(p.ServerVersion) != 1
 }
