@@ -1290,6 +1290,11 @@ func applicationSpecSchemaV4() *schema.Schema {
 								Description: "Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.",
 								Optional:    true,
 							},
+							"ref": {
+								Type:        schema.TypeString,
+								Description: "Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.",
+								Optional:    true,
+							},
 							"chart": {
 								Type:        schema.TypeString,
 								Description: "Helm chart name. Must be specified for applications sourced from a Helm repo.",
