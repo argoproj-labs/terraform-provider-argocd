@@ -14,6 +14,6 @@ jobs:
           days-before-close: 10
           # Issue settings
           stale-issue-message: 'This issue is stale because of a lack of response from the original author. Please provide the requested feedback or this will be closed in 10 days.'
-          any-of-issue-labels: 'cannot-reproduce,needs-more-info'
+          any-of-issue-labels: 'answered,cannot-reproduce,invalid,needs-more-info'
           # PR Settings
           stale-pr-message: 'This pr is stale because it has been open 14 days with no activity. Remove stale label or comment or this will be closed in 10 days.'
