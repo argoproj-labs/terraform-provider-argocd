@@ -7,12 +7,14 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient/account"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/certificate"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/cluster"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repocreds"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repository"
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient/session"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/version"
 	"github.com/argoproj/argo-cd/v2/util/io"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -50,13 +52,16 @@ var featureVersionConstraintsMap = map[int]*semver.Version{
 }
 
 type ServerInterface struct {
-	ApiClient            apiclient.Client
-	ApplicationClient    application.ApplicationServiceClient
-	CertificateClient    certificate.CertificateServiceClient
-	ClusterClient        cluster.ClusterServiceClient
-	ProjectClient        project.ProjectServiceClient
-	RepositoryClient     repository.RepositoryServiceClient
-	RepoCredsClient      repocreds.RepoCredsServiceClient
+	AccountClient     account.AccountServiceClient
+	ApiClient         apiclient.Client
+	ApplicationClient application.ApplicationServiceClient
+	CertificateClient certificate.CertificateServiceClient
+	ClusterClient     cluster.ClusterServiceClient
+	ProjectClient     project.ProjectServiceClient
+	RepositoryClient  repository.RepositoryServiceClient
+	RepoCredsClient   repocreds.RepoCredsServiceClient
+	SessionClient     session.SessionServiceClient
+
 	ServerVersion        *semver.Version
 	ServerVersionMessage *version.VersionMessage
 	ProviderData         *schema.ResourceData
@@ -82,6 +87,15 @@ func (p *ServerInterface) initClients(ctx context.Context) error {
 		}
 
 		p.ApiClient = apiClient
+	}
+
+	if p.AccountClient == nil {
+		_, accountClient, err := p.ApiClient.NewAccountClient()
+		if err != nil {
+			return err
+		}
+
+		p.AccountClient = accountClient
 	}
 
 	if p.ClusterClient == nil {
@@ -136,6 +150,15 @@ func (p *ServerInterface) initClients(ctx context.Context) error {
 		}
 
 		p.RepoCredsClient = repoCredsClient
+	}
+
+	if p.SessionClient == nil {
+		_, sessionClient, err := p.ApiClient.NewSessionClient()
+		if err != nil {
+			return err
+		}
+
+		p.SessionClient = sessionClient
 	}
 
 	acCloser, versionClient, err := p.ApiClient.NewVersionClient()
