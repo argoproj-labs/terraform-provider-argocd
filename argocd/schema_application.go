@@ -1232,19 +1232,21 @@ func applicationSpecSchemaV3() *schema.Schema {
 	return applicationSpecSchemaV2()
 }
 
-func applicationSpecSchemaV4() *schema.Schema {
+func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
 		MinItems:    1,
 		MaxItems:    1,
 		Description: "The application specification.",
-		Required:    true,
+		Optional:    allOptional,
+		Required:    !allOptional,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"destination": {
 					Type:        schema.TypeSet,
 					Description: "Reference to the Kubernetes server and namespace in which the application will be deployed.",
-					Required:    true,
+					Optional:    allOptional,
+					Required:    !allOptional,
 					MinItems:    1,
 					MaxItems:    1,
 					Elem: &schema.Resource{
@@ -1270,13 +1272,15 @@ func applicationSpecSchemaV4() *schema.Schema {
 				"source": {
 					Type:        schema.TypeList,
 					Description: "Location of the application's manifests or chart.",
-					Required:    true,
+					Optional:    allOptional,
+					Required:    !allOptional,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"repo_url": {
 								Type:        schema.TypeString,
 								Description: "URL to the repository (Git or Helm) that contains the application manifests.",
-								Required:    true,
+								Optional:    allOptional,
+								Required:    !allOptional,
 							},
 							"path": {
 								Type:        schema.TypeString,

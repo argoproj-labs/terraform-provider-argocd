@@ -224,6 +224,7 @@ func Provider() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"argocd_account_token":          resourceArgoCDAccountToken(),
 			"argocd_application":            resourceArgoCDApplication(),
+			"argocd_application_set":        resourceArgoCDApplicationSet(),
 			"argocd_repository_certificate": resourceArgoCDRepositoryCertificates(),
 			"argocd_cluster":                resourceArgoCDCluster(),
 			"argocd_project":                resourceArgoCDProject(),

@@ -4,6 +4,7 @@ resource "kind_cluster" "secondary" {
 }
 
 resource "argocd_cluster" "kind_secondary" {
+  name   = "kind-secondary"
   server = kind_cluster.secondary.endpoint
 
   config {

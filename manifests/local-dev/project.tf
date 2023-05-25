@@ -24,6 +24,11 @@ resource "argocd_project" "foo" {
       namespace = "foo"
     }
 
+    destination {
+      server    = argocd_cluster.kind_secondary.server
+      namespace = "default"
+    }
+
     cluster_resource_whitelist {
       group = "rbac.authorization.k8s.io"
       kind  = "ClusterRoleBinding"

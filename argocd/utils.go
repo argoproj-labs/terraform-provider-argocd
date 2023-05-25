@@ -63,6 +63,16 @@ func expandStringList(l []interface{}) (result []string) {
 	return
 }
 
+func sliceOfString(slice []interface{}) []string {
+	result := make([]string, len(slice))
+
+	for i, s := range slice {
+		result[i] = s.(string)
+	}
+
+	return result
+}
+
 func isValidPolicyAction(action string) bool {
 	validActions := map[string]bool{
 		rbacpolicy.ActionGet:      true,

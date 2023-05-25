@@ -142,3 +142,15 @@ func validatePositiveInteger(value interface{}, key string) (ws []string, es []e
 
 	return
 }
+
+func validateIntOrStringPercentage(value interface{}, key string) (ws []string, es []error) {
+	v := value.(string)
+
+	positiveIntegerOrPercentageRegexp := regexp.MustCompile(`^[+]?\d+?%?$`)
+
+	if !positiveIntegerOrPercentageRegexp.MatchString(v) {
+		es = append(es, fmt.Errorf("%s: invalid input '%s'. String input must match a positive integer (e.g. '100') or percentage (e.g. '20%%')", key, v))
+	}
+
+	return
+}
