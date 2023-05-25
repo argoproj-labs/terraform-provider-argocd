@@ -726,6 +726,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -972,6 +973,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -1223,6 +1225,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -1451,6 +1454,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -1728,6 +1732,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -1974,6 +1979,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -2225,6 +2231,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -2453,6 +2460,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -2728,6 +2736,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -2974,6 +2983,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -3225,6 +3235,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -3453,6 +3464,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -3796,6 +3808,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -4192,6 +4205,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -4429,6 +4443,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -4705,6 +4720,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -4951,6 +4967,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -5202,6 +5219,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -5430,6 +5448,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -5773,6 +5792,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -6169,6 +6189,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -6406,6 +6427,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -6749,6 +6771,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -7145,6 +7168,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -7382,6 +7406,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -7660,6 +7685,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -7906,6 +7932,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -8157,6 +8184,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -8385,6 +8413,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -8660,6 +8689,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -8906,6 +8936,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -9157,6 +9188,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -9385,6 +9417,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -9728,6 +9761,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -10124,6 +10158,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -10361,6 +10396,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -10637,6 +10673,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -10883,6 +10920,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -11134,6 +11172,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -11362,6 +11401,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -11705,6 +11745,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -12101,6 +12142,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -12338,6 +12380,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -12681,6 +12724,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -13077,6 +13121,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -13314,6 +13359,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -13657,6 +13703,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -14053,6 +14100,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `repo_url` (String) URL to the repository (Git or Helm) that contains the application manifests.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
@@ -14278,6 +14326,7 @@ Optional:
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--template--spec--source--kustomize))
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--template--spec--source--plugin))
+- `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
 - `target_revision` (String) Revision of the source to sync the application to. In case of Git, this can be commit, tag, or branch. If omitted, will equal to HEAD. In case of Helm, this is a semver tag for the Chart's version.
 
 <a id="nestedblock--spec--template--spec--source--directory"></a>

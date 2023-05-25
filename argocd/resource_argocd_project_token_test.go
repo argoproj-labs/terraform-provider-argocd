@@ -80,7 +80,7 @@ func TestAccArgoCDProjectToken_RenewBefore(t *testing.T) {
 
 	renewBeforeSeconds := expiresInSeconds - 1
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
