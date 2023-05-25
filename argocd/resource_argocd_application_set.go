@@ -217,7 +217,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	if ok := d.HasChanges("metadata", "spec"); !ok {
+	if !d.HasChanges("metadata", "spec") {
 		return nil
 	}
 
