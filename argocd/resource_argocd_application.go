@@ -200,20 +200,23 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 				Detail:   err.Error(),
 			},
 		}
-	} else if !featureMultipleApplicationSourcesSupported {
-		if len(spec.Sources) > 1 {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary: fmt.Sprintf(
-						"multiple application sources is only supported from ArgoCD %s onwards",
-						featureVersionConstraintsMap[featureMultipleApplicationSources].String()),
-				},
-			}
-		}
+	}
 
+	l := len(spec.Sources)
+
+	switch {
+	case l == 1:
 		spec.Source = &spec.Sources[0]
 		spec.Sources = nil
+	case l > 1 && !featureMultipleApplicationSourcesSupported:
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"multiple application sources is only supported from ArgoCD %s onwards",
+					featureVersionConstraintsMap[featureMultipleApplicationSources].String()),
+			},
+		}
 	}
 
 	featureApplicationHelmSkipCrdsSupported, err := si.isFeatureSupported(featureApplicationHelmSkipCrds)
@@ -473,20 +476,23 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 				Detail:   err.Error(),
 			},
 		}
-	} else if !featureMultipleApplicationSourcesSupported {
-		if len(spec.Sources) > 1 {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary: fmt.Sprintf(
-						"multiple application sources is only supported from ArgoCD %s onwards",
-						featureVersionConstraintsMap[featureMultipleApplicationSources].String()),
-				},
-			}
-		}
+	}
 
+	l := len(spec.Sources)
+
+	switch {
+	case l == 1:
 		spec.Source = &spec.Sources[0]
 		spec.Sources = nil
+	case l > 1 && !featureMultipleApplicationSourcesSupported:
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary: fmt.Sprintf(
+					"multiple application sources is only supported from ArgoCD %s onwards",
+					featureVersionConstraintsMap[featureMultipleApplicationSources].String()),
+			},
+		}
 	}
 
 	featureApplicationHelmSkipCrdsSupported, err := si.isFeatureSupported(featureApplicationHelmSkipCrds)

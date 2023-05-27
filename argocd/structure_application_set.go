@@ -793,13 +793,14 @@ func expandApplicationSetTemplate(temp interface{}, featureMultipleApplicationSo
 			return
 		}
 
-		if !featureMultipleApplicationSourcesSupported {
-			if len(template.Spec.Sources) > 1 {
-				return template, fmt.Errorf("multiple application sources is only supported from ArgoCD %s onwards", featureVersionConstraintsMap[featureMultipleApplicationSources].String())
-			}
+		l := len(template.Spec.Sources)
 
+		switch {
+		case l == 1:
 			template.Spec.Source = &template.Spec.Sources[0]
 			template.Spec.Sources = nil
+		case l > 1 && !featureMultipleApplicationSourcesSupported:
+			return template, fmt.Errorf("multiple application sources is only supported from ArgoCD %s onwards", featureVersionConstraintsMap[featureMultipleApplicationSources].String())
 		}
 	}
 
