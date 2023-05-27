@@ -71,16 +71,8 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		},
 	})
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application set %s could not be created", objectMeta.Name),
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	if as == nil {
+		return argoCDAPIError("create", "application set", objectMeta.Name, err)
+	} else if as == nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -117,13 +109,7 @@ func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceDat
 			return diag.Diagnostics{}
 		}
 
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "error getting application set",
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("read", "application set", name, err)
 	}
 
 	err = flattenApplicationSet(appSet, d)
@@ -188,13 +174,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 	})
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to update application set",
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("update", "application set", objectMeta.Name, err)
 	}
 
 	return resourceArgoCDApplicationSetRead(ctx, d, meta)
@@ -217,13 +197,7 @@ func resourceArgoCDApplicationSetDelete(ctx context.Context, d *schema.ResourceD
 	})
 
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("something went wrong during application set deletion: %s", err),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("delete", "application set", d.Id(), err)
 	}
 
 	d.SetId("")

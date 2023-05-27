@@ -222,13 +222,7 @@ func resourceArgoCDAccountTokenCreate(ctx context.Context, d *schema.ResourceDat
 	tokenMutexSecrets.Unlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token for account %s could not be created", accountName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("create", "token for account", accountName, err)
 	}
 
 	token, err := jwt.ParseString(resp.GetToken())
@@ -335,13 +329,7 @@ func resourceArgoCDAccountTokenRead(ctx context.Context, d *schema.ResourceData,
 			d.SetId("")
 			return nil
 		} else {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("account %s could not be read", accountName),
-					Detail:   err.Error(),
-				},
-			}
+			return argoCDAPIError("read", "account", accountName, err)
 		}
 	}
 
@@ -432,13 +420,7 @@ func resourceArgoCDAccountTokenDelete(ctx context.Context, d *schema.ResourceDat
 	tokenMutexSecrets.Unlock()
 
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token for account %s could not be deleted", accountName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("delete", "token for account", accountName, err)
 	}
 
 	d.SetId("")

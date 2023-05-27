@@ -62,13 +62,7 @@ func resourceArgoCDRepositoryCredentialsCreate(ctx context.Context, d *schema.Re
 	tokenMutexConfiguration.Unlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("credentials for repository %s could not be created", repoCreds.URL),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("create", "repository credentials", repoCreds.URL, err)
 	}
 
 	d.SetId(rc.URL)
@@ -95,14 +89,7 @@ func resourceArgoCDRepositoryCredentialsRead(ctx context.Context, d *schema.Reso
 	tokenMutexConfiguration.RUnlock()
 
 	if err != nil {
-		// TODO: check for NotFound condition?
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("credentials for repository %s could not be listed", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("read", "repository credentials", d.Id(), err)
 	} else if rcl == nil || len(rcl.Items) == 0 {
 		// Repository credentials have already been deleted in an out-of-band fashion
 		d.SetId("")
@@ -159,13 +146,7 @@ func resourceArgoCDRepositoryCredentialsUpdate(ctx context.Context, d *schema.Re
 	tokenMutexConfiguration.Unlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("credentials for repository %s could not be updated", repoCreds.URL),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("update", "repository credentials", repoCreds.URL, err)
 	}
 
 	d.SetId(r.URL)
@@ -199,13 +180,7 @@ func resourceArgoCDRepositoryCredentialsDelete(ctx context.Context, d *schema.Re
 			return nil
 		}
 
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("credentials for repository %s could not be deleted", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("delete", "repository credentials", d.Id(), err)
 	}
 
 	d.SetId("")

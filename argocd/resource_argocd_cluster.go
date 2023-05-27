@@ -60,14 +60,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 
 	if err != nil {
 		tokenMutexClusters.Unlock()
-
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("could not get current clusters list:  %s", err),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("list", "existing clusters", cluster.Server, err)
 	}
 
 	rtrimmedServer := strings.TrimRight(cluster.Server, "/")
@@ -92,13 +85,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 	tokenMutexClusters.Unlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("something went wrong during cluster resource creation: %s", err),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("create", "cluster", cluster.Server, err)
 	}
 
 	// Check if the name has been defaulted to server (when omitted)
@@ -133,13 +120,7 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 			return nil
 		}
 
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("could not get cluster information: %s", err),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("read", "cluster", d.Id(), err)
 	}
 
 	if err = flattenCluster(c, d); err != nil {
@@ -183,13 +164,7 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 	tokenMutexClusters.Unlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("something went wrong during cluster update: %s", err),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("update", "cluster", cluster.Server, err)
 	}
 
 	return resourceArgoCDClusterRead(ctx, d, meta)
@@ -217,13 +192,7 @@ func resourceArgoCDClusterDelete(ctx context.Context, d *schema.ResourceData, me
 			return nil
 		}
 
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("something went wrong during cluster deletion: %s", err),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("delete", "cluster", d.Id(), err)
 	}
 
 	d.SetId("")

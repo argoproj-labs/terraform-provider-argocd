@@ -87,13 +87,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
 		tokenMutexProjectMap[projectName].Unlock()
 
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("failed to get project %s", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("get", "existing project", projectName, err)
 	} else if p != nil {
 		switch p.DeletionTimestamp {
 		case nil:
@@ -116,13 +110,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("project %s could not be created", objectMeta.Name),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("create", "project", projectName, err)
 	} else if p == nil {
 		return []diag.Diagnostic{
 			{
@@ -168,13 +156,7 @@ func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta
 			return diag.Diagnostics{}
 		}
 
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("project %s could not be found", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("read", "project", projectName, err)
 	}
 
 	if err = flattenProject(p, d); err != nil {
@@ -245,13 +227,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 	if err != nil {
 		tokenMutexProjectMap[projectName].Unlock()
 
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("failed to get existing project %s", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("get", "existing project", projectName, err)
 	} else if p != nil {
 		// Kubernetes API requires providing the up-to-date correct ResourceVersion for updates
 		projectRequest.Project.ResourceVersion = p.ResourceVersion
@@ -290,13 +266,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Error while waiting for project %s to be created", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("update", "project", projectName, err)
 	}
 
 	return resourceArgoCDProjectRead(ctx, d, meta)
@@ -325,13 +295,7 @@ func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, me
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Project %s not found", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("delete", "project", projectName, err)
 	}
 
 	d.SetId("")

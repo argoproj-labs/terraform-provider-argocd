@@ -101,13 +101,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		AppNamespace: &objectMeta.Namespace,
 	})
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("failed to get application %s", objectMeta.Name),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("list", "existing applications", objectMeta.Name, err)
 	}
 
 	if apps != nil {
@@ -154,13 +148,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		},
 	})
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application %s could not be created", objectMeta.Name),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("create", "application", objectMeta.Name, err)
 	} else if app == nil {
 		return []diag.Diagnostic{
 			{
@@ -235,13 +223,7 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 			return diag.Diagnostics{}
 		}
 
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("failed to get application %s", appName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("read", "application", appName, err)
 	}
 
 	l := len(apps.Items)
@@ -355,13 +337,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 			},
 		},
 	}); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application %s could not be updated", *appQuery.Name),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("update", "application", objectMeta.Name, err)
 	}
 
 	if wait, _ok := d.GetOk("wait"); _ok && wait.(bool) {
@@ -424,13 +400,7 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 		Cascade:      &cascade,
 		AppNamespace: &namespace,
 	}); err != nil && !strings.Contains(err.Error(), "NotFound") {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application %s could not be deleted", appName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("delete", "application", appName, err)
 	}
 
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {

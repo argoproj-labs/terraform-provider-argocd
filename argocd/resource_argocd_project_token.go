@@ -230,13 +230,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token for project %s could not be created", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("create", "token for project", projectName, err)
 	}
 
 	token, err := jwt.ParseString(resp.GetToken())
@@ -354,15 +348,9 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 		if strings.Contains(err.Error(), "NotFound") {
 			d.SetId("")
 			return nil
-		} else {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token for project %s could not be read", projectName),
-					Detail:   err.Error(),
-				},
-			}
 		}
+
+		return argoCDAPIError("read", "project", projectName, err)
 	}
 
 	tokenMutexProjectMap[projectName].RLock()
@@ -481,13 +469,7 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token for project %s could not be deleted", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("delete", "token for project", projectName, err)
 	}
 
 	d.SetId("")

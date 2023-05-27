@@ -37,7 +37,6 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 		}
 	}
 
-
 	// Not doing a RLock here because we can have a race-condition between the ListCertificates & CreateCertificate
 	tokenMutexConfiguration.Lock()
 
@@ -52,13 +51,7 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 		if err != nil {
 			tokenMutexConfiguration.Unlock()
 
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("certificates for host %s could not be listed", repoCertificate.ServerName),
-					Detail:   err.Error(),
-				},
-			}
+			return argoCDAPIError("list", "existing repository certificates", repoCertificate.ServerName, err)
 		}
 
 		if len(rcl.Items) > 0 {
@@ -89,13 +82,7 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 	tokenMutexConfiguration.Unlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("certificate for repository %s could not be created", repoCertificate.ServerName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("create", "repository certificate", repoCertificate.ServerName, err)
 	}
 
 	// TODO: upstream bug : if https certificate already exists, the response will be empty
@@ -177,7 +164,6 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 		}
 	}
 
-
 	certType, certSubType, serverName, err := fromId(d.Id())
 	if err != nil {
 		return []diag.Diagnostic{
@@ -198,13 +184,7 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 	tokenMutexConfiguration.RUnlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("certificates for host %s could not be listed", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("read", "repository certificate", serverName, err)
 	} else if rcl == nil || len(rcl.Items) == 0 {
 		// Certificate have already been deleted in an out-of-band fashion
 		d.SetId("")
@@ -265,7 +245,6 @@ func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.R
 		}
 	}
 
-
 	certType, certSubType, serverName, err := fromId(d.Id())
 	if err != nil {
 		return []diag.Diagnostic{
@@ -297,13 +276,7 @@ func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.R
 			return nil
 		}
 
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("certificate for repository %s could not be deleted", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("delete", "repository certificate", serverName, err)
 	}
 
 	d.SetId("")

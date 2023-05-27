@@ -161,6 +161,16 @@ func persistToState(key string, data interface{}, d *schema.ResourceData) error 
 	return nil
 }
 
+func argoCDAPIError(action, resource, id string, err error) diag.Diagnostics {
+	return []diag.Diagnostic{
+		{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("failed to %s %s %s", action, resource, id),
+			Detail:   err.Error(),
+		},
+	}
+}
+
 func featureNotSupported(feature int) diag.Diagnostics {
 	f := featureConstraintsMap[feature]
 
