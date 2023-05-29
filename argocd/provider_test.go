@@ -79,12 +79,12 @@ func testAccPreCheckFeatureSupported(t *testing.T, feature int) {
 		t.Fatalf("could not parse ARGOCD_VERSION as semantic version: %s", v)
 	}
 
-	versionConstraint, ok := featureVersionConstraintsMap[feature]
+	fc, ok := featureConstraintsMap[feature]
 	if !ok {
 		t.Fatal("feature constraint is not handled by the provider")
 	}
 
-	if i := versionConstraint.Compare(serverVersion); i == 1 {
+	if i := fc.minVersion.Compare(serverVersion); i == 1 {
 		t.Skipf("version %s does not support feature", v)
 	}
 }

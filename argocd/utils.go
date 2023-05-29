@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/argoproj/argo-cd/v2/server/rbacpolicy"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -158,4 +159,15 @@ func persistToState(key string, data interface{}, d *schema.ResourceData) error 
 	}
 
 	return nil
+}
+
+func featureNotSupported(feature int) diag.Diagnostics {
+	f := featureConstraintsMap[feature]
+
+	return []diag.Diagnostic{
+		{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("%s is only supported from ArgoCD %s onwards", f.name, f.minVersion.String()),
+		},
+	}
 }

@@ -42,14 +42,7 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 	}
 
 	if !si.isFeatureSupported(featureApplicationSet) {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"application set is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureApplicationSet].String()),
-			},
-		}
+		return featureNotSupported(featureApplicationSet)
 	}
 
 	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(featureMultipleApplicationSources))
@@ -64,15 +57,7 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 	}
 
 	if !si.isFeatureSupported(featureApplicationSetProgressiveSync) && spec.Strategy != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"progressive sync (`strategy`) is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureApplicationSetProgressiveSync].String()),
-				Detail: err.Error(),
-			},
-		}
+		return featureNotSupported(featureApplicationSetProgressiveSync)
 	}
 
 	as, err := si.ApplicationSetClient.Create(ctx, &applicationset.ApplicationSetCreateRequest{
@@ -168,14 +153,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 	}
 
 	if !si.isFeatureSupported(featureApplicationSet) {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"application set is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureApplicationSet].String()),
-			},
-		}
+		return featureNotSupported(featureApplicationSet)
 	}
 
 	if !d.HasChanges("metadata", "spec") {
@@ -194,15 +172,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 	}
 
 	if !si.isFeatureSupported(featureApplicationSetProgressiveSync) && spec.Strategy != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"progressive sync (`strategy`) is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureApplicationSetProgressiveSync].String()),
-				Detail: err.Error(),
-			},
-		}
+		return featureNotSupported(featureApplicationSetProgressiveSync)
 	}
 
 	_, err = si.ApplicationSetClient.Create(ctx, &applicationset.ApplicationSetCreateRequest{

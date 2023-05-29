@@ -71,14 +71,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	if !si.isFeatureSupported(featureProjectSourceNamespaces) {
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary: fmt.Sprintf(
-						"project source_namespaces is only supported from ArgoCD %s onwards",
-						featureVersionConstraintsMap[featureProjectSourceNamespaces].String()),
-				},
-			}
+			return featureNotSupported(featureProjectSourceNamespaces)
 		}
 	}
 
@@ -227,14 +220,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 	if !si.isFeatureSupported(featureProjectSourceNamespaces) {
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary: fmt.Sprintf(
-						"project source_namespaces is only supported from ArgoCD %s onwards",
-						featureVersionConstraintsMap[featureProjectSourceNamespaces].String()),
-				},
-			}
+			return featureNotSupported(featureProjectSourceNamespaces)
 		}
 	}
 

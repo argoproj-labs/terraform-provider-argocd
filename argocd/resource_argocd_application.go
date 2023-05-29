@@ -139,15 +139,8 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	case l == 1:
 		spec.Source = &spec.Sources[0]
 		spec.Sources = nil
-	case l > 1 && !!si.isFeatureSupported(featureMultipleApplicationSources):
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"multiple application sources is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureMultipleApplicationSources].String()),
-			},
-		}
+	case l > 1 && !si.isFeatureSupported(featureMultipleApplicationSources):
+		return featureNotSupported(featureMultipleApplicationSources)
 	}
 
 	app, err := si.ApplicationClient.Create(ctx, &applicationClient.ApplicationCreateRequest{
@@ -321,15 +314,8 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 	case l == 1:
 		spec.Source = &spec.Sources[0]
 		spec.Sources = nil
-	case l > 1 && !!si.isFeatureSupported(featureMultipleApplicationSources):
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"multiple application sources is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureMultipleApplicationSources].String()),
-			},
-		}
+	case l > 1 && !si.isFeatureSupported(featureMultipleApplicationSources):
+		return featureNotSupported(featureMultipleApplicationSources)
 	}
 
 	apps, err := si.ApplicationClient.List(ctx, appQuery)
