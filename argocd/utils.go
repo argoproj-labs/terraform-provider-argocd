@@ -171,6 +171,19 @@ func argoCDAPIError(action, resource, id string, err error) diag.Diagnostics {
 	}
 }
 
+func errorToDiagnostics(summary string, err error) diag.Diagnostics {
+	d := diag.Diagnostic{
+		Severity: diag.Error,
+		Summary:  summary,
+	}
+
+	if err != nil {
+		d.Detail = err.Error()
+	}
+
+	return []diag.Diagnostic{d}
+}
+
 func featureNotSupported(feature int) diag.Diagnostics {
 	f := featureConstraintsMap[feature]
 

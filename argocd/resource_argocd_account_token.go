@@ -145,24 +145,12 @@ func resourceArgoCDAccountToken() *schema.Resource {
 func resourceArgoCDAccountTokenCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	accountName, err := getAccount(ctx, si, d)
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to get account",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to get account", err)
 	}
 
 	opts := &account.CreateTokenRequest{
@@ -177,13 +165,7 @@ func resourceArgoCDAccountTokenCreate(ctx context.Context, d *schema.ResourceDat
 		expiresInDuration, err := time.ParseDuration(ei)
 
 		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token expiration duration (%s) for account %s could not be parsed", ei, accountName),
-					Detail:   err.Error(),
-				},
-			}
+			return errorToDiagnostics(fmt.Sprintf("token expiration duration (%s) for account %s could not be parsed", ei, accountName), err)
 		}
 
 		expiresIn = int64(expiresInDuration.Seconds())
@@ -196,13 +178,7 @@ func resourceArgoCDAccountTokenCreate(ctx context.Context, d *schema.ResourceDat
 		renewBeforeDuration, err := time.ParseDuration(rb)
 
 		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token renewal duration (%s) for account %s could not be parsed", rb, accountName),
-					Detail:   err.Error(),
-				},
-			}
+			return errorToDiagnostics(fmt.Sprintf("token renewal duration (%s) for account %s could not be parsed", rb, accountName), err)
 		}
 
 		renewBefore := int64(renewBeforeDuration.Seconds())
@@ -227,24 +203,12 @@ func resourceArgoCDAccountTokenCreate(ctx context.Context, d *schema.ResourceDat
 
 	token, err := jwt.ParseString(resp.GetToken())
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token for account %s is not a valid jwt", accountName),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("token for account %s is not a valid jwt", accountName), err)
 	}
 
 	var claims jwt.StandardClaims
 	if err = json.Unmarshal(token.RawClaims(), &claims); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token claims for account %s could not be parsed", accountName),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("token claims for account %s could not be parsed", accountName), err)
 	}
 
 	if expiresInOk {
@@ -258,35 +222,17 @@ func resourceArgoCDAccountTokenCreate(ctx context.Context, d *schema.ResourceDat
 		} else {
 			err = d.Set("expires_at", convertInt64ToString(claims.ExpiresAt.Unix()))
 			if err != nil {
-				return []diag.Diagnostic{
-					{
-						Severity: diag.Error,
-						Summary:  fmt.Sprintf("token claims expiration date for account %s could not be persisted to state", accountName),
-						Detail:   err.Error(),
-					},
-				}
+				return errorToDiagnostics(fmt.Sprintf("token claims expiration date for account %s could not be persisted to state", accountName), err)
 			}
 		}
 	}
 
 	if err = d.Set("issued_at", convertInt64ToString(claims.IssuedAt.Unix())); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token claims issue date for account %s could not be persisted to state", accountName),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("token claims issue date for account %s could not be persisted to state", accountName), err)
 	}
 
 	if err := d.Set("jwt", token.String()); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token for account %s could not be persisted to state", accountName),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("token for account %s could not be persisted to state", accountName), err)
 	}
 
 	d.SetId(claims.ID)
@@ -297,24 +243,12 @@ func resourceArgoCDAccountTokenCreate(ctx context.Context, d *schema.ResourceDat
 func resourceArgoCDAccountTokenRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	accountName, err := getAccount(ctx, si, d)
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to get account",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to get account", err)
 	}
 
 	tokenMutexConfiguration.RLock() // Yes, this is a different mutex - accounts are stored in `argocd-cm` whereas tokens are stored in `argocd-secret`
@@ -347,13 +281,7 @@ func resourceArgoCDAccountTokenUpdate(ctx context.Context, d *schema.ResourceDat
 		expiresInDuration, err := time.ParseDuration(ei)
 
 		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token expiration duration (%s) for account %s could not be parsed", ei, accountName),
-					Detail:   err.Error(),
-				},
-			}
+			return errorToDiagnostics(fmt.Sprintf("token expiration duration (%s) for account %s could not be parsed", ei, accountName), err)
 		}
 
 		expiresIn = int64(expiresInDuration.Seconds())
@@ -365,13 +293,7 @@ func resourceArgoCDAccountTokenUpdate(ctx context.Context, d *schema.ResourceDat
 		renewBeforeDuration, err := time.ParseDuration(rb)
 
 		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token renewal duration (%s) for account %s could not be parsed", rb, accountName),
-					Detail:   err.Error(),
-				},
-			}
+			return errorToDiagnostics(fmt.Sprintf("token renewal duration (%s) for account %s could not be parsed", rb, accountName), err)
 		}
 
 		renewBefore := int64(renewBeforeDuration.Seconds())
@@ -380,7 +302,6 @@ func resourceArgoCDAccountTokenUpdate(ctx context.Context, d *schema.ResourceDat
 				{
 					Severity: diag.Error,
 					Summary:  fmt.Sprintf("renew_before (%d) cannot be greater than expires_in (%d) for account %s", renewBefore, expiresIn, accountName),
-					Detail:   err.Error(),
 				},
 			}
 		}
@@ -392,24 +313,12 @@ func resourceArgoCDAccountTokenUpdate(ctx context.Context, d *schema.ResourceDat
 func resourceArgoCDAccountTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	accountName, err := getAccount(ctx, si, d)
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to get account",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to get account", err)
 	}
 
 	tokenMutexSecrets.Lock()

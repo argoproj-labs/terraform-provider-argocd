@@ -30,24 +30,12 @@ func resourceArgoCDRepository() *schema.Resource {
 func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	repo, err := expandRepository(d)
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("could not expand repository attributes: %s", err),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to expand repository", err)
 	}
 
 	if err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
@@ -90,13 +78,7 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	tokenMutexConfiguration.RLock()
@@ -117,13 +99,7 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	if err = flattenRepository(r, d); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("repository %s could not be flattened", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("failed to flatten repository %s", d.Id()), err)
 	}
 
 	return nil
@@ -132,24 +108,12 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	repo, err := expandRepository(d)
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("could not expand repository attributes: %s", err),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("failed to expand repository %s", d.Id()), err)
 	}
 
 	tokenMutexConfiguration.Lock()
@@ -164,13 +128,7 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if r == nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("argoCD did not return an error or a repository result for ID %s", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("ArgoCD did not return an error or a repository result for ID %s", d.Id()), err)
 	}
 
 	if r.ConnectionState.Status == application.ConnectionStatusFailed {
@@ -190,13 +148,7 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 func resourceArgoCDRepositoryDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	tokenMutexConfiguration.Lock()

@@ -32,13 +32,7 @@ func resourceArgoCDApplicationSet() *schema.Resource {
 func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	if !si.isFeatureSupported(featureApplicationSet) {
@@ -47,13 +41,7 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 
 	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(featureMultipleApplicationSources))
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application set %s could not be created", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to expand application set", err)
 	}
 
 	if !si.isFeatureSupported(featureApplicationSetProgressiveSync) && spec.Strategy != nil {
@@ -89,13 +77,7 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	name := d.Id()
@@ -114,13 +96,7 @@ func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceDat
 
 	err = flattenApplicationSet(appSet, d)
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application set %s could not be flattened", name),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("failed to flatten application set %s", name), err)
 	}
 
 	return nil
@@ -129,13 +105,7 @@ func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceDat
 func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	if !si.isFeatureSupported(featureApplicationSet) {
@@ -148,13 +118,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 
 	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(featureMultipleApplicationSources))
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application set %s could not be updated", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("failed to expand application set %s", d.Id()), err)
 	}
 
 	if !si.isFeatureSupported(featureApplicationSetProgressiveSync) && spec.Strategy != nil {
@@ -183,13 +147,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 func resourceArgoCDApplicationSetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	_, err := si.ApplicationSetClient.Delete(ctx, &applicationset.ApplicationSetDeleteRequest{

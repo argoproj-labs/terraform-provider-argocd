@@ -27,24 +27,12 @@ func resourceArgoCDCluster() *schema.Resource {
 func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	cluster, err := expandCluster(d)
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("could not expand cluster attributes: %s", err),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to expand cluster", err)
 	}
 
 	// Need a full lock here to avoid race conditions between List existing clusters and creating a new one
@@ -60,7 +48,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 
 	if err != nil {
 		tokenMutexClusters.Unlock()
-		return argoCDAPIError("list", "existing clusters", cluster.Server, err)
+		return errorToDiagnostics(fmt.Sprintf("failed to list existing clusters when creating cluster %s", cluster.Server), err)
 	}
 
 	rtrimmedServer := strings.TrimRight(cluster.Server, "/")
@@ -101,13 +89,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	tokenMutexClusters.RLock()
@@ -124,13 +106,7 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = flattenCluster(c, d); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "could not flatten cluster",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("failed to flatten cluster %s", d.Id()), err)
 	}
 
 	return nil
@@ -139,24 +115,12 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	cluster, err := expandCluster(d)
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("could not expand cluster attributes: %s", err),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("failed to expand cluster %s", d.Id()), err)
 	}
 
 	tokenMutexClusters.Lock()
@@ -173,13 +137,7 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 func resourceArgoCDClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	tokenMutexClusters.Lock()

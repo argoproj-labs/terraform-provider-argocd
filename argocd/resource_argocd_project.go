@@ -46,24 +46,12 @@ func resourceArgoCDProject() *schema.Resource {
 func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	objectMeta, spec, err := expandProject(d)
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("project %s could not be created", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to expand project", err)
 	}
 
 	projectName := objectMeta.Name
@@ -87,7 +75,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
 		tokenMutexProjectMap[projectName].Unlock()
 
-		return argoCDAPIError("get", "existing project", projectName, err)
+		return errorToDiagnostics(fmt.Sprintf("failed to get existing project when creating project %s", projectName), err)
 	} else if p != nil {
 		switch p.DeletionTimestamp {
 		case nil:
@@ -115,8 +103,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("something went wrong during project creation with ID %s", d.Id()),
-				Detail:   err.Error(),
+				Summary:  fmt.Sprintf("project %s could not be created: unknown reason", projectName),
 			},
 		}
 	}
@@ -129,13 +116,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	projectName := d.Id()
@@ -160,13 +141,7 @@ func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = flattenProject(p, d); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("project %s could not be flattened", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("failed to flatten project %s", d.Id()), err)
 	}
 
 	return nil
@@ -179,24 +154,12 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	objectMeta, spec, err := expandProject(d)
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("project %s could not be updated", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("failed to expand project %s", d.Id()), err)
 	}
 
 	if !si.isFeatureSupported(featureProjectSourceNamespaces) {
@@ -227,7 +190,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 	if err != nil {
 		tokenMutexProjectMap[projectName].Unlock()
 
-		return argoCDAPIError("get", "existing project", projectName, err)
+		return errorToDiagnostics(fmt.Sprintf("failed to get existing project when updating project %s", projectName), err)
 	} else if p != nil {
 		// Kubernetes API requires providing the up-to-date correct ResourceVersion for updates
 		projectRequest.Project.ResourceVersion = p.ResourceVersion
@@ -247,13 +210,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 				if i != -1 {
 					tokenMutexProjectMap[projectName].Unlock()
 
-					return []diag.Diagnostic{
-						{
-							Severity: diag.Error,
-							Summary:  fmt.Sprintf("project role %s could not be retrieved", r.Name),
-							Detail:   err.Error(),
-						},
-					}
+					return errorToDiagnostics(fmt.Sprintf("project role %s could not be retrieved", r.Name), err)
 				}
 			} else { // Only preserve preexisting JWTs for managed roles if we found an existing matching project
 				projectRequest.Project.Spec.Roles[i].JWTTokens = pr.JWTTokens
@@ -275,13 +232,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	projectName := d.Id()
