@@ -9,6 +9,7 @@ import (
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/features"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -35,17 +36,17 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		return errorToDiagnostics("failed to init clients", err)
 	}
 
-	if !si.isFeatureSupported(featureApplicationSet) {
-		return featureNotSupported(featureApplicationSet)
+	if !si.isFeatureSupported(features.ApplicationSet) {
+		return featureNotSupported(features.ApplicationSet)
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(featureMultipleApplicationSources))
+	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(features.MultipleApplicationSources))
 	if err != nil {
 		return errorToDiagnostics("failed to expand application set", err)
 	}
 
-	if !si.isFeatureSupported(featureApplicationSetProgressiveSync) && spec.Strategy != nil {
-		return featureNotSupported(featureApplicationSetProgressiveSync)
+	if !si.isFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
+		return featureNotSupported(features.ApplicationSetProgressiveSync)
 	}
 
 	as, err := si.ApplicationSetClient.Create(ctx, &applicationset.ApplicationSetCreateRequest{
@@ -108,21 +109,21 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 		return errorToDiagnostics("failed to init clients", err)
 	}
 
-	if !si.isFeatureSupported(featureApplicationSet) {
-		return featureNotSupported(featureApplicationSet)
+	if !si.isFeatureSupported(features.ApplicationSet) {
+		return featureNotSupported(features.ApplicationSet)
 	}
 
 	if !d.HasChanges("metadata", "spec") {
 		return nil
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(featureMultipleApplicationSources))
+	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(features.MultipleApplicationSources))
 	if err != nil {
 		return errorToDiagnostics(fmt.Sprintf("failed to expand application set %s", d.Id()), err)
 	}
 
-	if !si.isFeatureSupported(featureApplicationSetProgressiveSync) && spec.Strategy != nil {
-		return featureNotSupported(featureApplicationSetProgressiveSync)
+	if !si.isFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
+		return featureNotSupported(features.ApplicationSetProgressiveSync)
 	}
 
 	_, err = si.ApplicationSetClient.Create(ctx, &applicationset.ApplicationSetCreateRequest{

@@ -9,6 +9,7 @@ import (
 	"github.com/argoproj/argo-cd/v2/server/rbacpolicy"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/features"
 )
 
 func convertStringToInt64(s string) (i int64, err error) {
@@ -184,13 +185,13 @@ func errorToDiagnostics(summary string, err error) diag.Diagnostics {
 	return []diag.Diagnostic{d}
 }
 
-func featureNotSupported(feature int) diag.Diagnostics {
-	f := featureConstraintsMap[feature]
+func featureNotSupported(feature features.Feature) diag.Diagnostics {
+	f := features.ConstraintsMap[feature]
 
 	return []diag.Diagnostic{
 		{
 			Severity: diag.Error,
-			Summary:  fmt.Sprintf("%s is only supported from ArgoCD %s onwards", f.name, f.minVersion.String()),
+			Summary:  fmt.Sprintf("%s is only supported from ArgoCD %s onwards", f.Name, f.MinVersion.String()),
 		},
 	}
 }

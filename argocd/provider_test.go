@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/features"
 )
 
 var testAccProviders map[string]func() (*schema.Provider, error)
@@ -68,7 +69,7 @@ func testAccPreCheck(t *testing.T) {
 }
 
 // Skip test if feature is not supported
-func testAccPreCheckFeatureSupported(t *testing.T, feature int) {
+func testAccPreCheckFeatureSupported(t *testing.T, feature features.Feature) {
 	v := os.Getenv("ARGOCD_VERSION")
 	if v == "" {
 		t.Skip("ARGOCD_VERSION must be set set for feature supported acceptance tests")
@@ -79,12 +80,12 @@ func testAccPreCheckFeatureSupported(t *testing.T, feature int) {
 		t.Fatalf("could not parse ARGOCD_VERSION as semantic version: %s", v)
 	}
 
-	fc, ok := featureConstraintsMap[feature]
+	fc, ok := features.ConstraintsMap[feature]
 	if !ok {
 		t.Fatal("feature constraint is not handled by the provider")
 	}
 
-	if i := fc.minVersion.Compare(serverVersion); i == 1 {
+	if i := fc.MinVersion.Compare(serverVersion); i == 1 {
 		t.Skipf("version %s does not support feature", v)
 	}
 }

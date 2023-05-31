@@ -11,6 +11,7 @@ import (
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/features"
 )
 
 func resourceArgoCDProject() *schema.Resource {
@@ -56,10 +57,10 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 
 	projectName := objectMeta.Name
 
-	if !si.isFeatureSupported(featureProjectSourceNamespaces) {
+	if !si.isFeatureSupported(features.ProjectSourceNamespaces) {
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
-			return featureNotSupported(featureProjectSourceNamespaces)
+			return featureNotSupported(features.ProjectSourceNamespaces)
 		}
 	}
 
@@ -162,10 +163,10 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		return errorToDiagnostics(fmt.Sprintf("failed to expand project %s", d.Id()), err)
 	}
 
-	if !si.isFeatureSupported(featureProjectSourceNamespaces) {
+	if !si.isFeatureSupported(features.ProjectSourceNamespaces) {
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
-			return featureNotSupported(featureProjectSourceNamespaces)
+			return featureNotSupported(features.ProjectSourceNamespaces)
 		}
 	}
 

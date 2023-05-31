@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/features"
 )
 
 func resourceArgoCDApplication() *schema.Resource {
@@ -121,8 +122,8 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	case l == 1:
 		spec.Source = &spec.Sources[0]
 		spec.Sources = nil
-	case l > 1 && !si.isFeatureSupported(featureMultipleApplicationSources):
-		return featureNotSupported(featureMultipleApplicationSources)
+	case l > 1 && !si.isFeatureSupported(features.MultipleApplicationSources):
+		return featureNotSupported(features.MultipleApplicationSources)
 	}
 
 	app, err := si.ApplicationClient.Create(ctx, &applicationClient.ApplicationCreateRequest{
@@ -254,8 +255,8 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 	case l == 1:
 		spec.Source = &spec.Sources[0]
 		spec.Sources = nil
-	case l > 1 && !si.isFeatureSupported(featureMultipleApplicationSources):
-		return featureNotSupported(featureMultipleApplicationSources)
+	case l > 1 && !si.isFeatureSupported(features.MultipleApplicationSources):
+		return featureNotSupported(features.MultipleApplicationSources)
 	}
 
 	apps, err := si.ApplicationClient.List(ctx, appQuery)

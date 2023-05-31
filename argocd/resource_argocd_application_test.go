@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/oboukili/terraform-provider-argocd/internal/features"
 )
 
 func TestAccArgoCDApplication(t *testing.T) {
@@ -896,7 +897,7 @@ func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectSourceNamespaces) },
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ProjectSourceNamespaces) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -920,7 +921,7 @@ func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
 
 func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureMultipleApplicationSources) },
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.MultipleApplicationSources) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -954,7 +955,7 @@ func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 
 func TestAccArgoCDApplication_HelmValuesFromExternalGitRepo(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureMultipleApplicationSources) },
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.MultipleApplicationSources) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{

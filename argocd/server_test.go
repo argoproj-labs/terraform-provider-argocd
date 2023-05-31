@@ -7,6 +7,7 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/version"
+	"github.com/oboukili/terraform-provider-argocd/internal/features"
 	"github.com/stretchr/testify/assert"
 	"modernc.org/mathutil"
 )
@@ -62,7 +63,7 @@ func TestServerInterface_isFeatureSupported(t *testing.T) {
 	t.Parallel()
 
 	type args struct {
-		feature int
+		feature features.Feature
 	}
 
 	tests := []struct {
@@ -74,19 +75,19 @@ func TestServerInterface_isFeatureSupported(t *testing.T) {
 		{
 			name: "featureExecLogsPolicy-2.7.2",
 			si:   serverInterfaceTestData(t, "2.7.2", semverEquals),
-			args: args{feature: featureExecLogsPolicy},
+			args: args{feature: features.ExecLogsPolicy},
 			want: true,
 		},
 		{
 			name: "featureExecLogsPolicy-2.7.2+",
 			si:   serverInterfaceTestData(t, "2.7.2", semverGreater),
-			args: args{feature: featureExecLogsPolicy},
+			args: args{feature: features.ExecLogsPolicy},
 			want: true,
 		},
 		{
 			name: "featureExecLogsPolicy-2.7.2-",
 			si:   serverInterfaceTestData(t, "2.7.2", semverLess),
-			args: args{feature: featureExecLogsPolicy},
+			args: args{feature: features.ExecLogsPolicy},
 			want: false,
 		},
 	}

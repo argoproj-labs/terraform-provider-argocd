@@ -20,28 +20,8 @@ import (
 	"github.com/argoproj/argo-cd/v2/util/io"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/features"
 )
-
-const (
-	featureExecLogsPolicy = iota
-	featureProjectSourceNamespaces
-	featureMultipleApplicationSources
-	featureApplicationSet
-	featureApplicationSetProgressiveSync
-)
-
-type featureConstraint struct {
-	name       string
-	minVersion *semver.Version
-}
-
-var featureConstraintsMap = map[int]featureConstraint{
-	featureExecLogsPolicy:                {"exec/logs RBAC policy", semver.MustParse("2.4.4")},
-	featureProjectSourceNamespaces:       {"project source namespaces", semver.MustParse("2.5.0")},
-	featureMultipleApplicationSources:    {"multiple application sources", semver.MustParse("2.6.3")}, // Whilst the feature was introduced in 2.6.0 there was a bug that affects refresh of applications (and hence `wait` within this provider) that was only fixed in https://github.com/argoproj/argo-cd/pull/12576
-	featureApplicationSet:                {"application sets", semver.MustParse("2.5.0")},
-	featureApplicationSetProgressiveSync: {"progressive sync (`strategy`)", semver.MustParse("2.6.0")},
-}
 
 type ServerInterface struct {
 	AccountClient        account.AccountServiceClient
@@ -193,8 +173,8 @@ func (p *ServerInterface) initClients(ctx context.Context) error {
 
 // Checks that a specific feature is available for the current ArgoCD server version.
 // 'feature' argument must match one of the predefined feature* constants.
-func (p *ServerInterface) isFeatureSupported(feature int) bool {
-	fc, ok := featureConstraintsMap[feature]
+func (p *ServerInterface) isFeatureSupported(feature features.Feature) bool {
+	fc, ok := features.ConstraintsMap[feature]
 
-	return ok && fc.minVersion.Compare(p.ServerVersion) != 1
+	return ok && fc.MinVersion.Compare(p.ServerVersion) != 1
 }
