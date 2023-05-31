@@ -2,14 +2,13 @@ package argocd
 
 import (
 	"fmt"
-	"math/rand"
 	"testing"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/version"
 	"github.com/oboukili/terraform-provider-argocd/internal/features"
 	"github.com/stretchr/testify/assert"
-	"modernc.org/mathutil"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -20,28 +19,22 @@ const (
 
 func serverInterfaceTestData(t *testing.T, argocdVersion string, semverOperator int) *ServerInterface {
 	v, err := semver.NewVersion(argocdVersion)
-	assert.NoError(t, err)
-
-	incPatch := rand.Int63n(100)
-	incMinor := rand.Int63n(100)
-	incMajor := rand.Int63n(100)
+	require.NoError(t, err)
+	require.True(t, v.Major() >= 1)
 
 	switch semverOperator {
 	case semverEquals:
 	case semverGreater:
-		v, err = semver.NewVersion(
-			fmt.Sprintf("%d.%d.%d",
-				v.Major()+incMajor,
-				v.Minor()+incMinor,
-				v.Patch()+incPatch,
-			))
+		inc := v.IncMajor()
+		v = &inc
+
 		assert.NoError(t, err)
 	case semverLess:
 		v, err = semver.NewVersion(
 			fmt.Sprintf("%d.%d.%d",
-				mathutil.MaxInt64(v.Major()-incMajor, 0),
-				mathutil.MaxInt64(v.Minor()-incMinor, 0),
-				mathutil.MaxInt64(v.Patch()-incPatch, 0),
+				v.Major()-1,
+				v.Minor(),
+				v.Patch(),
 			))
 		assert.NoError(t, err)
 	default:

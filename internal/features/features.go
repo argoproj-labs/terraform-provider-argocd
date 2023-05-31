@@ -1,7 +1,7 @@
 package features
 
 import (
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 )
 
 type Feature int64
