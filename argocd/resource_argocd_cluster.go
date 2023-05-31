@@ -47,47 +47,6 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	featureProjectScopedClustersSupported, err := si.isFeatureSupported(featureProjectScopedClusters)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureProjectScopedClustersSupported && cluster.Project != "" {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"cluster project is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureProjectScopedClusters].String()),
-				Detail: "See https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-scoped-repositories-and-clusters",
-			},
-		}
-	}
-
-	featureClusterMetadataSupported, err := si.isFeatureSupported(featureClusterMetadata)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureClusterMetadataSupported && (len(cluster.Annotations) != 0 || len(cluster.Labels) != 0) {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"cluster metadata is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureClusterMetadata].String()),
-			},
-		}
-	}
-
 	// Need a full lock here to avoid race conditions between List existing clusters and creating a new one
 	tokenMutexClusters.Lock()
 
@@ -215,47 +174,6 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("could not expand cluster attributes: %s", err),
 				Detail:   err.Error(),
-			},
-		}
-	}
-
-	featureProjectScopedClustersSupported, err := si.isFeatureSupported(featureProjectScopedClusters)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureProjectScopedClustersSupported && cluster.Project != "" {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"cluster project is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureProjectScopedClusters].String()),
-				Detail: "See https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-scoped-repositories-and-clusters",
-			},
-		}
-	}
-
-	featureClusterMetadataSupported, err := si.isFeatureSupported(featureClusterMetadata)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureClusterMetadataSupported && (len(cluster.Annotations) != 0 || len(cluster.Labels) != 0) {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"cluster metadata is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureClusterMetadata].String()),
 			},
 		}
 	}

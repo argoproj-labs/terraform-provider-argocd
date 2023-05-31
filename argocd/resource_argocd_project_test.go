@@ -176,7 +176,7 @@ func TestAccArgoCDProjectWithClustersRepositoriesRolePolicy(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedClusters) },
+		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{

@@ -73,23 +73,23 @@ func TestServerInterface_isFeatureSupported(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "featureTokenID-1.5.3",
-			si:      serverInterfaceTestData(t, "1.5.3", semverEquals),
-			args:    args{feature: featureTokenIDs},
+			name:    "featureExecLogsPolicy-2.7.2",
+			si:      serverInterfaceTestData(t, "2.7.2", semverEquals),
+			args:    args{feature: featureExecLogsPolicy},
 			want:    true,
 			wantErr: false,
 		},
 		{
-			name:    "featureTokenID-1.5.3+",
-			si:      serverInterfaceTestData(t, "1.5.3", semverGreater),
-			args:    args{feature: featureTokenIDs},
+			name:    "featureExecLogsPolicy-2.7.2+",
+			si:      serverInterfaceTestData(t, "2.7.2", semverGreater),
+			args:    args{feature: featureExecLogsPolicy},
 			want:    true,
 			wantErr: false,
 		},
 		{
-			name:    "featureTokenID-1.5.3-",
-			si:      serverInterfaceTestData(t, "1.5.3", semverLess),
-			args:    args{feature: featureTokenIDs},
+			name:    "featureExecLogsPolicy-2.7.2-",
+			si:      serverInterfaceTestData(t, "2.7.2", semverLess),
+			args:    args{feature: featureExecLogsPolicy},
 			want:    false,
 			wantErr: false,
 		},

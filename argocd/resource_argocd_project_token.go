@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/project"
-	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/cristalhq/jwt/v3"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -226,26 +225,8 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	featureTokenIDSupported, err := si.isFeatureSupported(featureTokenIDs)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "explicit token ID support could be not be checked",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
 	tokenMutexProjectMap[projectName].Lock()
 	resp, err := si.ProjectClient.CreateToken(ctx, opts)
-
-	// ensure issuedAt is unique upon multiple simultaneous resource creation invocations
-	// as this is the unique ID for old tokens
-	if !featureTokenIDSupported {
-		time.Sleep(1 * time.Second)
-	}
-
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil {
@@ -331,20 +312,16 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	if featureTokenIDSupported {
-		if claims.ID == "" {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token claims ID for project %s is missing", projectName),
-				},
-			}
+	if claims.ID == "" {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("token claims ID for project %s is missing", projectName),
+			},
 		}
-
-		d.SetId(claims.ID)
-	} else {
-		d.SetId(fmt.Sprintf("%s-%s-%d", projectName, role, claims.IssuedAt.Unix()))
 	}
+
+	d.SetId(claims.ID)
 
 	return resourceArgoCDProjectTokenRead(ctx, d, meta)
 }
@@ -388,49 +365,11 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	featureTokenIDSupported, err := si.isFeatureSupported(featureTokenIDs)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "explicit token ID support could be not be checked",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	var requestTokenID string
-
-	var requestTokenIAT int64 = 0
-
-	if featureTokenIDSupported {
-		requestTokenID = d.Id()
-	} else {
-		iat, ok := d.GetOk("issued_at")
-		if ok {
-			requestTokenIAT, err = convertStringToInt64(iat.(string))
-			if err != nil {
-				return []diag.Diagnostic{
-					{
-						Severity: diag.Error,
-						Summary:  fmt.Sprintf("token issue date for project %s could not be parsed", projectName),
-						Detail:   err.Error(),
-					},
-				}
-			}
-		} else {
-			d.SetId("")
-			return nil
-		}
-	}
-
-	var token *application.JWTToken
-
 	tokenMutexProjectMap[projectName].RLock()
-	token, _, err = p.GetJWTToken(
+	token, _, err := p.GetJWTToken(
 		d.Get("role").(string),
-		requestTokenIAT,
-		requestTokenID,
+		0,
+		d.Id(),
 	)
 	tokenMutexProjectMap[projectName].RUnlock()
 
@@ -535,37 +474,9 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
 	}
 
-	featureTokenIDSupported, err := si.isFeatureSupported(featureTokenIDs)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "explicit token ID support could be not be checked",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	if featureTokenIDSupported {
-		opts.Id = d.Id()
-	} else {
-		if iat, ok := d.GetOk("issued_at"); ok {
-			opts.Iat, err = convertStringToInt64(iat.(string))
-			if err != nil {
-				return []diag.Diagnostic{
-					{
-						Severity: diag.Error,
-						Summary:  fmt.Sprintf("token issue date for project %s could not be parsed", projectName),
-						Detail:   err.Error(),
-					},
-				}
-			}
-		}
-	}
-
 	tokenMutexProjectMap[projectName].Lock()
 
-	_, err = si.ProjectClient.DeleteToken(ctx, opts)
+	_, err := si.ProjectClient.DeleteToken(ctx, opts)
 
 	tokenMutexProjectMap[projectName].Unlock()
 

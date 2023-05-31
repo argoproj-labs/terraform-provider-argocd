@@ -50,33 +50,12 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	featureProjectScopedRepositoriesSupported, err := si.isFeatureSupported(featureProjectScopedRepositories)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureProjectScopedRepositoriesSupported && repo.Project != "" {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"repository project is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureProjectScopedRepositories].String()),
-				Detail: "See https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-scoped-repositories-and-clusters",
-			},
-		}
-	}
-
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+	if err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		tokenMutexConfiguration.Lock()
 
 		var r *application.Repository
 
-		r, err = si.RepositoryClient.CreateRepository(
+		r, err := si.RepositoryClient.CreateRepository(
 			ctx,
 			&repository.RepoCreateRequest{
 				Repo:   repo,
@@ -101,9 +80,7 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 		d.SetId(r.Repo)
 
 		return nil
-	})
-
-	if err != nil {
+	}); err != nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -128,80 +105,26 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	featureRepositoryGetSupported, err := si.isFeatureSupported(featureRepositoryGet)
+	tokenMutexConfiguration.RLock()
+	r, err := si.RepositoryClient.Get(ctx, &repository.RepoQuery{
+		Repo:         d.Id(),
+		ForceRefresh: true,
+	})
+	tokenMutexConfiguration.RUnlock()
+
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  `support for feature "repositoryGet" could not be checked`,
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	var r *application.Repository
-
-	if featureRepositoryGetSupported {
-		tokenMutexConfiguration.RLock()
-		r, err = si.RepositoryClient.Get(ctx, &repository.RepoQuery{
-			Repo:         d.Id(),
-			ForceRefresh: true,
-		})
-		tokenMutexConfiguration.RUnlock()
-
-		if err != nil {
-			// Repository has already been deleted in an out-of-band fashion
-			if strings.Contains(err.Error(), "NotFound") {
-				d.SetId("")
-				return nil
-			}
-
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("repository %s could not be retrieved", d.Id()),
-					Detail:   err.Error(),
-				},
-			}
-		}
-	} else {
-		var rl *application.RepositoryList
-
-		tokenMutexConfiguration.RLock()
-		rl, err = si.RepositoryClient.ListRepositories(ctx, &repository.RepoQuery{
-			Repo:         d.Id(),
-			ForceRefresh: true,
-		})
-		tokenMutexConfiguration.RUnlock()
-
-		if err != nil {
-			// TODO: check for NotFound condition?
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("repository %s could not be listed", d.Id()),
-					Detail:   err.Error(),
-				},
-			}
-		}
-
-		if rl == nil {
-			// Repository has already been deleted in an out-of-band fashion
+		// Repository has already been deleted in an out-of-band fashion
+		if strings.Contains(err.Error(), "NotFound") {
 			d.SetId("")
 			return nil
 		}
 
-		for i, _r := range rl.Items {
-			if _r.Repo == d.Id() {
-				r = _r
-				break
-			}
-
-			// Repository has already been deleted in an out-of-band fashion
-			if i == len(rl.Items)-1 {
-				d.SetId("")
-				return nil
-			}
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("repository %s could not be retrieved", d.Id()),
+				Detail:   err.Error(),
+			},
 		}
 	}
 
@@ -237,29 +160,6 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("could not expand repository attributes: %s", err),
 				Detail:   err.Error(),
-			},
-		}
-	}
-
-	featureProjectScopedRepositoriesSupported, err := si.isFeatureSupported(featureProjectScopedRepositories)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	if !featureProjectScopedRepositoriesSupported && repo.Project != "" {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"repository project is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureProjectScopedRepositories].String()),
-				Detail: "See https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-scoped-repositories-and-clusters",
 			},
 		}
 	}

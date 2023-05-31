@@ -37,24 +37,6 @@ func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.R
 		}
 	}
 
-	if featureRepositoryCertificateSupported, err := si.isFeatureSupported(featureRepositoryCertificates); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureRepositoryCertificateSupported {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"repository certificate is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureRepositoryCertificates].String()),
-			},
-		}
-	}
 
 	// Not doing a RLock here because we can have a race-condition between the ListCertificates & CreateCertificate
 	tokenMutexConfiguration.Lock()
@@ -195,27 +177,6 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 		}
 	}
 
-	featureRepositoryCertificateSupported, err := si.isFeatureSupported(featureRepositoryCertificates)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	if !featureRepositoryCertificateSupported {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"repository certificate is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureRepositoryCertificates].String()),
-			},
-		}
-	}
 
 	certType, certSubType, serverName, err := fromId(d.Id())
 	if err != nil {
@@ -304,27 +265,6 @@ func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.R
 		}
 	}
 
-	featureRepositoryCertificateSupported, err := si.isFeatureSupported(featureRepositoryCertificates)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	if !featureRepositoryCertificateSupported {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"repository certificate is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureRepositoryCertificates].String()),
-			},
-		}
-	}
 
 	certType, certSubType, serverName, err := fromId(d.Id())
 	if err != nil {

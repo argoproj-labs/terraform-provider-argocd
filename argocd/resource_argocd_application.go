@@ -133,64 +133,6 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	featureApplicationLevelSyncOptionsSupported, err := si.isFeatureSupported(featureApplicationLevelSyncOptions)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	if !featureApplicationLevelSyncOptionsSupported &&
-		spec.SyncPolicy != nil &&
-		spec.SyncPolicy.SyncOptions != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"application-level sync_options is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureApplicationLevelSyncOptions].String()),
-				Detail: err.Error(),
-			},
-		}
-	}
-
-	featureIgnoreDiffJQPathExpressionsSupported, err := si.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	hasJQPathExpressions := false
-
-	if spec.IgnoreDifferences != nil {
-		for _, id := range spec.IgnoreDifferences {
-			if id.JQPathExpressions != nil {
-				hasJQPathExpressions = true
-			}
-		}
-	}
-
-	if !featureIgnoreDiffJQPathExpressionsSupported && hasJQPathExpressions {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"jq path expressions are only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureIgnoreDiffJQPathExpressions].String()),
-				Detail: err.Error(),
-			},
-		}
-	}
-
 	featureMultipleApplicationSourcesSupported, err := si.isFeatureSupported(featureMultipleApplicationSources)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -216,31 +158,6 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 					"multiple application sources is only supported from ArgoCD %s onwards",
 					featureVersionConstraintsMap[featureMultipleApplicationSources].String()),
 			},
-		}
-	}
-
-	featureApplicationHelmSkipCrdsSupported, err := si.isFeatureSupported(featureApplicationHelmSkipCrds)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	if !featureApplicationHelmSkipCrdsSupported {
-		_, skipCrdsOk := d.GetOk("spec.0.source.0.helm.0.skip_crds")
-		if skipCrdsOk {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary: fmt.Sprintf(
-						"application helm skip_crds is only supported from ArgoCD %s onwards",
-						featureVersionConstraintsMap[featureApplicationHelmSkipCrds].String()),
-				},
-			}
 		}
 	}
 
@@ -409,64 +326,6 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	featureApplicationLevelSyncOptionsSupported, err := si.isFeatureSupported(featureApplicationLevelSyncOptions)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "Feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	if !featureApplicationLevelSyncOptionsSupported &&
-		spec.SyncPolicy != nil &&
-		spec.SyncPolicy.SyncOptions != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"application-level sync_options is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureApplicationLevelSyncOptions].String()),
-				Detail: err.Error(),
-			},
-		}
-	}
-
-	featureIgnoreDiffJQPathExpressionsSupported, err := si.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	hasJQPathExpressions := false
-
-	if spec.IgnoreDifferences != nil {
-		for _, id := range spec.IgnoreDifferences {
-			if id.JQPathExpressions != nil {
-				hasJQPathExpressions = true
-			}
-		}
-	}
-
-	if !featureIgnoreDiffJQPathExpressionsSupported && hasJQPathExpressions {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"jq path expressions are only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureIgnoreDiffJQPathExpressions].String()),
-				Detail: err.Error(),
-			},
-		}
-	}
-
 	featureMultipleApplicationSourcesSupported, err := si.isFeatureSupported(featureMultipleApplicationSources)
 	if err != nil {
 		return []diag.Diagnostic{
@@ -492,29 +351,6 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 					"multiple application sources is only supported from ArgoCD %s onwards",
 					featureVersionConstraintsMap[featureMultipleApplicationSources].String()),
 			},
-		}
-	}
-
-	featureApplicationHelmSkipCrdsSupported, err := si.isFeatureSupported(featureApplicationHelmSkipCrds)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureApplicationHelmSkipCrdsSupported {
-		_, skipCrdsOk := d.GetOk("spec.0.source.0.helm.0.skip_crds")
-		if skipCrdsOk {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary: fmt.Sprintf(
-						"application helm skip_crds is only supported from ArgoCD %s onwards",
-						featureVersionConstraintsMap[featureApplicationHelmSkipCrds].String()),
-				},
-			}
 		}
 	}
 

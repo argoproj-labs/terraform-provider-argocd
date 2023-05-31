@@ -81,7 +81,7 @@ func TestAccArgoCDCluster(t *testing.T) {
 
 func TestAccArgoCDCluster_projectScope(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedClusters) },
+		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -119,7 +119,7 @@ func TestAccArgoCDCluster_optionalName(t *testing.T) {
 	name := acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedClusters) },
+		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -190,7 +190,7 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 	clusterName := acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureClusterMetadata) },
+		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -275,7 +275,7 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 
 func TestAccArgoCDCluster_invalidSameServer(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedClusters) },
+		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -298,7 +298,7 @@ func TestAccArgoCDCluster_namespacesErrorWhenEmpty(t *testing.T) {
 	name := acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureProjectScopedClusters) },
+		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{

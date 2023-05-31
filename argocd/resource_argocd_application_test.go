@@ -1,7 +1,6 @@
 package argocd
 
 import (
-	"context"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -9,7 +8,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccArgoCDApplication(t *testing.T) {
@@ -193,7 +191,6 @@ func TestAccArgoCDApplication_IgnoreDifferences(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"wait", "cascade"},
 			},
 			{
-				SkipFunc: testAccSkipFeatureIgnoreDiffJQPathExpressions,
 				Config: testAccArgoCDApplicationIgnoreDiffJQPathExpressions(
 					acctest.RandomWithPrefix("test-acc")),
 				Check: resource.ComposeTestCheckFunc(
@@ -842,82 +839,11 @@ func TestAccArgoCDApplication_Info(t *testing.T) {
 	})
 }
 
-func TestAccArgoCDApplication_SkipCrds_NotSupported_On_OlderVersions(t *testing.T) {
-	name := acctest.RandomWithPrefix("test-acc-crds")
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureNotSupported(t, featureApplicationHelmSkipCrds) },
-		ProviderFactories: testAccProviders,
-		Steps: []resource.TestStep{
-			// Create tests
-			{
-				Config:      testAccArgoCDApplicationSkipCrds(acctest.RandomWithPrefix("test-acc-crds"), true),
-				ExpectError: regexp.MustCompile("application helm skip_crds is only supported from ArgoCD"),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(
-						"argocd_application.crds",
-						"metadata.0.uid",
-					),
-					resource.TestCheckResourceAttr(
-						"argocd_application.crds",
-						"spec.0.source.0.helm.0.skip_crds",
-						"true",
-					),
-				),
-			},
-			// Update tests
-			{
-				Config: testAccArgoCDApplicationSkipCrds_NoSkip(name),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(
-						"argocd_application.crds",
-						"metadata.0.uid",
-					),
-					resource.TestCheckResourceAttr(
-						"argocd_application.crds",
-						"spec.0.source.0.helm.0.skip_crds",
-						"false",
-					),
-				),
-			},
-			{
-				Config: testAccArgoCDApplicationSkipCrds(name, false),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(
-						"argocd_application.crds",
-						"metadata.0.uid",
-					),
-					resource.TestCheckResourceAttr(
-						"argocd_application.crds",
-						"spec.0.source.0.helm.0.skip_crds",
-						"false",
-					),
-				),
-			},
-			{
-				Config:      testAccArgoCDApplicationSkipCrds(name, true),
-				ExpectError: regexp.MustCompile("application helm skip_crds is only supported from ArgoCD"),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(
-						"argocd_application.crds",
-						"metadata.0.uid",
-					),
-					resource.TestCheckResourceAttr(
-						"argocd_application.crds",
-						"spec.0.source.0.helm.0.skip_crds",
-						"true",
-					),
-				),
-			},
-		},
-	})
-}
-
 func TestAccArgoCDApplication_SkipCrds(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc-crds")
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, featureApplicationHelmSkipCrds) },
+		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -2120,25 +2046,4 @@ resource "argocd_application" "helm_values_external" {
     }
   }
 }`
-}
-
-func testAccSkipFeatureIgnoreDiffJQPathExpressions() (bool, error) {
-	ctx := context.Background()
-
-	p, _ := testAccProviders["argocd"]()
-	_ = p.Configure(ctx, &terraform.ResourceConfig{})
-
-	server := p.Meta().(*ServerInterface)
-
-	err := server.initClients(ctx)
-	if err != nil {
-		return false, err
-	}
-
-	featureSupported, err := server.isFeatureSupported(featureIgnoreDiffJQPathExpressions)
-	if err != nil {
-		return false, err
-	}
-
-	return !featureSupported, nil
 }
