@@ -11,19 +11,14 @@ import (
 
 // Expand
 
-func expandApplication(d *schema.ResourceData) (
-	metadata meta.ObjectMeta,
-	spec application.ApplicationSpec,
-	err error) {
+func expandApplication(d *schema.ResourceData) (metadata meta.ObjectMeta, spec application.ApplicationSpec, err error) {
 	metadata = expandMetadata(d)
 	spec, err = expandApplicationSpec(d.Get("spec.0").(map[string]interface{}))
 
 	return
 }
 
-func expandApplicationSpec(s map[string]interface{}) (
-	spec application.ApplicationSpec,
-	err error) {
+func expandApplicationSpec(s map[string]interface{}) (spec application.ApplicationSpec, err error) {
 	if v, ok := s["project"]; ok {
 		spec.Project = v.(string)
 	}
@@ -125,12 +120,10 @@ func expandApplicationSourcePlugin(in []interface{}) *application.ApplicationSou
 
 	if env, ok := a["env"]; ok {
 		for _, v := range env.(*schema.Set).List() {
-			result.Env = append(result.Env,
-				&application.EnvEntry{
-					Name:  v.(map[string]interface{})["name"].(string),
-					Value: v.(map[string]interface{})["value"].(string),
-				},
-			)
+			result.Env = append(result.Env, &application.EnvEntry{
+				Name:  v.(map[string]interface{})["name"].(string),
+				Value: v.(map[string]interface{})["value"].(string),
+			})
 		}
 	}
 
@@ -165,13 +158,11 @@ func expandApplicationSourceDirectory(in interface{}) *application.ApplicationSo
 			if evs, ok := j["ext_var"].([]interface{}); ok && len(evs) > 0 {
 				for _, v := range evs {
 					if vv, ok := v.(map[string]interface{}); ok {
-						jsonnet.ExtVars = append(jsonnet.ExtVars,
-							application.JsonnetVar{
-								Name:  vv["name"].(string),
-								Value: vv["value"].(string),
-								Code:  vv["code"].(bool),
-							},
-						)
+						jsonnet.ExtVars = append(jsonnet.ExtVars, application.JsonnetVar{
+							Name:  vv["name"].(string),
+							Value: vv["value"].(string),
+							Code:  vv["code"].(bool),
+						})
 					}
 				}
 			}
@@ -179,13 +170,11 @@ func expandApplicationSourceDirectory(in interface{}) *application.ApplicationSo
 			if tlas, ok := j["tla"].(*schema.Set); ok && len(tlas.List()) > 0 {
 				for _, v := range tlas.List() {
 					if vv, ok := v.(map[string]interface{}); ok {
-						jsonnet.TLAs = append(jsonnet.TLAs,
-							application.JsonnetVar{
-								Name:  vv["name"].(string),
-								Value: vv["value"].(string),
-								Code:  vv["code"].(bool),
-							},
-						)
+						jsonnet.TLAs = append(jsonnet.TLAs, application.JsonnetVar{
+							Name:  vv["name"].(string),
+							Value: vv["value"].(string),
+							Code:  vv["code"].(bool),
+						})
 					}
 				}
 			}
@@ -225,10 +214,7 @@ func expandApplicationSourceKustomize(in []interface{}) *application.Application
 
 	if v, ok := a["images"]; ok {
 		for _, i := range v.(*schema.Set).List() {
-			result.Images = append(
-				result.Images,
-				application.KustomizeImage(i.(string)),
-			)
+			result.Images = append(result.Images, application.KustomizeImage(i.(string)))
 		}
 	}
 
@@ -275,6 +261,10 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 
 	if v, ok := a["pass_credentials"]; ok {
 		result.PassCredentials = v.(bool)
+	}
+
+	if v, ok := a["ignoreMissingValueFiles"]; ok {
+		result.IgnoreMissingValueFiles = v.(bool)
 	}
 
 	if parameters, ok := a["parameter"]; ok {
@@ -397,8 +387,7 @@ func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, error
 	return syncPolicy, nil
 }
 
-func expandApplicationIgnoreDifferences(ids []interface{}) (
-	result []application.ResourceIgnoreDifferences) {
+func expandApplicationIgnoreDifferences(ids []interface{}) (result []application.ResourceIgnoreDifferences) {
 	for _, _id := range ids {
 		id := _id.(map[string]interface{})
 
@@ -440,8 +429,7 @@ func expandApplicationIgnoreDifferences(ids []interface{}) (
 	return //nolint:nakedret // overriding as function follows pattern in rest of file
 }
 
-func expandApplicationInfo(infos *schema.Set) (
-	result []application.Info, err error) {
+func expandApplicationInfo(infos *schema.Set) (result []application.Info, err error) {
 	for _, i := range infos.List() {
 		item := i.(map[string]interface{})
 		info := application.Info{}
@@ -475,8 +463,7 @@ func expandApplicationDestinations(ds *schema.Set) (result []application.Applica
 	return
 }
 
-func expandApplicationDestination(dest interface{}) (
-	result application.ApplicationDestination) {
+func expandApplicationDestination(dest interface{}) (result application.ApplicationDestination) {
 	d, ok := dest.(map[string]interface{})
 	if !ok {
 		panic(fmt.Errorf("could not expand application destination"))
@@ -493,18 +480,15 @@ func expandSyncWindows(sws []interface{}) (result []*application.SyncWindow) {
 	for _, _sw := range sws {
 		sw := _sw.(map[string]interface{})
 
-		result = append(
-			result,
-			&application.SyncWindow{
-				Applications: expandStringList(sw["applications"].([]interface{})),
-				Clusters:     expandStringList(sw["clusters"].([]interface{})),
-				Duration:     sw["duration"].(string),
-				Kind:         sw["kind"].(string),
-				ManualSync:   sw["manual_sync"].(bool),
-				Namespaces:   expandStringList(sw["namespaces"].([]interface{})),
-				Schedule:     sw["schedule"].(string),
-			},
-		)
+		result = append(result, &application.SyncWindow{
+			Applications: expandStringList(sw["applications"].([]interface{})),
+			Clusters:     expandStringList(sw["clusters"].([]interface{})),
+			Duration:     sw["duration"].(string),
+			Kind:         sw["kind"].(string),
+			ManualSync:   sw["manual_sync"].(bool),
+			Namespaces:   expandStringList(sw["namespaces"].([]interface{})),
+			Schedule:     sw["schedule"].(string),
+		})
 	}
 
 	return
@@ -531,9 +515,7 @@ func flattenApplication(app *application.Application, d *schema.ResourceData) er
 
 func flattenApplicationSpec(s application.ApplicationSpec) []map[string]interface{} {
 	spec := map[string]interface{}{
-		"destination": flattenApplicationDestinations(
-			[]application.ApplicationDestination{s.Destination},
-		),
+		"destination":       flattenApplicationDestinations([]application.ApplicationDestination{s.Destination}),
 		"ignore_difference": flattenApplicationIgnoreDifferences(s.IgnoreDifferences),
 		"info":              flattenApplicationInfo(s.Info),
 		"project":           s.Project,
@@ -541,9 +523,7 @@ func flattenApplicationSpec(s application.ApplicationSpec) []map[string]interfac
 	}
 
 	if s.Source != nil {
-		spec["source"] = flattenApplicationSource(
-			[]application.ApplicationSource{*s.Source},
-		)
+		spec["source"] = flattenApplicationSource([]application.ApplicationSource{*s.Source})
 	} else {
 		spec["source"] = flattenApplicationSource(s.Sources)
 	}
@@ -599,8 +579,7 @@ func flattenApplicationSyncPolicy(sp *application.SyncPolicy) []map[string]inter
 	return []map[string]interface{}{result}
 }
 
-func flattenApplicationInfo(infos []application.Info) (
-	result []map[string]string) {
+func flattenApplicationInfo(infos []application.Info) (result []map[string]string) {
 	for _, i := range infos {
 		info := map[string]string{}
 
@@ -618,8 +597,7 @@ func flattenApplicationInfo(infos []application.Info) (
 	return
 }
 
-func flattenApplicationIgnoreDifferences(ids []application.ResourceIgnoreDifferences) (
-	result []map[string]interface{}) {
+func flattenApplicationIgnoreDifferences(ids []application.ResourceIgnoreDifferences) (result []map[string]interface{}) {
 	for _, id := range ids {
 		result = append(result, map[string]interface{}{
 			"group":               id.Group,
@@ -634,24 +612,15 @@ func flattenApplicationIgnoreDifferences(ids []application.ResourceIgnoreDiffere
 	return
 }
 
-func flattenApplicationSource(source []application.ApplicationSource) (
-	result []map[string]interface{}) {
+func flattenApplicationSource(source []application.ApplicationSource) (result []map[string]interface{}) {
 	for _, s := range source {
 		result = append(result, map[string]interface{}{
-			"chart": s.Chart,
-			"directory": flattenApplicationSourceDirectory(
-				[]*application.ApplicationSourceDirectory{s.Directory},
-			),
-			"helm": flattenApplicationSourceHelm(
-				[]*application.ApplicationSourceHelm{s.Helm},
-			),
-			"kustomize": flattenApplicationSourceKustomize(
-				[]*application.ApplicationSourceKustomize{s.Kustomize},
-			),
-			"path": s.Path,
-			"plugin": flattenApplicationSourcePlugin(
-				[]*application.ApplicationSourcePlugin{s.Plugin},
-			),
+			"chart":           s.Chart,
+			"directory":       flattenApplicationSourceDirectory([]*application.ApplicationSourceDirectory{s.Directory}),
+			"helm":            flattenApplicationSourceHelm([]*application.ApplicationSourceHelm{s.Helm}),
+			"kustomize":       flattenApplicationSourceKustomize([]*application.ApplicationSourceKustomize{s.Kustomize}),
+			"path":            s.Path,
+			"plugin":          flattenApplicationSourcePlugin([]*application.ApplicationSourcePlugin{s.Plugin}),
 			"ref":             s.Ref,
 			"repo_url":        s.RepoURL,
 			"target_revision": s.TargetRevision,
@@ -661,8 +630,7 @@ func flattenApplicationSource(source []application.ApplicationSource) (
 	return
 }
 
-func flattenApplicationSourcePlugin(as []*application.ApplicationSourcePlugin) (
-	result []map[string]interface{}) {
+func flattenApplicationSourcePlugin(as []*application.ApplicationSourcePlugin) (result []map[string]interface{}) {
 	for _, a := range as {
 		if a != nil {
 			var env []map[string]string
@@ -683,8 +651,7 @@ func flattenApplicationSourcePlugin(as []*application.ApplicationSourcePlugin) (
 	return
 }
 
-func flattenApplicationSourceDirectory(as []*application.ApplicationSourceDirectory) (
-	result []map[string]interface{}) {
+func flattenApplicationSourceDirectory(as []*application.ApplicationSourceDirectory) (result []map[string]interface{}) {
 	for _, a := range as {
 		if a != nil && !a.IsZero() {
 			jsonnet := make(map[string][]interface{}, 0)
@@ -725,8 +692,7 @@ func flattenApplicationSourceDirectory(as []*application.ApplicationSourceDirect
 	return //nolint:nakedret // only just breaching - function follows pattern in rest of file
 }
 
-func flattenApplicationSourceKustomize(as []*application.ApplicationSourceKustomize) (
-	result []map[string]interface{}) {
+func flattenApplicationSourceKustomize(as []*application.ApplicationSourceKustomize) (result []map[string]interface{}) {
 	for _, a := range as {
 		if a != nil {
 			var images []string
@@ -748,8 +714,7 @@ func flattenApplicationSourceKustomize(as []*application.ApplicationSourceKustom
 	return
 }
 
-func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (
-	result []map[string]interface{}) {
+func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (result []map[string]interface{}) {
 	for _, a := range as {
 		if a != nil {
 			var parameters []map[string]interface{}
@@ -762,12 +727,13 @@ func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (
 			}
 
 			result = append(result, map[string]interface{}{
-				"parameter":        parameters,
-				"release_name":     a.ReleaseName,
-				"skip_crds":        a.SkipCrds,
-				"value_files":      a.ValueFiles,
-				"values":           a.Values,
-				"pass_credentials": a.PassCredentials,
+				"parameter":                parameters,
+				"release_name":             a.ReleaseName,
+				"skip_crds":                a.SkipCrds,
+				"value_files":              a.ValueFiles,
+				"values":                   a.Values,
+				"pass_credentials":         a.PassCredentials,
+				"ignoreMaissingValueFiles": a.IgnoreMissingValueFiles,
 			})
 		}
 	}
@@ -775,8 +741,7 @@ func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (
 	return
 }
 
-func flattenApplicationDestinations(ds []application.ApplicationDestination) (
-	result []map[string]string) {
+func flattenApplicationDestinations(ds []application.ApplicationDestination) (result []map[string]string) {
 	for _, d := range ds {
 		result = append(result, map[string]string{
 			"namespace": d.Namespace,

@@ -1325,6 +1325,11 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 											Description: "Helm values to be passed to helm template, typically defined as a block.",
 											Optional:    true,
 										},
+										"ignoreMissingValueFiles": {
+											Type:        schema.TypeBool,
+											Description: "Prevents 'helm template' from failing when 'valueFiles' do not exist locally by not appending them to the Helm template values",
+											Optional:    true,
+										},
 										"parameter": {
 											Type:        schema.TypeSet,
 											Description: "Helm parameters which are passed to the helm template command upon manifest generation.",
