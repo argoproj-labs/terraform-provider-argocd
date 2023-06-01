@@ -1167,7 +1167,7 @@ resource "argocd_application" "helm" {
         }
 
         pass_credentials = true
-	ignoreMissingValueFiles = true
+		ignore_missing_value_files = true
 
         value_files = ["values.yaml"]
 

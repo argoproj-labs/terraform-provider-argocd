@@ -263,7 +263,7 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 		result.PassCredentials = v.(bool)
 	}
 
-	if v, ok := a["ignoreMissingValueFiles"]; ok {
+	if v, ok := a["ignore_missing_value_files"]; ok {
 		result.IgnoreMissingValueFiles = v.(bool)
 	}
 
@@ -727,13 +727,13 @@ func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (resu
 			}
 
 			result = append(result, map[string]interface{}{
-				"parameter":                parameters,
-				"release_name":             a.ReleaseName,
-				"skip_crds":                a.SkipCrds,
-				"value_files":              a.ValueFiles,
-				"values":                   a.Values,
-				"pass_credentials":         a.PassCredentials,
-				"ignoreMaissingValueFiles": a.IgnoreMissingValueFiles,
+				"parameter":                  parameters,
+				"release_name":               a.ReleaseName,
+				"skip_crds":                  a.SkipCrds,
+				"value_files":                a.ValueFiles,
+				"values":                     a.Values,
+				"pass_credentials":           a.PassCredentials,
+				"ignore_missing_value_files": a.IgnoreMissingValueFiles,
 			})
 		}
 	}
