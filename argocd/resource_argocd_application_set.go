@@ -9,6 +9,7 @@ import (
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/features"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -32,77 +33,20 @@ func resourceArgoCDApplicationSet() *schema.Resource {
 func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
-	featureApplicationSetSupported, err := si.isFeatureSupported(featureApplicationSet)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureApplicationSetSupported {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"application set is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureApplicationSet].String()),
-			},
-		}
+	if !si.isFeatureSupported(features.ApplicationSet) {
+		return featureNotSupported(features.ApplicationSet)
 	}
 
-	featureMultipleApplicationSourcesSupported, err := si.isFeatureSupported(featureMultipleApplicationSources)
+	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(features.MultipleApplicationSources))
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to expand application set", err)
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, featureMultipleApplicationSourcesSupported)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application set %s could not be created", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	featureApplicationSetProgressiveSyncSupported, err := si.isFeatureSupported(featureApplicationSetProgressiveSync)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureApplicationSetProgressiveSyncSupported &&
-		spec.Strategy != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"progressive sync (`strategy`) is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureApplicationSetProgressiveSync].String()),
-				Detail: err.Error(),
-			},
-		}
+	if !si.isFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
+		return featureNotSupported(features.ApplicationSetProgressiveSync)
 	}
 
 	as, err := si.ApplicationSetClient.Create(ctx, &applicationset.ApplicationSetCreateRequest{
@@ -116,16 +60,8 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		},
 	})
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application set %s could not be created", objectMeta.Name),
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	if as == nil {
+		return argoCDAPIError("create", "application set", objectMeta.Name, err)
+	} else if as == nil {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
@@ -142,13 +78,7 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	name := d.Id()
@@ -162,24 +92,12 @@ func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceDat
 			return diag.Diagnostics{}
 		}
 
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "error getting application set",
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("read", "application set", name, err)
 	}
 
 	err = flattenApplicationSet(appSet, d)
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application set %s could not be flattened", name),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("failed to flatten application set %s", name), err)
 	}
 
 	return nil
@@ -188,81 +106,24 @@ func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceDat
 func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
-	featureApplicationSetSupported, err := si.isFeatureSupported(featureApplicationSet)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureApplicationSetSupported {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"application set is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureApplicationSet].String()),
-			},
-		}
+	if !si.isFeatureSupported(features.ApplicationSet) {
+		return featureNotSupported(features.ApplicationSet)
 	}
 
 	if !d.HasChanges("metadata", "spec") {
 		return nil
 	}
 
-	featureMultipleApplicationSourcesSupported, err := si.isFeatureSupported(featureMultipleApplicationSources)
+	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(features.MultipleApplicationSources))
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("failed to expand application set %s", d.Id()), err)
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, featureMultipleApplicationSourcesSupported)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("application set %s could not be updated", d.Id()),
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	featureApplicationSetProgressiveSyncSupported, err := si.isFeatureSupported(featureApplicationSetProgressiveSync)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "feature not supported",
-				Detail:   err.Error(),
-			},
-		}
-	} else if !featureApplicationSetProgressiveSyncSupported &&
-		spec.Strategy != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary: fmt.Sprintf(
-					"progressive sync (`strategy`) is only supported from ArgoCD %s onwards",
-					featureVersionConstraintsMap[featureApplicationSetProgressiveSync].String()),
-				Detail: err.Error(),
-			},
-		}
+	if !si.isFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
+		return featureNotSupported(features.ApplicationSetProgressiveSync)
 	}
 
 	_, err = si.ApplicationSetClient.Create(ctx, &applicationset.ApplicationSetCreateRequest{
@@ -278,13 +139,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 	})
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to update application set",
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("update", "application set", objectMeta.Name, err)
 	}
 
 	return resourceArgoCDApplicationSetRead(ctx, d, meta)
@@ -293,13 +148,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 func resourceArgoCDApplicationSetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	_, err := si.ApplicationSetClient.Delete(ctx, &applicationset.ApplicationSetDeleteRequest{
@@ -307,13 +156,7 @@ func resourceArgoCDApplicationSetDelete(ctx context.Context, d *schema.ResourceD
 	})
 
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("something went wrong during application set deletion: %s", err),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("delete", "application set", d.Id(), err)
 	}
 
 	d.SetId("")

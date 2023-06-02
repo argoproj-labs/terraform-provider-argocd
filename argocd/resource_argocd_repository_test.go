@@ -2,7 +2,6 @@ package argocd
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -113,35 +112,6 @@ func TestAccArgoCDRepository_PrivateSSH(t *testing.T) {
 					"Successful",
 					10,
 				),
-			},
-		},
-	})
-}
-
-func TestAccArgoCDRepositoryScoped_NotSupported_On_OlderVersions(t *testing.T) {
-	name := acctest.RandomWithPrefix("test-acc-scoped-repo")
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureNotSupported(t, featureProjectScopedRepositories) },
-		ProviderFactories: testAccProviders,
-		Steps: []resource.TestStep{
-			// Create tests
-			{
-				Config:      testAccArgoCDRepositoryHelmProjectScoped(name),
-				ExpectError: regexp.MustCompile("repository project is only supported from ArgoCD"),
-			},
-			// Update tests (create repo without project, update it with project)
-			{
-				Config: testAccArgoCDRepositoryHelm(),
-				Check: resource.TestCheckResourceAttr(
-					"argocd_repository.helm",
-					"connection_state_status",
-					"Successful",
-				),
-			},
-			{
-				Config:      testAccArgoCDRepositoryHelmProjectScoped(name),
-				ExpectError: regexp.MustCompile("repository project is only supported from ArgoCD"),
 			},
 		},
 	})

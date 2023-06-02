@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/project"
-	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/cristalhq/jwt/v3"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -158,13 +157,7 @@ func resourceArgoCDProjectToken() *schema.Resource {
 func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	projectName := d.Get("project").(string)
@@ -188,13 +181,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	if expiresInOk {
 		expiresInDuration, err := time.ParseDuration(_expiresIn.(string))
 		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token expiration duration for project %s could not be parsed", projectName),
-					Detail:   err.Error(),
-				},
-			}
+			return errorToDiagnostics(fmt.Sprintf("token expiration duration for project %s could not be parsed", projectName), err)
 		}
 
 		expiresIn = int64(expiresInDuration.Seconds())
@@ -205,13 +192,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 	if renewBeforeOk {
 		renewBeforeDuration, err := time.ParseDuration(_renewBefore.(string))
 		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token renewal duration for project %s could not be parsed", projectName),
-					Detail:   err.Error(),
-				},
-			}
+			return errorToDiagnostics(fmt.Sprintf("token renewal duration for project %s could not be parsed", projectName), err)
 		}
 
 		renewBefore := int64(renewBeforeDuration.Seconds())
@@ -226,58 +207,22 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	featureTokenIDSupported, err := si.isFeatureSupported(featureTokenIDs)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "explicit token ID support could be not be checked",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
 	tokenMutexProjectMap[projectName].Lock()
 	resp, err := si.ProjectClient.CreateToken(ctx, opts)
-
-	// ensure issuedAt is unique upon multiple simultaneous resource creation invocations
-	// as this is the unique ID for old tokens
-	if !featureTokenIDSupported {
-		time.Sleep(1 * time.Second)
-	}
-
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token for project %s could not be created", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("create", "token for project", projectName, err)
 	}
 
 	token, err := jwt.ParseString(resp.GetToken())
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token for project %s is not a valid jwt", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("token for project %s is not a valid jwt", projectName), err)
 	}
 
 	var claims jwt.StandardClaims
 	if err = json.Unmarshal(token.RawClaims(), &claims); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token claims for project %s could not be parsed", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("token claims for project %s could not be parsed", projectName), err)
 	}
 
 	if claims.IssuedAt == nil {
@@ -300,51 +245,29 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 		} else {
 			err = d.Set("expires_at", convertInt64ToString(claims.ExpiresAt.Unix()))
 			if err != nil {
-				return []diag.Diagnostic{
-					{
-						Severity: diag.Error,
-						Summary:  fmt.Sprintf("token claims expiration date for project %s could not be persisted to state", projectName),
-						Detail:   err.Error(),
-					},
-				}
+				return errorToDiagnostics(fmt.Sprintf("token claims expiration date for project %s could not be persisted to state", projectName), err)
 			}
 		}
 	}
 
 	if err = d.Set("issued_at", convertInt64ToString(claims.IssuedAt.Unix())); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token claims issue date for project %s could not be persisted to state", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("token claims issue date for project %s could not be persisted to state", projectName), err)
 	}
 
 	if err := d.Set("jwt", token.String()); err != nil {
+		return errorToDiagnostics(fmt.Sprintf("token for project %s could not be persisted to state", projectName), err)
+	}
+
+	if claims.ID == "" {
 		return []diag.Diagnostic{
 			{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token for project %s could not be persisted to state", projectName),
-				Detail:   err.Error(),
+				Summary:  fmt.Sprintf("token claims ID for project %s is missing", projectName),
 			},
 		}
 	}
 
-	if featureTokenIDSupported {
-		if claims.ID == "" {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token claims ID for project %s is missing", projectName),
-				},
-			}
-		}
-
-		d.SetId(claims.ID)
-	} else {
-		d.SetId(fmt.Sprintf("%s-%s-%d", projectName, role, claims.IssuedAt.Unix()))
-	}
+	d.SetId(claims.ID)
 
 	return resourceArgoCDProjectTokenRead(ctx, d, meta)
 }
@@ -352,13 +275,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	projectName := d.Get("project").(string)
@@ -377,60 +294,16 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 		if strings.Contains(err.Error(), "NotFound") {
 			d.SetId("")
 			return nil
-		} else {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token for project %s could not be read", projectName),
-					Detail:   err.Error(),
-				},
-			}
 		}
+
+		return argoCDAPIError("read", "project", projectName, err)
 	}
-
-	featureTokenIDSupported, err := si.isFeatureSupported(featureTokenIDs)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "explicit token ID support could be not be checked",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	var requestTokenID string
-
-	var requestTokenIAT int64 = 0
-
-	if featureTokenIDSupported {
-		requestTokenID = d.Id()
-	} else {
-		iat, ok := d.GetOk("issued_at")
-		if ok {
-			requestTokenIAT, err = convertStringToInt64(iat.(string))
-			if err != nil {
-				return []diag.Diagnostic{
-					{
-						Severity: diag.Error,
-						Summary:  fmt.Sprintf("token issue date for project %s could not be parsed", projectName),
-						Detail:   err.Error(),
-					},
-				}
-			}
-		} else {
-			d.SetId("")
-			return nil
-		}
-	}
-
-	var token *application.JWTToken
 
 	tokenMutexProjectMap[projectName].RLock()
-	token, _, err = p.GetJWTToken(
+	token, _, err := p.GetJWTToken(
 		d.Get("role").(string),
-		requestTokenIAT,
-		requestTokenID,
+		0,
+		d.Id(),
 	)
 	tokenMutexProjectMap[projectName].RUnlock()
 
@@ -441,23 +314,11 @@ func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if err = d.Set("issued_at", convertInt64ToString(token.IssuedAt)); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token claims issue date for project %s could not be persisted to state", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("token claims issue date for project %s could not be persisted to state", projectName), err)
 	}
 
 	if err = d.Set("expires_at", convertInt64ToString(token.ExpiresAt)); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token claims expiration date for project %s could not be persisted to state", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics(fmt.Sprintf("token claims expiration date for project %s could not be persisted to state", projectName), err)
 	}
 
 	return nil
@@ -472,13 +333,7 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 	if expiresInOk {
 		expiresInDuration, err := time.ParseDuration(_expiresIn.(string))
 		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token expiration duration for project %s could not be parsed", projectName),
-					Detail:   err.Error(),
-				},
-			}
+			return errorToDiagnostics(fmt.Sprintf("token expiration duration for project %s could not be parsed", projectName), err)
 		}
 
 		expiresIn = int64(expiresInDuration.Seconds())
@@ -488,24 +343,12 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 	if renewBeforeOk {
 		renewBeforeDuration, err := time.ParseDuration(_renewBefore.(string))
 		if err != nil {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("token renewal duration for project %s could not be parsed", projectName),
-					Detail:   err.Error(),
-				},
-			}
+			return errorToDiagnostics(fmt.Sprintf("token renewal duration for project %s could not be parsed", projectName), err)
 		}
 
 		renewBefore := int64(renewBeforeDuration.Seconds())
 		if renewBefore > expiresIn {
-			return []diag.Diagnostic{
-				{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("renew_before (%d) cannot be greater than expires_in (%d) for project %s", renewBefore, expiresIn, projectName),
-					Detail:   err.Error(),
-				},
-			}
+			return errorToDiagnostics(fmt.Sprintf("renew_before (%d) cannot be greater than expires_in (%d) for project %s", renewBefore, expiresIn, projectName), err)
 		}
 	}
 
@@ -515,13 +358,7 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	si := meta.(*ServerInterface)
 	if err := si.initClients(ctx); err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "failed to init clients",
-				Detail:   err.Error(),
-			},
-		}
+		return errorToDiagnostics("failed to init clients", err)
 	}
 
 	projectName := d.Get("project").(string)
@@ -535,48 +372,14 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
 	}
 
-	featureTokenIDSupported, err := si.isFeatureSupported(featureTokenIDs)
-	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  "explicit token ID support could be not be checked",
-				Detail:   err.Error(),
-			},
-		}
-	}
-
-	if featureTokenIDSupported {
-		opts.Id = d.Id()
-	} else {
-		if iat, ok := d.GetOk("issued_at"); ok {
-			opts.Iat, err = convertStringToInt64(iat.(string))
-			if err != nil {
-				return []diag.Diagnostic{
-					{
-						Severity: diag.Error,
-						Summary:  fmt.Sprintf("token issue date for project %s could not be parsed", projectName),
-						Detail:   err.Error(),
-					},
-				}
-			}
-		}
-	}
-
 	tokenMutexProjectMap[projectName].Lock()
 
-	_, err = si.ProjectClient.DeleteToken(ctx, opts)
+	_, err := si.ProjectClient.DeleteToken(ctx, opts)
 
 	tokenMutexProjectMap[projectName].Unlock()
 
 	if err != nil {
-		return []diag.Diagnostic{
-			{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("token for project %s could not be deleted", projectName),
-				Detail:   err.Error(),
-			},
-		}
+		return argoCDAPIError("delete", "token for project", projectName, err)
 	}
 
 	d.SetId("")

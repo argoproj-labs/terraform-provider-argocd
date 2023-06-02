@@ -7,6 +7,7 @@ import (
 
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/features"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -800,7 +801,8 @@ func expandApplicationSetTemplate(temp interface{}, featureMultipleApplicationSo
 			template.Spec.Source = &template.Spec.Sources[0]
 			template.Spec.Sources = nil
 		case l > 1 && !featureMultipleApplicationSourcesSupported:
-			return template, fmt.Errorf("multiple application sources is only supported from ArgoCD %s onwards", featureVersionConstraintsMap[featureMultipleApplicationSources].String())
+			f := features.ConstraintsMap[features.MultipleApplicationSources]
+			return template, fmt.Errorf("%s is only supported from ArgoCD %s onwards", f.Name, f.MinVersion.String())
 		}
 	}
 

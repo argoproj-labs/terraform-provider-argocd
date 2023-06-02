@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/account"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
@@ -20,41 +20,8 @@ import (
 	"github.com/argoproj/argo-cd/v2/util/io"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/features"
 )
-
-const (
-	featureApplicationLevelSyncOptions = iota
-	featureIgnoreDiffJQPathExpressions
-	featureRepositoryGet
-	featureTokenIDs
-	featureProjectScopedClusters
-	featureProjectScopedRepositories
-	featureClusterMetadata
-	featureRepositoryCertificates
-	featureApplicationHelmSkipCrds
-	featureExecLogsPolicy
-	featureProjectSourceNamespaces
-	featureMultipleApplicationSources
-	featureApplicationSet
-	featureApplicationSetProgressiveSync
-)
-
-var featureVersionConstraintsMap = map[int]*semver.Version{
-	featureApplicationLevelSyncOptions:   semver.MustParse("1.5.0"),
-	featureIgnoreDiffJQPathExpressions:   semver.MustParse("2.1.0"),
-	featureRepositoryGet:                 semver.MustParse("1.6.0"),
-	featureTokenIDs:                      semver.MustParse("1.5.3"),
-	featureProjectScopedClusters:         semver.MustParse("2.2.0"),
-	featureProjectScopedRepositories:     semver.MustParse("2.2.0"),
-	featureClusterMetadata:               semver.MustParse("2.2.0"),
-	featureRepositoryCertificates:        semver.MustParse("1.2.0"),
-	featureApplicationHelmSkipCrds:       semver.MustParse("2.3.0"),
-	featureExecLogsPolicy:                semver.MustParse("2.4.4"),
-	featureProjectSourceNamespaces:       semver.MustParse("2.5.0"),
-	featureMultipleApplicationSources:    semver.MustParse("2.6.3"), // Whilst the feature was introduced in 2.6.0 there was a bug that affects refresh of applications (and hence `wait` within this provider) that was only fixed in https://github.com/argoproj/argo-cd/pull/12576
-	featureApplicationSet:                semver.MustParse("2.5.0"),
-	featureApplicationSetProgressiveSync: semver.MustParse("2.6.0"),
-}
 
 type ServerInterface struct {
 	AccountClient        account.AccountServiceClient
@@ -206,15 +173,8 @@ func (p *ServerInterface) initClients(ctx context.Context) error {
 
 // Checks that a specific feature is available for the current ArgoCD server version.
 // 'feature' argument must match one of the predefined feature* constants.
-func (p *ServerInterface) isFeatureSupported(feature int) (bool, error) {
-	versionConstraint, ok := featureVersionConstraintsMap[feature]
-	if !ok {
-		return false, fmt.Errorf("feature constraint is not handled by the provider")
-	}
+func (p *ServerInterface) isFeatureSupported(feature features.Feature) bool {
+	fc, ok := features.ConstraintsMap[feature]
 
-	if i := versionConstraint.Compare(p.ServerVersion); i == 1 {
-		return false, nil
-	}
-
-	return true, nil
+	return ok && fc.MinVersion.Compare(p.ServerVersion) != 1
 }

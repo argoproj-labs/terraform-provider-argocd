@@ -7,7 +7,9 @@ import (
 	"strings"
 
 	"github.com/argoproj/argo-cd/v2/server/rbacpolicy"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/features"
 )
 
 func convertStringToInt64(s string) (i int64, err error) {
@@ -158,4 +160,38 @@ func persistToState(key string, data interface{}, d *schema.ResourceData) error 
 	}
 
 	return nil
+}
+
+func argoCDAPIError(action, resource, id string, err error) diag.Diagnostics {
+	return []diag.Diagnostic{
+		{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("failed to %s %s %s", action, resource, id),
+			Detail:   err.Error(),
+		},
+	}
+}
+
+func errorToDiagnostics(summary string, err error) diag.Diagnostics {
+	d := diag.Diagnostic{
+		Severity: diag.Error,
+		Summary:  summary,
+	}
+
+	if err != nil {
+		d.Detail = err.Error()
+	}
+
+	return []diag.Diagnostic{d}
+}
+
+func featureNotSupported(feature features.Feature) diag.Diagnostics {
+	f := features.ConstraintsMap[feature]
+
+	return []diag.Diagnostic{
+		{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("%s is only supported from ArgoCD %s onwards", f.Name, f.MinVersion.String()),
+		},
+	}
 }
