@@ -135,6 +135,20 @@ ingress:
 	})
 }
 
+func TestAccArgoCDApplication_Helm_FileParameters(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationHelm_FileParameters(acctest.RandomWithPrefix("test-acc")),
+				// Setting up tests for this is non-trivial so it is easier to test for an expected failure (since file does not exist) than to test for success
+				ExpectError: regexp.MustCompile(`(?s)Error: failed parsing.*--set-file data`),
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplication_Kustomize(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -1125,6 +1139,41 @@ EOT
   }
 }
 	`, name, helmValues)
+}
+
+func testAccArgoCDApplicationHelm_FileParameters(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "helm_file_parameters" {
+	metadata {
+		name      = "%[1]s"
+		namespace = "argocd"
+	}
+
+	spec {
+		source {
+			repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
+			chart           = "redis"
+			target_revision = "16.9.11"
+
+			helm {
+				release_name = "testing"
+				file_parameter {
+					name = "foo"
+					path = "does-not-exist.txt"
+				}
+			}
+		}
+
+		sync_policy {
+			sync_options = ["CreateNamespace=true"]
+		}
+
+		destination {
+			server    = "https://kubernetes.default.svc"
+			namespace = "%[1]s"
+		}
+	}
+}`, name)
 }
 
 func testAccArgoCDApplicationKustomize(name string) string {

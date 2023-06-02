@@ -1354,6 +1354,25 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 												},
 											},
 										},
+										"file_parameter": {
+											Type:        schema.TypeSet,
+											Description: "File parameters for the helm template.",
+											Optional:    true,
+											Elem: &schema.Resource{
+												Schema: map[string]*schema.Schema{
+													"name": {
+														Type:        schema.TypeString,
+														Description: "Name of the Helm parameter.",
+														Required:    true,
+													},
+													"path": {
+														Type:        schema.TypeString,
+														Description: "Path to the file containing the values for the Helm parameter.",
+														Required:    true,
+													},
+												},
+											},
+										},
 										"release_name": {
 											Type:        schema.TypeString,
 											Description: "Helm release name. If omitted it will use the application name.",

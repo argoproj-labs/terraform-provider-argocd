@@ -289,6 +289,24 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 		}
 	}
 
+	if fileParameters, ok := a["file_parameter"]; ok {
+		for _, _p := range fileParameters.(*schema.Set).List() {
+			p := _p.(map[string]interface{})
+
+			parameter := application.HelmFileParameter{}
+
+			if v, ok := p["name"]; ok {
+				parameter.Name = v.(string)
+			}
+
+			if v, ok := p["path"]; ok {
+				parameter.Path = v.(string)
+			}
+
+			result.FileParameters = append(result.FileParameters, parameter)
+		}
+	}
+
 	if v, ok := a["skip_crds"]; ok {
 		result.SkipCrds = v.(bool)
 	}
@@ -726,8 +744,17 @@ func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (resu
 				})
 			}
 
+			var fileParameters []map[string]interface{}
+			for _, p := range a.FileParameters {
+				fileParameters = append(fileParameters, map[string]interface{}{
+					"name": p.Name,
+					"path": p.Path,
+				})
+			}
+
 			result = append(result, map[string]interface{}{
 				"parameter":                  parameters,
+				"file_parameter":             fileParameters,
 				"release_name":               a.ReleaseName,
 				"skip_crds":                  a.SkipCrds,
 				"value_files":                a.ValueFiles,
@@ -738,7 +765,7 @@ func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (resu
 		}
 	}
 
-	return
+	return result
 }
 
 func flattenApplicationDestinations(ds []application.ApplicationDestination) (result []map[string]string) {
