@@ -1322,12 +1322,12 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 										},
 										"values": {
 											Type:        schema.TypeString,
-											Description: "Helm values to be passed to helm template, typically defined as a block.",
+											Description: "Helm values to be passed to 'helm template', typically defined as a block.",
 											Optional:    true,
 										},
 										"ignore_missing_value_files": {
 											Type:        schema.TypeBool,
-											Description: "Prevents 'helm template' from failing when 'valueFiles' do not exist locally by not appending them to the Helm template values",
+											Description: "Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.",
 											Optional:    true,
 										},
 										"parameter": {
@@ -1366,7 +1366,7 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 										},
 										"pass_credentials": {
 											Type:        schema.TypeBool,
-											Description: "If true then adds --pass-credentials to Helm commands to pass credentials to all domains",
+											Description: "If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.",
 											Optional:    true,
 										},
 									},

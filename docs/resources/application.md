@@ -290,13 +290,13 @@ Optional:
 
 Optional:
 
-- `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when 'valueFiles' do not exist locally by not appending them to the Helm template values
+- `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--source--helm--parameter))
-- `pass_credentials` (Boolean) If true then adds --pass-credentials to Helm commands to pass credentials to all domains
+- `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
-- `values` (String) Helm values to be passed to helm template, typically defined as a block.
+- `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 
 <a id="nestedblock--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.source.helm.parameter`
