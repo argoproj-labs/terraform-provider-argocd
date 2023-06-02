@@ -114,6 +114,16 @@ ingress:
 						"spec.0.source.0.helm.0.value_files.0",
 						"values.yaml",
 					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.helm",
+						"spec.0.source.0.helm.0.pass_credentials",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.helm",
+						"spec.0.source.0.helm.0.ignore_missing_value_files",
+						"true",
+					),
 				),
 			},
 			{
