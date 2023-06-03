@@ -362,11 +362,6 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 	}
 
 	projectName := d.Get("project").(string)
-	role := d.Get("role").(string)
-	opts := &project.ProjectTokenDeleteRequest{
-		Project: projectName,
-		Role:    role,
-	}
 
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
@@ -374,7 +369,11 @@ func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceDat
 
 	tokenMutexProjectMap[projectName].Lock()
 
-	_, err := si.ProjectClient.DeleteToken(ctx, opts)
+	_, err := si.ProjectClient.DeleteToken(ctx, &project.ProjectTokenDeleteRequest{
+		Id:      d.Id(),
+		Project: projectName,
+		Role:    d.Get("role").(string),
+	})
 
 	tokenMutexProjectMap[projectName].Unlock()
 
