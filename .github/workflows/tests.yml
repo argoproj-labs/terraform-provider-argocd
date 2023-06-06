@@ -48,7 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        argocd_version: ["v2.5.0", "v2.5.17", "v2.6.0", "v2.6.8", "v2.7.3"]
+        argocd_version: ["v2.5.18", "v2.6.9", "v2.7.4"]
     steps:
       - name: Check out code
         uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
