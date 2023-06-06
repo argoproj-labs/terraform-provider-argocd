@@ -48,13 +48,12 @@ func TestAccArgoCDCluster(t *testing.T) {
 					),
 				),
 			},
-			// TODO: not working on CI every time
-			// {
-			// 	ResourceName:            "argocd_cluster.simple",
-			// 	ImportState:             true,
-			// 	ImportStateVerify:       true,
-			// 	ImportStateVerifyIgnore: []string{"config.0.bearer_token", "config.0.tls_client_config"},
-			// },
+			{
+				ResourceName:            "argocd_cluster.simple",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config.0.bearer_token"},
+			},
 			{
 				Config: testAccArgoCDClusterTLSCertificate(t, acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
@@ -104,13 +103,12 @@ func TestAccArgoCDCluster_projectScope(t *testing.T) {
 					),
 				),
 			},
-			// TODO: not working on CI every time
-			// {
-			// 	ResourceName:            "argocd_cluster.project_scope",
-			// 	ImportState:             true,
-			// 	ImportStateVerify:       true,
-			// 	ImportStateVerifyIgnore: []string{"config.0.bearer_token", "config.0.tls_client_config"},
-			// },
+			{
+				ResourceName:            "argocd_cluster.project_scope",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config.0.bearer_token"},
+			},
 		},
 	})
 }
@@ -206,7 +204,7 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 				ResourceName:            "argocd_cluster.cluster_metadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"config", "info"},
+				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info"},
 			},
 			{
 				Config: testAccArgoCDClusterMetadata_addLabels(clusterName),
@@ -226,7 +224,7 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 				ResourceName:            "argocd_cluster.cluster_metadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"config", "info"},
+				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info"},
 			},
 			{
 				Config: testAccArgoCDClusterMetadata_addAnnotations(clusterName),
@@ -247,7 +245,7 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 				ResourceName:            "argocd_cluster.cluster_metadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"config", "info"},
+				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info"},
 			},
 			{
 				Config: testAccArgoCDClusterMetadata_removeLabels(clusterName),
@@ -267,7 +265,7 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 				ResourceName:            "argocd_cluster.cluster_metadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"config", "info"},
+				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info"},
 			},
 		},
 	})

@@ -166,9 +166,9 @@ Optional:
 Optional:
 
 - `api_version` (String) Preferred input version of the ExecInfo
-- `args` (List of String) Arguments to pass to the command when executing it
+- `args` (List of String, Sensitive) Arguments to pass to the command when executing it
 - `command` (String) Command to execute
-- `env` (Map of String) Env defines additional environment variables to expose to the process. Passed as a map of strings
+- `env` (Map of String, Sensitive) Env defines additional environment variables to expose to the process. Passed as a map of strings
 - `install_hint` (String) This text is shown to the user when the executable doesn't seem to be present
 
 
