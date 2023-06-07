@@ -1015,6 +1015,29 @@ func TestAccArgoCDApplication_HelmValuesFromExternalGitRepo(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplication_ManagedNamespaceMetadata(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ManagedNamespaceMetadata) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplication_ManagedNamespaceMetadata(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("argocd_application.namespace_metadata", "metadata.0.uid"),
+					resource.TestCheckResourceAttrSet("argocd_application.namespace_metadata", "spec.0.sync_policy.0.managed_namespace_metadata.0.annotations.%"),
+					resource.TestCheckResourceAttrSet("argocd_application.namespace_metadata", "spec.0.sync_policy.0.managed_namespace_metadata.0.labels.%"),
+				),
+			},
+			{
+				ResourceName:            "argocd_application.namespace_metadata",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplication_Wait(t *testing.T) {
 	chartRevision := "9.4.1"
 	name := acctest.RandomWithPrefix("test-acc")
@@ -2072,6 +2095,43 @@ resource "argocd_application" "multiple_sources" {
       namespace = "default"
     }
   }
+}`
+}
+
+func testAccArgoCDApplication_ManagedNamespaceMetadata() string {
+	return `
+resource "argocd_application" "namespace_metadata" {
+	metadata {
+		name      = "namespace-metadata"
+		namespace = "argocd"
+	}
+
+	spec {
+		project = "default" 
+
+		source {
+			repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
+			chart           = "apache"
+			target_revision = "9.4.1"
+		}
+
+		destination {
+			server    = "https://kubernetes.default.svc"
+			namespace = "managed-namespace"
+		}
+
+		sync_policy {
+			managed_namespace_metadata {
+				annotations = {
+					"this.is.a.really.long.nested.key" = "yes, really!"
+				}
+				labels = {
+					foo = "bar"
+				}
+			}
+			sync_options = ["CreateNamespace=true"]
+		}
+	}
 }`
 }
 

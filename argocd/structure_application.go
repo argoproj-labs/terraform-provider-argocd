@@ -315,13 +315,15 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 }
 
 func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, error) {
-	if sp == nil {
-		return &application.SyncPolicy{}, nil
-	}
-
 	var syncPolicy = &application.SyncPolicy{}
 
-	if _a, ok := sp.(map[string]interface{})["automated"].(*schema.Set); ok {
+	if sp == nil {
+		return syncPolicy, nil
+	}
+
+	p := sp.(map[string]interface{})
+
+	if _a, ok := p["automated"].(*schema.Set); ok {
 		var automated = &application.SyncPolicyAutomated{}
 
 		list := _a.List()
@@ -344,61 +346,69 @@ func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, error
 		}
 	}
 
-	if v, ok := sp.(map[string]interface{})["sync_options"]; ok {
+	if _sOpts, ok := p["sync_options"].([]interface{}); ok && len(_sOpts) > 0 {
 		var syncOptions application.SyncOptions
 
-		sOpts := v.([]interface{})
-		if len(sOpts) > 0 {
-			for _, sOpt := range sOpts {
-				syncOptions = append(syncOptions, sOpt.(string))
-			}
-
-			syncPolicy.SyncOptions = syncOptions
+		for _, so := range _sOpts {
+			syncOptions = append(syncOptions, so.(string))
 		}
+
+		syncPolicy.SyncOptions = syncOptions
 	}
 
-	if _retry, ok := sp.(map[string]interface{})["retry"].([]interface{}); ok {
-		if len(_retry) > 0 {
-			var retry = &application.RetryStrategy{}
+	if _retry, ok := p["retry"].([]interface{}); ok && len(_retry) > 0 {
+		var retry = &application.RetryStrategy{}
 
-			r := (_retry[0]).(map[string]interface{})
+		r := (_retry[0]).(map[string]interface{})
 
-			if v, ok := r["limit"]; ok {
-				var err error
+		if v, ok := r["limit"]; ok {
+			var err error
 
-				retry.Limit, err = convertStringToInt64(v.(string))
-				if err != nil {
-					return nil, fmt.Errorf("failed to convert retry limit to integer: %w", err)
+			retry.Limit, err = convertStringToInt64(v.(string))
+			if err != nil {
+				return nil, fmt.Errorf("failed to convert retry limit to integer: %w", err)
+			}
+		}
+
+		if _b, ok := r["backoff"].(*schema.Set); ok {
+			retry.Backoff = &application.Backoff{}
+
+			list := _b.List()
+			if len(list) > 0 {
+				b := list[0].(map[string]interface{})
+
+				if v, ok := b["duration"]; ok {
+					retry.Backoff.Duration = v.(string)
+				}
+
+				if v, ok := b["max_duration"]; ok {
+					retry.Backoff.MaxDuration = v.(string)
+				}
+
+				if v, ok := b["factor"]; ok {
+					factor, err := convertStringToInt64Pointer(v.(string))
+					if err != nil {
+						return nil, fmt.Errorf("failed to convert backoff factor to integer: %w", err)
+					}
+
+					retry.Backoff.Factor = factor
 				}
 			}
+		}
 
-			if _b, ok := r["backoff"].(*schema.Set); ok {
-				retry.Backoff = &application.Backoff{}
+		syncPolicy.Retry = retry
+	}
 
-				list := _b.List()
-				if len(list) > 0 {
-					b := list[0].(map[string]interface{})
+	if _mnm, ok := p["managed_namespace_metadata"].([]interface{}); ok && len(_mnm) > 0 {
+		mnm := _mnm[0].(map[string]interface{})
+		syncPolicy.ManagedNamespaceMetadata = &application.ManagedNamespaceMetadata{}
 
-					if v, ok := b["duration"]; ok {
-						retry.Backoff.Duration = v.(string)
-					}
+		if a, ok := mnm["annotations"]; ok {
+			syncPolicy.ManagedNamespaceMetadata.Annotations = expandStringMap(a.(map[string]interface{}))
+		}
 
-					if v, ok := b["max_duration"]; ok {
-						retry.Backoff.MaxDuration = v.(string)
-					}
-
-					if v, ok := b["factor"]; ok {
-						factor, err := convertStringToInt64Pointer(v.(string))
-						if err != nil {
-							return nil, fmt.Errorf("failed to convert backoff factor to integer: %w", err)
-						}
-
-						retry.Backoff.Factor = factor
-					}
-				}
-			}
-
-			syncPolicy.Retry = retry
+		if l, ok := mnm["labels"]; ok {
+			syncPolicy.ManagedNamespaceMetadata.Labels = expandStringMap(l.(map[string]interface{}))
 		}
 	}
 
@@ -567,6 +577,15 @@ func flattenApplicationSyncPolicy(sp *application.SyncPolicy) []map[string]inter
 				"prune":       sp.Automated.Prune,
 				"self_heal":   sp.Automated.SelfHeal,
 				"allow_empty": sp.Automated.AllowEmpty,
+			},
+		}
+	}
+
+	if sp.ManagedNamespaceMetadata != nil {
+		result["managed_namespace_metadata"] = []map[string]interface{}{
+			{
+				"annotations": sp.ManagedNamespaceMetadata.Annotations,
+				"labels":      sp.ManagedNamespaceMetadata.Labels,
 			},
 		}
 	}
