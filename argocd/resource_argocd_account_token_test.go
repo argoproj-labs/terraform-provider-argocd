@@ -138,8 +138,7 @@ func TestAccArgoCDAccountToken_RenewBefore(t *testing.T) {
 
 func TestAccArgoCDAccountToken_RenewAfter(t *testing.T) {
 	resourceName := "argocd_account_token.renew_after"
-
-	renewAfterSeconds := 2
+	renewAfterSeconds := 30
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },

@@ -109,8 +109,7 @@ func TestAccArgoCDProjectToken_RenewBefore(t *testing.T) {
 
 func TestAccArgoCDProjectToken_RenewAfter(t *testing.T) {
 	resourceName := "argocd_project_token.renew_after"
-
-	renewAfterSeconds := 2
+	renewAfterSeconds := 30
 
 	// Note: not running in parallel as this is a time sensitive test case
 	resource.Test(t, resource.TestCase{
