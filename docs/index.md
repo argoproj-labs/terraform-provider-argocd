@@ -94,7 +94,7 @@ provider "argocd" {
 
 ### Optional
 
-- `auth_token` (String) ArgoCD authentication token, takes precedence over `username`/`password`. Can be set through the `ARGOCD_AUTH_TOKEN` environment variable.
+- `auth_token` (String, Sensitive) ArgoCD authentication token, takes precedence over `username`/`password`. Can be set through the `ARGOCD_AUTH_TOKEN` environment variable.
 - `cert_file` (String) Additional root CA certificates file to add to the client TLS connection pool.
 - `client_cert_file` (String) Client certificate.
 - `client_cert_key` (String) Client certificate key.
@@ -113,13 +113,13 @@ provider "argocd" {
 - `headers` (Set of String) Additional headers to add to each request to the ArgoCD server.
 - `insecure` (Boolean) Whether to skip TLS server certificate. Can be set through the `ARGOCD_INSECURE` environment variable.
 - `kubernetes` (Block List, Max: 1) Kubernetes configuration overrides.  Only relevant when `port_forward = true` or `port_forward_with_namespace = "foo"`. The kubeconfig file that is used can be overridden using the [`KUBECONFIG` environment variable](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)). (see [below for nested schema](#nestedblock--kubernetes))
-- `password` (String) Authentication password. Can be set through the `ARGOCD_AUTH_PASSWORD` environment variable.
+- `password` (String, Sensitive) Authentication password. Can be set through the `ARGOCD_AUTH_PASSWORD` environment variable.
 - `plain_text` (Boolean) Whether to initiate an unencrypted connection to ArgoCD server.
 - `port_forward` (Boolean) Connect to a random argocd-server port using port forwarding.
 - `port_forward_with_namespace` (String) Namespace name which should be used for port forwarding.
 - `server_addr` (String) ArgoCD server address with port. Can be set through the `ARGOCD_SERVER` environment variable.
 - `use_local_config` (Boolean) Use the authentication settings found in the local config file. Useful when you have previously logged in using SSO. Conflicts with `auth_token`, `username` and `password`.
-- `user_agent` (String)
+- `user_agent` (String) User-Agent request header override.
 - `username` (String) Authentication username. Can be set through the `ARGOCD_AUTH_USERNAME` environment variable.
 
 <a id="nestedblock--kubernetes"></a>
@@ -128,7 +128,7 @@ provider "argocd" {
 Optional:
 
 - `client_certificate` (String) PEM-encoded client certificate for TLS authentication. Can be sourced from `KUBE_CLIENT_CERT_DATA`.
-- `client_key` (String) PEM-encoded client certificate key for TLS authentication. Can be sourced from `KUBE_CLIENT_KEY_DATA`.
+- `client_key` (String, Sensitive) PEM-encoded client certificate key for TLS authentication. Can be sourced from `KUBE_CLIENT_KEY_DATA`.
 - `cluster_ca_certificate` (String) PEM-encoded root certificates bundle for TLS authentication. Can be sourced from `KUBE_CLUSTER_CA_CERT_DATA`.
 - `config_context` (String) Context to choose from the config file. Can be sourced from `KUBE_CTX`.
 - `config_context_auth_info` (String)
@@ -136,8 +136,8 @@ Optional:
 - `exec` (Block List, Max: 1) Configuration block to use an [exec-based credential plugin](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#client-go-credential-plugins), e.g. call an external command to receive user credentials. (see [below for nested schema](#nestedblock--kubernetes--exec))
 - `host` (String) The hostname (in form of URI) of the Kubernetes API. Can be sourced from `KUBE_HOST`.
 - `insecure` (Boolean) Whether server should be accessed without verifying the TLS certificate. Can be sourced from `KUBE_INSECURE`.
-- `password` (String) The password to use for HTTP basic authentication when accessing the Kubernetes API. Can be sourced from `KUBE_PASSWORD`.
-- `token` (String) Token to authenticate an service account. Can be sourced from `KUBE_TOKEN`.
+- `password` (String, Sensitive) The password to use for HTTP basic authentication when accessing the Kubernetes API. Can be sourced from `KUBE_PASSWORD`.
+- `token` (String, Sensitive) Token to authenticate an service account. Can be sourced from `KUBE_TOKEN`.
 - `username` (String) The username to use for HTTP basic authentication when accessing the Kubernetes API. Can be sourced from `KUBE_USER`.
 
 <a id="nestedblock--kubernetes--exec"></a>

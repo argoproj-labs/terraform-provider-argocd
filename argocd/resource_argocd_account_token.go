@@ -12,6 +12,7 @@ import (
 	"github.com/cristalhq/jwt/v3"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 )
 
 func resourceArgoCDAccountToken() *schema.Resource {
@@ -143,9 +144,9 @@ func resourceArgoCDAccountToken() *schema.Resource {
 }
 
 func resourceArgoCDAccountTokenCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	accountName, err := getAccount(ctx, si, d)
@@ -241,9 +242,9 @@ func resourceArgoCDAccountTokenCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceArgoCDAccountTokenRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	accountName, err := getAccount(ctx, si, d)
@@ -311,9 +312,9 @@ func resourceArgoCDAccountTokenUpdate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceArgoCDAccountTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	accountName, err := getAccount(ctx, si, d)
@@ -337,7 +338,7 @@ func resourceArgoCDAccountTokenDelete(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func getAccount(ctx context.Context, si *ServerInterface, d *schema.ResourceData) (string, error) {
+func getAccount(ctx context.Context, si *provider.ServerInterface, d *schema.ResourceData) (string, error) {
 	accountName := d.Get("account").(string)
 	if len(accountName) > 0 {
 		return accountName, nil

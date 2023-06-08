@@ -15562,5 +15562,3 @@ Optional:
 Optional:
 
 - `preserve_resources_on_deletion` (Boolean) Label selector used to narrow the scope of targeted clusters.
-
-

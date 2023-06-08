@@ -1,26 +1,17 @@
 package argocd
 
 import (
-	"bytes"
 	"context"
-	"fmt"
-	"net/url"
 	"sync"
 
-	"github.com/argoproj/argo-cd/v2/cmd/argocd/commands/headless"
-	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
-	"github.com/argoproj/argo-cd/v2/pkg/apiclient/session"
-	"github.com/argoproj/argo-cd/v2/util/io"
-	"github.com/argoproj/argo-cd/v2/util/localconfig"
+	fwdiag "github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-
-	apimachineryschema "k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/util/runtime"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 
 	// Import to initialize client auth plugins.
+
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
@@ -36,71 +27,30 @@ var tokenMutexProjectMap = make(map[string]*sync.RWMutex, 0)
 // Used to handle concurrent access to ArgoCD secrets
 var tokenMutexSecrets = &sync.RWMutex{}
 
-var runtimeErrorHandlers []func(error)
-
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"server_addr": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_SERVER", nil),
 				Description: "ArgoCD server address with port. Can be set through the `ARGOCD_SERVER` environment variable.",
-				AtLeastOneOf: []string{
-					"core",
-					"port_forward",
-					"port_forward_with_namespace",
-					"use_local_config",
-				},
 			},
 			"auth_token": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_AUTH_TOKEN", nil),
 				Description: "ArgoCD authentication token, takes precedence over `username`/`password`. Can be set through the `ARGOCD_AUTH_TOKEN` environment variable.",
-				ConflictsWith: []string{
-					"config_path",
-					"core",
-					"password",
-					"use_local_config",
-					"username",
-				},
+				Sensitive:   true,
 			},
 			"username": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_AUTH_USERNAME", nil),
 				Description: "Authentication username. Can be set through the `ARGOCD_AUTH_USERNAME` environment variable.",
-				ConflictsWith: []string{
-					"auth_token",
-					"config_path",
-					"core",
-					"use_local_config",
-				},
-				AtLeastOneOf: []string{
-					"core",
-					"password",
-					"auth_token",
-					"use_local_config",
-				},
 			},
 			"password": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_AUTH_PASSWORD", nil),
 				Description: "Authentication password. Can be set through the `ARGOCD_AUTH_PASSWORD` environment variable.",
-				ConflictsWith: []string{
-					"auth_token",
-					"config_path",
-					"core",
-					"use_local_config",
-				},
-				AtLeastOneOf: []string{
-					"username",
-					"core",
-					"auth_token",
-					"use_local_config",
-				},
+				Sensitive:   true,
 			},
 			"cert_file": {
 				Type:        schema.TypeString,
@@ -120,24 +70,17 @@ func Provider() *schema.Provider {
 			"plain_text": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
 				Description: "Whether to initiate an unencrypted connection to ArgoCD server.",
 			},
 			"context": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_CONTEXT", nil),
 				Description: "Context to choose when using a local ArgoCD config file. Only relevant when `use_local_config`. Can be set through `ARGOCD_CONTEXT` environment variable.",
-				ConflictsWith: []string{
-					"core",
-					"username",
-					"password",
-					"auth_token",
-				},
 			},
 			"user_agent": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "User-Agent request header override.",
 			},
 			"core": {
 				Type:     schema.TypeBool,
@@ -150,12 +93,6 @@ func Provider() *schema.Provider {
 					"similar to\n  > `The plugin encountered an error, and failed to respond to the plugin.(*GRPCProvider).ReadResource call. The plugin logs may " +
 					"contain more details.`\n\n  To debug this, you will need to login via the ArgoCD CLI using `argocd login --core` and then running an operation. " +
 					"E.g. `argocd app list`.",
-				ConflictsWith: []string{
-					"auth_token",
-					"use_local_config",
-					"password",
-					"username",
-				},
 			},
 			"grpc_web": {
 				Type:        schema.TypeBool,
@@ -171,24 +108,11 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Use the authentication settings found in the local config file. Useful when you have previously logged in using SSO. Conflicts with `auth_token`, `username` and `password`.",
-				ConflictsWith: []string{
-					"auth_token",
-					"core",
-					"password",
-					"username",
-				},
 			},
 			"config_path": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_CONFIG_PATH", nil),
 				Description: "Override the default config path of `$HOME/.config/argocd/config`. Only relevant when `use_local_config`. Can be set through the `ARGOCD_CONFIG_PATH` environment variable.",
-				ConflictsWith: []string{
-					"auth_token",
-					"core",
-					"password",
-					"username",
-				},
 			},
 			"port_forward": {
 				Type:        schema.TypeBool,
@@ -209,7 +133,6 @@ func Provider() *schema.Provider {
 			"insecure": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ARGOCD_INSECURE", false),
 				Description: "Whether to skip TLS server certificate. Can be set through the `ARGOCD_INSECURE` environment variable.",
 			},
 			"kubernetes": {
@@ -232,230 +155,14 @@ func Provider() *schema.Provider {
 			"argocd_repository":             resourceArgoCDRepository(),
 			"argocd_repository_credentials": resourceArgoCDRepositoryCredentials(),
 		},
-		ConfigureFunc: func(d *schema.ResourceData) (interface{}, error) {
-			server := ServerInterface{ProviderData: d}
-			return &server, nil
+		ConfigureContextFunc: func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+			config, diags := argoCDProviderConfigFromResourceData(ctx, d)
+
+			server := provider.NewServerInterface(config)
+
+			return server, diags
 		},
 	}
-}
-
-func initApiClient(ctx context.Context, d *schema.ResourceData) (apiClient apiclient.Client, err error) {
-	var opts apiclient.ClientOptions
-
-	if v, ok := d.GetOk("server_addr"); ok {
-		opts.ServerAddr = v.(string)
-	}
-
-	if v, ok := d.GetOk("use_local_config"); ok {
-		if v.(bool) {
-			if v, ok := d.GetOk("config_path"); ok {
-				opts.ConfigPath = v.(string)
-			} else if opts.ConfigPath, err = localconfig.DefaultLocalConfigPath(); err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	if v, ok := d.GetOk("plain_text"); ok {
-		opts.PlainText = v.(bool)
-	}
-
-	if v, ok := d.GetOk("insecure"); ok {
-		opts.Insecure = v.(bool)
-	}
-
-	if v, ok := d.GetOk("cert_file"); ok {
-		opts.CertFile = v.(string)
-	}
-
-	if v, ok := d.GetOk("client_cert_file"); ok {
-		opts.ClientCertFile = v.(string)
-	}
-
-	if v, ok := d.GetOk("client_cert_key"); ok {
-		opts.ClientCertKeyFile = v.(string)
-	}
-
-	if v, ok := d.GetOk("context"); ok {
-		opts.Context = v.(string)
-	}
-
-	if v, ok := d.GetOk("user_agent"); ok {
-		opts.UserAgent = v.(string)
-	}
-
-	if v, ok := d.GetOk("grpc_web"); ok {
-		opts.GRPCWeb = v.(bool)
-	}
-
-	if v, ok := d.GetOk("grpc_web_root_path"); ok {
-		opts.GRPCWebRootPath = v.(string)
-	}
-
-	if v, ok := d.GetOk("port_forward"); ok {
-		opts.PortForward = v.(bool)
-	}
-
-	if v, ok := d.GetOk("port_forward_with_namespace"); ok {
-		opts.PortForwardNamespace = v.(string)
-	}
-
-	if v, ok := d.GetOk("headers"); ok {
-		_headers := v.(*schema.Set).List()
-
-		var headers = make([]string, len(_headers))
-
-		for i, _header := range _headers {
-			headers[i] = _header.(string)
-		}
-
-		opts.Headers = headers
-	}
-
-	if _, ok := d.GetOk("kubernetes"); ok {
-		opts.KubeOverrides = &clientcmd.ConfigOverrides{}
-
-		if v, ok := k8sGetOk(d, "insecure"); ok {
-			opts.KubeOverrides.ClusterInfo.InsecureSkipTLSVerify = v.(bool)
-		}
-
-		if v, ok := k8sGetOk(d, "cluster_ca_certificate"); ok {
-			opts.KubeOverrides.ClusterInfo.CertificateAuthorityData = bytes.NewBufferString(v.(string)).Bytes()
-		}
-
-		if v, ok := k8sGetOk(d, "client_certificate"); ok {
-			opts.KubeOverrides.AuthInfo.ClientCertificateData = bytes.NewBufferString(v.(string)).Bytes()
-		}
-
-		kubectx, ctxOk := k8sGetOk(d, "config_context")
-		authInfo, authInfoOk := k8sGetOk(d, "config_context_auth_info")
-		cluster, clusterOk := k8sGetOk(d, "config_context_cluster")
-
-		if ctxOk || authInfoOk || clusterOk {
-			if ctxOk {
-				opts.KubeOverrides.CurrentContext = kubectx.(string)
-			}
-
-			opts.KubeOverrides.Context = clientcmdapi.Context{}
-			if authInfoOk {
-				opts.KubeOverrides.Context.AuthInfo = authInfo.(string)
-			}
-
-			if clusterOk {
-				opts.KubeOverrides.Context.Cluster = cluster.(string)
-			}
-		}
-
-		if v, ok := k8sGetOk(d, "host"); ok {
-			// Server has to be the complete address of the kubernetes cluster (scheme://hostname:port), not just the hostname,
-			// because `overrides` are processed too late to be taken into account by `defaultServerUrlFor()`.
-			// This basically replicates what defaultServerUrlFor() does with config but for overrides,
-			// see https://github.com/kubernetes/client-go/blob/v12.0.0/rest/url_utils.go#L85-L87
-			hasCA := len(opts.KubeOverrides.ClusterInfo.CertificateAuthorityData) != 0
-			hasCert := len(opts.KubeOverrides.AuthInfo.ClientCertificateData) != 0
-			defaultTLS := hasCA || hasCert || opts.KubeOverrides.ClusterInfo.InsecureSkipTLSVerify
-
-			var host *url.URL
-
-			host, _, err = rest.DefaultServerURL(v.(string), "", apimachineryschema.GroupVersion{}, defaultTLS)
-			if err != nil {
-				return nil, err
-			}
-
-			opts.KubeOverrides.ClusterInfo.Server = host.String()
-		}
-
-		if v, ok := k8sGetOk(d, "username"); ok {
-			opts.KubeOverrides.AuthInfo.Username = v.(string)
-		}
-
-		if v, ok := k8sGetOk(d, "password"); ok {
-			opts.KubeOverrides.AuthInfo.Password = v.(string)
-		}
-
-		if v, ok := k8sGetOk(d, "client_key"); ok {
-			opts.KubeOverrides.AuthInfo.ClientKeyData = bytes.NewBufferString(v.(string)).Bytes()
-		}
-
-		if v, ok := k8sGetOk(d, "token"); ok {
-			opts.KubeOverrides.AuthInfo.Token = v.(string)
-		}
-
-		if v, ok := k8sGetOk(d, "exec"); ok {
-			exec := &clientcmdapi.ExecConfig{}
-			if spec, ok := v.([]interface{})[0].(map[string]interface{}); ok {
-				exec.InteractiveMode = clientcmdapi.IfAvailableExecInteractiveMode
-				exec.APIVersion = spec["api_version"].(string)
-				exec.Command = spec["command"].(string)
-				exec.Args = expandStringSlice(spec["args"].([]interface{}))
-
-				for kk, vv := range spec["env"].(map[string]interface{}) {
-					exec.Env = append(exec.Env, clientcmdapi.ExecEnvVar{Name: kk, Value: vv.(string)})
-				}
-			} else {
-				return nil, fmt.Errorf("failed to parse exec")
-			}
-
-			opts.KubeOverrides.AuthInfo.Exec = exec
-		}
-	}
-
-	authToken, authTokenOk := d.GetOk("auth_token")
-	switch authTokenOk {
-	case true:
-		opts.AuthToken = authToken.(string)
-	case false:
-		userName, userNameOk := d.GetOk("username")
-		password, passwordOk := d.GetOk("password")
-
-		if userNameOk && passwordOk {
-			apiClient, err = apiclient.NewClient(&opts)
-			if err != nil {
-				return apiClient, err
-			}
-
-			closer, sc, err := apiClient.NewSessionClient()
-			if err != nil {
-				return apiClient, err
-			}
-
-			defer io.Close(closer)
-
-			sessionOpts := session.SessionCreateRequest{
-				Username: userName.(string),
-				Password: password.(string),
-			}
-
-			resp, err := sc.Create(ctx, &sessionOpts)
-			if err != nil {
-				return apiClient, err
-			}
-
-			opts.AuthToken = resp.Token
-		}
-	}
-
-	if v, ok := d.Get("core").(bool); ok && v {
-		opts.ServerAddr = "kubernetes"
-		opts.Core = true
-
-		// HACK: `headless.StartLocalServer` manipulates this global variable
-		// when starting the local server without checking it's length/contents
-		// which leads to a panic if called multiple times. So, we need to
-		// ensure we "reset" it before calling the method.
-		if runtimeErrorHandlers == nil {
-			runtimeErrorHandlers = runtime.ErrorHandlers
-		} else {
-			runtime.ErrorHandlers = runtimeErrorHandlers
-		}
-
-		err := headless.StartLocalServer(ctx, &opts, "", nil, nil)
-		if err != nil {
-			return nil, fmt.Errorf("failed to start local server: %w", err)
-		}
-	}
-
-	return apiclient.NewClient(&opts)
 }
 
 func kubernetesResource() *schema.Resource {
@@ -464,68 +171,60 @@ func kubernetesResource() *schema.Resource {
 			"host": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("KUBE_HOST", ""),
 				Description: "The hostname (in form of URI) of the Kubernetes API. Can be sourced from `KUBE_HOST`.",
 			},
 			"username": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("KUBE_USER", ""),
 				Description: "The username to use for HTTP basic authentication when accessing the Kubernetes API. Can be sourced from `KUBE_USER`.",
 			},
 			"password": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("KUBE_PASSWORD", ""),
 				Description: "The password to use for HTTP basic authentication when accessing the Kubernetes API. Can be sourced from `KUBE_PASSWORD`.",
+				Sensitive:   true,
 			},
 			"insecure": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("KUBE_INSECURE", false),
 				Description: "Whether server should be accessed without verifying the TLS certificate. Can be sourced from `KUBE_INSECURE`.",
 			},
 			"client_certificate": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("KUBE_CLIENT_CERT_DATA", ""),
 				Description: "PEM-encoded client certificate for TLS authentication. Can be sourced from `KUBE_CLIENT_CERT_DATA`.",
 			},
 			"client_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("KUBE_CLIENT_KEY_DATA", ""),
 				Description: "PEM-encoded client certificate key for TLS authentication. Can be sourced from `KUBE_CLIENT_KEY_DATA`.",
+				Sensitive:   true,
 			},
 			"cluster_ca_certificate": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("KUBE_CLUSTER_CA_CERT_DATA", ""),
 				Description: "PEM-encoded root certificates bundle for TLS authentication. Can be sourced from `KUBE_CLUSTER_CA_CERT_DATA`.",
 			},
 			"config_context": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("KUBE_CTX", ""),
 				Description: "Context to choose from the config file. Can be sourced from `KUBE_CTX`.",
 			},
 			"config_context_auth_info": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("KUBE_CTX_AUTH_INFO", ""),
 				Description: "",
 			},
 			"config_context_cluster": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("KUBE_CTX_CLUSTER", ""),
 				Description: "",
 			},
 			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("KUBE_TOKEN", ""),
 				Description: "Token to authenticate an service account. Can be sourced from `KUBE_TOKEN`.",
+				Sensitive:   true,
 			},
 			"exec": {
 				Type:        schema.TypeList,
@@ -563,45 +262,122 @@ func kubernetesResource() *schema.Resource {
 	}
 }
 
-func k8sGetOk(d *schema.ResourceData, key string) (interface{}, bool) {
-	var k8sPrefix = "kubernetes.0."
-	value, ok := d.GetOk(k8sPrefix + key)
-
-	// For boolean attributes the zero value is Ok
-	switch value.(type) {
-	case bool:
-		// TODO: replace deprecated GetOkExists with SDK v2 equivalent
-		// https://github.com/hashicorp/terraform-plugin-sdk/pull/350
-		value, ok = d.GetOkExists(k8sPrefix + key)
+func argoCDProviderConfigFromResourceData(ctx context.Context, d *schema.ResourceData) (provider.ArgoCDProviderConfig, diag.Diagnostics) {
+	c := provider.ArgoCDProviderConfig{
+		AuthToken:                getStringFromResourceData(d, "auth_token"),
+		CertFile:                 getStringFromResourceData(d, "cert_file"),
+		ClientCertFile:           getStringFromResourceData(d, "client_cert_file"),
+		ClientCertKey:            getStringFromResourceData(d, "client_cert_key"),
+		ConfigPath:               getStringFromResourceData(d, "config_path"),
+		Context:                  getStringFromResourceData(d, "context"),
+		Core:                     getBoolFromResourceData(d, "core"),
+		GRPCWeb:                  getBoolFromResourceData(d, "grpc_web"),
+		GRPCWebRootPath:          getStringFromResourceData(d, "grpc_web_root_path"),
+		Insecure:                 getBoolFromResourceData(d, "insecure"),
+		Password:                 getStringFromResourceData(d, "password"),
+		PlainText:                getBoolFromResourceData(d, "plain_text"),
+		PortForward:              getBoolFromResourceData(d, "port_forward"),
+		PortForwardWithNamespace: getStringFromResourceData(d, "port_forward_with_namespace"),
+		ServerAddr:               getStringFromResourceData(d, "server_addr"),
+		UseLocalConfig:           getBoolFromResourceData(d, "use_local_config"),
+		UserAgent:                getStringFromResourceData(d, "user_agent"),
+		Username:                 getStringFromResourceData(d, "username"),
 	}
 
-	// fix: DefaultFunc is not being triggered on TypeList
-	s := kubernetesResource().Schema[key]
-	if !ok && s.DefaultFunc != nil {
-		value, _ = s.DefaultFunc()
+	headers, diags := getStringSetFromResourceData(ctx, d, "headers")
+	c.Headers = headers
 
-		switch v := value.(type) {
-		case string:
-			ok = len(v) != 0
-		case bool:
-			ok = v
-		}
-	}
+	k8s, ds := kubernetesConfigFromResourceData(ctx, d)
+	c.Kubernetes = k8s
 
-	return value, ok
+	diags.Append(ds...)
+
+	return c, pluginSDKDiags(diags)
 }
 
-func expandStringSlice(s []interface{}) []string {
-	result := make([]string, len(s))
-
-	for k, v := range s {
-		// Handle the Terraform parser bug which turns empty strings in lists to nil.
-		if v == nil {
-			result[k] = ""
-		} else {
-			result[k] = v.(string)
-		}
+func kubernetesConfigFromResourceData(ctx context.Context, d *schema.ResourceData) ([]provider.Kubernetes, fwdiag.Diagnostics) {
+	if _, ok := d.GetOk("kubernetes"); !ok {
+		return nil, nil
 	}
 
-	return result
+	k8s := provider.Kubernetes{
+		ClientCertificate:     getStringFromResourceData(d, "kubernetes.0.client_certificate"),
+		ClientKey:             getStringFromResourceData(d, "kubernetes.0.client_key"),
+		ClusterCACertificate:  getStringFromResourceData(d, "kubernetes.0.cluster_ca_certificate"),
+		ConfigContext:         getStringFromResourceData(d, "kubernetes.0.config_context"),
+		ConfigContextAuthInfo: getStringFromResourceData(d, "kubernetes.0.config_context_auth_info"),
+		ConfigContextCluster:  getStringFromResourceData(d, "kubernetes.0.config_context_cluster"),
+		Host:                  getStringFromResourceData(d, "kubernetes.0.host"),
+		Insecure:              getBoolFromResourceData(d, "kubernetes.0.insecure"),
+		Password:              getStringFromResourceData(d, "kubernetes.0.password"),
+		Token:                 getStringFromResourceData(d, "kubernetes.0.token"),
+		Username:              getStringFromResourceData(d, "kubernetes.0.username"),
+	}
+
+	var diags fwdiag.Diagnostics
+
+	k8s.Exec, diags = kubernetesExecConfigFromResourceData(ctx, d)
+
+	return []provider.Kubernetes{k8s}, diags
+}
+
+func kubernetesExecConfigFromResourceData(ctx context.Context, d *schema.ResourceData) ([]provider.KubernetesExec, fwdiag.Diagnostics) {
+	if _, ok := d.GetOk("kubernetes.0.exec"); !ok {
+		return nil, nil
+	}
+
+	exec := provider.KubernetesExec{
+		APIVersion: getStringFromResourceData(d, "kubernetes.0.exec.0.api_version"),
+		Command:    getStringFromResourceData(d, "kubernetes.0.exec.0.command"),
+	}
+
+	args, diags := getStringListFromResourceData(ctx, d, "kubernetes.0.exec.0.args")
+	exec.Args = args
+
+	env, ds := getStringMapFromResourceData(ctx, d, "kubernetes.0.exec.0.env")
+	exec.Env = env
+
+	diags.Append(ds...)
+
+	return []provider.KubernetesExec{exec}, diags
+}
+
+func getStringFromResourceData(d *schema.ResourceData, key string) types.String {
+	if v, ok := d.GetOk(key); ok {
+		return types.StringValue(v.(string))
+	}
+
+	return types.StringNull()
+}
+
+func getBoolFromResourceData(d *schema.ResourceData, key string) types.Bool {
+	if v, ok := d.GetOk(key); ok {
+		return types.BoolValue(v.(bool))
+	}
+
+	return types.BoolNull()
+}
+
+func getStringListFromResourceData(ctx context.Context, d *schema.ResourceData, key string) (types.List, fwdiag.Diagnostics) {
+	if v, ok := d.GetOk(key); ok {
+		return types.ListValueFrom(ctx, types.StringType, v.([]interface{}))
+	}
+
+	return types.ListNull(types.StringType), nil
+}
+
+func getStringMapFromResourceData(ctx context.Context, d *schema.ResourceData, key string) (types.Map, fwdiag.Diagnostics) {
+	if v, ok := d.GetOk(key); ok {
+		return types.MapValueFrom(ctx, types.StringType, v.(map[string]interface{}))
+	}
+
+	return types.MapNull(types.StringType), nil
+}
+
+func getStringSetFromResourceData(ctx context.Context, d *schema.ResourceData, key string) (types.Set, fwdiag.Diagnostics) {
+	if v, ok := d.GetOk(key); ok {
+		return types.SetValueFrom(ctx, types.StringType, v.(*schema.Set).List())
+	}
+
+	return types.SetNull(types.StringType), nil
 }

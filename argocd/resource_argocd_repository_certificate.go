@@ -9,6 +9,7 @@ import (
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 )
 
 type (
@@ -26,9 +27,9 @@ func resourceArgoCDRepositoryCertificates() *schema.Resource {
 }
 
 func resourceArgoCDRepositoryCertificatesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	// Not doing a RLock here because we can have a race-condition between the ListCertificates & CreateCertificate
@@ -141,9 +142,9 @@ func fromId(id string) (string, string, string, error) {
 }
 
 func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	certType, certSubType, serverName, err := fromId(d.Id())
@@ -198,9 +199,9 @@ func resourceArgoCDRepositoryCertificatesRead(ctx context.Context, d *schema.Res
 }
 
 func resourceArgoCDRepositoryCertificatesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	certType, certSubType, serverName, err := fromId(d.Id())

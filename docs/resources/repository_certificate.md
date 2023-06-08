@@ -73,5 +73,3 @@ Required:
 Read-Only:
 
 - `cert_info` (String) Additional certificate info, dependent on the certificate type (e.g. SSH fingerprint, X509 CommonName).
-
-

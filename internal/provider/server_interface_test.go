@@ -1,4 +1,4 @@
-package argocd
+package provider
 
 import (
 	"fmt"
@@ -46,7 +46,6 @@ func serverInterfaceTestData(t *testing.T, argocdVersion string, semverOperator 
 	}
 
 	return &ServerInterface{
-		ApiClient:            nil,
 		ServerVersion:        v,
 		ServerVersionMessage: vm,
 	}
@@ -91,7 +90,7 @@ func TestServerInterface_isFeatureSupported(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := tt.si.isFeatureSupported(tt.args.feature)
+			got := tt.si.IsFeatureSupported(tt.args.feature)
 
 			if got != tt.want {
 				t.Errorf("isFeatureSupported() got = %v, want %v, version %s",

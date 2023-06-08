@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/argoproj/argo-cd/v2/server/rbacpolicy"
+	fwdiag "github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/oboukili/terraform-provider-argocd/internal/features"
@@ -194,4 +195,28 @@ func featureNotSupported(feature features.Feature) diag.Diagnostics {
 			Summary:  fmt.Sprintf("%s is only supported from ArgoCD %s onwards", f.Name, f.MinVersion.String()),
 		},
 	}
+}
+
+// pluginSDKDiags converts diagnostics from `terraform-plugin-framework/diag` to
+// `terraform-plugin-sdk/v2/diag`
+func pluginSDKDiags(ds fwdiag.Diagnostics) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	for _, d := range ds {
+		_diag := diag.Diagnostic{
+			Detail:  d.Detail(),
+			Summary: d.Summary(),
+		}
+
+		switch d.Severity() {
+		case fwdiag.SeverityError:
+			_diag.Severity = diag.Error
+		default:
+			_diag.Severity = diag.Warning
+		}
+
+		diags = append(diags, _diag)
+	}
+
+	return diags
 }
