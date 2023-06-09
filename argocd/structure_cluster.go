@@ -177,15 +177,8 @@ func flattenClusterInfo(info application.ClusterInfo) []map[string]interface{} {
 func flattenClusterConfig(config application.ClusterConfig, d *schema.ResourceData) []map[string]interface{} {
 	r := map[string]interface{}{
 		"username":             config.Username,
-		"exec_provider_config": flattenClusterConfigExecProviderConfig(config.ExecProviderConfig),
-	}
-
-	if stateClusterConfig, ok := d.GetOk("config"); ok {
-		scc := expandClusterConfig(stateClusterConfig.([]interface{})[0])
-
-		r["password"] = scc.Password
-		r["bearer_token"] = scc.BearerToken
-		r["tls_client_config"] = flattenClusterConfigTLSClientConfig(scc)
+		"exec_provider_config": flattenClusterConfigExecProviderConfig(config.ExecProviderConfig, d),
+		"tls_client_config":    flattenClusterConfigTLSClientConfig(config.TLSClientConfig, d),
 	}
 
 	if config.AWSAuthConfig != nil {
@@ -197,37 +190,63 @@ func flattenClusterConfig(config application.ClusterConfig, d *schema.ResourceDa
 		}
 	}
 
+	// ArgoCD API does not return these fields as they may contain
+	// sensitive data. Thus, we can't track the state of these
+	// attributes and load them from state instead.
+	// See https://github.com/argoproj/argo-cd/blob/8840929187f4dd7b9d9fd908ea5085a006895507/server/cluster/cluster.go#L448-L466
+	if bt, ok := d.GetOk("config.0.bearer_token"); ok {
+		r["bearer_token"] = bt.(string)
+	}
+
+	if p, ok := d.GetOk("config.0.password"); ok {
+		r["password"] = p.(string)
+	}
+
 	return []map[string]interface{}{r}
 }
 
-func flattenClusterConfigTLSClientConfig(stateClusterConfig application.ClusterConfig) []map[string]interface{} {
-	return []map[string]interface{}{
-		{
-			"ca_data":     string(stateClusterConfig.CAData),
-			"cert_data":   string(stateClusterConfig.CertData),
-			"key_data":    string(stateClusterConfig.KeyData),
-			"insecure":    stateClusterConfig.Insecure,
-			"server_name": stateClusterConfig.ServerName,
-		},
+func flattenClusterConfigTLSClientConfig(tcc application.TLSClientConfig, d *schema.ResourceData) []map[string]interface{} {
+	c := map[string]interface{}{
+		"ca_data":     string(tcc.CAData),
+		"cert_data":   string(tcc.CertData),
+		"insecure":    tcc.Insecure,
+		"server_name": tcc.ServerName,
 	}
+
+	// ArgoCD API does not return sensitive data. Thus, we can't track
+	// the state of this attribute and load it from state instead.
+	// See https://github.com/argoproj/argo-cd/blob/8840929187f4dd7b9d9fd908ea5085a006895507/server/cluster/cluster.go#L448-L466
+	if kd, ok := d.GetOk("config.0.tls_client_config.0.key_data"); ok {
+		c["key_data"] = kd.(string)
+	}
+
+	return []map[string]interface{}{c}
 }
 
-func flattenClusterConfigExecProviderConfig(epc *application.ExecProviderConfig) (result []map[string]interface{}) {
+func flattenClusterConfigExecProviderConfig(epc *application.ExecProviderConfig, d *schema.ResourceData) []map[string]interface{} {
 	if epc == nil {
-		return
+		return nil
 	}
 
-	result = []map[string]interface{}{
-		{
-			"api_version":  epc.APIVersion,
-			"args":         epc.Args,
-			"command":      epc.Command,
-			"env":          epc.Env,
-			"install_hint": epc.InstallHint,
-		},
+	c := map[string]interface{}{
+		"api_version":  epc.APIVersion,
+		"command":      epc.Command,
+		"install_hint": epc.InstallHint,
 	}
 
-	return
+	// ArgoCD API does not return these fields as they may contain
+	// sensitive data. Thus, we can't track the state of these
+	// attributes and load them from state instead.
+	// See https://github.com/argoproj/argo-cd/blob/8840929187f4dd7b9d9fd908ea5085a006895507/server/cluster/cluster.go#L454-L461
+	if a, ok := d.GetOk("config.0.exec_provider_config.0.args"); ok {
+		c["args"] = a.([]string)
+	}
+
+	if a, ok := d.GetOk("config.0.exec_provider_config.0.env"); ok {
+		c["env"] = a.([]string)
+	}
+
+	return []map[string]interface{}{c}
 }
 
 func flattenClusterMetadata(annotations, labels map[string]string) []map[string]interface{} {
