@@ -96,23 +96,30 @@ func flattenRepository(repository *application.Repository, d *schema.ResourceDat
 		"insecure":                repository.Insecure,
 		"name":                    repository.Name,
 		"project":                 repository.Project,
-		// TODO: in case of repositoryCredentials existence, will perma-diff
-		//"username":                		repository.Username,
-		// TODO: ArgoCD API does not return sensitive data!
-		//"password":                		repository.Password,
-		//"ssh_private_key":         		repository.SSHPrivateKey,
-		//"tls_client_cert_key":     		repository.TLSClientCertKey,
-		"tls_client_cert_data":          repository.TLSClientCertData,
-		"type":                          repository.Type,
-		"githubapp_enterprise_base_url": repository.GitHubAppEnterpriseBaseURL,
+		"type":                    repository.Type,
+
+		// ArgoCD API does not return sensitive data so we can't track the state of these attributes.
+		// "password":              repository.Password,
+		// "ssh_private_key":       repository.SSHPrivateKey,
+		// "tls_client_cert_key":   repository.TLSClientCertKey,
+		// "githubapp_private_key": repository.GithubAppPrivateKey,
 	}
 
-	if repository.GithubAppId > 0 {
-		r["githubapp_id"] = convertInt64ToString(repository.GithubAppId)
-	}
+	if !repository.InheritedCreds {
+		// To prevent perma-diff in case of existence of repository credentials
+		// existence, we only track the state of these values when the
+		// repository is not inheriting credentials
+		r["githubapp_enterprise_base_url"] = repository.GitHubAppEnterpriseBaseURL
+		r["tls_client_cert_data"] = repository.TLSClientCertData
+		r["username"] = repository.Username
 
-	if repository.GithubAppInstallationId > 0 {
-		r["githubapp_installation_id"] = convertInt64ToString(repository.GithubAppInstallationId)
+		if repository.GithubAppId > 0 {
+			r["githubapp_id"] = convertInt64ToString(repository.GithubAppId)
+		}
+
+		if repository.GithubAppInstallationId > 0 {
+			r["githubapp_installation_id"] = convertInt64ToString(repository.GithubAppInstallationId)
+		}
 	}
 
 	for k, v := range r {
