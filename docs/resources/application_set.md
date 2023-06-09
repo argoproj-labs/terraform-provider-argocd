@@ -843,6 +843,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -854,6 +855,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.cluster_decision_resource.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--cluster_decision_resource--template--spec--sync_policy--retry"></a>
@@ -1101,6 +1111,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -1112,6 +1123,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--clusters--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.clusters.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--clusters--template--spec--sync_policy--retry"></a>
@@ -1364,6 +1384,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -1375,6 +1396,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--git--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.git.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--git--template--spec--sync_policy--retry"></a>
@@ -1604,6 +1634,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -1615,6 +1646,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--list--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.list.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--list--template--spec--sync_policy--retry"></a>
@@ -1893,6 +1933,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -1904,6 +1945,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.cluster_decision_resource.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--retry"></a>
@@ -2151,6 +2201,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -2162,6 +2213,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--clusters--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.clusters.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--clusters--template--spec--sync_policy--retry"></a>
@@ -2414,6 +2474,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -2425,6 +2486,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--git--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.git.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--git--template--spec--sync_policy--retry"></a>
@@ -2654,6 +2724,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -2665,6 +2736,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--list--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.list.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--list--template--spec--sync_policy--retry"></a>
@@ -2941,6 +3021,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -2952,6 +3033,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.cluster_decision_resource.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--retry"></a>
@@ -3199,6 +3289,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -3210,6 +3301,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.clusters.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--sync_policy--retry"></a>
@@ -3462,6 +3562,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -3473,6 +3574,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.git.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--sync_policy--retry"></a>
@@ -3702,6 +3812,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -3713,6 +3824,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.list.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--sync_policy--retry"></a>
@@ -4057,6 +4177,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -4068,6 +4189,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.pull_request.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--sync_policy--retry"></a>
@@ -4465,6 +4595,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -4476,6 +4607,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.scm_provider.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--sync_policy--retry"></a>
@@ -4714,6 +4854,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -4725,6 +4866,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--template--spec--sync_policy--retry"></a>
@@ -5002,6 +5152,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -5013,6 +5164,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.cluster_decision_resource.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--retry"></a>
@@ -5260,6 +5420,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -5271,6 +5432,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.clusters.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--sync_policy--retry"></a>
@@ -5523,6 +5693,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -5534,6 +5705,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.git.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--sync_policy--retry"></a>
@@ -5763,6 +5943,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -5774,6 +5955,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.list.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--sync_policy--retry"></a>
@@ -6118,6 +6308,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -6129,6 +6320,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.pull_request.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--sync_policy--retry"></a>
@@ -6526,6 +6726,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -6537,6 +6738,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.scm_provider.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--sync_policy--retry"></a>
@@ -6775,6 +6985,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -6786,6 +6997,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--template--spec--sync_policy--retry"></a>
@@ -7130,6 +7350,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -7141,6 +7362,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.pull_request.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--pull_request--template--spec--sync_policy--retry"></a>
@@ -7538,6 +7768,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -7549,6 +7780,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.generator.scm_provider.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--sync_policy--retry"></a>
@@ -7787,6 +8027,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -7798,6 +8039,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--matrix--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.matrix.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--matrix--template--spec--sync_policy--retry"></a>
@@ -8077,6 +8327,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -8088,6 +8339,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.cluster_decision_resource.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--retry"></a>
@@ -8335,6 +8595,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -8346,6 +8607,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--clusters--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.clusters.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--clusters--template--spec--sync_policy--retry"></a>
@@ -8598,6 +8868,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -8609,6 +8880,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--git--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.git.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--git--template--spec--sync_policy--retry"></a>
@@ -8838,6 +9118,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -8849,6 +9130,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--list--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.list.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--list--template--spec--sync_policy--retry"></a>
@@ -9125,6 +9415,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -9136,6 +9427,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.cluster_decision_resource.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--sync_policy--retry"></a>
@@ -9383,6 +9683,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -9394,6 +9695,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.clusters.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--sync_policy--retry"></a>
@@ -9646,6 +9956,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -9657,6 +9968,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.git.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--sync_policy--retry"></a>
@@ -9886,6 +10206,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -9897,6 +10218,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.list.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--sync_policy--retry"></a>
@@ -10241,6 +10571,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -10252,6 +10583,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.pull_request.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--sync_policy--retry"></a>
@@ -10649,6 +10989,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -10660,6 +11001,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.scm_provider.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--sync_policy--retry"></a>
@@ -10898,6 +11248,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -10909,6 +11260,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--template--spec--sync_policy--retry"></a>
@@ -11186,6 +11546,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -11197,6 +11558,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.cluster_decision_resource.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--sync_policy--retry"></a>
@@ -11444,6 +11814,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -11455,6 +11826,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.clusters.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--sync_policy--retry"></a>
@@ -11707,6 +12087,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -11718,6 +12099,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.git.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--sync_policy--retry"></a>
@@ -11947,6 +12337,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -11958,6 +12349,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.list.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--sync_policy--retry"></a>
@@ -12302,6 +12702,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -12313,6 +12714,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.pull_request.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--sync_policy--retry"></a>
@@ -12710,6 +13120,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -12721,6 +13132,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.scm_provider.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--sync_policy--retry"></a>
@@ -12959,6 +13379,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -12970,6 +13391,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--merge--template--spec--sync_policy--retry"></a>
@@ -13314,6 +13744,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -13325,6 +13756,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.pull_request.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--pull_request--template--spec--sync_policy--retry"></a>
@@ -13722,6 +14162,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -13733,6 +14174,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.generator.scm_provider.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--generator--scm_provider--template--spec--sync_policy--retry"></a>
@@ -13971,6 +14421,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -13982,6 +14433,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--merge--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.merge.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--merge--template--spec--sync_policy--retry"></a>
@@ -14326,6 +14786,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -14337,6 +14798,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--pull_request--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.pull_request.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--pull_request--template--spec--sync_policy--retry"></a>
@@ -14734,6 +15204,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -14745,6 +15216,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--generator--scm_provider--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.generator.scm_provider.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--generator--scm_provider--template--spec--sync_policy--retry"></a>
@@ -14992,6 +15472,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--template--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--template--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--template--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -15003,6 +15484,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--template--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.template.spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--template--spec--sync_policy--retry"></a>

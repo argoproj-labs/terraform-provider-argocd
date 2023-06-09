@@ -126,6 +126,10 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		return featureNotSupported(features.MultipleApplicationSources)
 	}
 
+	if spec.SyncPolicy != nil && spec.SyncPolicy.ManagedNamespaceMetadata != nil && !si.isFeatureSupported(features.ManagedNamespaceMetadata) {
+		return featureNotSupported(features.ManagedNamespaceMetadata)
+	}
+
 	app, err := si.ApplicationClient.Create(ctx, &applicationClient.ApplicationCreateRequest{
 		Application: &application.Application{
 			ObjectMeta: objectMeta,
@@ -257,6 +261,10 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		spec.Sources = nil
 	case l > 1 && !si.isFeatureSupported(features.MultipleApplicationSources):
 		return featureNotSupported(features.MultipleApplicationSources)
+	}
+
+	if spec.SyncPolicy != nil && spec.SyncPolicy.ManagedNamespaceMetadata != nil && !si.isFeatureSupported(features.ManagedNamespaceMetadata) {
+		return featureNotSupported(features.ManagedNamespaceMetadata)
 	}
 
 	apps, err := si.ApplicationClient.List(ctx, appQuery)

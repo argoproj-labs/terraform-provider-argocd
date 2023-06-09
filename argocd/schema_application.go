@@ -1674,6 +1674,30 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 									},
 								},
 							},
+							"managed_namespace_metadata": {
+								Type:        schema.TypeList,
+								MaxItems:    1,
+								Description: "Controls metadata in the given namespace (if `CreateNamespace=true`).",
+								Optional:    true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"annotations": {
+											Type:         schema.TypeMap,
+											Description:  "Annotations to apply to the namespace.",
+											Optional:     true,
+											Elem:         &schema.Schema{Type: schema.TypeString},
+											ValidateFunc: validateMetadataAnnotations,
+										},
+										"labels": {
+											Type:         schema.TypeMap,
+											Description:  "Labels to apply to the namespace.",
+											Optional:     true,
+											Elem:         &schema.Schema{Type: schema.TypeString},
+											ValidateFunc: validateMetadataLabels,
+										},
+									},
+								},
+							},
 						},
 					},
 				},

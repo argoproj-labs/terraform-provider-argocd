@@ -379,6 +379,7 @@ Optional:
 Optional:
 
 - `automated` (Block Set, Max: 1) Whether to automatically keep an application synced to the target revision. (see [below for nested schema](#nestedblock--spec--sync_policy--automated))
+- `managed_namespace_metadata` (Block List, Max: 1) Controls metadata in the given namespace (if `CreateNamespace=true`). (see [below for nested schema](#nestedblock--spec--sync_policy--managed_namespace_metadata))
 - `retry` (Block List, Max: 1) Controls failed sync retry behavior. (see [below for nested schema](#nestedblock--spec--sync_policy--retry))
 - `sync_options` (List of String) List of sync options. More info: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/.
 
@@ -390,6 +391,15 @@ Optional:
 - `allow_empty` (Boolean) Allows apps have zero live resources.
 - `prune` (Boolean) Whether to delete resources from the cluster that are not found in the sources anymore as part of automated sync.
 - `self_heal` (Boolean) Whether to revert resources back to their desired state upon modification in the cluster.
+
+
+<a id="nestedblock--spec--sync_policy--managed_namespace_metadata"></a>
+### Nested Schema for `spec.sync_policy.managed_namespace_metadata`
+
+Optional:
+
+- `annotations` (Map of String) Annotations to apply to the namespace.
+- `labels` (Map of String) Labels to apply to the namespace.
 
 
 <a id="nestedblock--spec--sync_policy--retry"></a>
