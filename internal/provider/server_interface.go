@@ -14,6 +14,7 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/applicationset"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/certificate"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/cluster"
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient/gpgkey"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repocreds"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repository"
@@ -37,6 +38,7 @@ type ServerInterface struct {
 	ApplicationSetClient applicationset.ApplicationSetServiceClient
 	CertificateClient    certificate.CertificateServiceClient
 	ClusterClient        cluster.ClusterServiceClient
+	GPGKeysClient        gpgkey.GPGKeyServiceClient
 	ProjectClient        project.ProjectServiceClient
 	RepoCredsClient      repocreds.RepoCredsServiceClient
 	RepositoryClient     repository.RepositoryServiceClient
@@ -99,6 +101,11 @@ func (si *ServerInterface) InitClients(ctx context.Context) diag.Diagnostics {
 	_, si.ClusterClient, err = ac.NewClusterClient()
 	if err != nil {
 		diags.Append(diagnostics.Error("failed to initialize cluster client", err)...)
+	}
+
+	_, si.GPGKeysClient, err = ac.NewGPGKeyClient()
+	if err != nil {
+		diags.Append(diagnostics.Error("failed to initialize GPG keys client", err)...)
 	}
 
 	_, si.ProjectClient, err = ac.NewProjectClient()
