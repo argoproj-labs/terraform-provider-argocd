@@ -195,11 +195,11 @@ func flattenClusterConfig(config application.ClusterConfig, d *schema.ResourceDa
 	// attributes and load them from state instead.
 	// See https://github.com/argoproj/argo-cd/blob/8840929187f4dd7b9d9fd908ea5085a006895507/server/cluster/cluster.go#L448-L466
 	if bt, ok := d.GetOk("config.0.bearer_token"); ok {
-		r["bearer_token"] = bt.(string)
+		r["bearer_token"] = bt
 	}
 
 	if p, ok := d.GetOk("config.0.password"); ok {
-		r["password"] = p.(string)
+		r["password"] = p
 	}
 
 	return []map[string]interface{}{r}
@@ -217,7 +217,7 @@ func flattenClusterConfigTLSClientConfig(tcc application.TLSClientConfig, d *sch
 	// the state of this attribute and load it from state instead.
 	// See https://github.com/argoproj/argo-cd/blob/8840929187f4dd7b9d9fd908ea5085a006895507/server/cluster/cluster.go#L448-L466
 	if kd, ok := d.GetOk("config.0.tls_client_config.0.key_data"); ok {
-		c["key_data"] = kd.(string)
+		c["key_data"] = kd
 	}
 
 	return []map[string]interface{}{c}
@@ -238,12 +238,12 @@ func flattenClusterConfigExecProviderConfig(epc *application.ExecProviderConfig,
 	// sensitive data. Thus, we can't track the state of these
 	// attributes and load them from state instead.
 	// See https://github.com/argoproj/argo-cd/blob/8840929187f4dd7b9d9fd908ea5085a006895507/server/cluster/cluster.go#L454-L461
-	if a, ok := d.GetOk("config.0.exec_provider_config.0.args"); ok {
-		c["args"] = a.([]string)
+	if args, ok := d.GetOk("config.0.exec_provider_config.0.args"); ok {
+		c["args"] = args
 	}
 
-	if a, ok := d.GetOk("config.0.exec_provider_config.0.env"); ok {
-		c["env"] = a.([]string)
+	if env, ok := d.GetOk("config.0.exec_provider_config.0.env"); ok {
+		c["env"] = env
 	}
 
 	return []map[string]interface{}{c}
