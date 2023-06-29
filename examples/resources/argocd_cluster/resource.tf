@@ -97,7 +97,7 @@ resource "argocd_cluster" "eks" {
       role_arn     = "arn:aws:iam::<123456789012>:role/<role-name>"
     }
     tls_client_config {
-      ca_data = data.aws_eks_cluster.cluster.certificate_authority[0].data
+      ca_data = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
     }
   }
 }
