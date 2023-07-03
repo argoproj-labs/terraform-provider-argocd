@@ -120,6 +120,7 @@ resource "argocd_project" "myproject" {
       duration     = "12h"
       schedule     = "22 1 5 * *"
       manual_sync  = false
+      timezone     = "Europe/London"
     }
 
     signature_keys = [
@@ -274,6 +275,7 @@ Optional:
 - `manual_sync` (Boolean) Enables manual syncs when they would otherwise be blocked.
 - `namespaces` (List of String) List of namespaces that the window will apply to.
 - `schedule` (String) Time the window will begin, specified in cron format.
+- `timezone` (String) Timezone that the schedule will be evaluated in.
 
 ## Import
 

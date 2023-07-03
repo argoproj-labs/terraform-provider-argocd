@@ -97,6 +97,7 @@ func flattenSyncWindows(sws application.SyncWindows) (result []map[string]interf
 			"manual_sync":  sw.ManualSync,
 			"namespaces":   sw.Namespaces,
 			"schedule":     sw.Schedule,
+			"timezone":     sw.TimeZone,
 		})
 	}
 
