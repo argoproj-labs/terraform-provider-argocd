@@ -12,6 +12,7 @@ import (
 	"github.com/cristalhq/jwt/v3"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 )
 
 func resourceArgoCDProjectToken() *schema.Resource {
@@ -155,9 +156,9 @@ func resourceArgoCDProjectToken() *schema.Resource {
 }
 
 func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	projectName := d.Get("project").(string)
@@ -273,9 +274,9 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	projectName := d.Get("project").(string)
@@ -356,9 +357,9 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	projectName := d.Get("project").(string)

@@ -12,9 +12,10 @@ import (
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/gitops-engine/pkg/health"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/oboukili/terraform-provider-argocd/internal/features"
+	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 )
 
 func resourceArgoCDApplication() *schema.Resource {
@@ -81,9 +82,9 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		return errorToDiagnostics("failed to expand application", err)
 	}
 
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	apps, err := si.ApplicationClient.List(ctx, &applicationClient.ApplicationQuery{
@@ -123,11 +124,11 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	case l == 1:
 		spec.Source = &spec.Sources[0]
 		spec.Sources = nil
-	case l > 1 && !si.isFeatureSupported(features.MultipleApplicationSources):
+	case l > 1 && !si.IsFeatureSupported(features.MultipleApplicationSources):
 		return featureNotSupported(features.MultipleApplicationSources)
 	}
 
-	if spec.SyncPolicy != nil && spec.SyncPolicy.ManagedNamespaceMetadata != nil && !si.isFeatureSupported(features.ManagedNamespaceMetadata) {
+	if spec.SyncPolicy != nil && spec.SyncPolicy.ManagedNamespaceMetadata != nil && !si.IsFeatureSupported(features.ManagedNamespaceMetadata) {
 		return featureNotSupported(features.ManagedNamespaceMetadata)
 	}
 
@@ -155,25 +156,25 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	d.SetId(fmt.Sprintf("%s:%s", app.Name, objectMeta.Namespace))
 
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
-		if err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+		if err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *retry.RetryError {
 			var list *application.ApplicationList
 			if list, err = si.ApplicationClient.List(ctx, &applicationClient.ApplicationQuery{
 				Name:         &app.Name,
 				AppNamespace: &app.Namespace,
 			}); err != nil {
-				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
+				return retry.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", app.Name, err))
 			}
 
 			if len(list.Items) != 1 {
-				return resource.NonRetryableError(fmt.Errorf("found unexpected number of applications matching name '%s' and namespace '%s'. Items: %d", app.Name, app.Namespace, len(list.Items)))
+				return retry.NonRetryableError(fmt.Errorf("found unexpected number of applications matching name '%s' and namespace '%s'. Items: %d", app.Name, app.Namespace, len(list.Items)))
 			}
 
 			if list.Items[0].Status.Health.Status != health.HealthStatusHealthy {
-				return resource.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", list.Items[0].Status.Health.Status))
+				return retry.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", list.Items[0].Status.Health.Status))
 			}
 
 			if list.Items[0].Status.Sync.Status != application.SyncStatusCodeSynced {
-				return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", list.Items[0].Status.Sync.Status))
+				return retry.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", list.Items[0].Status.Sync.Status))
 			}
 
 			return nil
@@ -186,9 +187,9 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	ids := strings.Split(d.Id(), ":")
@@ -238,9 +239,9 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		return resourceArgoCDApplicationRead(ctx, d, meta)
 	}
 
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	ids := strings.Split(d.Id(), ":")
@@ -260,11 +261,11 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 	case l == 1:
 		spec.Source = &spec.Sources[0]
 		spec.Sources = nil
-	case l > 1 && !si.isFeatureSupported(features.MultipleApplicationSources):
+	case l > 1 && !si.IsFeatureSupported(features.MultipleApplicationSources):
 		return featureNotSupported(features.MultipleApplicationSources)
 	}
 
-	if spec.SyncPolicy != nil && spec.SyncPolicy.ManagedNamespaceMetadata != nil && !si.isFeatureSupported(features.ManagedNamespaceMetadata) {
+	if spec.SyncPolicy != nil && spec.SyncPolicy.ManagedNamespaceMetadata != nil && !si.IsFeatureSupported(features.ManagedNamespaceMetadata) {
 		return featureNotSupported(features.ManagedNamespaceMetadata)
 	}
 
@@ -309,26 +310,26 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if wait, _ok := d.GetOk("wait"); _ok && wait.(bool) {
-		if err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+		if err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 			var list *application.ApplicationList
 			if list, err = si.ApplicationClient.List(ctx, appQuery); err != nil {
-				return resource.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", list.Items[0].Name, err))
+				return retry.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", list.Items[0].Name, err))
 			}
 
 			if len(list.Items) != 1 {
-				return resource.NonRetryableError(fmt.Errorf("found unexpected number of applications matching name '%s' and namespace '%s'. Items: %d", *appQuery.Name, *appQuery.AppNamespace, len(list.Items)))
+				return retry.NonRetryableError(fmt.Errorf("found unexpected number of applications matching name '%s' and namespace '%s'. Items: %d", *appQuery.Name, *appQuery.AppNamespace, len(list.Items)))
 			}
 
 			if list.Items[0].Status.ReconciledAt.Equal(apps.Items[0].Status.ReconciledAt) {
-				return resource.RetryableError(fmt.Errorf("reconciliation has not begun"))
+				return retry.RetryableError(fmt.Errorf("reconciliation has not begun"))
 			}
 
 			if list.Items[0].Status.Health.Status != health.HealthStatusHealthy {
-				return resource.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", list.Items[0].Status.Health.Status))
+				return retry.RetryableError(fmt.Errorf("expected application health status to be healthy but was %s", list.Items[0].Status.Health.Status))
 			}
 
 			if list.Items[0].Status.Sync.Status != application.SyncStatusCodeSynced {
-				return resource.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", list.Items[0].Status.Sync.Status))
+				return retry.RetryableError(fmt.Errorf("expected application sync status to be synced but was %s", list.Items[0].Status.Sync.Status))
 			}
 
 			return nil
@@ -341,9 +342,9 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	ids := strings.Split(d.Id(), ":")
@@ -360,7 +361,7 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 	}
 
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
-		if err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+		if err := retry.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *retry.RetryError {
 			apps, err := si.ApplicationClient.List(ctx, &applicationClient.ApplicationQuery{
 				Name:         &appName,
 				AppNamespace: &namespace,
@@ -369,11 +370,11 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 			switch err {
 			case nil:
 				if apps != nil && len(apps.Items) > 0 {
-					return resource.RetryableError(fmt.Errorf("application %s is still present", appName))
+					return retry.RetryableError(fmt.Errorf("application %s is still present", appName))
 				}
 			default:
 				if !strings.Contains(err.Error(), "NotFound") {
-					return resource.NonRetryableError(err)
+					return retry.NonRetryableError(err)
 				}
 			}
 

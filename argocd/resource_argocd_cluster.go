@@ -8,6 +8,7 @@ import (
 	clusterClient "github.com/argoproj/argo-cd/v2/pkg/apiclient/cluster"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 )
 
 func resourceArgoCDCluster() *schema.Resource {
@@ -25,9 +26,9 @@ func resourceArgoCDCluster() *schema.Resource {
 }
 
 func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	cluster, err := expandCluster(d)
@@ -87,9 +88,9 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	tokenMutexClusters.RLock()
@@ -113,9 +114,9 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	cluster, err := expandCluster(d)
@@ -135,9 +136,9 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	tokenMutexClusters.Lock()

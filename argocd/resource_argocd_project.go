@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/oboukili/terraform-provider-argocd/internal/features"
+	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 )
 
 func resourceArgoCDProject() *schema.Resource {
@@ -45,9 +46,9 @@ func resourceArgoCDProject() *schema.Resource {
 }
 
 func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	objectMeta, spec, err := expandProject(d)
@@ -57,7 +58,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 
 	projectName := objectMeta.Name
 
-	if !si.isFeatureSupported(features.ProjectSourceNamespaces) {
+	if !si.IsFeatureSupported(features.ProjectSourceNamespaces) {
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
 			return featureNotSupported(features.ProjectSourceNamespaces)
@@ -115,9 +116,9 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	projectName := d.Id()
@@ -153,9 +154,9 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		return resourceArgoCDProjectRead(ctx, d, meta)
 	}
 
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	objectMeta, spec, err := expandProject(d)
@@ -163,7 +164,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		return errorToDiagnostics(fmt.Sprintf("failed to expand project %s", d.Id()), err)
 	}
 
-	if !si.isFeatureSupported(features.ProjectSourceNamespaces) {
+	if !si.IsFeatureSupported(features.ProjectSourceNamespaces) {
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
 			return featureNotSupported(features.ProjectSourceNamespaces)
@@ -231,9 +232,9 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	projectName := d.Id()

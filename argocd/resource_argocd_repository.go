@@ -9,8 +9,9 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repository"
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 )
 
 func resourceArgoCDRepository() *schema.Resource {
@@ -28,9 +29,9 @@ func resourceArgoCDRepository() *schema.Resource {
 }
 
 func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	repo, err := expandRepository(d)
@@ -38,7 +39,7 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 		return errorToDiagnostics("failed to expand repository", err)
 	}
 
-	if err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+	if err := retry.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *retry.RetryError {
 		tokenMutexConfiguration.Lock()
 
 		var r *application.Repository
@@ -55,14 +56,14 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 		if err != nil {
 			// TODO: better way to detect ssh handshake failing ?
 			if matched, _ := regexp.MatchString("ssh: handshake failed: knownhosts: key is unknown", err.Error()); matched {
-				return resource.RetryableError(fmt.Errorf("handshake failed for repository %s, retrying in case a repository certificate has been set recently", repo.Repo))
+				return retry.RetryableError(fmt.Errorf("handshake failed for repository %s, retrying in case a repository certificate has been set recently", repo.Repo))
 			}
 
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		} else if r == nil {
-			return resource.NonRetryableError(fmt.Errorf("ArgoCD did not return an error or a repository result: %s", err))
+			return retry.NonRetryableError(fmt.Errorf("ArgoCD did not return an error or a repository result: %s", err))
 		} else if r.ConnectionState.Status == application.ConnectionStatusFailed {
-			return resource.NonRetryableError(fmt.Errorf("could not connect to repository %s: %s", repo.Repo, r.ConnectionState.Message))
+			return retry.NonRetryableError(fmt.Errorf("could not connect to repository %s: %s", repo.Repo, r.ConnectionState.Message))
 		}
 
 		d.SetId(r.Repo)
@@ -76,9 +77,9 @@ func resourceArgoCDRepositoryCreate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	tokenMutexConfiguration.RLock()
@@ -106,9 +107,9 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	repo, err := expandRepository(d)
@@ -146,9 +147,9 @@ func resourceArgoCDRepositoryUpdate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceArgoCDRepositoryDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	tokenMutexConfiguration.Lock()

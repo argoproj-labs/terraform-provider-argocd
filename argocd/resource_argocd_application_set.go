@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/oboukili/terraform-provider-argocd/internal/features"
+	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -31,21 +32,21 @@ func resourceArgoCDApplicationSet() *schema.Resource {
 }
 
 func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
-	if !si.isFeatureSupported(features.ApplicationSet) {
+	if !si.IsFeatureSupported(features.ApplicationSet) {
 		return featureNotSupported(features.ApplicationSet)
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(features.MultipleApplicationSources))
+	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources))
 	if err != nil {
 		return errorToDiagnostics("failed to expand application set", err)
 	}
 
-	if !si.isFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
+	if !si.IsFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
 		return featureNotSupported(features.ApplicationSetProgressiveSync)
 	}
 
@@ -76,9 +77,9 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	name := d.Id()
@@ -104,12 +105,12 @@ func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
-	if !si.isFeatureSupported(features.ApplicationSet) {
+	if !si.IsFeatureSupported(features.ApplicationSet) {
 		return featureNotSupported(features.ApplicationSet)
 	}
 
@@ -117,12 +118,12 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 		return nil
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, si.isFeatureSupported(features.MultipleApplicationSources))
+	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources))
 	if err != nil {
 		return errorToDiagnostics(fmt.Sprintf("failed to expand application set %s", d.Id()), err)
 	}
 
-	if !si.isFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
+	if !si.IsFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
 		return featureNotSupported(features.ApplicationSetProgressiveSync)
 	}
 
@@ -146,9 +147,9 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceArgoCDApplicationSetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*ServerInterface)
-	if err := si.initClients(ctx); err != nil {
-		return errorToDiagnostics("failed to init clients", err)
+	si := meta.(*provider.ServerInterface)
+	if diags := si.InitClients(ctx); diags != nil {
+		return pluginSDKDiags(diags)
 	}
 
 	_, err := si.ApplicationSetClient.Delete(ctx, &applicationset.ApplicationSetDeleteRequest{
