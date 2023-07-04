@@ -338,7 +338,7 @@ resource "argocd_project" "simple" {
       duration = "12h"
       schedule = "22 1 5 * *"
       manual_sync = false
-			timezone = "Europe/London"
+      timezone = "Europe/London"
     }
     signature_keys = [
       "4AEE18F83AFDEB23",
@@ -810,17 +810,17 @@ resource "argocd_project" "failure" {
   spec {
     description = "expected timezone failure"
     destination {
-	   server    = "https://kubernetes.default.svc"
-	   namespace = "*"
+      server    = "https://kubernetes.default.svc"
+      namespace = "*"
     }
     source_repos = ["*"]
     role {
       name = "incorrect-syncwindow"
       policies = [
-        "p, proj:%s:testrole, applications, override, %s/foo, allow",
+      "p, proj:%s:testrole, applications, override, %s/foo, allow",
       ]
     }
-	sync_window {
+    sync_window {
       kind = "allow"
       applications = ["api-*"]
       clusters = ["*"]
@@ -828,7 +828,7 @@ resource "argocd_project" "failure" {
       duration = "1h"
       schedule = "10 1 * * *"
       manual_sync = true
-    	timezone = "invalid"
+      timezone = "invalid"
     }
   }
 }
