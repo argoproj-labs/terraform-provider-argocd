@@ -516,6 +516,7 @@ func expandSyncWindows(sws []interface{}) (result []*application.SyncWindow) {
 			ManualSync:   sw["manual_sync"].(bool),
 			Namespaces:   expandStringList(sw["namespaces"].([]interface{})),
 			Schedule:     sw["schedule"].(string),
+			TimeZone:     sw["timezone"].(string),
 		})
 	}
 

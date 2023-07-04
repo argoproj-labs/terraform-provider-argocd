@@ -79,6 +79,7 @@ resource "argocd_project" "foo" {
       duration     = "12h"
       schedule     = "22 1 5 * *"
       manual_sync  = false
+      timezone     = "Europe/London"
     }
   }
 }

@@ -48,6 +48,12 @@ func TestAccArgoCDProject(t *testing.T) {
 				ExpectError: regexp.MustCompile("cannot parse schedule"),
 			},
 			{
+				Config: testAccArgoCDProjectSyncWindowTimezoneError(
+					"test-acc-" + acctest.RandString(10),
+				),
+				ExpectError: regexp.MustCompile("cannot parse timezone"),
+			},
+			{
 				Config: testAccArgoCDProjectSimple(name),
 				Check: resource.TestCheckResourceAttrSet(
 					"argocd_project.simple",
@@ -332,6 +338,7 @@ resource "argocd_project" "simple" {
       duration = "12h"
       schedule = "22 1 5 * *"
       manual_sync = false
+      timezone = "Europe/London"
     }
     signature_keys = [
       "4AEE18F83AFDEB23",
@@ -790,4 +797,40 @@ resource "argocd_project" "simple" {
   }
 }
 	`, name)
+}
+
+func testAccArgoCDProjectSyncWindowTimezoneError(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "failure" {
+  metadata {
+    name        = "%s"
+    namespace   = "argocd"
+  }
+
+  spec {
+    description = "expected timezone failure"
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "*"
+    }
+    source_repos = ["*"]
+    role {
+      name = "incorrect-syncwindow"
+      policies = [
+      "p, proj:%s:testrole, applications, override, %s/foo, allow",
+      ]
+    }
+    sync_window {
+      kind = "allow"
+      applications = ["api-*"]
+      clusters = ["*"]
+      namespaces = ["*"]
+      duration = "1h"
+      schedule = "10 1 * * *"
+      manual_sync = true
+      timezone = "invalid"
+    }
+  }
+}
+  `, name, name, name)
 }

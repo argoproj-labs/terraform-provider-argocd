@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
+	_ "time/tzdata"
 
-	"github.com/argoproj/pkg/time"
+	argocdtime "github.com/argoproj/pkg/time"
 	"github.com/robfig/cron"
 	"golang.org/x/crypto/ssh"
 	apiValidation "k8s.io/apimachinery/pkg/api/validation"
@@ -105,8 +107,17 @@ func validateSyncWindowSchedule(value interface{}, key string) (ws []string, es 
 func validateSyncWindowDuration(value interface{}, key string) (ws []string, es []error) {
 	v := value.(string)
 
-	if _, err := time.ParseDuration(v); err != nil {
+	if _, err := argocdtime.ParseDuration(v); err != nil {
 		es = append(es, fmt.Errorf("%s: cannot parse duration '%s': %s", key, v, err))
+	}
+
+	return
+}
+
+func validateSyncWindowTimezone(value interface{}, key string) (ws []string, es []error) {
+	v := value.(string)
+	if _, err := time.LoadLocation(v); err != nil {
+		es = append(es, fmt.Errorf("%s: cannot parse timezone '%s': %s", key, v, err))
 	}
 
 	return

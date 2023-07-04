@@ -665,6 +665,13 @@ func projectSpecSchemaV2() *schema.Schema {
 								ValidateFunc: validateSyncWindowSchedule,
 								Optional:     true,
 							},
+							"timezone": {
+								Type:         schema.TypeString,
+								Description:  "Timezone that the schedule will be evaluated in.",
+								ValidateFunc: validateSyncWindowTimezone,
+								Optional:     true,
+								Default:      "UTC",
+							},
 						},
 					},
 				},
