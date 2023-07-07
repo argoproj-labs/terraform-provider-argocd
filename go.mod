@@ -8,6 +8,7 @@ require (
 	github.com/argoproj/gitops-engine v0.7.3
 	github.com/argoproj/pkg v0.13.7-0.20221221191914-44694015343d
 	github.com/cristalhq/jwt/v3 v3.1.0
+	github.com/elliotchance/pie/v2 v2.6.0
 	github.com/golang/protobuf v1.5.3
 	github.com/hashicorp/terraform-plugin-docs v0.15.0
 	github.com/hashicorp/terraform-plugin-framework v1.3.1
@@ -206,7 +207,7 @@ require (
 	go.opentelemetry.io/otel v1.11.1 // indirect
 	go.opentelemetry.io/otel/trace v1.11.1 // indirect
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
-	golang.org/x/exp v0.0.0-20210901193431-a062eea981d2 // indirect
+	golang.org/x/exp v0.0.0-20220321173239-a90fa8a75705 // indirect
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/oauth2 v0.4.0 // indirect
