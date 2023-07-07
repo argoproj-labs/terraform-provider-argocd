@@ -253,7 +253,9 @@ func (p *ArgoCDProvider) Configure(ctx context.Context, req provider.ConfigureRe
 }
 
 func (p *ArgoCDProvider) Resources(context.Context) []func() resource.Resource {
-	return nil
+	return []func() resource.Resource{
+		NewGPGKeyResource,
+	}
 }
 
 func (p *ArgoCDProvider) DataSources(context.Context) []func() datasource.DataSource {
