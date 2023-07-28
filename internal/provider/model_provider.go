@@ -183,26 +183,9 @@ func (p ArgoCDProviderConfig) setCoreOpts(opts *apiclient.ClientOptions) (bool, 
 func (p ArgoCDProviderConfig) setLocalConfigOpts(opts *apiclient.ClientOptions) (bool, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	useLocalConfig := opts.PortForward || opts.PortForwardNamespace != ""
+	useLocalConfig := p.UseLocalConfig.ValueBool()
 	switch useLocalConfig {
 	case true:
-		opts.Context = getDefaultString(p.Context, "ARGOCD_CONTEXT")
-
-		cp := getDefaultString(p.ConfigPath, "ARGOCD_CONFIG_PATH")
-
-		if cp != "" {
-			opts.ConfigPath = p.ConfigPath.ValueString()
-			return useLocalConfig, nil
-		}
-
-		cp, err := localconfig.DefaultLocalConfigPath()
-		if err == nil {
-			opts.ConfigPath = cp
-			return useLocalConfig, nil
-		}
-
-		diags.Append(diagnostics.Error("failed to find default ArgoCD config path", err)...)
-
 		if opts.ServerAddr != "" {
 			diags.AddWarning("setting `server_addr` alongside `use_local_config = true` is unnecessary and not recommended as this will overwrite the address retrieved from the local ArgoCD context.", "")
 		}
@@ -210,6 +193,23 @@ func (p ArgoCDProviderConfig) setLocalConfigOpts(opts *apiclient.ClientOptions) 
 		if !p.Username.IsNull() {
 			diags.AddWarning("`username` is ignored when `use_local_config = true`.", "")
 		}
+
+		opts.Context = getDefaultString(p.Context, "ARGOCD_CONTEXT")
+
+		cp := getDefaultString(p.ConfigPath, "ARGOCD_CONFIG_PATH")
+
+		if cp != "" {
+			opts.ConfigPath = p.ConfigPath.ValueString()
+			break
+		}
+
+		cp, err := localconfig.DefaultLocalConfigPath()
+		if err == nil {
+			opts.ConfigPath = cp
+			break
+		}
+
+		diags.Append(diagnostics.Error("failed to find default ArgoCD config path", err)...)
 	case false:
 		// Log warnings if explicit configuration has been provided for local config when `use_local_config` is not enabled.
 		if !p.ConfigPath.IsNull() {
