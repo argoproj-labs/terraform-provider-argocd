@@ -69,7 +69,6 @@ func (p ArgoCDProviderConfig) getApiClientOptions(ctx context.Context) (*apiclie
 		PortForwardNamespace: p.PortForwardWithNamespace.ValueString(),
 		ServerAddr:           getDefaultString(p.ServerAddr, "ARGOCD_SERVER"),
 		UserAgent:            p.Username.ValueString(),
-		Context:              p.Context.ValueString(),
 	}
 
 	if !p.Headers.IsNull() {
