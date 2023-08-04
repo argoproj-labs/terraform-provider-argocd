@@ -59,7 +59,7 @@ func (p ArgoCDProviderConfig) getApiClientOptions(ctx context.Context) (*apiclie
 	opts := &apiclient.ClientOptions{
 		AuthToken:            getDefaultString(p.AuthToken, "ARGOCD_AUTH_TOKEN"),
 		CertFile:             p.CertFile.ValueString(),
-		ClientCertFile:       p.CertFile.ValueString(),
+		ClientCertFile:       p.ClientCertFile.ValueString(),
 		ClientCertKeyFile:    p.ClientCertKey.ValueString(),
 		GRPCWeb:              p.GRPCWeb.ValueBool(),
 		GRPCWebRootPath:      p.GRPCWebRootPath.ValueString(),
@@ -69,6 +69,7 @@ func (p ArgoCDProviderConfig) getApiClientOptions(ctx context.Context) (*apiclie
 		PortForwardNamespace: p.PortForwardWithNamespace.ValueString(),
 		ServerAddr:           getDefaultString(p.ServerAddr, "ARGOCD_SERVER"),
 		UserAgent:            p.Username.ValueString(),
+		Context:              p.Context.ValueString(),
 	}
 
 	if !p.Headers.IsNull() {
