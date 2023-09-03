@@ -18,7 +18,6 @@ func matchExpressionsSchema() *schema.Schema {
 		Type:        schema.TypeList,
 		Description: "A list of label selector requirements. The requirements are ANDed.",
 		Optional:    true,
-		ForceNew:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"key": {
