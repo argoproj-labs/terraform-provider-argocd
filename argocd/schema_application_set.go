@@ -276,11 +276,6 @@ func applicationSetGitGeneratorSchemaV0() *schema.Schema {
 						},
 					},
 				},
-				"path_param_prefix": {
-					Type:        schema.TypeString,
-					Description: "Prefix for all path-related parameter names. Only applicable when using the `matrix` generator. See https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Matrix/#example-two-git-generators-using-pathparamprefix",
-					Optional:    true,
-				},
 				"repo_url": {
 					Type:        schema.TypeString,
 					Description: "URL to the repository to use.",
@@ -289,6 +284,11 @@ func applicationSetGitGeneratorSchemaV0() *schema.Schema {
 				"revision": {
 					Type:        schema.TypeString,
 					Description: "Revision of the source repository to use.",
+					Optional:    true,
+				},
+				"path_param_prefix": {
+					Type:        schema.TypeString,
+					Description: "Prefix for all path-related parameter names.",
 					Optional:    true,
 				},
 				"template": {
