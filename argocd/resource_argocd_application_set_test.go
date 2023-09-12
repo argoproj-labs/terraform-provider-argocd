@@ -172,7 +172,7 @@ func TestAccArgoCDApplicationSet_gitPathParamPrefix(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application_set.git_files_path_param_prefix",
-						"spec.0.generator.0.git.0.file.0.pathParamPrefix",
+						"spec.0.generator.0.git.0.pathParamPrefix",
 						"foo",
 					),
 				),
