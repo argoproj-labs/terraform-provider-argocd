@@ -967,9 +967,10 @@ func flattenApplicationSetClusterDecisionResourceGenerator(c *application.DuckTy
 
 func flattenApplicationSetGitGenerator(gg *application.GitGenerator) []map[string]interface{} {
 	g := map[string]interface{}{
-		"repo_url": gg.RepoURL,
-		"revision": gg.Revision,
-		"template": flattenApplicationSetTemplate(gg.Template),
+		"repo_url":          gg.RepoURL,
+		"revision":          gg.Revision,
+		"path_param_prefix": gg.PathParamPrefix,
+		"template":          flattenApplicationSetTemplate(gg.Template),
 	}
 
 	if len(gg.Directories) > 0 {
