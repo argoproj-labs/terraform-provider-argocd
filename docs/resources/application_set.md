@@ -1168,6 +1168,7 @@ Optional:
 
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--git--file))
+- `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--git--template))
 
@@ -2258,6 +2259,7 @@ Optional:
 
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--file))
+- `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template))
 
@@ -3346,6 +3348,7 @@ Optional:
 
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--file))
+- `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template))
 
@@ -5477,6 +5480,7 @@ Optional:
 
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--file))
+- `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template))
 
@@ -8652,6 +8656,7 @@ Optional:
 
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--file))
+- `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template))
 
@@ -9740,6 +9745,7 @@ Optional:
 
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--file))
+- `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template))
 
@@ -11871,6 +11877,7 @@ Optional:
 
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--file))
+- `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template))
 
