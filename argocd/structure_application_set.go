@@ -166,8 +166,9 @@ func expandApplicationSetGitGenerator(gg interface{}, featureMultipleApplication
 
 	asg := &application.ApplicationSetGenerator{
 		Git: &application.GitGenerator{
-			RepoURL:  g["repo_url"].(string),
-			Revision: g["revision"].(string),
+			PathParamPrefix: g["path_param_prefix"].(string),
+			RepoURL:         g["repo_url"].(string),
+			Revision:        g["revision"].(string),
 		},
 	}
 
@@ -197,10 +198,6 @@ func expandApplicationSetGitGenerator(gg interface{}, featureMultipleApplication
 
 			asg.Git.Files = append(asg.Git.Files, file)
 		}
-	}
-
-	if v, ok := g["path_param_prefix"].(string); ok && len(v) > 0 {
-		asg.Git.PathParamPrefix = v
 	}
 
 	if v, ok := g["template"].([]interface{}); ok && len(v) > 0 {
