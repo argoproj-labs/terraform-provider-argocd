@@ -158,6 +158,35 @@ func TestAccArgoCDApplicationSet_gitFiles(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplicationSet_gitPathParamPrefix(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSet_scmProviderGitPathParamPrefix(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.git_files_path_param_prefix",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.git_files_path_param_prefix",
+						"spec.0.generator.0.git.0.file.0.pathParamPrefix",
+						"foo",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.git_files_path_param_prefix",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplicationSet_list(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
@@ -1051,6 +1080,48 @@ resource "argocd_application_set" "git_files" {
 		template {
 			metadata {
 				name = "{{cluster.name}}-git-files"
+			}
+		
+			spec {
+				source {
+					repo_url        = "https://github.com/argoproj/argo-cd.git"
+					target_revision = "HEAD"
+					path            = "applicationset/examples/git-generator-files-discovery/apps/guestbook"
+				}
+		
+				destination {
+					server    = "{{cluster.address}}"
+					namespace = "guestbook"
+				}
+			}
+		}
+	}
+}`
+}
+
+func testAccArgoCDApplicationSet_scmProviderGitPathParamPrefix() string {
+	return `
+resource "argocd_application_set" "git_files_path_param_prefix" {
+	metadata {
+		name = "git-files-path-param-prefix"
+	}
+	
+	spec {
+		generator {
+			git {
+				repo_url          = "https://github.com/argoproj/argo-cd.git"
+      			revision          = "HEAD"
+				path_param_prefix = "foo"
+				
+				file {
+					path = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
+				}
+			} 
+		}
+	
+		template {
+			metadata {
+				name = "{{cluster.name}}-git-files-path-param-prefix"
 			}
 		
 			spec {

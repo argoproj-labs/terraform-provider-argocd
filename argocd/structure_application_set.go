@@ -199,6 +199,10 @@ func expandApplicationSetGitGenerator(gg interface{}, featureMultipleApplication
 		}
 	}
 
+	if v, ok := g["path_param_prefix"].(string); ok && len(v) > 0 {
+		asg.Git.PathParamPrefix = v
+	}
+
 	if v, ok := g["template"].([]interface{}); ok && len(v) > 0 {
 		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
 		if err != nil {
