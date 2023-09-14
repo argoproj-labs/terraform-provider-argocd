@@ -1,10 +1,14 @@
 #!/bin/sh
 # shellcheck disable=SC2016,SC2028
+set -e
 
 export PATH=$PATH:.
 
 argocd_version=${ARGOCD_VERSION:-v2.8.3}
 k8s_version=${ARGOCD_KUBERNETES_VERSION:-v1.24.7}
+
+echo "\n--- Clearing current kube context\n"
+kubectl config unset current-context
 
 echo "\n--- Kustomize sanity checks\n"
 kustomize version || exit 1
