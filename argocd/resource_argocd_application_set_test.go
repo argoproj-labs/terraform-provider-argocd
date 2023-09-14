@@ -222,6 +222,40 @@ func TestAccArgoCDApplicationSet_matrix(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplicationSet_matrixGitPathParamPrefix(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSet_matrixGitPathParamPrefix(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix_git_path_param_prefix",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.matrix_git_path_param_prefix",
+						"spec.0.generator.0.matrix.0.generator.0.git.0.path_param_prefix",
+						"foo",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.matrix_git_path_param_prefix",
+						"spec.0.generator.0.matrix.0.generator.1.git.0.path_param_prefix",
+						"bar",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.matrix_git_path_param_prefix",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplicationSet_matrixNested(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
@@ -1163,6 +1197,64 @@ resource "argocd_application_set" "matrix" {
 				destination {
 					server    = "{{server}}"
 					namespace = "{{path.basename}}"
+				}
+			}
+		}
+	}
+}`
+}
+
+func testAccArgoCDApplicationSet_matrixGitPathParamPrefix() string {
+	return `
+resource "argocd_application_set" "matrix_git_path_param_prefix" {
+	metadata {
+		name = "matrix-git-path-param-prefix"
+	}
+	
+	spec {
+		generator {
+			matrix {
+				generator {
+					git {
+						repo_url          = "https://github.com/argoproj/argo-cd.git"
+						revision          = "HEAD"
+						path_param_prefix = "foo"
+						
+						file {
+							path = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
+						}
+					}
+				}
+
+				generator {
+					git {
+						repo_url          = "https://github.com/argoproj/argo-cd.git"
+						revision          = "HEAD"
+						path_param_prefix = "bar"
+						
+						file {
+							path = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
+						}
+					}
+				}
+			}
+		}
+	
+		template {
+			metadata {
+				name = "matrix-git-path-param-prefix"
+			}
+		
+			spec {
+				source {
+					repo_url        = "https://github.com/argoproj/argo-cd.git"
+					target_revision = "HEAD"
+					path            = "applicationset/examples/git-generator-files-discovery/apps/guestbook"
+				}
+		
+				destination {
+					server    = "{{cluster.address}}"
+					namespace = "guestbook"
 				}
 			}
 		}
