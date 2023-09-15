@@ -861,6 +861,43 @@ func TestAccArgoCDApplicationSet_syncPolicy(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplicationSet_syncPolicyWithApplicationsSyncPolicy(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureSupported(t, features.ApplicationSetApplicationsSyncPolicy)
+		},
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSet_syncPolicyWithApplicationsSync(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.sync_policy",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.sync_policy",
+						"spec.0.sync_policy.0.preserve_resources_on_deletion",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.sync_policy",
+						"spec.0.sync_policy.0.applications_sync",
+						"create-update",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.sync_policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplicationSet_progressiveSync(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSetProgressiveSync) },
@@ -2721,6 +2758,45 @@ resource "argocd_application_set" "sync_policy" {
 
 		sync_policy {
 			preserve_resources_on_deletion = true
+		}
+	
+		template {
+			metadata {
+				name = "appset-sync-policy-{{name}}"
+			}
+		
+			spec {
+				source {
+					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					target_revision = "HEAD"
+					path            = "guestbook"
+				}
+		
+				destination {
+					server    = "{{server}}"
+					namespace = "default"
+				}
+			}
+		}
+	}
+}`
+}
+
+func testAccArgoCDApplicationSet_syncPolicyWithApplicationsSync() string {
+	return `
+resource "argocd_application_set" "sync_policy" {
+	metadata {
+		name = "sync-policy"
+	}
+	
+	spec {
+		generator {
+			clusters {} # Automatically use all clusters defined within Argo CD
+		}
+
+		sync_policy {
+			preserve_resources_on_deletion = true
+			applications_sync              = "create-update"
 		}
 	
 		template {
