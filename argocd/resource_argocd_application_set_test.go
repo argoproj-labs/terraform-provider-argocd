@@ -873,23 +873,23 @@ func TestAccArgoCDApplicationSet_syncPolicyWithApplicationsSyncPolicy(t *testing
 				Config: testAccArgoCDApplicationSet_syncPolicyWithApplicationsSync(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
-						"argocd_application_set.sync_policy",
+						"argocd_application_set.applications_sync_policy",
 						"metadata.0.uid",
 					),
 					resource.TestCheckResourceAttr(
-						"argocd_application_set.sync_policy",
+						"argocd_application_set.applications_sync_policy",
 						"spec.0.sync_policy.0.preserve_resources_on_deletion",
 						"true",
 					),
 					resource.TestCheckResourceAttr(
-						"argocd_application_set.sync_policy",
+						"argocd_application_set.applications_sync_policy",
 						"spec.0.sync_policy.0.applications_sync",
 						"create-update",
 					),
 				),
 			},
 			{
-				ResourceName:            "argocd_application_set.sync_policy",
+				ResourceName:            "argocd_application_set.applications_sync_policy",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
@@ -2784,9 +2784,9 @@ resource "argocd_application_set" "sync_policy" {
 
 func testAccArgoCDApplicationSet_syncPolicyWithApplicationsSync() string {
 	return `
-resource "argocd_application_set" "sync_policy" {
+resource "argocd_application_set" "applications_sync_policy" {
 	metadata {
-		name = "sync-policy"
+		name = "applications-sync-policy"
 	}
 	
 	spec {
