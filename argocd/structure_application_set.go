@@ -1463,6 +1463,7 @@ func flattenApplicationSetSyncPolicy(assp application.ApplicationSetSyncPolicy) 
 	p := map[string]interface{}{
 		"preserve_resources_on_deletion": assp.PreserveResourcesOnDeletion,
 		"applications_sync":              assp.ApplicationsSync,
+		"applications_sync":              assp.ApplicationsSync,
 	}
 
 	return []map[string]interface{}{p}
