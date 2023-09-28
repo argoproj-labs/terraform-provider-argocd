@@ -12,14 +12,14 @@ import (
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func expandApplicationSet(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetApplicationsSyncPolicy bool) (metadata meta.ObjectMeta, spec application.ApplicationSetSpec, err error) {
+func expandApplicationSet(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool) (metadata meta.ObjectMeta, spec application.ApplicationSetSpec, err error) {
 	metadata = expandMetadata(d)
-	spec, err = expandApplicationSetSpec(d, featureMultipleApplicationSourcesSupported, featureApplicationSetApplicationsSyncPolicy)
+	spec, err = expandApplicationSetSpec(d, featureMultipleApplicationSourcesSupported)
 
 	return
 }
 
-func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetApplicationsSyncPolicy bool) (spec application.ApplicationSetSpec, err error) {
+func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool) (spec application.ApplicationSetSpec, err error) {
 	s := d.Get("spec.0").(map[string]interface{})
 
 	if v, ok := s["generator"].([]interface{}); ok && len(v) > 0 {
@@ -39,7 +39,7 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 	}
 
 	if v, ok := s["sync_policy"].([]interface{}); ok && len(v) > 0 {
-		spec.SyncPolicy = expandApplicationSetSyncPolicy(v[0].(map[string]interface{}), featureApplicationSetApplicationsSyncPolicy)
+		spec.SyncPolicy = expandApplicationSetSyncPolicy(v[0].(map[string]interface{}))
 	}
 
 	if v, ok := s["template"].([]interface{}); ok && len(v) > 0 {
@@ -783,12 +783,11 @@ func expandApplicationSetSyncPolicyApplicationsSyncPolicy(p string) (asp applica
 	return asp
 }
 
-func expandApplicationSetSyncPolicy(sp map[string]interface{}, featureApplicationSetApplicationsSyncPolicy bool) (assp *application.ApplicationSetSyncPolicy) {
+func expandApplicationSetSyncPolicy(sp map[string]interface{}) (assp *application.ApplicationSetSyncPolicy) {
 	assp = &application.ApplicationSetSyncPolicy{}
 
-	if v, ok := sp["applications_sync"].(string); ok && len(v) > 0 && featureApplicationSetApplicationsSyncPolicy {
+	if v, ok := sp["applications_sync"].(string); ok && len(v) > 0 {
 		asp := expandApplicationSetSyncPolicyApplicationsSyncPolicy(v)
-
 		assp.ApplicationsSync = &asp
 	}
 

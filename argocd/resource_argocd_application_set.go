@@ -41,13 +41,17 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		return featureNotSupported(features.ApplicationSet)
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources), si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy))
+	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources))
 	if err != nil {
 		return errorToDiagnostics("failed to expand application set", err)
 	}
 
 	if !si.IsFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
 		return featureNotSupported(features.ApplicationSetProgressiveSync)
+	}
+
+	if !si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy.ApplicationsSync != nil {
+		return featureNotSupported(features.ApplicationSetApplicationsSyncPolicy)
 	}
 
 	as, err := si.ApplicationSetClient.Create(ctx, &applicationset.ApplicationSetCreateRequest{
@@ -118,7 +122,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 		return nil
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources), si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy))
+	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources))
 	if err != nil {
 		return errorToDiagnostics(fmt.Sprintf("failed to expand application set %s", d.Id()), err)
 	}
