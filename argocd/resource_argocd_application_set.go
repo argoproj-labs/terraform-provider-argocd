@@ -50,7 +50,7 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		return featureNotSupported(features.ApplicationSetProgressiveSync)
 	}
 
-	if !si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy.ApplicationsSync != nil {
+	if !si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy != nil {
 		return featureNotSupported(features.ApplicationSetApplicationsSyncPolicy)
 	}
 
@@ -131,7 +131,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 		return featureNotSupported(features.ApplicationSetProgressiveSync)
 	}
 
-	if !si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy.ApplicationsSync != nil {
+	if !si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy != nil {
 		return featureNotSupported(features.ApplicationSetApplicationsSyncPolicy)
 	}
 
