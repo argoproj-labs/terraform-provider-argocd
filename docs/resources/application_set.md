@@ -15568,4 +15568,5 @@ Optional:
 
 Optional:
 
+- `applications_sync` (String) Represents the policy applied on the generated applications. Possible values are create-only, create-update, create-delete, and sync.
 - `preserve_resources_on_deletion` (Boolean) Label selector used to narrow the scope of targeted clusters.

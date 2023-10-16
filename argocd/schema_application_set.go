@@ -74,6 +74,11 @@ func applicationSetSpecSchemaV0() *schema.Schema {
 								Description: "Label selector used to narrow the scope of targeted clusters.",
 								Optional:    true,
 							},
+							"applications_sync": {
+								Type:        schema.TypeString,
+								Description: "Represents the policy applied on the generated applications. Possible values are create-only, create-update, create-delete, and sync.",
+								Optional:    true,
+							},
 						},
 					},
 				},

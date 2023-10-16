@@ -50,6 +50,10 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		return featureNotSupported(features.ApplicationSetProgressiveSync)
 	}
 
+	if !si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy != nil && spec.SyncPolicy.ApplicationsSync != nil {
+		return featureNotSupported(features.ApplicationSetApplicationsSyncPolicy)
+	}
+
 	as, err := si.ApplicationSetClient.Create(ctx, &applicationset.ApplicationSetCreateRequest{
 		Applicationset: &application.ApplicationSet{
 			ObjectMeta: objectMeta,
@@ -125,6 +129,10 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 
 	if !si.IsFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
 		return featureNotSupported(features.ApplicationSetProgressiveSync)
+	}
+
+	if !si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy != nil && spec.SyncPolicy.ApplicationsSync != nil {
+		return featureNotSupported(features.ApplicationSetApplicationsSyncPolicy)
 	}
 
 	_, err = si.ApplicationSetClient.Create(ctx, &applicationset.ApplicationSetCreateRequest{

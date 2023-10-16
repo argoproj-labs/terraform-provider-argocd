@@ -768,10 +768,34 @@ func expandApplicationMatchExpressions(mes []interface{}) []application.Applicat
 	return asrss
 }
 
-func expandApplicationSetSyncPolicy(sp map[string]interface{}) *application.ApplicationSetSyncPolicy {
-	return &application.ApplicationSetSyncPolicy{
-		PreserveResourcesOnDeletion: sp["preserve_resources_on_deletion"].(bool),
+func expandApplicationSetSyncPolicyApplicationsSyncPolicy(p string) (asp application.ApplicationsSyncPolicy) {
+	switch {
+	case p == "create-only":
+		asp = application.ApplicationsSyncPolicyCreateOnly
+	case p == "create-update":
+		asp = application.ApplicationsSyncPolicyCreateUpdate
+	case p == "create-delete":
+		asp = application.ApplicationsSyncPolicyCreateDelete
+	case p == "sync":
+		asp = application.ApplicationsSyncPolicyCreateDelete
 	}
+
+	return asp
+}
+
+func expandApplicationSetSyncPolicy(sp map[string]interface{}) (assp *application.ApplicationSetSyncPolicy) {
+	assp = &application.ApplicationSetSyncPolicy{}
+
+	if v, ok := sp["applications_sync"].(string); ok && len(v) > 0 {
+		asp := expandApplicationSetSyncPolicyApplicationsSyncPolicy(v)
+		assp.ApplicationsSync = &asp
+	}
+
+	if v, ok := sp["preserve_resources_on_deletion"]; ok {
+		assp.PreserveResourcesOnDeletion = v.(bool)
+	}
+
+	return assp
 }
 
 func expandApplicationSetTemplate(temp interface{}, featureMultipleApplicationSourcesSupported bool) (template application.ApplicationSetTemplate, err error) {
@@ -1437,6 +1461,7 @@ func flattenApplicationMatchExpression(in []application.ApplicationMatchExpressi
 func flattenApplicationSetSyncPolicy(assp application.ApplicationSetSyncPolicy) []map[string]interface{} {
 	p := map[string]interface{}{
 		"preserve_resources_on_deletion": assp.PreserveResourcesOnDeletion,
+		"applications_sync":              assp.ApplicationsSync,
 	}
 
 	return []map[string]interface{}{p}
