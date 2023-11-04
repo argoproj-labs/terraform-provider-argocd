@@ -190,11 +190,11 @@ resource "argocd_application_set" "list" {
           repo_url        = "https://github.com/argoproj/argo-cd.git"
           target_revision = "HEAD"
           path            = "applicationset/examples/list-generator/guestbook/{{cluster}}"
+        }
 
-          destination {
-            server    = "{{url}}"
-            namespace = "guestbook"
-          }
+        destination {
+          server    = "{{url}}"
+          namespace = "guestbook"
         }
       }
     }
