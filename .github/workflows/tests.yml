@@ -16,10 +16,10 @@ jobs:
     steps:
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+      uses: actions/checkout@v4
 
     - name: Set up Go
-      uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # v3.5.0
+      uses: actions/setup-go@v4
       with:
         go-version-file: 'go.mod'
       id: go
@@ -51,10 +51,10 @@ jobs:
         argocd_version: ["v2.6.15", "v2.7.14", "v2.8.3"]
     steps:
       - name: Check out code
-        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+        uses: actions/checkout@v4
 
       - name: Setup Go
-        uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # v3.5.0
+        uses: actions/setup-go@v4
         with:
           go-version-file: 'go.mod'
           check-latest: true
@@ -64,9 +64,9 @@ jobs:
           curl -sL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
           chmod +x ./kustomize
 
-      - name: Install Kind 0.11.1
+      - name: Install Kind 0.20.0
         run: |
-          curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-$(uname)-amd64
+          curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64
           chmod +x ./kind
 
       - name: Set up ArgoCD ${{ matrix.argocd_version }}
