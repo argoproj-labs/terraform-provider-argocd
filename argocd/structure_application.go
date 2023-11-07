@@ -634,7 +634,9 @@ func flattenApplicationInfo(infos []application.Info) (result []map[string]strin
 			info["value"] = i.Value
 		}
 
-		result = append(result, info)
+		if len(info) > 0 {
+			result = append(result, info)
+		}
 	}
 
 	return
