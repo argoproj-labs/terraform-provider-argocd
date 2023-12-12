@@ -15530,9 +15530,9 @@ Optional:
 
 Optional:
 
-- `jq_path_expressions` (List of String) Json pointers to ignore differences
-- `json_pointers` (List of String) Json pointers to ignore differences
-- `name` (String) Json pointers to ignore differences
+- `jq_path_expressions` (Set of String) jq path to ignore differences
+- `json_pointers` (Set of String) Json pointers to ignore differences
+- `name` (String) name
 
 
 <a id="nestedblock--spec--strategy"></a>
