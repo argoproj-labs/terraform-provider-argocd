@@ -15,6 +15,36 @@ func applicationSetSpecSchemaV0() *schema.Schema {
 		Required:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
+				"ignore_application_differences": {
+					Type:        schema.TypeList,
+					Description: "Application Set [ignoreApplicationDifferences](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#ignore-certain-changes-to-applications).",
+					Optional:    true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"json_pointers": {
+								Type:        schema.TypeSet,
+								Description: "Json pointers to ignore differences",
+								Optional:    true,
+								Elem: &schema.Schema{
+									Type: schema.TypeString,
+								},
+							},
+							"jq_path_expressions": {
+								Type:        schema.TypeSet,
+								Description: "jq path to ignore differences",
+								Optional:    true,
+								Elem: &schema.Schema{
+									Type: schema.TypeString,
+								},
+							},
+							"name": {
+								Type:        schema.TypeString,
+								Description: "name",
+								Optional:    true,
+							},
+						},
+					},
+				},
 				"generator": applicationSetGeneratorSchemaV0(),
 				"go_template": {
 					Type:        schema.TypeBool,

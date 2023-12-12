@@ -41,13 +41,17 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		return featureNotSupported(features.ApplicationSet)
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources))
+	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources), si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences))
 	if err != nil {
 		return errorToDiagnostics("failed to expand application set", err)
 	}
 
 	if !si.IsFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
 		return featureNotSupported(features.ApplicationSetProgressiveSync)
+	}
+
+	if !si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences) && spec.IgnoreApplicationDifferences != nil {
+		return featureNotSupported(features.ApplicationSetIgnoreApplicationDifferences)
 	}
 
 	if !si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy != nil && spec.SyncPolicy.ApplicationsSync != nil {
@@ -122,13 +126,17 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 		return nil
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources))
+	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources), si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences))
 	if err != nil {
 		return errorToDiagnostics(fmt.Sprintf("failed to expand application set %s", d.Id()), err)
 	}
 
 	if !si.IsFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
 		return featureNotSupported(features.ApplicationSetProgressiveSync)
+	}
+
+	if !si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences) && spec.IgnoreApplicationDifferences != nil {
+		return featureNotSupported(features.ApplicationSetIgnoreApplicationDifferences)
 	}
 
 	if !si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy != nil && spec.SyncPolicy.ApplicationsSync != nil {
