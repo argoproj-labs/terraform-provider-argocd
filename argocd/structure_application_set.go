@@ -44,9 +44,6 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 
 	if v, ok := s["ignore_application_differences"].([]interface{}); ok && len(v) > 0 {
 		spec.IgnoreApplicationDifferences = expandApplicationSetIgnoreDifferences(v, featureApplicationSetIgnoreApplicationDifferences)
-		if err != nil {
-			return
-		}
 	}
 
 	if v, ok := s["template"].([]interface{}); ok && len(v) > 0 {
