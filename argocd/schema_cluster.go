@@ -2,6 +2,7 @@ package argocd
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"strings"
 )
 
 func clusterSchema() map[string]*schema.Schema {
@@ -26,6 +27,9 @@ func clusterSchema() map[string]*schema.Schema {
 			Type:        schema.TypeString,
 			Description: "Server is the API server URL of the Kubernetes cluster.",
 			Optional:    true,
+			DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+				return oldValue == strings.TrimRight(newValue, "/")
+			},
 		},
 		"shard": {
 			Type:        schema.TypeString,
