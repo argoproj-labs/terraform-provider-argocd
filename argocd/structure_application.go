@@ -234,6 +234,40 @@ func expandApplicationSourceKustomize(in []interface{}) *application.Application
 		}
 	}
 
+	if patches, ok := a["patches"]; ok {
+		result.Patches = application.KustomizePatches{}
+		patchList := patches.([]interface{})
+		for _, patchItem := range patchList {
+			patchMap := patchItem.(map[string]interface{})
+
+			patch := application.KustomizePatch{}
+
+			// Handling of the target field
+			if target, tOk := patchMap["target"]; tOk {
+				patch.Target = &application.KustomizeSelector{
+					KustomizeResId: application.KustomizeResId{
+						KustomizeGvk: application.KustomizeGvk{
+							Group:   target.(map[string]string)["group"],
+							Version: target.(map[string]string)["version"],
+							Kind:    target.(map[string]string)["kind"],
+						},
+						Name:      target.(map[string]string)["name"],
+						Namespace: target.(map[string]string)["namespace"],
+					},
+					AnnotationSelector: target.(map[string]string)["annotationSelector"],
+					LabelSelector:      target.(map[string]string)["labelSelector"],
+				}
+			}
+
+			// Handling of the patch string
+			if patchStr, pStrOk := patchMap["patch"]; pStrOk {
+				patch.Patch = patchStr.(string)
+			}
+
+			result.Patches = append(result.Patches, patch)
+		}
+	}
+
 	return result
 }
 
@@ -745,6 +779,36 @@ func flattenApplicationSourceKustomize(as []*application.ApplicationSourceKustom
 				images = append(images, string(i))
 			}
 
+			// Assuming result.Patches is the slice of KustomizePatch you want to convert
+			patches := make([]interface{}, 0)
+
+			for _, patch := range a.Patches {
+				patchMap := make(map[string]interface{})
+
+				// Convert the target field back to map
+				if patch.Target != nil {
+					targetMap := map[string]string{
+						"group":              patch.Target.KustomizeResId.KustomizeGvk.Group,
+						"version":            patch.Target.KustomizeResId.KustomizeGvk.Version,
+						"kind":               patch.Target.KustomizeResId.KustomizeGvk.Kind,
+						"name":               patch.Target.KustomizeResId.Name,
+						"namespace":          patch.Target.KustomizeResId.Namespace,
+						"annotationSelector": patch.Target.AnnotationSelector,
+						"labelSelector":      patch.Target.LabelSelector,
+					}
+					patchMap["target"] = targetMap
+				}
+
+				// Convert the patch string back
+				if patch.Patch != "" {
+					patchMap["patch"] = patch.Patch
+				}
+
+				patches = append(patches, patchMap)
+			}
+
+			// `a` is now the map representation of the KustomizePatches
+
 			result = append(result, map[string]interface{}{
 				"common_annotations": a.CommonAnnotations,
 				"common_labels":      a.CommonLabels,
@@ -752,6 +816,7 @@ func flattenApplicationSourceKustomize(as []*application.ApplicationSourceKustom
 				"name_prefix":        a.NamePrefix,
 				"name_suffix":        a.NameSuffix,
 				"version":            a.Version,
+				"patches":            patches, //TODO implement this
 			})
 		}
 	}

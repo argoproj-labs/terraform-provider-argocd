@@ -1436,6 +1436,25 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 											Elem:         &schema.Schema{Type: schema.TypeString},
 											ValidateFunc: validateMetadataAnnotations,
 										},
+										"patches": {
+											Type:     schema.TypeList,
+											Optional: true,
+											Elem: &schema.Resource{
+												Schema: map[string]*schema.Schema{
+													"target": {
+														Type:     schema.TypeMap,
+														Required: true,
+														Elem: &schema.Schema{
+															Type: schema.TypeString,
+														},
+													},
+													"patch": {
+														Type:     schema.TypeString,
+														Required: true,
+													},
+												},
+											},
+										},
 									},
 								},
 							},
