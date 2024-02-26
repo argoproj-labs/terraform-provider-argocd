@@ -241,21 +241,27 @@ func expandApplicationSourceKustomize(in []interface{}) *application.Application
 			patchMap := patchItem.(map[string]interface{})
 
 			patch := application.KustomizePatch{}
-
+			safeGet := func(m map[string]interface{}, key string, val string) string {
+				if value, ok := m[key]; ok {
+					return value.(string)
+				}
+				return val // default value if key is not present
+			}
 			// Handling of the target field
 			if target, tOk := patchMap["target"]; tOk {
+				targetMap := target.(map[string]interface{})
 				patch.Target = &application.KustomizeSelector{
 					KustomizeResId: application.KustomizeResId{
 						KustomizeGvk: application.KustomizeGvk{
-							Group:   target.(map[string]string)["group"],
-							Version: target.(map[string]string)["version"],
-							Kind:    target.(map[string]string)["kind"],
+							Group:   safeGet(targetMap, "group", ""),
+							Version: safeGet(targetMap, "version", ""),
+							Kind:    safeGet(targetMap, "kind", ""),
 						},
-						Name:      target.(map[string]string)["name"],
-						Namespace: target.(map[string]string)["namespace"],
+						Name:      safeGet(targetMap, "name", ""),
+						Namespace: safeGet(targetMap, "namespace", ""),
 					},
-					AnnotationSelector: target.(map[string]string)["annotationSelector"],
-					LabelSelector:      target.(map[string]string)["labelSelector"],
+					AnnotationSelector: safeGet(targetMap, "annotationSelector", ""),
+					LabelSelector:      safeGet(targetMap, "labelSelector", ""),
 				}
 			}
 
