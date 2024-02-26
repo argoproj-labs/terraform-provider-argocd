@@ -9,14 +9,7 @@ builds:
       - '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}}'
     targets:
       - darwin_arm64
-      - darwin_amd64
       - linux_amd64
-      - linux_arm
-      - linux_arm64
-      - windows_amd64
-      - windows_arm
-      - freebsd_amd64
-      - freebsd_arm
     binary: '{{ .ProjectName }}_v{{ .Version }}'
 archives:
   - format: zip
@@ -38,7 +31,7 @@ release:
   draft: true
   disable: false
   github:
-    owner: oboukili
+    owner: Facets-cloud
     name: terraform-provider-argocd
 changelog:
   skip: false
