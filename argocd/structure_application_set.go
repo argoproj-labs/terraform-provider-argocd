@@ -12,14 +12,14 @@ import (
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func expandApplicationSet(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool) (metadata meta.ObjectMeta, spec application.ApplicationSetSpec, err error) {
+func expandApplicationSet(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool) (metadata meta.ObjectMeta, spec application.ApplicationSetSpec, err error) {
 	metadata = expandMetadata(d)
-	spec, err = expandApplicationSetSpec(d, featureMultipleApplicationSourcesSupported)
+	spec, err = expandApplicationSetSpec(d, featureMultipleApplicationSourcesSupported, featureApplicationSetIgnoreApplicationDifferences)
 
 	return
 }
 
-func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool) (spec application.ApplicationSetSpec, err error) {
+func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool) (spec application.ApplicationSetSpec, err error) {
 	s := d.Get("spec.0").(map[string]interface{})
 
 	if v, ok := s["generator"].([]interface{}); ok && len(v) > 0 {
@@ -40,6 +40,10 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 
 	if v, ok := s["sync_policy"].([]interface{}); ok && len(v) > 0 {
 		spec.SyncPolicy = expandApplicationSetSyncPolicy(v[0].(map[string]interface{}))
+	}
+
+	if v, ok := s["ignore_application_differences"].([]interface{}); ok && len(v) > 0 {
+		spec.IgnoreApplicationDifferences = expandApplicationSetIgnoreDifferences(v, featureApplicationSetIgnoreApplicationDifferences)
 	}
 
 	if v, ok := s["template"].([]interface{}); ok && len(v) > 0 {
@@ -867,6 +871,39 @@ func expandApplicationSetTemplateMeta(meta interface{}) (metadata application.Ap
 	return metadata, nil
 }
 
+func expandApplicationSetIgnoreDifferences(ids []interface{}, featureApplicationSetIgnoreApplicationDifferences bool) (result []application.ApplicationSetResourceIgnoreDifferences) {
+	if !featureApplicationSetIgnoreApplicationDifferences {
+		return
+	}
+
+	for _, _id := range ids {
+		id := _id.(map[string]interface{})
+
+		var elem = application.ApplicationSetResourceIgnoreDifferences{}
+
+		if v, ok := id["json_pointers"]; ok {
+			jps := v.(*schema.Set).List()
+			for _, jp := range jps {
+				elem.JSONPointers = append(elem.JSONPointers, jp.(string))
+			}
+		}
+
+		if v, ok := id["jq_path_expressions"]; ok {
+			jqpes := v.(*schema.Set).List()
+			for _, jqpe := range jqpes {
+				elem.JQPathExpressions = append(elem.JQPathExpressions, jqpe.(string))
+			}
+		}
+
+		if v, ok := id["name"]; ok {
+			elem.Name = v.(string)
+		}
+
+		result = append(result, elem)
+	}
+
+	return //nolint:nakedret // overriding as function follows pattern in rest of file
+}
 func flattenApplicationSet(as *application.ApplicationSet, d *schema.ResourceData) error {
 	fMetadata := flattenMetadata(as.ObjectMeta, d)
 	if err := d.Set("metadata", fMetadata); err != nil {
@@ -913,9 +950,24 @@ func flattenApplicationSetSpec(s application.ApplicationSetSpec) ([]map[string]i
 		spec["sync_policy"] = flattenApplicationSetSyncPolicy(*s.SyncPolicy)
 	}
 
+	if s.IgnoreApplicationDifferences != nil {
+		spec["ignore_application_differences"] = flattenApplicationSetIgnoreDifferences(s.IgnoreApplicationDifferences)
+	}
+
 	return []map[string]interface{}{spec}, nil
 }
 
+func flattenApplicationSetIgnoreDifferences(ids application.ApplicationSetIgnoreDifferences) (result []map[string]interface{}) {
+	for _, id := range ids {
+		result = append(result, map[string]interface{}{
+			"name":                id.Name,
+			"json_pointers":       id.JSONPointers,
+			"jq_path_expressions": id.JQPathExpressions,
+		})
+	}
+
+	return
+}
 func flattenGenerator(g application.ApplicationSetGenerator) (map[string]interface{}, error) {
 	generator := map[string]interface{}{}
 

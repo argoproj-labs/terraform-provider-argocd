@@ -124,7 +124,7 @@ func (p ArgoCDProviderConfig) getApiClientOptions(ctx context.Context) (*apiclie
 			runtime.ErrorHandlers = runtimeErrorHandlers
 		}
 
-		err := headless.StartLocalServer(ctx, opts, "", nil, nil, cache.RedisCompressionNone)
+		err := headless.MaybeStartLocalServer(ctx, opts, "", nil, nil, cache.RedisCompressionNone, nil)
 		if err != nil {
 			diags.Append(diagnostics.Error("failed to start local server", err)...)
 			return nil, diags

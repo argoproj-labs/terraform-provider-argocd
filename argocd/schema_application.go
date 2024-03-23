@@ -1598,6 +1598,20 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 					Optional:    true,
 					MaxItems:    1,
 					MinItems:    1,
+					DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+						// Avoid drift when sync_policy is empty
+						if k == "spec.0.sync_policy.#" {
+							_, hasAutomated := d.GetOk("spec.0.sync_policy.0.automated")
+							_, hasSyncOptions := d.GetOk("spec.0.sync_policy.0.sync_options")
+							_, hasRetry := d.GetOk("spec.0.sync_policy.0.retry")
+							_, hasManagedNamespaceMetadata := d.GetOk("spec.0.sync_policy.0.managed_namespace_metadata")
+
+							if !hasAutomated && !hasSyncOptions && !hasRetry && !hasManagedNamespaceMetadata {
+								return true
+							}
+						}
+						return false
+					},
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"automated": {
