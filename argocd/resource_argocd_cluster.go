@@ -39,20 +39,19 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 	// Need a full lock here to avoid race conditions between List existing clusters and creating a new one
 	tokenMutexClusters.Lock()
 
+	rtrimmedServer := strings.TrimRight(cluster.Server, "/")
+
 	// Cluster are unique by "server address" so we should check there is no existing cluster with this address before
 	existingClusters, err := si.ClusterClient.List(ctx, &clusterClient.ClusterQuery{
 		Id: &clusterClient.ClusterID{
 			Type:  "server",
-			Value: cluster.Server, // TODO: not used by backend, upstream bug ?
+			Value: rtrimmedServer,
 		},
 	})
-
 	if err != nil {
 		tokenMutexClusters.Unlock()
 		return errorToDiagnostics(fmt.Sprintf("failed to list existing clusters when creating cluster %s", cluster.Server), err)
 	}
-
-	rtrimmedServer := strings.TrimRight(cluster.Server, "/")
 
 	if len(existingClusters.Items) > 0 {
 		for _, existingCluster := range existingClusters.Items {
@@ -70,7 +69,8 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	c, err := si.ClusterClient.Create(ctx, &clusterClient.ClusterCreateRequest{
-		Cluster: cluster, Upsert: false})
+		Cluster: cluster, Upsert: false,
+	})
 	tokenMutexClusters.Unlock()
 
 	if err != nil {
