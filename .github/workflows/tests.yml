@@ -25,7 +25,7 @@ jobs:
       id: go
       
     - name: Run linters
-      uses: golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5 # v3.4.0
+      uses: golangci/golangci-lint-action@v4
       with:
         version: v1.51.2
 
