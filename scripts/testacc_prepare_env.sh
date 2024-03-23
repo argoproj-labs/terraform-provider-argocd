@@ -4,7 +4,7 @@ set -e
 
 export PATH=$PATH:.
 
-argocd_version=${ARGOCD_VERSION:-v2.8.3}
+argocd_version=${ARGOCD_VERSION:-v2.8.13}
 k8s_version=${ARGOCD_KUBERNETES_VERSION:-v1.24.7}
 
 echo "\n--- Clearing current kube context\n"
