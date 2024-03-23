@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/ProtonMail/gopenpgp/v2 v2.7.4
-	github.com/argoproj/argo-cd/v2 v2.9.3
+	github.com/argoproj/argo-cd/v2 v2.9.9
 	github.com/argoproj/gitops-engine v0.7.3
 	github.com/argoproj/pkg v0.13.7-0.20230627120311-a4dd357b057e
 	github.com/cristalhq/jwt/v3 v3.1.0
@@ -23,8 +23,8 @@ require (
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/crypto v0.19.0
 	k8s.io/apiextensions-apiserver v0.24.2
-	k8s.io/apimachinery v0.24.2
-	k8s.io/client-go v0.24.2
+	k8s.io/apimachinery v0.24.17
+	k8s.io/client-go v0.24.17
 )
 
 require (
@@ -43,7 +43,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
-	github.com/PagerDuty/go-pagerduty v1.7.0
+	github.com/PagerDuty/go-pagerduty v1.7.0 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20230828082145-3c4c8a2d2371 // indirect
 	github.com/ProtonMail/go-mime v0.0.0-20230322103455-7d82a3887f2f // indirect
 	github.com/RocketChat/Rocket.Chat.Go.SDK v0.0.0-20210112200207-10ab4d695d60 // indirect
@@ -252,16 +252,16 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/api v0.24.2 // indirect
-	k8s.io/apiserver v0.24.2 // indirect
-	k8s.io/cli-runtime v0.24.2 // indirect
-	k8s.io/component-base v0.24.2 // indirect
-	k8s.io/component-helpers v0.24.2 // indirect
+	k8s.io/api v0.24.17 // indirect
+	k8s.io/apiserver v0.24.17 // indirect
+	k8s.io/cli-runtime v0.24.17 // indirect
+	k8s.io/component-base v0.24.17 // indirect
+	k8s.io/component-helpers v0.24.17 // indirect
 	k8s.io/klog/v2 v2.70.1 // indirect
 	k8s.io/kube-aggregator v0.24.2 // indirect
 	k8s.io/kube-openapi v0.0.0-20220627174259-011e075b9cb8 // indirect
 	k8s.io/kubectl v0.24.2 // indirect
-	k8s.io/kubernetes v1.24.15 // indirect
+	k8s.io/kubernetes v1.24.17 // indirect
 	k8s.io/utils v0.0.0-20220706174534-f6158b442e7c // indirect
 	layeh.com/gopher-json v0.0.0-20190114024228-97fed8db8427 // indirect
 	oras.land/oras-go/v2 v2.3.0 // indirect
