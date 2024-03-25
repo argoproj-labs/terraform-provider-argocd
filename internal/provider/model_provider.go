@@ -236,6 +236,11 @@ func (p ArgoCDProviderConfig) setPortForwardingOpts(ctx context.Context, opts *a
 		}
 
 		opts.ServerAddr = "localhost" // will be overwritten by ArgoCD module when we initialize the API client but needs to be set here to ensure we
+		opts.ServerName = "argocd-server"
+
+		if opts.PortForwardNamespace == "" {
+			opts.PortForwardNamespace = "argocd"
+		}
 
 		if p.Kubernetes == nil {
 			break
