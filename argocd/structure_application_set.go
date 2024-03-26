@@ -781,7 +781,7 @@ func expandApplicationSetSyncPolicyApplicationsSyncPolicy(p string) (asp applica
 	case p == "create-delete":
 		asp = application.ApplicationsSyncPolicyCreateDelete
 	case p == "sync":
-		asp = application.ApplicationsSyncPolicyCreateDelete
+		asp = application.ApplicationsSyncPolicySync
 	}
 
 	return asp
