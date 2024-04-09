@@ -31,6 +31,10 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 
 	spec.GoTemplate = s["go_template"].(bool)
 
+	for _, k := range s["go_template_options"].([]interface{}) {
+		spec.GoTemplateOptions = append(spec.GoTemplateOptions, k.(string))
+	}
+
 	if v, ok := s["strategy"].([]interface{}); ok && len(v) > 0 {
 		spec.Strategy, err = expandApplicationSetStrategy(v[0].(map[string]interface{}))
 		if err != nil {
@@ -211,6 +215,10 @@ func expandApplicationSetGitGenerator(gg interface{}, featureMultipleApplication
 		}
 
 		asg.Git.Template = temp
+	}
+
+	if v, ok := g["values"]; ok {
+		asg.Git.Values = expandStringMap(v.(map[string]interface{}))
 	}
 
 	return asg, nil
@@ -937,9 +945,10 @@ func flattenApplicationSetSpec(s application.ApplicationSetSpec) ([]map[string]i
 	}
 
 	spec := map[string]interface{}{
-		"generator":   generators,
-		"go_template": s.GoTemplate,
-		"template":    flattenApplicationSetTemplate(s.Template),
+		"generator":           generators,
+		"go_template":         s.GoTemplate,
+		"go_template_options": s.GoTemplateOptions,
+		"template":            flattenApplicationSetTemplate(s.Template),
 	}
 
 	if s.Strategy != nil {
@@ -1044,6 +1053,7 @@ func flattenApplicationSetGitGenerator(gg *application.GitGenerator) []map[strin
 		"revision":          gg.Revision,
 		"path_param_prefix": gg.PathParamPrefix,
 		"template":          flattenApplicationSetTemplate(gg.Template),
+		"values":            gg.Values,
 	}
 
 	if len(gg.Directories) > 0 {
