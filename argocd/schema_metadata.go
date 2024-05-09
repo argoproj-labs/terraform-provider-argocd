@@ -67,7 +67,7 @@ func metadataFields(objectName string) map[string]*schema.Schema {
 		},
 		"finalizers": {
 			Type:        schema.TypeList,
-			Description: fmt.Sprintf("List of finalizers that will prevent deletion of this object"),
+			Description: "List of finalizers that will prevent deletion of this object",
 			Computed:    false,
 			Optional:    true,
 			Elem:        &schema.Schema{Type: schema.TypeString},
