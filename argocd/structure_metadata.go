@@ -28,6 +28,10 @@ func expandMetadata(d *schema.ResourceData) (meta meta.ObjectMeta) {
 		meta.Namespace = v.(string)
 	}
 
+	if v, ok := m["finalizers"].([]interface{}); ok && len(v) > 0 {
+		meta.Finalizers = expandStringList(v)
+	}
+
 	return meta
 }
 
