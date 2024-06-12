@@ -1,13 +1,20 @@
 package argocd
 
 import (
+	"context"
 	"fmt"
+	"os"
 	"regexp"
 	"runtime"
+	"strconv"
 	"testing"
+	"time"
 
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient/cluster"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
@@ -287,6 +294,74 @@ func TestAccArgoCDCluster_invalidSameServer(t *testing.T) {
 			{
 				Config:      testAccArgoCDClusterTwiceWithSameLogicalServer(),
 				ExpectError: regexp.MustCompile("cluster with server address .* already exists"),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDCluster_outsideDeletion(t *testing.T) {
+	clusterName := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDClusterMetadata(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"config.0.tls_client_config.0.insecure",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"name",
+						clusterName,
+					),
+				),
+			},
+			{
+				PreConfig: func() {
+					// delete cluster and validate refresh generates a plan
+					// (non-regression test for https://github.com/oboukili/terraform-provider-argocd/issues/266)
+					si, err := getServerInterface()
+					if err != nil {
+						t.Error(fmt.Errorf("failed to get server interface: %s", err.Error()))
+					}
+					ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+					defer cancel()
+					_, err = si.ClusterClient.Delete(ctx, &cluster.ClusterQuery{Name: clusterName})
+					if err != nil {
+						t.Error(fmt.Errorf("failed to delete cluster '%s': %s", clusterName, err.Error()))
+					}
+				},
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: testAccArgoCDClusterMetadata(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"config.0.tls_client_config.0.insecure",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.cluster_metadata",
+						"name",
+						clusterName,
+					),
+				),
 			},
 		},
 	})
@@ -618,4 +693,29 @@ func getInternalRestConfig() (*rest.Config, error) {
 	}
 
 	return nil, fmt.Errorf("could not find a kind-argocd cluster from the current ~/.kube/config file")
+}
+
+// build & init ArgoCD server interface
+func getServerInterface() (*provider.ServerInterface, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	insecure, err := strconv.ParseBool(os.Getenv("ARGOCD_INSECURE"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse 'ARGOCD_INSECURE' env var to bool: %s", err.Error())
+	}
+
+	si := provider.NewServerInterface(provider.ArgoCDProviderConfig{
+		ServerAddr: types.StringValue(os.Getenv("ARGOCD_SERVER")),
+		Insecure:   types.BoolValue(insecure),
+		Username:   types.StringValue(os.Getenv("ARGOCD_AUTH_USERNAME")),
+		Password:   types.StringValue(os.Getenv("ARGOCD_AUTH_PASSWORD")),
+	})
+
+	diag := si.InitClients(ctx)
+	if diag.HasError() {
+		return nil, fmt.Errorf("failed to init clients: %v", diag.Errors())
+	}
+
+	return si, nil
 }
