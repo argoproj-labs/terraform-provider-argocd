@@ -311,6 +311,10 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 		result.SkipCrds = v.(bool)
 	}
 
+	if v, ok := a["version"]; ok {
+		result.Version = v.(string)
+	}
+
 	return result
 }
 
@@ -448,6 +452,13 @@ func expandApplicationIgnoreDifferences(ids []interface{}) (result []application
 			jqpes := v.(*schema.Set).List()
 			for _, jqpe := range jqpes {
 				elem.JQPathExpressions = append(elem.JQPathExpressions, jqpe.(string))
+			}
+		}
+
+		if v, ok := id["managed_fields_managers"]; ok {
+			managedFieldsManagers := v.(*schema.Set).List()
+			for _, fieldsManager := range managedFieldsManagers {
+				elem.ManagedFieldsManagers = append(elem.ManagedFieldsManagers, fieldsManager.(string))
 			}
 		}
 
