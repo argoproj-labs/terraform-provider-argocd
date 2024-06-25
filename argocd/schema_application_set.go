@@ -51,6 +51,12 @@ func applicationSetSpecSchemaV0() *schema.Schema {
 					Description: "Enable use of [Go Text Template](https://pkg.go.dev/text/template).",
 					Optional:    true,
 				},
+				"go_template_options": {
+					Type:        schema.TypeList,
+					Description: "Optional list of [Go Templating Options](https://pkg.go.dev/text/template#Template.Option).",
+					Optional:    true,
+					Elem:        &schema.Schema{Type: schema.TypeString},
+				},
 				"strategy": {
 					Type:        schema.TypeList,
 					Description: "[Progressive Sync](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Progressive-Syncs/) strategy",
@@ -332,6 +338,12 @@ func applicationSetGitGeneratorSchemaV0() *schema.Schema {
 					Optional:    true,
 					MaxItems:    1,
 					Elem:        applicationSetTemplateResource(true),
+				},
+				"values": {
+					Type:        schema.TypeMap,
+					Description: "Arbitrary string key-value pairs to pass to the template via the values field of the git generator.",
+					Optional:    true,
+					Elem:        &schema.Schema{Type: schema.TypeString},
 				},
 			},
 		},
