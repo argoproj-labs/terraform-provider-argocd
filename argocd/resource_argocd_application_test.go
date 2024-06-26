@@ -171,7 +171,7 @@ func TestAccArgoCDApplication_Helm_FileParameters(t *testing.T) {
 
 func TestAccArgoCDApplication_Kustomize(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationKustomizePatches) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -1222,41 +1222,53 @@ resource "argocd_application" "helm_file_parameters" {
 func testAccArgoCDApplicationKustomize(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "kustomize" {
-  metadata {
-    name      = "%s"
-    namespace = "argocd"
-    labels = {
-      acceptance = "true"
-    }
-  }
+	metadata {
+		name      = "%s"
+		namespace = "argocd"
+		labels = {
+			acceptance = "true"
+		}
+	}
 
-  spec {
-    source {
-      repo_url        = "https://github.com/kubernetes-sigs/kustomize"
-      path            = "examples/helloWorld"
-      target_revision = "release-kustomize-v3.7"
-      kustomize {
-  	    name_prefix  = "foo-"
-	  	name_suffix = "-bar"
-	  	images = [
-          "hashicorp/terraform:light",
-	    ]
-	  	common_labels = {
-		  "this.is.a.common" = "la-bel"
-		  "another.io/one"   = "true" 
-	    }
-        common_annotations = {
-		  "this.is.a.common" = "anno-tation"
-		  "another.io/one"   = "false"
-	    }
-      }
-    }
+	spec {
+		source {
+			repo_url        = "https://github.com/kubernetes-sigs/kustomize"
+			path            = "examples/helloWorld"
+			target_revision = "release-kustomize-v3.7"
+			kustomize {
+				name_prefix = "foo-"
+				name_suffix = "-bar"
+				images = [
+					"foo=hashicorp/terraform:light",
+				]
+				common_labels = {
+					"this.is.a.common" = "la-bel"
+					"another.io/one"   = "true" 
+				}
+				common_annotations = {
+					"this.is.a.common" = "anno-tation"
+					"another.io/one"   = "false"
+				}
+				patches {
+					target {
+						kind = "Deployment"
+						name = "the-deployment"
+					}
 
-    destination {
-      server    = "https://kubernetes.default.svc"
-      namespace = "default"
-    }
-  }
+					patch = <<-EOT
+- op: replace
+  path: /spec/template/spec/containers/0/name
+  value: the-container-1
+EOT
+				}
+			}
+		}
+
+		destination {
+			server    = "https://kubernetes.default.svc"
+			namespace = "default"
+		}
+  	}
 }
 	`, name)
 }
