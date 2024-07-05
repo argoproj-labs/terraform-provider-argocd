@@ -117,6 +117,7 @@ provider "argocd" {
 - `plain_text` (Boolean) Whether to initiate an unencrypted connection to ArgoCD server.
 - `port_forward` (Boolean) Connect to a random argocd-server port using port forwarding.
 - `port_forward_with_namespace` (String) Namespace name which should be used for port forwarding.
+- `server_name` (String) The Argo CD API Server name (default "argocd-server"). Only relevant when port forwarding.
 - `server_addr` (String) ArgoCD server address with port. Can be set through the `ARGOCD_SERVER` environment variable.
 - `use_local_config` (Boolean) Use the authentication settings found in the local config file. Useful when you have previously logged in using SSO. Conflicts with `auth_token`, `username` and `password`.
 - `user_agent` (String) User-Agent request header override.

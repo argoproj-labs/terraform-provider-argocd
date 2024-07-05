@@ -74,6 +74,10 @@ func (p *ArgoCDProvider) Schema(ctx context.Context, req provider.SchemaRequest,
 				Description: "Namespace name which should be used for port forwarding.",
 				Optional:    true,
 			},
+			"server_name": schema.StringAttribute{
+				Description: "The Argo CD API Server name (default \"argocd-server\")",
+				Optional:    true,
+			},
 			"use_local_config": schema.BoolAttribute{
 				Description: "Use the authentication settings found in the local config file. Useful when you have previously logged in using SSO. Conflicts with `auth_token`, `username` and `password`.",
 				Optional:    true,

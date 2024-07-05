@@ -32,6 +32,7 @@ type ArgoCDProviderConfig struct {
 	ServerAddr               types.String `tfsdk:"server_addr"`
 	PortForward              types.Bool   `tfsdk:"port_forward"`
 	PortForwardWithNamespace types.String `tfsdk:"port_forward_with_namespace"`
+	ServerName               types.String `tfsdk:"server_name"`
 	Kubernetes               []Kubernetes `tfsdk:"kubernetes"`
 
 	// Run ArgoCD API server locally
@@ -68,6 +69,7 @@ func (p ArgoCDProviderConfig) getApiClientOptions(ctx context.Context) (*apiclie
 		PlainText:            p.PlainText.ValueBool(),
 		PortForward:          p.PortForward.ValueBool(),
 		PortForwardNamespace: p.PortForwardWithNamespace.ValueString(),
+		ServerName:           p.ServerName.ValueString(),
 		ServerAddr:           getDefaultString(p.ServerAddr, "ARGOCD_SERVER"),
 		UserAgent:            p.Username.ValueString(),
 	}
