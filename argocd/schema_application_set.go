@@ -52,7 +52,7 @@ func applicationSetSpecSchemaV0() *schema.Schema {
 					Optional:    true,
 				},
 				"go_template_options": {
-					Type:        schema.TypeList,
+					Type:        schema.TypeSet,
 					Description: "Optional list of [Go Templating Options](https://pkg.go.dev/text/template#Template.Option). Only relevant if `go_template` is true.",
 					Optional:    true,
 					Elem:        &schema.Schema{Type: schema.TypeString},
@@ -340,7 +340,7 @@ func applicationSetGitGeneratorSchemaV0() *schema.Schema {
 					Elem:        applicationSetTemplateResource(true),
 				},
 				"values": {
-					Type:        schema.TypeSet,
+					Type:        schema.TypeMap,
 					Description: "Arbitrary string key-value pairs to pass to the template via the values field of the git generator.",
 					Optional:    true,
 					Elem:        &schema.Schema{Type: schema.TypeString},
