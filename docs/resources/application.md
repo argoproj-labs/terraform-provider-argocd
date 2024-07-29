@@ -330,7 +330,36 @@ Optional:
 - `images` (Set of String) List of Kustomize image override specifications.
 - `name_prefix` (String) Prefix appended to resources for Kustomize apps.
 - `name_suffix` (String) Suffix appended to resources for Kustomize apps.
+- `patches` (Block List) Patches is a list of Kustomize patches (see [below for nested schema](#nestedblock--spec--source--kustomize--patches))
 - `version` (String) Version of Kustomize to use for rendering manifests.
+
+<a id="nestedblock--spec--source--kustomize--patches"></a>
+### Nested Schema for `spec.source.kustomize.patches`
+
+Required:
+
+- `target` (Block Set, Min: 1) Targets to Patch (see [below for nested schema](#nestedblock--spec--source--kustomize--patches--target))
+
+Optional:
+
+- `options` (Map of Boolean) options
+- `patch` (String) patch
+- `path` (String) path
+
+<a id="nestedblock--spec--source--kustomize--patches--target"></a>
+### Nested Schema for `spec.source.kustomize.patches.target`
+
+Optional:
+
+- `annotation_selector` (String) Annotation Selectors
+- `group` (String) group
+- `kind` (String) kind
+- `label_selector` (String) Label Selectors
+- `name` (String) name
+- `namespace` (String) namespace
+- `version` (String) version
+
+
 
 
 <a id="nestedblock--spec--source--plugin"></a>

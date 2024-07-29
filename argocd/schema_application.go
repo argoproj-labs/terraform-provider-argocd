@@ -1436,6 +1436,77 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 											Elem:         &schema.Schema{Type: schema.TypeString},
 											ValidateFunc: validateMetadataAnnotations,
 										},
+										"patches": {
+											Type:        schema.TypeList,
+											Description: "Patches is a list of Kustomize patches",
+											Optional:    true,
+											Elem: &schema.Resource{
+												Schema: map[string]*schema.Schema{
+													"target": {
+														Type:        schema.TypeSet,
+														Description: "Targets to Patch",
+														Required:    true,
+														Elem: &schema.Resource{
+															Schema: map[string]*schema.Schema{
+																"kind": {
+																	Type:        schema.TypeString,
+																	Description: "kind",
+																	Optional:    true,
+																},
+																"name": {
+																	Type:        schema.TypeString,
+																	Description: "name",
+																	Optional:    true,
+																},
+																"label_selector": {
+																	Type:        schema.TypeString,
+																	Description: "Label Selectors",
+																	Optional:    true,
+																},
+																"annotation_selector": {
+																	Type:        schema.TypeString,
+																	Description: "Annotation Selectors",
+																	Optional:    true,
+																},
+																"group": {
+																	Type:        schema.TypeString,
+																	Description: "group",
+																	Optional:    true,
+																},
+																"namespace": {
+																	Type:        schema.TypeString,
+																	Description: "namespace",
+																	Optional:    true,
+																},
+																"version": {
+																	Type:        schema.TypeString,
+																	Description: "version",
+																	Optional:    true,
+																},
+															},
+														},
+													},
+													"patch": {
+														Type:        schema.TypeString,
+														Description: "patch",
+														Optional:    true,
+														Elem:        &schema.Schema{Type: schema.TypeString},
+													},
+													"path": {
+														Type:        schema.TypeString,
+														Description: "path",
+														Optional:    true,
+														Elem:        &schema.Schema{Type: schema.TypeString},
+													},
+													"options": {
+														Type:        schema.TypeMap,
+														Description: "options",
+														Optional:    true,
+														Elem:        &schema.Schema{Type: schema.TypeBool},
+													},
+												},
+											},
+										},
 									},
 								},
 							},
