@@ -598,6 +598,7 @@ Required:
 Optional:
 
 - `go_template` (Boolean) Enable use of [Go Text Template](https://pkg.go.dev/text/template).
+- `go_template_options` (Set of String) Optional list of [Go Templating Options](https://pkg.go.dev/text/template#Template.Option). Only relevant if `go_template` is true.
 - `ignore_application_differences` (Block List) Application Set [ignoreApplicationDifferences](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#ignore-certain-changes-to-applications). (see [below for nested schema](#nestedblock--spec--ignore_application_differences))
 - `strategy` (Block List, Max: 1) [Progressive Sync](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Progressive-Syncs/) strategy (see [below for nested schema](#nestedblock--spec--strategy))
 - `sync_policy` (Block List, Max: 1) Application Set [sync policy](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/). (see [below for nested schema](#nestedblock--spec--sync_policy))
@@ -1172,6 +1173,7 @@ Optional:
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--git--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
 
 <a id="nestedblock--spec--generator--git--directory"></a>
 ### Nested Schema for `spec.generator.git.directory`
@@ -2263,6 +2265,7 @@ Optional:
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
 
 <a id="nestedblock--spec--generator--matrix--generator--git--directory"></a>
 ### Nested Schema for `spec.generator.matrix.generator.git.directory`
@@ -3352,6 +3355,7 @@ Optional:
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--git--directory"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.git.directory`
@@ -5484,6 +5488,7 @@ Optional:
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--git--directory"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.git.directory`
@@ -8660,6 +8665,7 @@ Optional:
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
 
 <a id="nestedblock--spec--generator--merge--generator--git--directory"></a>
 ### Nested Schema for `spec.generator.merge.generator.git.directory`
@@ -9749,6 +9755,7 @@ Optional:
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--git--directory"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.git.directory`
@@ -11881,6 +11888,7 @@ Optional:
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--git--directory"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.git.directory`

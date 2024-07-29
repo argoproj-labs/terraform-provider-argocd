@@ -146,6 +146,11 @@ func TestAccArgoCDApplicationSet_gitFiles(t *testing.T) {
 						"argocd_application_set.git_files",
 						"spec.0.generator.0.git.0.file.0.path",
 					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.git_files",
+						"spec.0.generator.0.git.0.values.foo",
+						"bar",
+					),
 				),
 			},
 			{
@@ -820,6 +825,11 @@ func TestAccArgoCDApplicationSet_goTemplate(t *testing.T) {
 						"spec.0.go_template",
 						"true",
 					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.go_template",
+						"spec.0.go_template_options.0",
+						"missingkey=error",
+					),
 				),
 			},
 			{
@@ -1115,6 +1125,9 @@ resource "argocd_application_set" "git_files" {
 				
 				file {
 					path = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
+				}
+				values = {
+					foo = "bar"
 				}
 			} 
 		}
@@ -2721,6 +2734,9 @@ resource "argocd_application_set" "go_template" {
 		}
 
 		go_template = true
+		go_template_options = [
+			"missingkey=error"
+		]
 	
 		template {
 			metadata {
