@@ -31,9 +31,11 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 
 	spec.GoTemplate = s["go_template"].(bool)
 
-	for _, k := range s["go_template_options"].([]interface{}) {
-		spec.GoTemplateOptions = append(spec.GoTemplateOptions, k.(string))
-	}
+	if v, ok := s["go_template_options"]; ok {
+		opts := v.(*schema.Set).List()
+		for _, opt := range opts {
+			spec.GoTemplateOptions = append(spec.GoTemplateOptions, opt.(string))
+		}
 
 	if v, ok := s["strategy"].([]interface{}); ok && len(v) > 0 {
 		spec.Strategy, err = expandApplicationSetStrategy(v[0].(map[string]interface{}))
