@@ -43,6 +43,12 @@ func resourceArgoCDApplication() *schema.Resource {
 				Optional:    true,
 				Default:     true,
 			},
+			"validate": {
+				Type:        schema.TypeBool,
+				Description: "Whether to validate the application spec before creating or updating the application.",
+				Optional:    true,
+				Default:     true,
+			},
 			"status": applicationStatusSchema(),
 		},
 		SchemaVersion: 4,
@@ -132,6 +138,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		return featureNotSupported(features.ManagedNamespaceMetadata)
 	}
 
+	validate := d.Get("validate").(bool)
 	app, err := si.ApplicationClient.Create(ctx, &applicationClient.ApplicationCreateRequest{
 		Application: &application.Application{
 			ObjectMeta: objectMeta,
@@ -141,7 +148,9 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 				APIVersion: "argoproj.io/v1alpha1",
 			},
 		},
+		Validate: &validate,
 	})
+
 	if err != nil {
 		return argoCDAPIError("create", "application", objectMeta.Name, err)
 	} else if app == nil {
@@ -296,6 +305,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	validate := d.Get("validate").(bool)
 	if _, err = si.ApplicationClient.Update(ctx, &applicationClient.ApplicationUpdateRequest{
 		Application: &application.Application{
 			ObjectMeta: objectMeta,
@@ -305,6 +315,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 				APIVersion: "argoproj.io/v1alpha1",
 			},
 		},
+		Validate: &validate,
 	}); err != nil {
 		return argoCDAPIError("update", "application", objectMeta.Name, err)
 	}
