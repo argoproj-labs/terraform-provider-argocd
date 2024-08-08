@@ -276,12 +276,12 @@ func TestAccArgoCDApplication_IgnoreDifferences(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.ignore_differences_managed_fields_managers",
-						"spec.0.ignore_difference.0.managed_field_managers.0",
+						"spec.0.ignore_difference.0.managed_fields_managers.0",
 						"some-controller-owner",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.ignore_differences_managed_fields_managers",
-						"spec.0.ignore_difference.0.managed_field_managers.1",
+						"spec.0.ignore_difference.0.managed_fields_managers.1",
 						"some-other-controller-owner",
 					),
 				),
