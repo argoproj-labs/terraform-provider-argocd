@@ -124,6 +124,11 @@ func Provider() *schema.Provider {
 				Description: "Namespace name which should be used for port forwarding.",
 				Optional:    true,
 			},
+			"server_name": {
+				Type:        schema.TypeString,
+				Description: "The Argo CD API Server name (default \"argocd-server\")",
+				Optional:    true,
+			},
 			"headers": {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -278,6 +283,7 @@ func argoCDProviderConfigFromResourceData(ctx context.Context, d *schema.Resourc
 		PlainText:                getBoolFromResourceData(d, "plain_text"),
 		PortForward:              getBoolFromResourceData(d, "port_forward"),
 		PortForwardWithNamespace: getStringFromResourceData(d, "port_forward_with_namespace"),
+		ServerName:               getStringFromResourceData(d, "server_name"),
 		ServerAddr:               getStringFromResourceData(d, "server_addr"),
 		UseLocalConfig:           getBoolFromResourceData(d, "use_local_config"),
 		UserAgent:                getStringFromResourceData(d, "user_agent"),
