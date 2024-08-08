@@ -1390,7 +1390,7 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 										},
 										"version": {
 											Type:        schema.TypeString,
-											Description: "The Helm version to use for templating.",
+											Description: "The Helm version to use for templating. Accepts either `v2` or `v3`",
 											Optional:    true,
 										},
 									},

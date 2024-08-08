@@ -299,7 +299,7 @@ Optional:
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
-- `version` (String) The Helm version to use for templating.
+- `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
 
 <a id="nestedblock--spec--source--helm--file_parameter"></a>
 ### Nested Schema for `spec.source.helm.file_parameter`
