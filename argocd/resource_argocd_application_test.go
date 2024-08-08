@@ -146,7 +146,7 @@ ingress:
 					resource.TestCheckResourceAttr(
 						"argocd_application.helm",
 						"spec.0.source.0.helm.0.version",
-						"3",
+						"v3",
 					),
 				),
 			},
@@ -281,7 +281,7 @@ func TestAccArgoCDApplication_IgnoreDifferences(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.ignore_differences_managed_fields_managers",
-						"spec.0.ignore_difference.0.managed_fields_managers.1",
+						"spec.0.ignore_difference.1.managed_fields_managers.1",
 						"some-other-controller-owner",
 					),
 				),
