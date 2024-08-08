@@ -40,7 +40,7 @@ func TestAccArgoCDApplication(t *testing.T) {
 				ResourceName:            "argocd_application." + name,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
 			},
 			{
 				// Update
@@ -87,7 +87,7 @@ func TestAccArgoCDApplication(t *testing.T) {
 				ResourceName:            "argocd_application." + name,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "validate"},
 			},
 		},
 	})
@@ -149,7 +149,7 @@ ingress:
 				ResourceName:            "argocd_application.helm",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
 			},
 		},
 	})
@@ -176,7 +176,10 @@ func TestAccArgoCDApplication_Kustomize(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDApplicationKustomize(
-					acctest.RandomWithPrefix("test-acc")),
+					acctest.RandomWithPrefix("test-acc"),
+					"examples/helloWorld",
+					true,
+				),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"argocd_application.kustomize",
@@ -198,7 +201,7 @@ func TestAccArgoCDApplication_Kustomize(t *testing.T) {
 				ResourceName:            "argocd_application.kustomize",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
 			},
 		},
 	})
@@ -233,7 +236,7 @@ func TestAccArgoCDApplication_IgnoreDifferences(t *testing.T) {
 				ResourceName:            "argocd_application.ignore_differences",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
 			},
 			{
 				Config: testAccArgoCDApplicationIgnoreDiffJQPathExpressions(
@@ -259,7 +262,7 @@ func TestAccArgoCDApplication_IgnoreDifferences(t *testing.T) {
 				ResourceName:            "argocd_application.ignore_differences_jqpe",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
 			},
 		},
 	})
@@ -293,7 +296,7 @@ func TestAccArgoCDApplication_RevisionHistoryLimit(t *testing.T) {
 				ResourceName:            "argocd_application.revision_history_limit",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
 			},
 		},
 	})
@@ -322,7 +325,7 @@ func TestAccArgoCDApplication_OptionalDestinationNamespace(t *testing.T) {
 				ResourceName:            "argocd_application.no_namespace",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
 			},
 		},
 	})
@@ -407,7 +410,7 @@ func TestAccArgoCDApplication_DirectoryJsonnet(t *testing.T) {
 				ResourceName:            "argocd_application.directory",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
 			},
 		},
 	})
@@ -513,7 +516,7 @@ func TestAccArgoCDApplication_EmptyDirectory(t *testing.T) {
 				ResourceName:            "argocd_application.directory",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
 			},
 		},
 	})
@@ -545,7 +548,7 @@ func TestAccArgoCDApplication_DirectoryIncludeExclude(t *testing.T) {
 				ResourceName:            "argocd_application.directory",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
 			},
 		},
 	})
@@ -605,7 +608,7 @@ func TestAccArgoCDApplication_SyncPolicy(t *testing.T) {
 				ResourceName:            "argocd_application.sync_policy",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
 			},
 		},
 	})
@@ -957,7 +960,7 @@ func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
 				ResourceName:            "argocd_application.custom_namespace",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
 			},
 		},
 	})
@@ -991,7 +994,7 @@ func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 				ResourceName:            "argocd_application.multiple_sources",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
 			},
 		},
 	})
@@ -1029,7 +1032,7 @@ func TestAccArgoCDApplication_HelmValuesFromExternalGitRepo(t *testing.T) {
 				ResourceName:            "argocd_application.helm_values_external",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
 			},
 		},
 	})
@@ -1052,7 +1055,7 @@ func TestAccArgoCDApplication_ManagedNamespaceMetadata(t *testing.T) {
 				ResourceName:            "argocd_application.namespace_metadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "validate"},
 			},
 		},
 	})
@@ -1078,6 +1081,42 @@ func TestAccArgoCDApplication_Wait(t *testing.T) {
 						"argocd_application."+name,
 						"spec.0.source.0.target_revision",
 						chartRevision,
+					),
+				),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDApplication_Validate(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationKustomize(
+					acctest.RandomWithPrefix("test-acc"),
+					"path-does-not-exist",
+					true,
+				),
+				ExpectError: regexp.MustCompile("app path does not exist"),
+			},
+			{
+				Config: testAccArgoCDApplicationKustomize(
+					acctest.RandomWithPrefix("test-acc"),
+					"path-does-not-exist",
+					false,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.kustomize",
+						"validate",
+						"false",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.kustomize",
+						"spec.0.source.0.path",
+						"path-does-not-exist",
 					),
 				),
 			},
@@ -1219,7 +1258,7 @@ resource "argocd_application" "helm_file_parameters" {
 }`, name)
 }
 
-func testAccArgoCDApplicationKustomize(name string) string {
+func testAccArgoCDApplicationKustomize(name string, path string, validate bool) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "kustomize" {
   metadata {
@@ -1233,7 +1272,7 @@ resource "argocd_application" "kustomize" {
   spec {
     source {
       repo_url        = "https://github.com/kubernetes-sigs/kustomize"
-      path            = "examples/helloWorld"
+      path            = "%s"
       target_revision = "release-kustomize-v3.7"
       kustomize {
   	    name_prefix  = "foo-"
@@ -1257,8 +1296,11 @@ resource "argocd_application" "kustomize" {
       namespace = "default"
     }
   }
+
+  validate = %t
+
 }
-	`, name)
+	`, name, path, validate)
 }
 
 func testAccArgoCDApplicationDirectoryNoPath(name string) string {
