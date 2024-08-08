@@ -656,12 +656,13 @@ func flattenApplicationInfo(infos []application.Info) (result []map[string]strin
 func flattenApplicationIgnoreDifferences(ids []application.ResourceIgnoreDifferences) (result []map[string]interface{}) {
 	for _, id := range ids {
 		result = append(result, map[string]interface{}{
-			"group":               id.Group,
-			"kind":                id.Kind,
-			"name":                id.Name,
-			"namespace":           id.Namespace,
-			"json_pointers":       id.JSONPointers,
-			"jq_path_expressions": id.JQPathExpressions,
+			"group":                   id.Group,
+			"kind":                    id.Kind,
+			"name":                    id.Name,
+			"namespace":               id.Namespace,
+			"json_pointers":           id.JSONPointers,
+			"jq_path_expressions":     id.JQPathExpressions,
+			"managed_fields_managers": id.ManagedFieldsManagers,
 		})
 	}
 
@@ -799,6 +800,7 @@ func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (resu
 				"values":                     a.Values,
 				"pass_credentials":           a.PassCredentials,
 				"ignore_missing_value_files": a.IgnoreMissingValueFiles,
+				"version":                    a.Version,
 			})
 		}
 	}
