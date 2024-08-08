@@ -143,6 +143,11 @@ ingress:
 						"spec.0.source.0.helm.0.ignore_missing_value_files",
 						"true",
 					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.helm",
+						"spec.0.source.0.helm.0.version",
+						"v3",
+					),
 				),
 			},
 			{
@@ -263,6 +268,32 @@ func TestAccArgoCDApplication_IgnoreDifferences(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
+			},
+			{
+				Config: testAccArgoCDApplicationIgnoreDiffManagedFieldsManagers(
+					acctest.RandomWithPrefix("test-acc")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.ignore_differences_managed_fields_managers",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.ignore_differences_managed_fields_managers",
+						"spec.0.ignore_difference.0.managed_fields_managers.0",
+						"some-controller-owner",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.ignore_differences_managed_fields_managers",
+						"spec.0.ignore_difference.1.managed_fields_managers.1",
+						"some-other-controller-owner",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application.ignore_differences_managed_fields_managers",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status"},
 			},
 		},
 	})
@@ -1201,6 +1232,7 @@ resource "argocd_application" "helm" {
 
         pass_credentials = true
         ignore_missing_value_files = true
+		version = "v3"
 
         value_files = ["values.yaml"]
 
@@ -1666,6 +1698,54 @@ resource "argocd_application" "ignore_differences_jqpe" {
         ".spec.replicas",
         ".spec.template.spec.metadata.labels.somelabel",
       ]
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationIgnoreDiffManagedFieldsManagers(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "ignore_differences_managed_fields_managers" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
+      chart           = "redis"
+      target_revision = "16.9.11"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+    
+    ignore_difference {
+      group                   = "apps"
+      kind                    = "Deployment"
+	  json_pointers           = ["/spec/replicas"]
+      managed_fields_managers = ["some-controller-owner"]
+    }
+
+    ignore_difference {
+      group         = "apps"
+      kind          = "StatefulSet"
+      name          = "someStatefulSet"
+	  json_pointers = [
+        "/spec/replicas",
+        "/spec/template/spec/metadata/labels/somelabel",
+      ]
+      managed_fields_managers = [
+	    "some-controller-owner",
+		"some-other-controller-owner",
+	  ]
     }
   }
 }
