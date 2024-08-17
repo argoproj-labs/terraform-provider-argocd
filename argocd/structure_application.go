@@ -244,49 +244,59 @@ func expandApplicationSourceKustomize(in []interface{}) *application.Application
 			}
 
 			if target, ok := patchMap["target"]; ok {
-				targetList := target.(*schema.Set).List()
-				if len(targetList) > 0 {
-					targetMap := targetList[0].(map[string]interface{})
-					kustomizeSelector := application.KustomizeSelector{
-						KustomizeResId: application.KustomizeResId{
-							KustomizeGvk: application.KustomizeGvk{},
-						},
-					}
+				kustomizePatch.Target = expandApplicationSourceKustomizePatchTarget(target.([]interface{}))
+			}
 
-					if group, ok := targetMap["group"]; ok {
-						kustomizeSelector.KustomizeResId.KustomizeGvk.Group = group.(string)
-					}
-
-					if version, ok := targetMap["version"]; ok {
-						kustomizeSelector.KustomizeResId.KustomizeGvk.Version = version.(string)
-					}
-
-					if kind, ok := targetMap["kind"]; ok {
-						kustomizeSelector.KustomizeResId.KustomizeGvk.Kind = kind.(string)
-					}
-
-					if name, ok := targetMap["name"]; ok {
-						kustomizeSelector.KustomizeResId.Name = name.(string)
-					}
-
-					if namespace, ok := targetMap["namespace"]; ok {
-						kustomizeSelector.KustomizeResId.Namespace = namespace.(string)
-					}
-
-					if label_selector, ok := targetMap["label_selector"]; ok {
-						kustomizeSelector.LabelSelector = label_selector.(string)
-					}
-
-					if annotation_selector, ok := targetMap["annotation_selector"]; ok {
-						kustomizeSelector.AnnotationSelector = annotation_selector.(string)
-					}
-
-					kustomizePatch.Target = &kustomizeSelector
-				}
+			if options, ok := patchMap["options"]; ok {
+				kustomizePatch.Options = expandBoolMap(options.(map[string]interface{}))
 			}
 
 			result.Patches = append(result.Patches, kustomizePatch)
 		}
+	}
+
+	return result
+}
+
+func expandApplicationSourceKustomizePatchTarget(in []interface{}) *application.KustomizeSelector {
+	if len(in) == 0 {
+		return nil
+	}
+
+	result := &application.KustomizeSelector{
+		KustomizeResId: application.KustomizeResId{
+			KustomizeGvk: application.KustomizeGvk{},
+		},
+	}
+
+	t := in[0].(map[string]interface{})
+
+	if group, ok := t["group"]; ok {
+		result.KustomizeResId.KustomizeGvk.Group = group.(string)
+	}
+
+	if version, ok := t["version"]; ok {
+		result.KustomizeResId.KustomizeGvk.Version = version.(string)
+	}
+
+	if kind, ok := t["kind"]; ok {
+		result.KustomizeResId.KustomizeGvk.Kind = kind.(string)
+	}
+
+	if name, ok := t["name"]; ok {
+		result.KustomizeResId.Name = name.(string)
+	}
+
+	if namespace, ok := t["namespace"]; ok {
+		result.KustomizeResId.Namespace = namespace.(string)
+	}
+
+	if label_selector, ok := t["label_selector"]; ok {
+		result.LabelSelector = label_selector.(string)
+	}
+
+	if annotation_selector, ok := t["annotation_selector"]; ok {
+		result.AnnotationSelector = annotation_selector.(string)
 	}
 
 	return result
@@ -815,25 +825,30 @@ func flattenApplicationSourceKustomize(as []*application.ApplicationSourceKustom
 			var patches []map[string]interface{}
 
 			for _, p := range a.Patches {
-				target := make(map[string]interface{})
+				patch := map[string]interface{}{
+					"patch": p.Patch,
+					"path":  p.Path,
+				}
+
 				if p.Target != nil {
-					target = map[string]interface{}{
-						"group":               p.Target.KustomizeResId.KustomizeGvk.Group,
-						"version":             p.Target.KustomizeResId.KustomizeGvk.Version,
-						"kind":                p.Target.KustomizeResId.KustomizeGvk.Kind,
-						"name":                p.Target.KustomizeResId.Name,
-						"namespace":           p.Target.KustomizeResId.Namespace,
-						"label_selector":      p.Target.LabelSelector,
-						"annotation_selector": p.Target.AnnotationSelector,
+					patch["target"] = []map[string]interface{}{
+						{
+							"group":               p.Target.KustomizeResId.KustomizeGvk.Group,
+							"version":             p.Target.KustomizeResId.KustomizeGvk.Version,
+							"kind":                p.Target.KustomizeResId.KustomizeGvk.Kind,
+							"name":                p.Target.KustomizeResId.Name,
+							"namespace":           p.Target.KustomizeResId.Namespace,
+							"label_selector":      p.Target.LabelSelector,
+							"annotation_selector": p.Target.AnnotationSelector,
+						},
 					}
 				}
 
-				patches = append(patches, map[string]interface{}{
-					"patch":   p.Patch,
-					"path":    p.Path,
-					"options": p.Options,
-					"target":  []map[string]interface{}{target},
-				})
+				if p.Options != nil {
+					patch["options"] = p.Options
+				}
+
+				patches = append(patches, patch)
 			}
 
 			result = append(result, map[string]interface{}{
