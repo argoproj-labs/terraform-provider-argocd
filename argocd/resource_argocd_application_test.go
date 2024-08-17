@@ -176,7 +176,7 @@ func TestAccArgoCDApplication_Helm_FileParameters(t *testing.T) {
 
 func TestAccArgoCDApplication_Kustomize(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationKustomizePatches) },
+		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -204,6 +204,73 @@ func TestAccArgoCDApplication_Kustomize(t *testing.T) {
 			},
 			{
 				ResourceName:            "argocd_application.kustomize",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
+			},
+		},
+	})
+}
+
+func TestAccArgoCDApplication_KustomizePatches(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationKustomizePatches) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationKustomizePatches(
+					acctest.RandomWithPrefix("test-acc")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.kustomize_patches",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.kustomize_patches",
+						"spec.0.source.0.target_revision",
+						"release-kustomize-v3.7",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.kustomize_patches",
+						"spec.0.source.0.kustomize.0.name_suffix",
+						"-bar",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.kustomize_patches",
+						"spec.0.source.0.kustomize.0.patches.0.patch",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.kustomize_patches",
+						"spec.0.source.0.kustomize.0.patches.1.patch",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.kustomize_patches",
+						"spec.0.source.0.kustomize.0.patches.1.target.0.group",
+						"apps",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.kustomize_patches",
+						"spec.0.source.0.kustomize.0.patches.1.target.0.version",
+						"v1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.kustomize_patches",
+						"spec.0.source.0.kustomize.0.patches.1.target.0.kind",
+						"Deployment",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.kustomize_patches",
+						"spec.0.source.0.kustomize.0.patches.2.patch",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.kustomize_patches",
+						"spec.0.source.0.kustomize.0.patches.2.target.0.label_selector",
+						"app=hello",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application.kustomize_patches",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
@@ -1330,9 +1397,84 @@ resource "argocd_application" "kustomize" {
   }
 
   validate = %t
-
 }
-	`, name, path, validate)
+  `, name, path, validate)
+}
+
+func testAccArgoCDApplicationKustomizePatches(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "kustomize_patches" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+      repo_url        = "https://github.com/kubernetes-sigs/kustomize"
+      path            = "examples/helloWorld"
+      target_revision = "release-kustomize-v3.7"
+      kustomize {
+        name_prefix = "foo-"
+        name_suffix = "-bar"
+        images = [
+          "foo=hashicorp/terraform:light",
+        ]
+        common_labels = {
+          "this.is.a.common" = "la-bel"
+          "another.io/one"   = "true"
+        }
+        common_annotations = {
+          "this.is.a.common" = "anno-tation"
+          "another.io/one"   = "false"
+        }
+        patches {
+          patch = <<-EOT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: the-deployment
+labels:
+  app.kubernetes.io/version: 1.21.0    
+EOT
+        }
+        patches {
+          target {
+            group   = "apps"
+            version = "v1"
+            kind    = "Deployment"
+          }
+
+          patch = <<-EOT
+- op: add
+  path: /spec/template/metadata/labels/app.kubernetes.io~1version
+  value: 1.21.0
+EOT
+        }
+        patches {
+          target {
+            label_selector = "app=hello"
+          }
+
+          patch = <<-EOT
+- op: add
+  path: /spec/template/spec/containers/0/image
+  value: nginx:1.21.0
+EOT
+        }
+      }
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
 }
 
 func testAccArgoCDApplicationDirectoryNoPath(name string) string {
