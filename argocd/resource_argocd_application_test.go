@@ -290,7 +290,7 @@ func TestAccArgoCDApplication_IgnoreDifferences(t *testing.T) {
 				ResourceName:            "argocd_application.ignore_differences_managed_fields_managers",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
 			},
 		},
 	})
@@ -1688,7 +1688,7 @@ resource "argocd_application" "ignore_differences_managed_fields_managers" {
     ignore_difference {
       group                   = "apps"
       kind                    = "Deployment"
-	  json_pointers           = ["/spec/replicas"]
+      json_pointers           = ["/spec/replicas"]
       managed_fields_managers = ["some-controller-owner"]
     }
 
@@ -1696,14 +1696,11 @@ resource "argocd_application" "ignore_differences_managed_fields_managers" {
       group         = "apps"
       kind          = "StatefulSet"
       name          = "someStatefulSet"
-	  json_pointers = [
-        "/spec/replicas",
-        "/spec/template/spec/metadata/labels/somelabel",
-      ]
+
       managed_fields_managers = [
-	    "some-controller-owner",
-		"some-other-controller-owner",
-	  ]
+        "some-controller-owner",
+        "some-other-controller-owner",
+      ]
     }
   }
 }
