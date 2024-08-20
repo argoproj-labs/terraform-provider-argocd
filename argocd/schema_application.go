@@ -1388,6 +1388,11 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 											Description: "If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.",
 											Optional:    true,
 										},
+										"version": {
+											Type:        schema.TypeString,
+											Description: "The Helm version to use for templating. Accepts either `v2` or `v3`",
+											Optional:    true,
+										},
 									},
 								},
 							},
@@ -1753,6 +1758,15 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 							"jq_path_expressions": {
 								Type:        schema.TypeSet,
 								Description: "List of JQ path expression strings targeting the field(s) to ignore.",
+								Set:         schema.HashString,
+								Optional:    true,
+								Elem: &schema.Schema{
+									Type: schema.TypeString,
+								},
+							},
+							"managed_fields_managers": {
+								Type:        schema.TypeSet,
+								Description: "List of external controller manager names whose changes to fields should be ignored.",
 								Set:         schema.HashString,
 								Optional:    true,
 								Elem: &schema.Schema{

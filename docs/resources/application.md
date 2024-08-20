@@ -300,6 +300,7 @@ Optional:
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
+- `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
 
 <a id="nestedblock--spec--source--helm--file_parameter"></a>
 ### Nested Schema for `spec.source.helm.file_parameter`
@@ -362,6 +363,7 @@ Optional:
 - `jq_path_expressions` (Set of String) List of JQ path expression strings targeting the field(s) to ignore.
 - `json_pointers` (Set of String) List of JSONPaths strings targeting the field(s) to ignore.
 - `kind` (String) The Kubernetes resource Kind to match for.
+- `managed_fields_managers` (Set of String) List of external controller manager names whose changes to fields should be ignored.
 - `name` (String) The Kubernetes resource Name to match for.
 - `namespace` (String) The Kubernetes resource Namespace to match for.
 
