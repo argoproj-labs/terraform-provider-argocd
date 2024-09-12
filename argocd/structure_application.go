@@ -366,6 +366,10 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 		result.SkipCrds = v.(bool)
 	}
 
+	if v, ok := a["version"]; ok {
+		result.Version = v.(string)
+	}
+
 	return result
 }
 
@@ -503,6 +507,13 @@ func expandApplicationIgnoreDifferences(ids []interface{}) (result []application
 			jqpes := v.(*schema.Set).List()
 			for _, jqpe := range jqpes {
 				elem.JQPathExpressions = append(elem.JQPathExpressions, jqpe.(string))
+			}
+		}
+
+		if v, ok := id["managed_fields_managers"]; ok {
+			managedFieldsManagers := v.(*schema.Set).List()
+			for _, fieldsManager := range managedFieldsManagers {
+				elem.ManagedFieldsManagers = append(elem.ManagedFieldsManagers, fieldsManager.(string))
 			}
 		}
 
@@ -700,12 +711,13 @@ func flattenApplicationInfo(infos []application.Info) (result []map[string]strin
 func flattenApplicationIgnoreDifferences(ids []application.ResourceIgnoreDifferences) (result []map[string]interface{}) {
 	for _, id := range ids {
 		result = append(result, map[string]interface{}{
-			"group":               id.Group,
-			"kind":                id.Kind,
-			"name":                id.Name,
-			"namespace":           id.Namespace,
-			"json_pointers":       id.JSONPointers,
-			"jq_path_expressions": id.JQPathExpressions,
+			"group":                   id.Group,
+			"kind":                    id.Kind,
+			"name":                    id.Name,
+			"namespace":               id.Namespace,
+			"json_pointers":           id.JSONPointers,
+			"jq_path_expressions":     id.JQPathExpressions,
+			"managed_fields_managers": id.ManagedFieldsManagers,
 		})
 	}
 
@@ -868,6 +880,7 @@ func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (resu
 				"values":                     a.Values,
 				"pass_credentials":           a.PassCredentials,
 				"ignore_missing_value_files": a.IgnoreMissingValueFiles,
+				"version":                    a.Version,
 			})
 		}
 	}
