@@ -9,7 +9,7 @@ Contributions are welcome!
 
 The provided `GNUmakefile` defines additional commands generally useful during
 development, like for running tests, generating documentation, code formatting
-and linting. Taking a look at it's content is recommended.
+and linting. Taking a look at its content is recommended.
 
 ## Testing
 
