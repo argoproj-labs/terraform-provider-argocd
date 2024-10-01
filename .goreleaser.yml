@@ -38,10 +38,9 @@ release:
   draft: true
   disable: false
   github:
-    owner: oboukili
+    owner: argoproj-labs
     name: terraform-provider-argocd
 changelog:
-  skip: false
   filters:
     exclude:
       - '^docs:'
