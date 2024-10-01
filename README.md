@@ -8,10 +8,10 @@
 
 # Terraform Provider for ArgoCD
 
-[![Tests](https://github.com/oboukili/terraform-provider-argocd/actions/workflows/tests.yml/badge.svg)](https://github.com/oboukili/terraform-provider-argocd/actions/workflows/tests.yml)
+[![Tests](https://github.com/argoproj-labs/terraform-provider-argocd/actions/workflows/tests.yml/badge.svg)](https://github.com/argoproj-labs/terraform-provider-argocd/actions/workflows/tests.yml)
 
 The [ArgoCD Terraform
-Provider](https://registry.terraform.io/providers/oboukili/argocd/latest/docs)
+Provider](https://registry.terraform.io/providers/argoproj-labs/argocd/latest/docs)
 provides lifecycle management of
 [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) resources.
 
@@ -27,7 +27,7 @@ from where you are running Terraform.
 
 Official documentation on how to use this provider can be found on the
 [Terraform
-Registry](https://registry.terraform.io/providers/oboukili/argocd/latest/docs).
+Registry](https://registry.terraform.io/providers/argoproj-labs/argocd/latest/docs).
 
 ## Compatibility promise
 
