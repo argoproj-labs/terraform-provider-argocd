@@ -2,7 +2,7 @@ terraform {
   required_providers {
     argocd = {
       source  = "argoproj-labs/argocd"
-      version = ">= 5.0.0"
+      version = ">= 6.2.0"
     }
     kind = {
       source  = "unicell/kind"
