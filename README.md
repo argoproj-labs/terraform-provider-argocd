@@ -29,6 +29,98 @@ Official documentation on how to use this provider can be found on the
 [Terraform
 Registry](https://registry.terraform.io/providers/argoproj-labs/argocd/latest/docs).
 
+## Upgrading
+
+### Migrate provider source `oboukili` -> `argoproj-labs`
+
+As announced in the releases [v6.2.0] and [v7.0.0], we moved the provider from "github.com/**oboukili**/terraform-provider-argocd/" 
+to "github.com/**argoproj-labs**/terraform-provider-argocd". Users need to migrate their Terraform state according to
+HashiCorps [replace-provider] docs. In summary, you can do the following:
+
+1. List currently used providers
+
+    ```bash
+    $ terraform providers
+
+    Providers required by configuration:
+    .
+    ├── provider[registry.terraform.io/hashicorp/helm] 2.15.0
+    ├── (..)
+    └── provider[registry.terraform.io/oboukili/argocd] 6.1.1
+
+    Providers required by state:
+
+        (..)
+
+        provider[registry.terraform.io/oboukili/argocd]
+
+        provider[registry.terraform.io/hashicorp/helm]
+    ```
+
+2. **If you see** the provider "registry.terraform.io/**oboukili**/argocd", you can update the provider specification:
+
+    ```diff
+    --- a/versions.tf
+    +++ b/versions.tf
+    @@ -5,7 +5,7 @@ terraform {
+        }
+        argocd = {
+    -      source  = "oboukili/argocd"
+    +      source  = "argoproj-labs/argocd"
+        version = "6.1.1"
+        }
+        helm = {
+    ```
+
+3. Download the new provider via `terraform init`:
+
+    ```bash
+    $ terraform init
+    Initializing HCP Terraform...
+    Initializing provider plugins...
+    - Finding (..)
+    - Finding oboukili/argocd versions matching "6.1.1"...
+    - Finding latest version of argoproj-labs/argocd...
+    - (..)
+    - Installing oboukili/argocd v6.1.1...
+    - Installed oboukili/argocd v6.1.1 (self-signed, key ID 09A6EABF546E8638)
+    - Installing argoproj-labs/argocd v7.0.0...
+    - Installed argoproj-labs/argocd v7.0.0 (self-signed, key ID 6421DA8DFD8F48D0)
+    (..)
+
+    HCP Terraform has been successfully initialized!
+
+    (..)
+    ```
+
+4. Then, execute the migration via `terraform state replace-provider`:
+
+    ```bash
+    $ terraform state replace-provider registry.terraform.io/oboukili/argocd registry.terraform.io/argoproj-labs/argocd
+    Terraform will perform the following actions:
+
+    ~ Updating provider:
+        - registry.terraform.io/oboukili/argocd
+        + registry.terraform.io/argoproj-labs/argocd
+
+    Changing 5 resources:
+
+    argocd_project.apps_with_clusterroles
+    argocd_application.app_of_apps
+    argocd_project.base
+    argocd_project.apps_restricted
+    argocd_project.core_services_unrestricted
+
+    Do you want to make these changes?
+    Only 'yes' will be accepted to continue.
+
+    Enter a value: yes
+
+    Successfully replaced provider for 5 resources.
+    ```
+
+5. You have successfully migrated
+
 ## Compatibility promise
 
 This provider is compatible with _at least_ the last 2 minor releases of ArgoCD
@@ -83,3 +175,7 @@ in the process.
 * Thanks to [Keplr](https://www.welcometothejungle.com/fr/companies/keplr) for allowing me to contribute to this side-project of mine during paid work hours.
 
 ![](sponsors/jetbrains.svg?display=inline-block) ![](sponsors/keplr.png?display=inline-block)
+
+[v6.2.0]: https://github.com/argoproj-labs/terraform-provider-argocd/releases/tag/v6.2.0
+[v7.0.0]: https://github.com/argoproj-labs/terraform-provider-argocd/releases/tag/v7.0.0
+[replace-provider]: https://developer.hashicorp.com/terraform/cli/commands/state/replace-provider
