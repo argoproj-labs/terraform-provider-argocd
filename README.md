@@ -158,8 +158,6 @@ values' type**. In these cases, not only the readability of your Terraform plan
 will worsen, but you will also be losing some safeties that Terraform provides
 in the process.
 
----
-
 ## Requirements
 
 * [Terraform](https://www.terraform.io/downloads) (>= 1.0)
@@ -167,15 +165,13 @@ in the process.
 * [GNU Make](https://www.gnu.org/software/make/)
 * [golangci-lint](https://golangci-lint.run/usage/install/#local-installation) (optional)
 
----
-
 ## Credits
 
-* Thanks to [JetBrains](https://www.jetbrains.com/?from=terraform-provider-argocd) for providing a GoLand open source license to support the development of this provider.
-* Thanks to [Keplr](https://www.welcometothejungle.com/fr/companies/keplr) for allowing me to contribute to this side-project of mine during paid work hours.
+* We would like to thank [Olivier Boukili] for creating this awesome Terraform provider and moving the project over to
+  [argoproj-labs] on Apr 5th 2024.
 
-![](sponsors/jetbrains.svg?display=inline-block) ![](sponsors/keplr.png?display=inline-block)
-
+[argoproj-labs]: https://github.com/argoproj-labs
+[Olivier Boukili]: https://github.com/oboukili
 [v6.2.0]: https://github.com/argoproj-labs/terraform-provider-argocd/releases/tag/v6.2.0
 [v7.0.0]: https://github.com/argoproj-labs/terraform-provider-argocd/releases/tag/v7.0.0
 [replace-provider]: https://developer.hashicorp.com/terraform/cli/commands/state/replace-provider
