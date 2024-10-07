@@ -24,7 +24,7 @@ jobs:
             This issue has been automatically marked as stale because it has not had
             recent activity. It will be closed if no further activity occurs. Thank you
             for your contributions.
-          exempt-issue-labels: "on-hold,pinned,good first issue"
+          exempt-issue-labels: "on-hold,pinned,good first issue,help wanted"
           # PR Settings
           stale-pr-message: >
             This pull request has been automatically marked as stale because it has not had
