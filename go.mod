@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
-	github.com/ProtonMail/gopenpgp/v2 v2.7.4
+	github.com/ProtonMail/gopenpgp/v2 v2.7.5
 	github.com/argoproj/argo-cd/v2 v2.9.21
 	github.com/argoproj/gitops-engine v0.7.3
 	github.com/argoproj/pkg v0.13.7-0.20230627120311-a4dd357b057e
