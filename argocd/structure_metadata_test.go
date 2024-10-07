@@ -31,6 +31,7 @@ func TestMetadataIsInternalKey(t *testing.T) {
 			if tc.Expected && isInternal != tc.Expected {
 				t.Fatalf("Expected %q to be internal", tc.Key)
 			}
+
 			if !tc.Expected && isInternal != tc.Expected {
 				t.Fatalf("Expected %q not to be internal", tc.Key)
 			}

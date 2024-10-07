@@ -137,6 +137,7 @@ func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
 			if err != nil {
 				t.Fatalf("error migrating state: %s", err)
 			}
+
 			if !reflect.DeepEqual(actualState, tc.expectedState) {
 				t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", tc.expectedState, actualState)
 			}
