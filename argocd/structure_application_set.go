@@ -25,7 +25,7 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 	if v, ok := s["generator"].([]interface{}); ok && len(v) > 0 {
 		spec.Generators, err = expandApplicationSetGenerators(v, featureMultipleApplicationSourcesSupported)
 		if err != nil {
-			return
+			return spec, err
 		}
 	}
 
@@ -41,7 +41,7 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 	if v, ok := s["strategy"].([]interface{}); ok && len(v) > 0 {
 		spec.Strategy, err = expandApplicationSetStrategy(v[0].(map[string]interface{}))
 		if err != nil {
-			return
+			return spec, err
 		}
 	}
 
@@ -56,7 +56,7 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 	if v, ok := s["template"].([]interface{}); ok && len(v) > 0 {
 		spec.Template, err = expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
 		if err != nil {
-			return
+			return spec, err
 		}
 	}
 
@@ -822,7 +822,7 @@ func expandApplicationSetTemplate(temp interface{}, featureMultipleApplicationSo
 	if v, ok := t["metadata"]; ok {
 		template.ApplicationSetTemplateMeta, err = expandApplicationSetTemplateMeta(v.([]interface{})[0])
 		if err != nil {
-			return
+			return template, err
 		}
 	}
 
@@ -831,7 +831,7 @@ func expandApplicationSetTemplate(temp interface{}, featureMultipleApplicationSo
 
 		template.Spec, err = expandApplicationSpec(s)
 		if err != nil {
-			return
+			return template, err
 		}
 
 		l := len(template.Spec.Sources)
@@ -851,7 +851,7 @@ func expandApplicationSetTemplate(temp interface{}, featureMultipleApplicationSo
 
 func expandApplicationSetTemplateMeta(meta interface{}) (metadata application.ApplicationSetTemplateMeta, err error) {
 	if meta == nil {
-		return
+		return metadata, err
 	}
 
 	m, ok := meta.(map[string]interface{})
@@ -884,7 +884,7 @@ func expandApplicationSetTemplateMeta(meta interface{}) (metadata application.Ap
 
 func expandApplicationSetIgnoreDifferences(ids []interface{}, featureApplicationSetIgnoreApplicationDifferences bool) (result []application.ApplicationSetResourceIgnoreDifferences) {
 	if !featureApplicationSetIgnoreApplicationDifferences {
-		return
+		return result
 	}
 
 	for _, _id := range ids {
@@ -913,7 +913,7 @@ func expandApplicationSetIgnoreDifferences(ids []interface{}, featureApplication
 		result = append(result, elem)
 	}
 
-	return //nolint:nakedret // overriding as function follows pattern in rest of file
+	return result
 }
 func flattenApplicationSet(as *application.ApplicationSet, d *schema.ResourceData) error {
 	fMetadata := flattenMetadata(as.ObjectMeta, d)
