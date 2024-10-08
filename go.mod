@@ -1,6 +1,6 @@
 module github.com/oboukili/terraform-provider-argocd
 
-go 1.20
+go 1.21
 
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
@@ -12,11 +12,11 @@ require (
 	github.com/elliotchance/pie/v2 v2.8.0
 	github.com/golang/protobuf v1.5.4
 	github.com/hashicorp/terraform-plugin-docs v0.16.0
-	github.com/hashicorp/terraform-plugin-framework v1.4.2
-	github.com/hashicorp/terraform-plugin-framework-validators v0.12.0
+	github.com/hashicorp/terraform-plugin-framework v1.10.0
+	github.com/hashicorp/terraform-plugin-framework-validators v0.13.0
 	github.com/hashicorp/terraform-plugin-go v0.23.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
-	github.com/hashicorp/terraform-plugin-mux v0.12.0
+	github.com/hashicorp/terraform-plugin-mux v0.16.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.34.0
 	github.com/hashicorp/terraform-plugin-testing v1.10.0
 	github.com/robfig/cron/v3 v3.0.1
