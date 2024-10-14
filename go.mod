@@ -3,7 +3,7 @@ module github.com/oboukili/terraform-provider-argocd
 go 1.21
 
 require (
-	github.com/Masterminds/semver/v3 v3.2.1
+	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/ProtonMail/gopenpgp/v2 v2.7.5
 	github.com/argoproj/argo-cd/v2 v2.9.21
 	github.com/argoproj/gitops-engine v0.7.3
