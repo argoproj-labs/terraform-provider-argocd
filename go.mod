@@ -9,7 +9,7 @@ require (
 	github.com/argoproj/gitops-engine v0.7.3
 	github.com/argoproj/pkg v0.13.7-0.20230627120311-a4dd357b057e
 	github.com/cristalhq/jwt/v3 v3.1.0
-	github.com/elliotchance/pie/v2 v2.8.0
+	github.com/elliotchance/pie/v2 v2.9.0
 	github.com/hashicorp/terraform-plugin-docs v0.19.4
 	github.com/hashicorp/terraform-plugin-framework v1.10.0
 	github.com/hashicorp/terraform-plugin-framework-validators v0.13.0
