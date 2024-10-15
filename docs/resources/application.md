@@ -177,6 +177,7 @@ resource "argocd_application" "multiple_sources" {
 
 - `cascade` (Boolean) Whether to applying cascading deletion when application is removed.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
+- `validate` (Boolean) Whether to validate the application spec before creating or updating the application.
 - `wait` (Boolean) Upon application creation or update, wait for application health/sync status to be healthy/Synced, upon application deletion, wait for application to be removed, when set to true. Wait timeouts are controlled by Terraform Create, Update and Delete resource timeouts (all default to 5 minutes). **Note**: if ArgoCD decides not to sync an application (e.g. because the project to which the application belongs has a `sync_window` applied) then you will experience an expected timeout event if `wait = true`.
 
 ### Read-Only
@@ -299,6 +300,7 @@ Optional:
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
+- `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
 
 <a id="nestedblock--spec--source--helm--file_parameter"></a>
 ### Nested Schema for `spec.source.helm.file_parameter`
@@ -361,6 +363,7 @@ Optional:
 - `jq_path_expressions` (Set of String) List of JQ path expression strings targeting the field(s) to ignore.
 - `json_pointers` (Set of String) List of JSONPaths strings targeting the field(s) to ignore.
 - `kind` (String) The Kubernetes resource Kind to match for.
+- `managed_fields_managers` (Set of String) List of external controller manager names whose changes to fields should be ignored.
 - `name` (String) The Kubernetes resource Name to match for.
 - `namespace` (String) The Kubernetes resource Namespace to match for.
 
