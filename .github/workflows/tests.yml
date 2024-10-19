@@ -48,7 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        argocd_version: ["v2.9.22", "v2.10.17", "v2.11.9"]
+        argocd_version: ["v2.10.18", "v2.11.12", "v2.12.8"]
     steps:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -64,7 +64,7 @@ jobs:
           curl -sL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
           chmod +x ./kustomize
 
-      - name: Install Kind 0.20.0
+      - name: Install Kind 0.24.0
         run: |
           curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64
           chmod +x ./kind
