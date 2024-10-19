@@ -193,7 +193,7 @@ resource "argocd_project" "simple" {
 }
 
 resource "argocd_repository" "helm" {
-  repo = "https://helm.nginx.com/stable"
+  repo = "https://helm.nginx.com/stable/"
   name = "nginx-stable-scoped"
   type = "helm"
   project = "%[1]s"
