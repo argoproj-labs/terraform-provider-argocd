@@ -176,7 +176,7 @@ func TestAccArgoCDApplication_Helm_FileParameters(t *testing.T) {
 
 func TestAccArgoCDApplication_Kustomize(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationKustomizePatches) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -1293,13 +1293,13 @@ resource "argocd_application" "helm_file_parameters" {
 func testAccArgoCDApplicationKustomize(name string, path string, validate bool) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "kustomize" {
-  metadata {
-    name      = "%s"
-    namespace = "argocd"
-    labels = {
-      acceptance = "true"
-    }
-  }
+	metadata {
+		name      = "%s"
+		namespace = "argocd"
+		labels = {
+			acceptance = "true"
+		}
+	}
 
   spec {
     source {
