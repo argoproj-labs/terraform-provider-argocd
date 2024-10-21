@@ -1,4 +1,4 @@
-module github.com/oboukili/terraform-provider-argocd
+module github.com/argoproj-labs/terraform-provider-argocd
 
 go 1.22.0
 

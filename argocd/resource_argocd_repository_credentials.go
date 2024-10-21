@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repocreds"
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 )
 
 func resourceArgoCDRepositoryCredentials() *schema.Resource {
