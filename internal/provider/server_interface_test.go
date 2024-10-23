@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/version"
-	"github.com/oboukili/terraform-provider-argocd/internal/features"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

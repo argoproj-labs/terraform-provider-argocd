@@ -11,8 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
 	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 
-	"github.com/oboukili/terraform-provider-argocd/argocd"
-	"github.com/oboukili/terraform-provider-argocd/internal/provider"
+	"github.com/argoproj-labs/terraform-provider-argocd/argocd"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website

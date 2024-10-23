@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/oboukili/terraform-provider-argocd/internal/features"
 )
 
 func TestAccArgoCDApplication(t *testing.T) {
