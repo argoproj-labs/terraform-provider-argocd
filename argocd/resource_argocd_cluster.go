@@ -43,6 +43,9 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 
 	// Cluster are unique by "server address" so we should check there is no existing cluster with this address before
 	existingClusters, err := si.ClusterClient.List(ctx, &clusterClient.ClusterQuery{
+		// Starting argo-cd server v2.8.0 filtering on list api endpoint is fixed, else it is ignored, see:
+		// - https://github.com/oboukili/terraform-provider-argocd/issues/266#issuecomment-1739122022
+		// - https://github.com/argoproj/argo-cd/pull/13363
 		Id: &clusterClient.ClusterID{
 			Type:  "server",
 			Value: rtrimmedServer,
@@ -53,6 +56,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 		return errorToDiagnostics(fmt.Sprintf("failed to list existing clusters when creating cluster %s", cluster.Server), err)
 	}
 
+	// Here we will filter ourselves on the list so that we are backward compatible for argo-cd server with version < v2.8.0 (see coment above)
 	if len(existingClusters.Items) > 0 {
 		for _, existingCluster := range existingClusters.Items {
 			if rtrimmedServer == strings.TrimRight(existingCluster.Server, "/") {
@@ -103,7 +107,57 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 			return nil
 		}
 
-		return argoCDAPIError("read", "cluster", d.Id(), err)
+		// Fix for https://github.com/oboukili/terraform-provider-argocd/issues/266
+		// This fix is added here as a workaround to ensure backward compatibility, as
+		//   it is triggered only on the specific usecase where the issue happens.
+		// Additional remarks about this code:
+		// * it is a copy/paste of the code used by resourceArgoCDClusterCreate to check if
+		//     the cluster already exists (with some obvious changes to return value and mutex type)
+		// * it should at term replace the `si.ClusterClient.Get` code for this method
+		if strings.Contains(err.Error(), "PermissionDenied") {
+			cluster, err := expandCluster(d)
+			if err != nil {
+				return errorToDiagnostics("failed to expand cluster", err)
+			}
+
+			tokenMutexClusters.RLock()
+
+			rtrimmedServer := strings.TrimRight(cluster.Server, "/")
+
+			// Cluster are unique by "server address" so we should check there is no existing cluster with this address before
+			existingClusters, err := si.ClusterClient.List(ctx, &clusterClient.ClusterQuery{
+				// Starting argo-cd server v2.8.0 filtering on list api endpoint is fixed, else it is ignored, see:
+				// - https://github.com/oboukili/terraform-provider-argocd/issues/266#issuecomment-1739122022
+				// - https://github.com/argoproj/argo-cd/pull/13363
+				Id: &clusterClient.ClusterID{
+					Type:  "server",
+					Value: rtrimmedServer,
+				},
+			})
+
+			tokenMutexClusters.RUnlock()
+
+			if err != nil {
+				return errorToDiagnostics(fmt.Sprintf("failed to list existing clusters when reading cluster %s", cluster.Server), err)
+			}
+
+			// Here we will filter ourselves on the list so that we are backward compatible for argo-cd server with version < v2.8.0 (see coment above)
+			if len(existingClusters.Items) > 0 {
+				for _, existingCluster := range existingClusters.Items {
+					if rtrimmedServer == strings.TrimRight(existingCluster.Server, "/") {
+						// Cluster was found, return
+						return nil
+					}
+				}
+			}
+
+			// Cluster was not found, return with empty Id
+			d.SetId("")
+
+			return nil
+		} else {
+			return argoCDAPIError("read", "cluster", d.Id(), err)
+		}
 	}
 
 	if err = flattenCluster(c, d); err != nil {
