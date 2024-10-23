@@ -3,13 +3,13 @@ package provider
 import (
 	"fmt"
 
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/utils"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/oboukili/terraform-provider-argocd/internal/utils"
-	"github.com/oboukili/terraform-provider-argocd/internal/validators"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

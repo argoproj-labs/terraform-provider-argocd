@@ -31,7 +31,7 @@ func expandApplicationSpec(s map[string]interface{}) (spec application.Applicati
 	if v, ok := s["info"]; ok {
 		spec.Info, err = expandApplicationInfo(v.(*schema.Set))
 		if err != nil {
-			return
+			return spec, err
 		}
 	}
 
@@ -42,7 +42,7 @@ func expandApplicationSpec(s map[string]interface{}) (spec application.Applicati
 	if v, ok := s["sync_policy"].([]interface{}); ok && len(v) > 0 {
 		spec.SyncPolicy, err = expandApplicationSyncPolicy(v[0])
 		if err != nil {
-			return
+			return spec, err
 		}
 	}
 

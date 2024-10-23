@@ -8,14 +8,14 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
 	applicationClient "github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/gitops-engine/pkg/health"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/oboukili/terraform-provider-argocd/internal/features"
-	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 )
 
 func resourceArgoCDApplication() *schema.Resource {

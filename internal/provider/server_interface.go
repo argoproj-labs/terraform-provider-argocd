@@ -8,6 +8,8 @@ import (
 	"sync"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/diagnostics"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/account"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
@@ -21,12 +23,10 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/session"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/version"
 	"github.com/argoproj/argo-cd/v2/util/io"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/oboukili/terraform-provider-argocd/internal/diagnostics"
-	"github.com/oboukili/terraform-provider-argocd/internal/features"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var runtimeErrorHandlers []func(error)
@@ -134,7 +134,7 @@ func (si *ServerInterface) InitClients(ctx context.Context) diag.Diagnostics {
 	} else {
 		defer io.Close(acCloser)
 
-		serverVersionMessage, err := versionClient.Version(ctx, &empty.Empty{})
+		serverVersionMessage, err := versionClient.Version(ctx, &emptypb.Empty{})
 		if err != nil {
 			return diagnostics.Error("failed to read server version", err)
 		}

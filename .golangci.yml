@@ -31,12 +31,12 @@ linters:
     - goconst
     - gocritic
     - gofmt
-    - gomnd
     - gosimple
     - govet
     - ineffassign
     - makezero
     - misspell
+    - mnd
     - nakedret
     - nilerr
     - nolintlint
@@ -50,8 +50,6 @@ linters:
     - unconvert
     - unparam
     - unused
-    - vet
-    - vetshadow
     - whitespace
     - wsl
 
@@ -59,7 +57,10 @@ linters-settings:
   dogsled:
     max-blank-identifiers: 3
   errcheck:
-    ignore: github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:ForceNew|Set,fmt:.*,io:Close
+    exclude-functions:
+      - github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:ForceNew|Set
+      - fmt:.*
+      - io:Close
   errorlint:
     errorf: false
   goconst:
@@ -73,31 +74,29 @@ linters-settings:
       - performance
       - experimental
       - opinionated
-  gomnd:
-    settings:
-      mnd:
-        checks:
-          - argument
-        ignored-functions:
-          # Terraform Plugin SDK
-          - resource.Retry
-          - schema.DefaultTimeout
-          - validation.*
-          # Terraform Plugin Framework
-          - int64validator.*
-          - listvalidator.*
-          - stringvalidator.*
-          - SetDefaultCreateTimeout
-          - SetDefaultReadTimeout
-          - SetDefaultUpdateTimeout
-          - SetDefaultDeleteTimeout
-          # Go
-          - make
-          - strconv.FormatFloat
-          - strconv.FormatInt
-          - strconv.ParseFloat
-          - strconv.ParseInt
-          - strings.SplitN
+  mnd:
+    checks:
+      - argument
+    ignored-functions:
+      # Terraform Plugin SDK
+      - resource.Retry
+      - schema.DefaultTimeout
+      - validation.*
+      # Terraform Plugin Framework
+      - int64validator.*
+      - listvalidator.*
+      - stringvalidator.*
+      - SetDefaultCreateTimeout
+      - SetDefaultReadTimeout
+      - SetDefaultUpdateTimeout
+      - SetDefaultDeleteTimeout
+      # Go
+      - make
+      - strconv.FormatFloat
+      - strconv.FormatInt
+      - strconv.ParseFloat
+      - strconv.ParseInt
+      - strings.SplitN
   nolintlint:
     allow-unused: false
     allow-leading-space: false

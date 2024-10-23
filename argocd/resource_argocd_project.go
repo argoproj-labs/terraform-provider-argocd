@@ -7,12 +7,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
 	projectClient "github.com/argoproj/argo-cd/v2/pkg/apiclient/project"
 	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/oboukili/terraform-provider-argocd/internal/features"
-	"github.com/oboukili/terraform-provider-argocd/internal/provider"
 )
 
 func resourceArgoCDProject() *schema.Resource {

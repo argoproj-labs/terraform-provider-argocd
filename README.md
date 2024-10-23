@@ -8,10 +8,10 @@
 
 # Terraform Provider for ArgoCD
 
-[![Tests](https://github.com/oboukili/terraform-provider-argocd/actions/workflows/tests.yml/badge.svg)](https://github.com/oboukili/terraform-provider-argocd/actions/workflows/tests.yml)
+[![Tests](https://github.com/argoproj-labs/terraform-provider-argocd/actions/workflows/tests.yml/badge.svg)](https://github.com/argoproj-labs/terraform-provider-argocd/actions/workflows/tests.yml)
 
 The [ArgoCD Terraform
-Provider](https://registry.terraform.io/providers/oboukili/argocd/latest/docs)
+Provider](https://registry.terraform.io/providers/argoproj-labs/argocd/latest/docs)
 provides lifecycle management of
 [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) resources.
 
@@ -27,7 +27,99 @@ from where you are running Terraform.
 
 Official documentation on how to use this provider can be found on the
 [Terraform
-Registry](https://registry.terraform.io/providers/oboukili/argocd/latest/docs).
+Registry](https://registry.terraform.io/providers/argoproj-labs/argocd/latest/docs).
+
+## Upgrading
+
+### Migrate provider source `oboukili` -> `argoproj-labs`
+
+As announced in the releases [v6.2.0] and [v7.0.0], we moved the provider from "github.com/**oboukili**/terraform-provider-argocd/" 
+to "github.com/**argoproj-labs**/terraform-provider-argocd". Users need to migrate their Terraform state according to
+HashiCorps [replace-provider] docs. In summary, you can do the following:
+
+1. List currently used providers
+
+    ```bash
+    $ terraform providers
+
+    Providers required by configuration:
+    .
+    ├── provider[registry.terraform.io/hashicorp/helm] 2.15.0
+    ├── (..)
+    └── provider[registry.terraform.io/oboukili/argocd] 6.1.1
+
+    Providers required by state:
+
+        (..)
+
+        provider[registry.terraform.io/oboukili/argocd]
+
+        provider[registry.terraform.io/hashicorp/helm]
+    ```
+
+2. **If you see** the provider "registry.terraform.io/**oboukili**/argocd", you can update the provider specification:
+
+    ```diff
+    --- a/versions.tf
+    +++ b/versions.tf
+    @@ -5,7 +5,7 @@ terraform {
+        }
+        argocd = {
+    -      source  = "oboukili/argocd"
+    +      source  = "argoproj-labs/argocd"
+        version = "6.1.1"
+        }
+        helm = {
+    ```
+
+3. Download the new provider via `terraform init`:
+
+    ```bash
+    $ terraform init
+    Initializing HCP Terraform...
+    Initializing provider plugins...
+    - Finding (..)
+    - Finding oboukili/argocd versions matching "6.1.1"...
+    - Finding latest version of argoproj-labs/argocd...
+    - (..)
+    - Installing oboukili/argocd v6.1.1...
+    - Installed oboukili/argocd v6.1.1 (self-signed, key ID 09A6EABF546E8638)
+    - Installing argoproj-labs/argocd v7.0.0...
+    - Installed argoproj-labs/argocd v7.0.0 (self-signed, key ID 6421DA8DFD8F48D0)
+    (..)
+
+    HCP Terraform has been successfully initialized!
+
+    (..)
+    ```
+
+4. Then, execute the migration via `terraform state replace-provider`:
+
+    ```bash
+    $ terraform state replace-provider registry.terraform.io/oboukili/argocd registry.terraform.io/argoproj-labs/argocd
+    Terraform will perform the following actions:
+
+    ~ Updating provider:
+        - registry.terraform.io/oboukili/argocd
+        + registry.terraform.io/argoproj-labs/argocd
+
+    Changing 5 resources:
+
+    argocd_project.apps_with_clusterroles
+    argocd_application.app_of_apps
+    argocd_project.base
+    argocd_project.apps_restricted
+    argocd_project.core_services_unrestricted
+
+    Do you want to make these changes?
+    Only 'yes' will be accepted to continue.
+
+    Enter a value: yes
+
+    Successfully replaced provider for 5 resources.
+    ```
+
+5. You have successfully migrated
 
 ## Compatibility promise
 
@@ -66,83 +158,20 @@ values' type**. In these cases, not only the readability of your Terraform plan
 will worsen, but you will also be losing some safeties that Terraform provides
 in the process.
 
----
-
 ## Requirements
 
 * [Terraform](https://www.terraform.io/downloads) (>= 1.0)
 * [Go](https://go.dev/doc/install) (1.19)
 * [GNU Make](https://www.gnu.org/software/make/)
 * [golangci-lint](https://golangci-lint.run/usage/install/#local-installation) (optional)
- 
-
-## Contributing
-
-Contributions are welcome! 
-
-### Building
-
-1. `git clone` this repository and `cd` into its directory
-2. `make build` will trigger the Golang build
-
-The provided `GNUmakefile` defines additional commands generally useful during
-development, like for running tests, generating documentation, code formatting
-and linting. Taking a look at it's content is recommended.
-
-### Testing
-
-The acceptance tests run against a disposable ArgoCD installation within a
-[Kind](https://github.com/kubernetes-sigs/kind) cluster. Other requirements are
-having a Docker daemon running and
-[Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/)
-installed.
-
-```sh
-make testacc_prepare_env
-make testacc
-make testacc_clean_env
-```
-
-### Generating documentation
-
-This provider uses [terraform-plugin-docs](https://github.com/hashicorp/terraform-plugin-docs/)
-to generate documentation and store it in the `docs/` directory.
-Once a release is cut, the Terraform Registry will download the documentation from `docs/`
-and associate it with the release version. Read more about how this works on the
-[official page](https://www.terraform.io/registry/providers/docs).
-
-Use `make generate` to ensure the documentation is regenerated with any changes.
-
-### Using a development build
-
-If [running tests and acceptance tests](#testing) isn't enough, it's possible to
-set up a local terraform configuration to use a development builds of the
-provider. This can be achieved by leveraging the Terraform CLI [configuration
-file development
-overrides](https://www.terraform.io/cli/config/config-file#development-overrides-for-provider-developers).
-
-First, use `make install` to place a fresh development build of the provider in
-your
-[`${GOBIN}`](https://pkg.go.dev/cmd/go#hdr-Compile_and_install_packages_and_dependencies)
-(defaults to `${GOPATH}/bin` or `${HOME}/go/bin` if `${GOPATH}` is not set).
-Repeat this every time you make changes to the provider locally.
-
-Then, setup your environment following [these
-instructions](https://www.terraform.io/plugin/debugging#terraform-cli-development-overrides)
-to make your local terraform use your local build.
-
-### Troubleshooting during local development
-
-* **"too many open files":** Running all acceptance tests in parallel (the
-  default) may open a lot of files and sockets, therefore ensure your local
-  workstation [open files/sockets limits are tuned
-  accordingly](https://k6.io/docs/misc/fine-tuning-os).
-
----
 
 ## Credits
 
-* Thanks to [JetBrains](https://www.jetbrains.com/?from=terraform-provider-argocd) for providing a GoLand open source license to support the development of this provider.
-* Thanks to [Keplr](https://www.welcometothejungle.com/fr/companies/keplr) for allowing me to contribute to this side-project of mine during paid work hours.
+* We would like to thank [Olivier Boukili] for creating this awesome Terraform provider and moving the project over to
+  [argoproj-labs] on Apr 5th 2024.
 
-![](sponsors/jetbrains.svg?display=inline-block) ![](sponsors/keplr.png?display=inline-block)
+[argoproj-labs]: https://github.com/argoproj-labs
+[Olivier Boukili]: https://github.com/oboukili
+[v6.2.0]: https://github.com/argoproj-labs/terraform-provider-argocd/releases/tag/v6.2.0
+[v7.0.0]: https://github.com/argoproj-labs/terraform-provider-argocd/releases/tag/v7.0.0
+[replace-provider]: https://developer.hashicorp.com/terraform/cli/commands/state/replace-provider

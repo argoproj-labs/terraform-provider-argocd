@@ -1,3 +1,3 @@
 resource "argocd_repository" "this" {
-  repo = "https://github.com/oboukili/terraform-provider-argocd"
+  repo = "https://github.com/argoproj-labs/terraform-provider-argocd"
 }

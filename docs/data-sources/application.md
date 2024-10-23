@@ -125,16 +125,16 @@ Read-Only:
 - `recurse` (Boolean) Whether to scan a directory recursively for manifests.
 
 <a id="nestedatt--spec--sources--directory--jsonnet"></a>
-### Nested Schema for `spec.sources.directory.recurse`
+### Nested Schema for `spec.sources.directory.jsonnet`
 
 Read-Only:
 
-- `ext_vars` (Attributes List) List of Jsonnet External Variables. (see [below for nested schema](#nestedatt--spec--sources--directory--recurse--ext_vars))
+- `ext_vars` (Attributes List) List of Jsonnet External Variables. (see [below for nested schema](#nestedatt--spec--sources--directory--jsonnet--ext_vars))
 - `libs` (List of String) Additional library search dirs.
-- `tlas` (Attributes List) List of Jsonnet Top-level Arguments (see [below for nested schema](#nestedatt--spec--sources--directory--recurse--tlas))
+- `tlas` (Attributes List) List of Jsonnet Top-level Arguments (see [below for nested schema](#nestedatt--spec--sources--directory--jsonnet--tlas))
 
-<a id="nestedatt--spec--sources--directory--recurse--ext_vars"></a>
-### Nested Schema for `spec.sources.directory.recurse.ext_vars`
+<a id="nestedatt--spec--sources--directory--jsonnet--ext_vars"></a>
+### Nested Schema for `spec.sources.directory.jsonnet.ext_vars`
 
 Read-Only:
 
@@ -143,8 +143,8 @@ Read-Only:
 - `value` (String) Value of Jsonnet variable.
 
 
-<a id="nestedatt--spec--sources--directory--recurse--tlas"></a>
-### Nested Schema for `spec.sources.directory.recurse.tlas`
+<a id="nestedatt--spec--sources--directory--jsonnet--tlas"></a>
+### Nested Schema for `spec.sources.directory.jsonnet.tlas`
 
 Read-Only:
 
@@ -170,7 +170,7 @@ Read-Only:
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a Attribute.
 
 <a id="nestedatt--spec--sources--helm--file_parameters"></a>
-### Nested Schema for `spec.sources.helm.values`
+### Nested Schema for `spec.sources.helm.file_parameters`
 
 Read-Only:
 
@@ -179,7 +179,7 @@ Read-Only:
 
 
 <a id="nestedatt--spec--sources--helm--parameters"></a>
-### Nested Schema for `spec.sources.helm.values`
+### Nested Schema for `spec.sources.helm.parameters`
 
 Read-Only:
 
@@ -212,7 +212,7 @@ Read-Only:
 - `parameters` (Attributes List) Parameters to supply to config management plugin. (see [below for nested schema](#nestedatt--spec--sources--plugin--parameters))
 
 <a id="nestedatt--spec--sources--plugin--env"></a>
-### Nested Schema for `spec.sources.plugin.parameters`
+### Nested Schema for `spec.sources.plugin.env`
 
 Read-Only:
 
@@ -261,7 +261,7 @@ Read-Only:
 - `limit` (Number) Maximum number of attempts for retrying a failed sync. If set to 0, no retries will be performed.
 
 <a id="nestedatt--spec--sync_policy--retry--backoff"></a>
-### Nested Schema for `spec.sync_policy.retry.limit`
+### Nested Schema for `spec.sync_policy.retry.backoff`
 
 Read-Only:
 

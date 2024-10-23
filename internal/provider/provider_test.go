@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/oboukili/terraform-provider-argocd/internal/features"
 )
 
 // testAccProtoV6ProviderFactories are used to instantiate a provider during
