@@ -71,7 +71,7 @@ func main() {
 	}
 
 	err = tf6server.Serve(
-		"registry.terraform.io/oboukili/argocd",
+		"registry.terraform.io/argoproj-labs/argocd",
 		muxServer.ProviderServer,
 		serveOpts...,
 	)
