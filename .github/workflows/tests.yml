@@ -82,3 +82,18 @@ jobs:
         env:
           ARGOCD_VERSION: ${{ matrix.argocd_version }}
         run: make testacc
+
+  # This job aggregates test results. It's the required check for branch protection.
+  # https://github.com/marketplace/actions/alls-green#why
+  # https://github.com/orgs/community/discussions/33579
+  success:
+    name: Acceptance Tests successful
+    if: always()
+    needs:
+      - acceptance_tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+        with:
+          jobs: ${{ toJSON(needs) }}
