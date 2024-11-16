@@ -38,6 +38,10 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 		}
 	}
 
+	if v, ok := s["template_patch"].(string); ok {
+		spec.TemplatePatch = &v
+	}
+
 	if v, ok := s["strategy"].([]interface{}); ok && len(v) > 0 {
 		spec.Strategy, err = expandApplicationSetStrategy(v[0].(map[string]interface{}))
 		if err != nil {
@@ -952,6 +956,7 @@ func flattenApplicationSetSpec(s application.ApplicationSetSpec) ([]map[string]i
 		"go_template":         s.GoTemplate,
 		"go_template_options": s.GoTemplateOptions,
 		"template":            flattenApplicationSetTemplate(s.Template),
+		"template_patch":      s.TemplatePatch,
 	}
 
 	if s.Strategy != nil {
