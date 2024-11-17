@@ -15,6 +15,7 @@ const (
 	ManagedNamespaceMetadata
 	ApplicationSetApplicationsSyncPolicy
 	ApplicationSetIgnoreApplicationDifferences
+	ApplicationSetTemplatePatch
 )
 
 type FeatureConstraint struct {
@@ -31,4 +32,5 @@ var ConstraintsMap = map[Feature]FeatureConstraint{
 	ManagedNamespaceMetadata:                   {"managed namespace metadsata", semver.MustParse("2.6.0")},
 	ApplicationSetApplicationsSyncPolicy:       {"application set level application sync policy", semver.MustParse("2.8.0")},
 	ApplicationSetIgnoreApplicationDifferences: {"application set ignore application differences", semver.MustParse("2.9.0")},
+	ApplicationSetTemplatePatch:                {"application set template patch", semver.MustParse("2.10.0")},
 }

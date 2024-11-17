@@ -12,14 +12,14 @@ import (
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func expandApplicationSet(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool) (metadata meta.ObjectMeta, spec application.ApplicationSetSpec, err error) {
+func expandApplicationSet(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool, featureApplicationSetTemplatePatch bool) (metadata meta.ObjectMeta, spec application.ApplicationSetSpec, err error) {
 	metadata = expandMetadata(d)
-	spec, err = expandApplicationSetSpec(d, featureMultipleApplicationSourcesSupported, featureApplicationSetIgnoreApplicationDifferences)
+	spec, err = expandApplicationSetSpec(d, featureMultipleApplicationSourcesSupported, featureApplicationSetIgnoreApplicationDifferences, featureApplicationSetTemplatePatch)
 
 	return
 }
 
-func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool) (spec application.ApplicationSetSpec, err error) {
+func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool, featureApplicationSetTemplatePatch bool) (spec application.ApplicationSetSpec, err error) {
 	s := d.Get("spec.0").(map[string]interface{})
 
 	if v, ok := s["generator"].([]interface{}); ok && len(v) > 0 {
@@ -39,7 +39,9 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 	}
 
 	if v, ok := s["template_patch"].(string); ok {
-		spec.TemplatePatch = &v
+		if featureApplicationSetTemplatePatch {
+			spec.TemplatePatch = &v
+		}
 	}
 
 	if v, ok := s["strategy"].([]interface{}); ok && len(v) > 0 {
