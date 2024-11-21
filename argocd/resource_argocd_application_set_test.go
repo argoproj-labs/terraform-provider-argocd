@@ -939,7 +939,7 @@ func TestAccArgoCDApplicationSet_progressiveSync(t *testing.T) {
 
 func TestAccArgoCDApplicationSet_templatePatch(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSetTemplatePatch) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{

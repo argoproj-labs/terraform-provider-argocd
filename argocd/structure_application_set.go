@@ -38,8 +38,8 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 		}
 	}
 
-	if v, ok := s["template_patch"].(string); ok {
-		if featureApplicationSetTemplatePatch {
+	if featureApplicationSetTemplatePatch {
+		if v, ok := s["template_patch"].(string); ok {
 			spec.TemplatePatch = &v
 		}
 	}
