@@ -5,7 +5,7 @@ go 1.22.7
 toolchain go1.22.8
 
 require (
-	github.com/Masterminds/semver/v3 v3.3.0
+	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/ProtonMail/gopenpgp/v2 v2.8.0
 	github.com/argoproj/argo-cd/v2 v2.11.9
 	// make sure this matches with version used in Argo CD's go.mod
