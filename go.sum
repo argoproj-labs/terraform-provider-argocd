@@ -37,12 +37,12 @@ github.com/OvyFlash/telegram-bot-api/v5 v5.0.0-20240108230938-63e5c59035bf/go.mo
 github.com/PagerDuty/go-pagerduty v1.7.0 h1:S1NcMKECxT5hJwV4VT+QzeSsSiv4oWl1s2821dUqG/8=
 github.com/PagerDuty/go-pagerduty v1.7.0/go.mod h1:PuFyJKRz1liIAH4h5KVXVD18Obpp1ZXRdxHvmGXooro=
 github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8/go.mod h1:I0gYDMZ6Z5GRU7l58bNFSkPTFN6Yl12dsUlAZ8xy98g=
-github.com/ProtonMail/go-crypto v1.1.0 h1:OnlSGxXflfrWJESDsGQOmACNQRM9IflG3q8XTrOqvbE=
-github.com/ProtonMail/go-crypto v1.1.0/go.mod h1:rA3QumHc/FZ8pAHreoekgiAbzpNsfQAosU5td4SnOrE=
+github.com/ProtonMail/go-crypto v1.1.3 h1:nRBOetoydLeUb4nHajyO2bKqMLfWQ/ZPwkXqXxPxCFk=
+github.com/ProtonMail/go-crypto v1.1.3/go.mod h1:rA3QumHc/FZ8pAHreoekgiAbzpNsfQAosU5td4SnOrE=
 github.com/ProtonMail/go-mime v0.0.0-20230322103455-7d82a3887f2f h1:tCbYj7/299ekTTXpdwKYF8eBlsYsDVoggDAuAjoK66k=
 github.com/ProtonMail/go-mime v0.0.0-20230322103455-7d82a3887f2f/go.mod h1:gcr0kNtGBqin9zDW9GOHcVntrwnjrK+qdJ06mWYBybw=
-github.com/ProtonMail/gopenpgp/v2 v2.8.0 h1:WvMv3CMcFsqKSM4/Qf8sf3tgyQkzDqQmoSE49bnBuP4=
-github.com/ProtonMail/gopenpgp/v2 v2.8.0/go.mod h1:qb2GUSnmA9ipBW5GVtCtEhkummSlqs2A8Ar3S0HBgSY=
+github.com/ProtonMail/gopenpgp/v2 v2.8.1 h1:WGE1THOhOnLurL0+N4BOlLkIhjEO7YVZgmpgyDHN56A=
+github.com/ProtonMail/gopenpgp/v2 v2.8.1/go.mod h1:4PUgqGSQjd7HldUbAgMmC69+Gv6DO8NomCNi0y8+BTc=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
 github.com/RocketChat/Rocket.Chat.Go.SDK v0.0.0-20210112200207-10ab4d695d60 h1:prBTRx78AQnXzivNT9Crhu564W/zPPr3ibSlpT9xKcE=
