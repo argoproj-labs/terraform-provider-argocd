@@ -12,14 +12,14 @@ import (
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func expandApplicationSet(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool) (metadata meta.ObjectMeta, spec application.ApplicationSetSpec, err error) {
+func expandApplicationSet(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool, featureApplicationSetTemplatePatch bool) (metadata meta.ObjectMeta, spec application.ApplicationSetSpec, err error) {
 	metadata = expandMetadata(d)
-	spec, err = expandApplicationSetSpec(d, featureMultipleApplicationSourcesSupported, featureApplicationSetIgnoreApplicationDifferences)
+	spec, err = expandApplicationSetSpec(d, featureMultipleApplicationSourcesSupported, featureApplicationSetIgnoreApplicationDifferences, featureApplicationSetTemplatePatch)
 
 	return
 }
 
-func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool) (spec application.ApplicationSetSpec, err error) {
+func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool, featureApplicationSetTemplatePatch bool) (spec application.ApplicationSetSpec, err error) {
 	s := d.Get("spec.0").(map[string]interface{})
 
 	if v, ok := s["generator"].([]interface{}); ok && len(v) > 0 {
@@ -35,6 +35,12 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 		opts := v.(*schema.Set).List()
 		for _, opt := range opts {
 			spec.GoTemplateOptions = append(spec.GoTemplateOptions, opt.(string))
+		}
+	}
+
+	if featureApplicationSetTemplatePatch {
+		if v, ok := s["template_patch"].(string); ok {
+			spec.TemplatePatch = &v
 		}
 	}
 
@@ -952,6 +958,7 @@ func flattenApplicationSetSpec(s application.ApplicationSetSpec) ([]map[string]i
 		"go_template":         s.GoTemplate,
 		"go_template_options": s.GoTemplateOptions,
 		"template":            flattenApplicationSetTemplate(s.Template),
+		"template_patch":      s.TemplatePatch,
 	}
 
 	if s.Strategy != nil {
