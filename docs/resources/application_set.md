@@ -602,6 +602,7 @@ Optional:
 - `ignore_application_differences` (Block List) Application Set [ignoreApplicationDifferences](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#ignore-certain-changes-to-applications). (see [below for nested schema](#nestedblock--spec--ignore_application_differences))
 - `strategy` (Block List, Max: 1) [Progressive Sync](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Progressive-Syncs/) strategy (see [below for nested schema](#nestedblock--spec--strategy))
 - `sync_policy` (Block List, Max: 1) Application Set [sync policy](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/). (see [below for nested schema](#nestedblock--spec--sync_policy))
+- `template_patch` (String) Application set template patch, as in the [Argo CD ApplicationSet spec](https://argocd-applicationset.readthedocs.io/en/stable/fields/#templatepatch).
 
 <a id="nestedblock--spec--generator"></a>
 ### Nested Schema for `spec.generator`

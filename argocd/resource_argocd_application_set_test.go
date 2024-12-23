@@ -937,30 +937,59 @@ func TestAccArgoCDApplicationSet_progressiveSync(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplicationSet_templatePatch(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSetTemplatePatch) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSet_templatePatch(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.template_patch",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.template_patch",
+						"spec.0.template_patch",
+						"    spec:\n      source:\n        helm:\n          valueFiles:\n          {{- range $valueFile := .valueFiles }}\n            - {{ $valueFile }}\n          {{- end }}\n    {{- if .autoSync }}\n      syncPolicy:\n        automated:\n          prune: {{ .prune }}\n    {{- end }}\n",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.template_patch",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func testAccArgoCDApplicationSet_clusters() string {
 	return `
 resource "argocd_application_set" "clusters" {
 	metadata {
 		name = "clusters"
 	}
-	
+
 	spec {
 		generator {
 			clusters {} # Automatically use all clusters defined within Argo CD
 		}
-	
+
 		template {
 			metadata {
 				name = "{{name}}-clusters"
 			}
-		
+
 			spec {
 				source {
 					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
 					target_revision = "HEAD"
 					path            = "guestbook"
 				}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "default"
@@ -977,7 +1006,7 @@ resource "argocd_application_set" "clusters_selector" {
 	metadata {
 		name = "clusters-selector"
 	}
-	
+
 	spec {
 		generator {
 			clusters {
@@ -986,21 +1015,21 @@ resource "argocd_application_set" "clusters_selector" {
 						"argocd.argoproj.io/secret-type" = "cluster"
 					}
 				}
-			} 
+			}
 		}
-	
+
 		template {
 			metadata {
 				name = "{{name}}-clusters-selector"
 			}
-		
+
 			spec {
 				source {
 					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
 					target_revision = "HEAD"
 					path = "guestbook"
 				}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "default"
@@ -1017,7 +1046,7 @@ resource "argocd_application_set" "cluster_decision_resource" {
 	metadata {
 		name = "cluster-decision-resource"
 	}
-	
+
 	spec {
 		generator {
 			cluster_decision_resource {
@@ -1037,23 +1066,23 @@ resource "argocd_application_set" "cluster_decision_resource" {
 							"spotted",
 							"canvasback"
 						]
-					} 
+					}
 				}
-			} 
+			}
 		}
-	
+
 		template {
 			metadata {
 				name = "{{name}}-cluster-decision-resource"
 			}
-		
+
 			spec {
 				source {
 					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
 					target_revision = "HEAD"
 					path            = "guestbook"
 				}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "default"
@@ -1070,36 +1099,36 @@ resource "argocd_application_set" "git_directories" {
 	metadata {
 		name = "git-directories"
 	}
-	
+
 	spec {
 		generator {
 			git {
 				repo_url = "https://github.com/argoproj/argo-cd.git"
       			revision = "HEAD"
-				
+
 				directory {
 					path = "applicationset/examples/git-generator-directory/cluster-addons/*"
 				}
-				
+
 				directory {
 					path = "applicationset/examples/git-generator-directory/excludes/cluster-addons/exclude-helm-guestbook"
 					exclude = true
 				}
-			} 
+			}
 		}
-	
+
 		template {
 			metadata {
 				name = "{{path.basename}}-git-directories"
 			}
-		
+
 			spec {
 				source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					target_revision = "HEAD"
 					path            = "{{path}}"
 				}
-		
+
 				destination {
 					server    = "https://kubernetes.default.svc"
 					namespace = "{{path.basename}}"
@@ -1116,34 +1145,34 @@ resource "argocd_application_set" "git_files" {
 	metadata {
 		name = "git-files"
 	}
-	
+
 	spec {
 		generator {
 			git {
 				repo_url = "https://github.com/argoproj/argo-cd.git"
       			revision = "HEAD"
-				
+
 				file {
 					path = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
 				}
 				values = {
 					foo = "bar"
 				}
-			} 
+			}
 		}
-	
+
 		template {
 			metadata {
 				name = "{{cluster.name}}-git-files"
 			}
-		
+
 			spec {
 				source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					target_revision = "HEAD"
 					path            = "applicationset/examples/git-generator-files-discovery/apps/guestbook"
 				}
-		
+
 				destination {
 					server    = "{{cluster.address}}"
 					namespace = "guestbook"
@@ -1160,7 +1189,7 @@ resource "argocd_application_set" "list" {
 	metadata {
 		name = "list"
 	}
-	
+
 	spec {
 		generator {
 			list {
@@ -1172,21 +1201,21 @@ resource "argocd_application_set" "list" {
 				]
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "{{cluster}}-guestbook"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					target_revision = "HEAD"
 					path            = "applicationset/examples/list-generator/guestbook/{{cluster}}"
 				}
-		
+
 				destination {
 					server    = "{{url}}"
 					namespace = "guestbook"
@@ -1203,7 +1232,7 @@ resource "argocd_application_set" "matrix" {
 	metadata {
 		name = "matrix"
 	}
-	
+
 	spec {
 		generator {
 			matrix {
@@ -1229,21 +1258,21 @@ resource "argocd_application_set" "matrix" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "{{path.basename}}-{{name}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					target_revision = "HEAD"
 					path            = "{{path}}"
 				}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "{{path.basename}}"
@@ -1260,7 +1289,7 @@ resource "argocd_application_set" "matrix_git_path_param_prefix" {
 	metadata {
 		name = "matrix-git-path-param-prefix"
 	}
-	
+
 	spec {
 		generator {
 			matrix {
@@ -1269,7 +1298,7 @@ resource "argocd_application_set" "matrix_git_path_param_prefix" {
 						repo_url          = "https://github.com/argoproj/argo-cd.git"
 						revision          = "HEAD"
 						path_param_prefix = "foo"
-						
+
 						file {
 							path = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
 						}
@@ -1281,7 +1310,7 @@ resource "argocd_application_set" "matrix_git_path_param_prefix" {
 						repo_url          = "https://github.com/argoproj/argo-cd.git"
 						revision          = "HEAD"
 						path_param_prefix = "bar"
-						
+
 						file {
 							path = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
 						}
@@ -1289,19 +1318,19 @@ resource "argocd_application_set" "matrix_git_path_param_prefix" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "matrix-git-path-param-prefix"
 			}
-		
+
 			spec {
 				source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					target_revision = "HEAD"
 					path            = "applicationset/examples/git-generator-files-discovery/apps/guestbook"
 				}
-		
+
 				destination {
 					server    = "{{cluster.address}}"
 					namespace = "guestbook"
@@ -1318,7 +1347,7 @@ resource "argocd_application_set" "matrix_nested" {
 	metadata {
 		name = "matrix-nested"
 	}
-	
+
 	spec {
 		generator {
 			matrix {
@@ -1338,7 +1367,7 @@ resource "argocd_application_set" "matrix_nested" {
 							git {
 								repo_url = "https://github.com/argoproj/argo-cd.git"
 								revision = "HEAD"
-		
+
 								directory {
 									path = "applicationset/examples/matrix/cluster-addons/*"
 								}
@@ -1359,21 +1388,21 @@ resource "argocd_application_set" "matrix_nested" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "nested-{{path.basename}}-{{name}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					target_revision = "HEAD"
 					path            = "{{path}}"
 				}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "{{path.basename}}"
@@ -1390,7 +1419,7 @@ resource "argocd_application_set" "matrix_insufficient_generators" {
 	metadata {
 		name = "matrix-insufficient-generators"
 	}
-	
+
 	spec {
 		generator {
 			matrix {
@@ -1406,21 +1435,21 @@ resource "argocd_application_set" "matrix_insufficient_generators" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "{{path.basename}}-{{name}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					target_revision = "HEAD"
 					path            = "{{path}}"
 				}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "{{path.basename}}"
@@ -1437,7 +1466,7 @@ resource "argocd_application_set" "matrix_too_many_generators" {
 	metadata {
 		name = "matrix-too-many-generators"
 	}
-	
+
 	spec {
 		generator {
 			matrix {
@@ -1475,21 +1504,21 @@ resource "argocd_application_set" "matrix_too_many_generators" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "{{path.basename}}-{{name}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					target_revision = "HEAD"
 					path            = "{{path}}"
 				}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "{{path.basename}}"
@@ -1506,7 +1535,7 @@ resource "argocd_application_set" "matrix_nested_insufficient_generators" {
 	metadata {
 		name = "matrix-nested-insufficient-generators"
 	}
-	
+
 	spec {
 		generator {
 			matrix {
@@ -1526,7 +1555,7 @@ resource "argocd_application_set" "matrix_nested_insufficient_generators" {
 							git {
 								repo_url = "https://github.com/argoproj/argo-cd.git"
 								revision = "HEAD"
-		
+
 								directory {
 									path = "applicationset/examples/matrix/cluster-addons/*"
 								}
@@ -1536,21 +1565,21 @@ resource "argocd_application_set" "matrix_nested_insufficient_generators" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "nested-{{path.basename}}-{{name}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					target_revision = "HEAD"
 					path            = "{{path}}"
 				}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "{{path.basename}}"
@@ -1567,7 +1596,7 @@ resource "argocd_application_set" "matrix_nested_invalid" {
 	metadata {
 		name = "matrix-nested-invalid"
 	}
-	
+
 	spec {
 		generator {
 			matrix {
@@ -1587,7 +1616,7 @@ resource "argocd_application_set" "matrix_nested_invalid" {
 							git {
 								repo_url = "https://github.com/argoproj/argo-cd.git"
 								revision = "HEAD"
-		
+
 								directory {
 									path = "applicationset/examples/matrix/cluster-addons/*"
 								}
@@ -1600,13 +1629,13 @@ resource "argocd_application_set" "matrix_nested_invalid" {
 									git {
 										repo_url = "https://github.com/argoproj/argo-cd.git"
 										revision = "HEAD"
-				
+
 										directory {
 											path = "applicationset/examples/matrix/cluster-addons/*"
 										}
 									}
 								}
-		
+
 								generator {
 									list {
 										elements = [
@@ -1623,21 +1652,21 @@ resource "argocd_application_set" "matrix_nested_invalid" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "nested-{{path.basename}}-{{name}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					target_revision = "HEAD"
 					path            = "{{path}}"
 				}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "{{path.basename}}"
@@ -1654,14 +1683,14 @@ resource "argocd_application_set" "merge" {
 	metadata {
 		name = "merge"
 	}
-	  
+
 	spec {
 		generator {
 			merge {
 				merge_keys = [
 					"server"
 				]
-	  
+
 				generator {
 					clusters {
 						values = {
@@ -1670,7 +1699,7 @@ resource "argocd_application_set" "merge" {
 						}
 					}
 				}
-	  
+
 				generator {
 					clusters {
 						selector {
@@ -1678,13 +1707,13 @@ resource "argocd_application_set" "merge" {
 								use-kafka = "false"
 							}
 						}
-		
+
 						values = {
 							kafka = "false"
 						}
 					}
 				}
-	  
+
 				generator {
 					list {
 						elements = [
@@ -1697,33 +1726,33 @@ resource "argocd_application_set" "merge" {
 				}
 			}
 		}
-	  
+
 		template {
 			metadata {
 				name = "{{name}}"
 			}
-	  
+
 			spec {
 			  	project = "default"
-	  
+
 			  	source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					path            = "app"
 					target_revision = "HEAD"
-	  
+
 					helm {
 						parameter {
 							name  = "kafka"
 							value = "{{values.kafka}}"
 						}
-	  
+
 						parameter {
 							name  = "redis"
 							value = "{{values.redis}}"
 						}
 					}
 			  	}
-	  
+
 				destination {
 					server    = "{{server}}"
 					namespace = "default"
@@ -1740,14 +1769,14 @@ resource "argocd_application_set" "merge_nested" {
 	metadata {
 		name = "merge-nested"
 	}
-	  
+
 	spec {
 		generator {
 			merge {
 				merge_keys = [
 					"server"
 				]
-	  
+
 				generator {
 					list {
 						elements = [
@@ -1758,7 +1787,7 @@ resource "argocd_application_set" "merge_nested" {
 						]
 					}
 				}
-	  
+
 				generator {
 					merge {
 						merge_keys = [
@@ -1773,7 +1802,7 @@ resource "argocd_application_set" "merge_nested" {
 								}
 							}
 						}
-	  
+
 						generator {
 							clusters {
 								selector {
@@ -1781,7 +1810,7 @@ resource "argocd_application_set" "merge_nested" {
 										use-kafka = "false"
 									}
 								}
-				
+
 								values = {
 									kafka = "false"
 								}
@@ -1791,33 +1820,33 @@ resource "argocd_application_set" "merge_nested" {
 				}
 			}
 		}
-	  
+
 		template {
 			metadata {
 				name = "{{name}}"
 			}
-	  
+
 			spec {
 			  	project = "default"
-	  
+
 			  	source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					path            = "app"
 					target_revision = "HEAD"
-	  
+
 					helm {
 						parameter {
 							name  = "kafka"
 							value = "{{values.kafka}}"
 						}
-	  
+
 						parameter {
 							name  = "redis"
 							value = "{{values.redis}}"
 						}
 					}
 			  	}
-	  
+
 				destination {
 					server    = "{{server}}"
 					namespace = "default"
@@ -1834,14 +1863,14 @@ resource "argocd_application_set" "merge_insufficient_generators" {
 	metadata {
 		name = "merge-insufficient-generators"
 	}
-		
+
 	spec {
 		generator {
 			merge {
 				merge_keys = [
 					"server"
 				]
-		
+
 				generator {
 					clusters {
 						values = {
@@ -1852,33 +1881,33 @@ resource "argocd_application_set" "merge_insufficient_generators" {
 				}
 			}
 		}
-		
+
 		template {
 			metadata {
 				name = "{{name}}"
 			}
-		
+
 			spec {
 					project = "default"
-		
+
 					source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					path            = "app"
 					target_revision = "HEAD"
-		
+
 					helm {
 						parameter {
 							name  = "kafka"
 							value = "{{values.kafka}}"
 						}
-		
+
 						parameter {
 							name  = "redis"
 							value = "{{values.redis}}"
 						}
 					}
 					}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "default"
@@ -1895,14 +1924,14 @@ resource "argocd_application_set" "merge_nested_insufficient_generators" {
 	metadata {
 		name = "merge-nested-insufficient-generators"
 	}
-		
+
 	spec {
 		generator {
 			merge {
 				merge_keys = [
 					"server"
 				]
-		
+
 				generator {
 					list {
 						elements = [
@@ -1913,7 +1942,7 @@ resource "argocd_application_set" "merge_nested_insufficient_generators" {
 						]
 					}
 				}
-		
+
 				generator {
 					merge {
 						merge_keys = [
@@ -1932,33 +1961,33 @@ resource "argocd_application_set" "merge_nested_insufficient_generators" {
 				}
 			}
 		}
-		
+
 		template {
 			metadata {
 				name = "{{name}}"
 			}
-		
+
 			spec {
 					project = "default"
-		
+
 					source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					path            = "app"
 					target_revision = "HEAD"
-		
+
 					helm {
 						parameter {
 							name  = "kafka"
 							value = "{{values.kafka}}"
 						}
-		
+
 						parameter {
 							name  = "redis"
 							value = "{{values.redis}}"
 						}
 					}
 					}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "default"
@@ -1975,14 +2004,14 @@ resource "argocd_application_set" "merge_nested_invalid" {
 	metadata {
 		name = "merge-nested-invalid"
 	}
-	
+
 	spec {
 		generator {
 			merge {
 				merge_keys = [
 					"server"
 				]
-	
+
 				generator {
 					list {
 						elements = [
@@ -1993,7 +2022,7 @@ resource "argocd_application_set" "merge_nested_invalid" {
 						]
 					}
 				}
-	
+
 				generator {
 					merge {
 						merge_keys = [
@@ -2008,13 +2037,13 @@ resource "argocd_application_set" "merge_nested_invalid" {
 								}
 							}
 						}
-	
+
 						generator {
 							merge {
 								merge_keys = [
 									"server"
 								]
-		
+
 								generator {
 									clusters {
 										values = {
@@ -2023,7 +2052,7 @@ resource "argocd_application_set" "merge_nested_invalid" {
 										}
 									}
 								}
-			
+
 								generator {
 									clusters {
 										selector {
@@ -2031,7 +2060,7 @@ resource "argocd_application_set" "merge_nested_invalid" {
 												use-kafka = "false"
 											}
 										}
-						
+
 										values = {
 											kafka = "false"
 										}
@@ -2043,33 +2072,33 @@ resource "argocd_application_set" "merge_nested_invalid" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "{{name}}"
 			}
-	
+
 			spec {
 				project = "default"
-	
+
 				source {
 					repo_url        = "https://github.com/argoproj/argo-cd.git"
 					path            = "app"
 					target_revision = "HEAD"
-	
+
 					helm {
 						parameter {
 							name  = "kafka"
 							value = "{{values.kafka}}"
 						}
-	
+
 						parameter {
 							name  = "redis"
 							value = "{{values.redis}}"
 						}
 					}
 				}
-	
+
 				destination {
 					server    = "{{server}}"
 					namespace = "default"
@@ -2086,7 +2115,7 @@ resource "argocd_application_set" "scm_ado" {
 	metadata {
 		name = "scm-ado"
 	}
-	  
+
 	spec {
 		generator {
 			scm_provider {
@@ -2103,21 +2132,21 @@ resource "argocd_application_set" "scm_ado" {
 				}
 			}
 		}
-	  
+
 		template {
 			metadata {
 				name = "{{repository}}"
 			}
-	  
+
 			spec {
 			  	project = "default"
-	  
+
 			  	source {
 					repo_url        = "{{url}}"
 					path            = "kubernetes/"
 					target_revision = "{{branch}}"
 			  	}
-	  
+
 				destination {
 					server    = "https://kubernetes.default.svc"
 					namespace = "default"
@@ -2134,7 +2163,7 @@ resource "argocd_application_set" "scm_bitbucket_cloud" {
 	metadata {
 		name = "scm-bitbucket-cloud"
 	}
-	
+
 	spec {
 		generator {
 			scm_provider {
@@ -2142,7 +2171,7 @@ resource "argocd_application_set" "scm_bitbucket_cloud" {
 					all_branches = true
 					owner        = "example-owner"
 					user         = "example-user"
-			
+
 					app_password_ref {
 						secret_name = "appPassword"
 						key         = "password"
@@ -2150,21 +2179,21 @@ resource "argocd_application_set" "scm_bitbucket_cloud" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "{{repository}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "{{url}}"
 					path            = "kubernetes/"
 					target_revision = "{{branch}}"
 				}
-		
+
 				destination {
 					server    = "https://kubernetes.default.svc"
 					namespace = "default"
@@ -2181,7 +2210,7 @@ resource "argocd_application_set" "scm_bitbucket_server" {
 	metadata {
 		name = "scm-bitbucket-server"
 	}
-	
+
 	spec {
 		generator {
 			scm_provider {
@@ -2189,7 +2218,7 @@ resource "argocd_application_set" "scm_bitbucket_server" {
 					all_branches = true
 					api          = "https://bitbucket.org/rest"
 					project      = "myproject"
-			
+
 					basic_auth {
 						username = "myuser"
 						password_ref {
@@ -2200,21 +2229,21 @@ resource "argocd_application_set" "scm_bitbucket_server" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "{{repository}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "{{url}}"
 					path            = "kubernetes/"
 					target_revision = "{{branch}}"
 				}
-		
+
 				destination {
 					server    = "https://kubernetes.default.svc"
 					namespace = "default"
@@ -2231,7 +2260,7 @@ resource "argocd_application_set" "scm_gitea" {
 	metadata {
 		name = "scm-gitea"
 	}
-	  
+
 	spec {
 		generator {
 			scm_provider {
@@ -2239,7 +2268,7 @@ resource "argocd_application_set" "scm_gitea" {
 					all_branches = true
 					owner        = "myorg"
 					api          = "https://gitea.mydomain.com/"
-		
+
 					token_ref {
 					secret_name = "gitea-token"
 					key         = "token"
@@ -2247,21 +2276,21 @@ resource "argocd_application_set" "scm_gitea" {
 				}
 			}
 		}
-	  
+
 		template {
 			metadata {
 				name = "{{repository}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "{{url}}"
 					path            = "kubernetes/"
 					target_revision = "{{branch}}"
 				}
-		
+
 				destination {
 					server    = "https://kubernetes.default.svc"
 					namespace = "default"
@@ -2278,7 +2307,7 @@ resource "argocd_application_set" "scm_github" {
 	metadata {
 		name = "scm-github"
 	}
-	  
+
 	spec {
 		generator {
 			scm_provider {
@@ -2287,7 +2316,7 @@ resource "argocd_application_set" "scm_github" {
 					api             = "https://git.example.com/"
 					app_secret_name = "gh-app-repo-creds"
 					organization    = "myorg"
-		
+
 					token_ref {
 						secret_name = "github-token"
 						key         = "token"
@@ -2295,21 +2324,21 @@ resource "argocd_application_set" "scm_github" {
 				}
 			}
 		}
-	  
+
 		template {
 			metadata {
 				name = "{{repository}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "{{url}}"
 					path            = "kubernetes/"
 					target_revision = "{{branch}}"
 				}
-		
+
 				destination {
 					server    = "https://kubernetes.default.svc"
 					namespace = "default"
@@ -2326,7 +2355,7 @@ resource "argocd_application_set" "scm_gitlab" {
 	metadata {
 		name = "scm-gitlab"
 	}
-	  
+
 	spec {
 		generator {
 			scm_provider {
@@ -2335,7 +2364,7 @@ resource "argocd_application_set" "scm_gitlab" {
 					api               = "https://gitlab.example.com/"
 					group             = "8675309"
 					include_subgroups = false
-			
+
 					token_ref {
 						secret_name = "gitlab-token"
 						key         = "token"
@@ -2343,21 +2372,21 @@ resource "argocd_application_set" "scm_gitlab" {
 				}
 			}
 		}
-	  
+
 		template {
 			metadata {
 			  	name = "{{repository}}"
 			}
-	  
+
 			spec {
 			  	project = "default"
-	  
+
 				source {
 					repo_url        = "{{url}}"
 					path            = "kubernetes/"
 					target_revision = "{{branch}}"
 				}
-	  
+
 				destination {
 					server    = "https://kubernetes.default.svc"
 					namespace = "default"
@@ -2374,7 +2403,7 @@ resource "argocd_application_set" "scm_filters" {
 	metadata {
 		name = "scm-filters"
 	}
-	  
+
 	spec {
 		generator {
 			scm_provider {
@@ -2383,7 +2412,7 @@ resource "argocd_application_set" "scm_filters" {
 					api             = "https://git.example.com/"
 					app_secret_name = "gh-app-repo-creds"
 					organization    = "myorg"
-		
+
 					token_ref {
 						secret_name = "github-token"
 						key         = "token"
@@ -2409,21 +2438,21 @@ resource "argocd_application_set" "scm_filters" {
 				}
 			}
 		}
-	  
+
 		template {
 			metadata {
 				name = "{{repository}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "{{url}}"
 					path            = "kubernetes/"
 					target_revision = "{{branch}}"
 				}
-		
+
 				destination {
 					server    = "https://kubernetes.default.svc"
 					namespace = "default"
@@ -2440,7 +2469,7 @@ resource "argocd_application_set" "pr_bitbucket_server" {
 	metadata {
 		name = "pr-bitbucket-server"
 	}
-	
+
 	spec {
 		generator {
 			pull_request {
@@ -2448,7 +2477,7 @@ resource "argocd_application_set" "pr_bitbucket_server" {
 					api     = "https://bitbucket.org/rest"
 					project = "myproject"
 					repo    = "myrepository"
-			
+
 					basic_auth {
 						username = "myuser"
 						password_ref {
@@ -2459,15 +2488,15 @@ resource "argocd_application_set" "pr_bitbucket_server" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "myapp-{{branch}}-{{number}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "https://github.com/myorg/myrepo.git"
 					path            = "kubernetes/"
@@ -2480,7 +2509,7 @@ resource "argocd_application_set" "pr_bitbucket_server" {
 						}
 					}
 				}
-		
+
 				destination {
 					server    = "https://kubernetes.default.svc"
 					namespace = "default"
@@ -2497,7 +2526,7 @@ resource "argocd_application_set" "pr_gitea" {
 	metadata {
 		name = "pr-gitea"
 	}
-	
+
 	spec {
 		generator {
 			pull_request {
@@ -2506,7 +2535,7 @@ resource "argocd_application_set" "pr_gitea" {
 					insecure = true
 					owner    = "myorg"
 					repo     = "myrepository"
-			
+
 					token_ref {
 						secret_name = "gitea-token"
 						key         = "token"
@@ -2514,15 +2543,15 @@ resource "argocd_application_set" "pr_gitea" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "myapp-{{branch}}-{{number}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "https://github.com/myorg/myrepo.git"
 					path            = "kubernetes/"
@@ -2535,7 +2564,7 @@ resource "argocd_application_set" "pr_gitea" {
 						}
 					}
 				}
-		
+
 				destination {
 					server    = "https://kubernetes.default.svc"
 					namespace = "default"
@@ -2552,7 +2581,7 @@ resource "argocd_application_set" "pr_github" {
 	metadata {
 		name = "pr-github"
 	}
-	
+
 	spec {
 		generator {
 			pull_request {
@@ -2561,7 +2590,7 @@ resource "argocd_application_set" "pr_github" {
 					owner           = "myorg"
 					repo            = "myrepository"
 					app_secret_name = "github-app-repo-creds"
-			
+
 					token_ref {
 						secret_name = "github-token"
 						key         = "token"
@@ -2573,15 +2602,15 @@ resource "argocd_application_set" "pr_github" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "myapp-{{branch}}-{{number}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "https://github.com/myorg/myrepo.git"
 					path            = "kubernetes/"
@@ -2594,7 +2623,7 @@ resource "argocd_application_set" "pr_github" {
 						}
 					}
 				}
-		
+
 				destination {
 					server    = "https://kubernetes.default.svc"
 					namespace = "default"
@@ -2611,7 +2640,7 @@ resource "argocd_application_set" "pr_gitlab" {
 	metadata {
 		name = "pr-gitlab"
 	}
-	
+
 	spec {
 		generator {
 			pull_request {
@@ -2619,7 +2648,7 @@ resource "argocd_application_set" "pr_gitlab" {
 					api                = "https://git.example.com/"
 					project            = "myproject"
 					pull_request_state = "opened"
-			
+
 					token_ref {
 						secret_name = "gitlab-token"
 						key         = "token"
@@ -2631,15 +2660,15 @@ resource "argocd_application_set" "pr_gitlab" {
 				}
 			}
 		}
-	
+
 		template {
 			metadata {
 				name = "myapp-{{branch}}-{{number}}"
 			}
-		
+
 			spec {
 				project = "default"
-		
+
 				source {
 					repo_url        = "https://github.com/myorg/myrepo.git"
 					path            = "kubernetes/"
@@ -2652,7 +2681,7 @@ resource "argocd_application_set" "pr_gitlab" {
 						}
 					}
 				}
-		
+
 				destination {
 					server    = "https://kubernetes.default.svc"
 					namespace = "default"
@@ -2669,7 +2698,7 @@ resource "argocd_application_set" "generator_template" {
 	metadata {
 		name = "generator-template"
 	}
-	
+
 	spec {
 		generator {
 			list {
@@ -2688,11 +2717,11 @@ resource "argocd_application_set" "generator_template" {
 							repo_url        = "https://github.com/argoproj/argo-cd.git"
 							target_revision = "HEAD"
 							path            = "applicationset/examples/template-override/{{.cluster}}-override"
-						} 
+						}
 						destination {}
 					}
 				}
-			} 
+			}
 		}
 
 		go_template = true
@@ -2701,7 +2730,7 @@ resource "argocd_application_set" "generator_template" {
 			metadata {
 				name = "appset-generator-template-{{.cluster}}"
 			}
-		
+
 			spec {
 				project = "default"
 
@@ -2710,7 +2739,7 @@ resource "argocd_application_set" "generator_template" {
 					target_revision = "HEAD"
 					path            = "applicationset/examples/template-override/default"
 				}
-		
+
 				destination {
 					server    = "{{.url}}"
 					namespace = "guestbook"
@@ -2727,7 +2756,7 @@ resource "argocd_application_set" "go_template" {
 	metadata {
 		name = "go-template"
 	}
-	
+
 	spec {
 		generator {
 			clusters {} # Automatically use all clusters defined within Argo CD
@@ -2737,19 +2766,19 @@ resource "argocd_application_set" "go_template" {
 		go_template_options = [
 			"missingkey=error"
 		]
-	
+
 		template {
 			metadata {
 				name = "appset-go-template-{{.name}}"
 			}
-		
+
 			spec {
 				source {
 					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
 					target_revision = "HEAD"
 					path            = "guestbook"
 				}
-		
+
 				destination {
 					server    = "{{.server}}"
 					namespace = "default"
@@ -2766,7 +2795,7 @@ resource "argocd_application_set" "sync_policy" {
 	metadata {
 		name = "sync-policy"
 	}
-	
+
 	spec {
 		generator {
 			clusters {} # Automatically use all clusters defined within Argo CD
@@ -2775,19 +2804,19 @@ resource "argocd_application_set" "sync_policy" {
 		sync_policy {
 			preserve_resources_on_deletion = true
 		}
-	
+
 		template {
 			metadata {
 				name = "appset-sync-policy-{{name}}"
 			}
-		
+
 			spec {
 				source {
 					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
 					target_revision = "HEAD"
 					path            = "guestbook"
 				}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "default"
@@ -2804,7 +2833,7 @@ resource "argocd_application_set" "applications_sync_policy" {
 	metadata {
 		name = "applications-sync-policy"
 	}
-	
+
 	spec {
 		generator {
 			clusters {} # Automatically use all clusters defined within Argo CD
@@ -2814,19 +2843,19 @@ resource "argocd_application_set" "applications_sync_policy" {
 			preserve_resources_on_deletion = true
 			applications_sync              = "create-update"
 		}
-	
+
 		template {
 			metadata {
 				name = "appset-sync-policy-{{name}}"
 			}
-		
+
 			spec {
 				source {
 					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
 					target_revision = "HEAD"
 					path            = "guestbook"
 				}
-		
+
 				destination {
 					server    = "{{server}}"
 					namespace = "default"
@@ -2843,7 +2872,7 @@ resource "argocd_application_set" "progressive_sync" {
 	metadata {
 		name = "progressive-sync"
 	}
-	
+
 	spec {
 		generator {
 			list {
@@ -2866,7 +2895,7 @@ resource "argocd_application_set" "progressive_sync" {
 				]
 			}
 		}
-	  
+
 		strategy {
 			type = "RollingSync"
 			rolling_sync {
@@ -2878,10 +2907,10 @@ resource "argocd_application_set" "progressive_sync" {
 							"env-dev"
 						]
 					}
-			
+
 					# max_update = "100%"  # if undefined, all applications matched are updated together (default is 100%)
 				}
-		
+
 				step {
 					match_expressions {
 						key      = "envLabel"
@@ -2890,10 +2919,10 @@ resource "argocd_application_set" "progressive_sync" {
 							"env-qa"
 						]
 					}
-			
+
 					max_update = "0"
 				}
-		
+
 				step {
 					match_expressions {
 						key      = "envLabel"
@@ -2902,14 +2931,14 @@ resource "argocd_application_set" "progressive_sync" {
 							"env-prod"
 						]
 					}
-			
+
 					max_update = "10%"
 				}
 			}
 		}
-	  
+
 		go_template = true
-	  
+
 		template {
 			metadata {
 				name = "appset-progressive-sync-{{.cluster}}"
@@ -2917,16 +2946,16 @@ resource "argocd_application_set" "progressive_sync" {
 					envLabel = "{{.env}}"
 				}
 			}
-	  
+
 			spec {
 			  	project = "default"
-	  
+
 				source {
 					repo_url        = "https://github.com/infra-team/cluster-deployments.git"
 					path            = "guestbook/{{.cluster}}"
 					target_revision = "HEAD"
 				}
-	  
+
 				destination {
 					server    = "{{.url}}"
 					namespace = "guestbook"
@@ -2934,5 +2963,61 @@ resource "argocd_application_set" "progressive_sync" {
 			}
 		}
 	}
+}`
+}
+
+func testAccArgoCDApplicationSet_templatePatch() string {
+	return `
+locals {
+  mytemplate = <<EOT
+    spec:
+      source:
+        helm:
+          valueFiles:
+          {{- range $valueFile := .valueFiles }}
+            - {{ $valueFile }}
+          {{- end }}
+    {{- if .autoSync }}
+      syncPolicy:
+        automated:
+          prune: {{ .prune }}
+    {{- end }}
+    EOT
+}
+
+resource "argocd_application_set" "template_patch" {
+  metadata {
+    name      = "my-applicationset"
+  }
+
+  spec {
+    generator {
+      clusters {
+        selector {
+          match_labels = {
+            "env" = "qa"
+          }
+        }
+      }
+    }
+    go_template = true
+    template_patch = local.mytemplate
+    template {
+      metadata {
+        name = "test-{{ .name }}"
+      }
+      spec {
+        destination {
+          namespace = "my-ns"
+          server    = "{{ .server }}"
+        }
+        source {
+          repo_url        = "{{ .url  }}"
+          path            = "{{ .chart  }}"
+          target_revision = "{{ .branch  }}"
+        }
+      }
+    }
+  }
 }`
 }

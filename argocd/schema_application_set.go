@@ -126,6 +126,11 @@ func applicationSetSpecSchemaV0() *schema.Schema {
 					MaxItems:    1,
 					Elem:        applicationSetTemplateResource(false),
 				},
+				"template_patch": {
+					Type:        schema.TypeString,
+					Description: "Application set template patch, as in the [Argo CD ApplicationSet spec](https://argocd-applicationset.readthedocs.io/en/stable/fields/#templatepatch).",
+					Optional:    true,
+				},
 			},
 		},
 	}
