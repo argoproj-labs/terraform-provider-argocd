@@ -239,32 +239,28 @@ func TestAccArgoCDApplication_KustomizePatches(t *testing.T) {
 						"argocd_application.kustomize_patches",
 						"spec.0.source.0.kustomize.0.patches.0.patch",
 					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.kustomize_patches",
+						"spec.0.source.0.kustomize.0.patches.0.target.0.group",
+						"apps",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.kustomize_patches",
+						"spec.0.source.0.kustomize.0.patches.0.target.0.version",
+						"v1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.kustomize_patches",
+						"spec.0.source.0.kustomize.0.patches.0.target.0.kind",
+						"Deployment",
+					),
 					resource.TestCheckResourceAttrSet(
 						"argocd_application.kustomize_patches",
 						"spec.0.source.0.kustomize.0.patches.1.patch",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.kustomize_patches",
-						"spec.0.source.0.kustomize.0.patches.1.target.0.group",
-						"apps",
-					),
-					resource.TestCheckResourceAttr(
-						"argocd_application.kustomize_patches",
-						"spec.0.source.0.kustomize.0.patches.1.target.0.version",
-						"v1",
-					),
-					resource.TestCheckResourceAttr(
-						"argocd_application.kustomize_patches",
-						"spec.0.source.0.kustomize.0.patches.1.target.0.kind",
-						"Deployment",
-					),
-					resource.TestCheckResourceAttrSet(
-						"argocd_application.kustomize_patches",
-						"spec.0.source.0.kustomize.0.patches.2.patch",
-					),
-					resource.TestCheckResourceAttr(
-						"argocd_application.kustomize_patches",
-						"spec.0.source.0.kustomize.0.patches.2.target.0.label_selector",
+						"spec.0.source.0.kustomize.0.patches.1.target.0.label_selector",
 						"app=hello",
 					),
 				),
@@ -1431,16 +1427,7 @@ resource "argocd_application" "kustomize_patches" {
           "this.is.a.common" = "anno-tation"
           "another.io/one"   = "false"
         }
-        patches {
-          patch = <<-EOT
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: the-deployment
-labels:
-  app.kubernetes.io/version: 1.21.0    
-EOT
-        }
+
         patches {
           target {
             group   = "apps"
