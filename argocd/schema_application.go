@@ -1450,7 +1450,7 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 													"target": {
 														Type:        schema.TypeList,
 														Description: "Target(s) to patch",
-														Optional:    true,
+														Required:    true,
 														MaxItems:    1,
 														Elem: &schema.Resource{
 															Schema: map[string]*schema.Schema{

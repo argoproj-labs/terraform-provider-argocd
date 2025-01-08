@@ -338,12 +338,15 @@ Optional:
 <a id="nestedblock--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.source.kustomize.patches.target`

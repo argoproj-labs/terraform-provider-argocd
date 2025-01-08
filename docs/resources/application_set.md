@@ -826,12 +826,15 @@ Optional:
 <a id="nestedblock--spec--generator--cluster_decision_resource--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.cluster_decision_resource.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.cluster_decision_resource.template.spec.source.kustomize.patches.target`
@@ -1122,12 +1125,15 @@ Optional:
 <a id="nestedblock--spec--generator--clusters--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.clusters.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--clusters--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.clusters.template.spec.source.kustomize.patches.target`
@@ -1425,12 +1431,15 @@ Optional:
 <a id="nestedblock--spec--generator--git--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.git.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--git--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.git.template.spec.source.kustomize.patches.target`
@@ -1703,12 +1712,15 @@ Optional:
 <a id="nestedblock--spec--generator--list--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.list.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--list--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.list.template.spec.source.kustomize.patches.target`
@@ -2030,12 +2042,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.cluster_decision_resource.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.cluster_decision_resource.template.spec.source.kustomize.patches.target`
@@ -2326,12 +2341,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.clusters.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.clusters.template.spec.source.kustomize.patches.target`
@@ -2629,12 +2647,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--git--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.git.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--git--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.git.template.spec.source.kustomize.patches.target`
@@ -2907,12 +2928,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--list--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.list.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--list--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.list.template.spec.source.kustomize.patches.target`
@@ -3232,12 +3256,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.cluster_decision_resource.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.cluster_decision_resource.template.spec.source.kustomize.patches.target`
@@ -3528,12 +3555,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.clusters.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.clusters.template.spec.source.kustomize.patches.target`
@@ -3831,12 +3861,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.git.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.git.template.spec.source.kustomize.patches.target`
@@ -4109,12 +4142,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.list.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.list.template.spec.source.kustomize.patches.target`
@@ -4502,12 +4538,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.pull_request.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.pull_request.template.spec.source.kustomize.patches.target`
@@ -4948,12 +4987,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.scm_provider.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.scm_provider.template.spec.source.kustomize.patches.target`
@@ -5235,12 +5277,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.template.spec.source.kustomize.patches.target`
@@ -5561,12 +5606,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.cluster_decision_resource.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.cluster_decision_resource.template.spec.source.kustomize.patches.target`
@@ -5857,12 +5905,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.clusters.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.clusters.template.spec.source.kustomize.patches.target`
@@ -6160,12 +6211,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.git.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.git.template.spec.source.kustomize.patches.target`
@@ -6438,12 +6492,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.list.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.list.template.spec.source.kustomize.patches.target`
@@ -6831,12 +6888,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.pull_request.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.pull_request.template.spec.source.kustomize.patches.target`
@@ -7277,12 +7337,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.scm_provider.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.scm_provider.template.spec.source.kustomize.patches.target`
@@ -7564,12 +7627,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--merge--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.template.spec.source.kustomize.patches.target`
@@ -7957,12 +8023,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.pull_request.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.pull_request.template.spec.source.kustomize.patches.target`
@@ -8403,12 +8472,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.generator.scm_provider.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.generator.scm_provider.template.spec.source.kustomize.patches.target`
@@ -8690,12 +8762,15 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.matrix.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--matrix--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.matrix.template.spec.source.kustomize.patches.target`
@@ -9018,12 +9093,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.cluster_decision_resource.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.cluster_decision_resource.template.spec.source.kustomize.patches.target`
@@ -9314,12 +9392,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--clusters--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.clusters.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--clusters--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.clusters.template.spec.source.kustomize.patches.target`
@@ -9617,12 +9698,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--git--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.git.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--git--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.git.template.spec.source.kustomize.patches.target`
@@ -9895,12 +9979,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--list--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.list.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--list--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.list.template.spec.source.kustomize.patches.target`
@@ -10220,12 +10307,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.cluster_decision_resource.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.cluster_decision_resource.template.spec.source.kustomize.patches.target`
@@ -10516,12 +10606,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.clusters.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.clusters.template.spec.source.kustomize.patches.target`
@@ -10819,12 +10912,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.git.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.git.template.spec.source.kustomize.patches.target`
@@ -11097,12 +11193,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.list.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.list.template.spec.source.kustomize.patches.target`
@@ -11490,12 +11589,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.pull_request.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.pull_request.template.spec.source.kustomize.patches.target`
@@ -11936,12 +12038,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.scm_provider.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.scm_provider.template.spec.source.kustomize.patches.target`
@@ -12223,12 +12328,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--matrix--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.template.spec.source.kustomize.patches.target`
@@ -12549,12 +12657,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.cluster_decision_resource.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.cluster_decision_resource.template.spec.source.kustomize.patches.target`
@@ -12845,12 +12956,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.clusters.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.clusters.template.spec.source.kustomize.patches.target`
@@ -13148,12 +13262,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.git.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.git.template.spec.source.kustomize.patches.target`
@@ -13426,12 +13543,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.list.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.list.template.spec.source.kustomize.patches.target`
@@ -13819,12 +13939,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.pull_request.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.pull_request.template.spec.source.kustomize.patches.target`
@@ -14265,12 +14388,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.scm_provider.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.scm_provider.template.spec.source.kustomize.patches.target`
@@ -14552,12 +14678,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--merge--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--merge--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.template.spec.source.kustomize.patches.target`
@@ -14945,12 +15074,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.pull_request.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.pull_request.template.spec.source.kustomize.patches.target`
@@ -15391,12 +15523,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.generator.scm_provider.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.generator.scm_provider.template.spec.source.kustomize.patches.target`
@@ -15678,12 +15813,15 @@ Optional:
 <a id="nestedblock--spec--generator--merge--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.merge.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--merge--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.merge.template.spec.source.kustomize.patches.target`
@@ -16071,12 +16209,15 @@ Optional:
 <a id="nestedblock--spec--generator--pull_request--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.pull_request.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--pull_request--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.pull_request.template.spec.source.kustomize.patches.target`
@@ -16517,12 +16658,15 @@ Optional:
 <a id="nestedblock--spec--generator--scm_provider--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.generator.scm_provider.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--generator--scm_provider--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.generator.scm_provider.template.spec.source.kustomize.patches.target`
@@ -16790,12 +16934,15 @@ Optional:
 <a id="nestedblock--spec--template--spec--source--kustomize--patches"></a>
 ### Nested Schema for `spec.template.spec.source.kustomize.patches`
 
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--template--spec--source--kustomize--patches--target))
+
 Optional:
 
 - `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
 - `patch` (String) Inline Kustomize patch to apply.
 - `path` (String) Path to a file containing the patch to apply.
-- `target` (Block List, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--template--spec--source--kustomize--patches--target))
 
 <a id="nestedblock--spec--template--spec--source--kustomize--patches--target"></a>
 ### Nested Schema for `spec.template.spec.source.kustomize.patches.target`
