@@ -1441,6 +1441,78 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 											Elem:         &schema.Schema{Type: schema.TypeString},
 											ValidateFunc: validateMetadataAnnotations,
 										},
+										"patches": {
+											Type:        schema.TypeList,
+											Description: "A list of [Kustomize patches](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/) to apply.",
+											Optional:    true,
+											Elem: &schema.Resource{
+												Schema: map[string]*schema.Schema{
+													"target": {
+														Type:        schema.TypeList,
+														Description: "Target(s) to patch",
+														Required:    true,
+														MaxItems:    1,
+														Elem: &schema.Resource{
+															Schema: map[string]*schema.Schema{
+																"group": {
+																	Type:        schema.TypeString,
+																	Description: "The Kubernetes resource Group to match for.",
+																	Optional:    true,
+																},
+																"kind": {
+																	Type:        schema.TypeString,
+																	Description: "The Kubernetes resource Kind to match for.",
+																	Optional:    true,
+																},
+																"name": {
+																	Type:        schema.TypeString,
+																	Description: "The Kubernetes resource Name to match for.",
+																	Optional:    true,
+																},
+																"namespace": {
+																	Type:        schema.TypeString,
+																	Description: "The Kubernetes resource Namespace to match for.",
+																	Optional:    true,
+																},
+																"label_selector": {
+																	Type:        schema.TypeString,
+																	Description: "Label selector to use when matching the Kubernetes resource.",
+																	Optional:    true,
+																},
+																"annotation_selector": {
+																	Type:        schema.TypeString,
+																	Description: "Annotation selector to use when matching the Kubernetes resource.",
+																	Optional:    true,
+																},
+																"version": {
+																	Type:        schema.TypeString,
+																	Description: "The Kubernetes resource Version to match for.",
+																	Optional:    true,
+																},
+															},
+														},
+													},
+													"patch": {
+														Type:        schema.TypeString,
+														Description: "Inline Kustomize patch to apply.",
+														Optional:    true,
+														Elem:        &schema.Schema{Type: schema.TypeString},
+													},
+													"path": {
+														Type:        schema.TypeString,
+														Description: "Path to a file containing the patch to apply.",
+														Optional:    true,
+														Elem:        &schema.Schema{Type: schema.TypeString},
+													},
+													"options": {
+														Type:        schema.TypeMap,
+														Description: "Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).",
+														Optional:    true,
+														Elem:        &schema.Schema{Type: schema.TypeBool},
+													},
+												},
+											},
+										},
 									},
 								},
 							},

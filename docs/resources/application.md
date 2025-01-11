@@ -332,7 +332,36 @@ Optional:
 - `images` (Set of String) List of Kustomize image override specifications.
 - `name_prefix` (String) Prefix appended to resources for Kustomize apps.
 - `name_suffix` (String) Suffix appended to resources for Kustomize apps.
+- `patches` (Block List) A list of [Kustomize patches](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/) to apply. (see [below for nested schema](#nestedblock--spec--source--kustomize--patches))
 - `version` (String) Version of Kustomize to use for rendering manifests.
+
+<a id="nestedblock--spec--source--kustomize--patches"></a>
+### Nested Schema for `spec.source.kustomize.patches`
+
+Required:
+
+- `target` (Block List, Min: 1, Max: 1) Target(s) to patch (see [below for nested schema](#nestedblock--spec--source--kustomize--patches--target))
+
+Optional:
+
+- `options` (Map of Boolean) Additional [options](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/#name-and-kind-changes).
+- `patch` (String) Inline Kustomize patch to apply.
+- `path` (String) Path to a file containing the patch to apply.
+
+<a id="nestedblock--spec--source--kustomize--patches--target"></a>
+### Nested Schema for `spec.source.kustomize.patches.target`
+
+Optional:
+
+- `annotation_selector` (String) Annotation selector to use when matching the Kubernetes resource.
+- `group` (String) The Kubernetes resource Group to match for.
+- `kind` (String) The Kubernetes resource Kind to match for.
+- `label_selector` (String) Label selector to use when matching the Kubernetes resource.
+- `name` (String) The Kubernetes resource Name to match for.
+- `namespace` (String) The Kubernetes resource Namespace to match for.
+- `version` (String) The Kubernetes resource Version to match for.
+
+
 
 
 <a id="nestedblock--spec--source--plugin"></a>
