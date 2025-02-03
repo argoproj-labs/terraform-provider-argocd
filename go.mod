@@ -4,7 +4,7 @@ go 1.22.7
 
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
-	github.com/ProtonMail/gopenpgp/v2 v2.8.1
+	github.com/ProtonMail/gopenpgp/v2 v2.8.2
 	github.com/argoproj/argo-cd/v2 v2.12.10
 	// make sure this matches with version used in Argo CD's go.mod
 	github.com/argoproj/gitops-engine v0.7.1-0.20250129155113-faf5a4e5c37d
@@ -40,7 +40,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/PagerDuty/go-pagerduty v1.7.0 // indirect
-	github.com/ProtonMail/go-crypto v1.1.3 // indirect
+	github.com/ProtonMail/go-crypto v1.1.4 // indirect
 	github.com/ProtonMail/go-mime v0.0.0-20230322103455-7d82a3887f2f // indirect
 	github.com/RocketChat/Rocket.Chat.Go.SDK v0.0.0-20210112200207-10ab4d695d60 // indirect
 	github.com/agext/levenshtein v1.2.2 // indirect
