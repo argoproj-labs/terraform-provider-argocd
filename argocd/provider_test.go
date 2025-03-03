@@ -1,7 +1,9 @@
 package argocd
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"os"
 	"testing"
 
@@ -10,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 var testAccProviders map[string]func() (*schema.Provider, error)
@@ -17,7 +20,17 @@ var testAccProviders map[string]func() (*schema.Provider, error)
 func init() {
 	testAccProviders = map[string]func() (*schema.Provider, error){
 		"argocd": func() (*schema.Provider, error) { //nolint:unparam
-			return Provider(), nil
+			provider := Provider()
+			// we assume in tests that there's no dedicated GRPC endpoint for Argo CD available
+			config := map[string]interface{}{
+				"grpc_web": "true",
+			}
+			if diags := provider.Configure(context.TODO(), terraform.NewResourceConfigRaw(config)); diags != nil && diags.HasError() {
+				log.Fatalf("provider failed to configure: %v", diags)
+			}
+
+			return provider, nil
+
 		},
 	}
 }
