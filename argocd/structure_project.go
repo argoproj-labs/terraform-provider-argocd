@@ -104,6 +104,10 @@ func expandProjectSpec(d *schema.ResourceData) (spec application.AppProjectSpec,
 		spec.Destinations = expandApplicationDestinations(v.(*schema.Set))
 	}
 
+	if v, ok := s["destination_service_account"]; ok {
+		spec.DestinationServiceAccounts = expandDestinationServiceAccounts(v.(*schema.Set))
+	}
+
 	if v, ok := s["sync_window"]; ok {
 		spec.SyncWindows = expandSyncWindows(v.([]interface{}))
 	}
@@ -121,6 +125,27 @@ func expandProjectSpec(d *schema.ResourceData) (spec application.AppProjectSpec,
 	}
 
 	return spec, nil
+}
+
+func expandDestinationServiceAccounts(dsas *schema.Set) (result []application.ApplicationDestinationServiceAccount) {
+	for _, dsa := range dsas.List() {
+		result = append(result, expandDestinationServiceAccount(dsa))
+	}
+
+	return
+}
+
+func expandDestinationServiceAccount(destsa interface{}) (result application.ApplicationDestinationServiceAccount) {
+	dsa, ok := destsa.(map[string]interface{})
+	if !ok {
+		panic(fmt.Errorf("could not expand destination service account"))
+	}
+
+	return application.ApplicationDestinationServiceAccount{
+		DefaultServiceAccount: dsa["default_service_account"].(string),
+		Namespace:             dsa["namespace"].(string),
+		Server:                dsa["server"].(string),
+	}
 }
 
 func expandOrphanedResourcesIgnore(ignore *schema.Set) (result []application.OrphanedResourceKey) {

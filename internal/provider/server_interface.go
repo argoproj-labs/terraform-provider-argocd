@@ -27,9 +27,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"k8s.io/apimachinery/pkg/util/runtime"
 )
 
-var runtimeErrorHandlers []func(error)
+// var runtimeErrorHandlers []func(error)
+
+var runtimeErrorHandlers []runtime.ErrorHandler
 
 type ServerInterface struct {
 	AccountClient        account.AccountServiceClient

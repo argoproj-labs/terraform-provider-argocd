@@ -280,6 +280,16 @@ resource "argocd_project" "simple" {
       server    = "https://kubernetes.default.svc"
       namespace = "foo"
     }
+    destination_service_accounts {
+      default_service_account = "default"
+      namespace = "default"
+      server = "https://kubernetes.default.svc"
+    }
+    destination_service_accounts {
+      default_service_account = "foo"
+      namespace = "foo"
+      server = "https://kubernetes.default.svc"
+    }
     cluster_resource_whitelist {
       group = "rbac.authorization.k8s.io"
       kind  = "ClusterRoleBinding"
