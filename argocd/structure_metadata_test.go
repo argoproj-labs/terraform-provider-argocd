@@ -21,9 +21,6 @@ func TestMetadataIsInternalKey(t *testing.T) {
 		{"notified.notifications.argoproj.io", true},
 	}
 	for i, tc := range testCases {
-		i := i
-		tc := tc
-
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
 			t.Parallel()
 
