@@ -90,9 +90,8 @@ jobs:
       - name: Set up ArgoCD ${{ matrix.argocd_version }}
         env:
           ARGOCD_VERSION: ${{ matrix.argocd_version }}
-          ARGOCD_CI: true
         run: |
-          sh scripts/testacc_prepare_env.sh
+          make testacc_prepare_env
           until $(nc -z 127.0.0.1 8080); do sleep 2;done
           netstat -tulpn
       - name: Run acceptance tests
