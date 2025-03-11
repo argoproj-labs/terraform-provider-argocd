@@ -17,6 +17,7 @@ const (
 	ApplicationSetIgnoreApplicationDifferences
 	ApplicationSetTemplatePatch
 	ApplicationKustomizePatches
+	ProjectDestinationServiceAccounts
 )
 
 type FeatureConstraint struct {
@@ -35,4 +36,5 @@ var ConstraintsMap = map[Feature]FeatureConstraint{
 	ApplicationSetIgnoreApplicationDifferences: {"application set ignore application differences", semver.MustParse("2.9.0")},
 	ApplicationSetTemplatePatch:                {"application set template patch", semver.MustParse("2.10.0")},
 	ApplicationKustomizePatches:                {"application kustomize patches", semver.MustParse("2.9.0")},
+	ProjectDestinationServiceAccounts:          {"project destination service accounts", semver.MustParse("2.13.0")},
 }

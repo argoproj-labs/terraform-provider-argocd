@@ -186,6 +186,7 @@ func flattenProjectSpec(s application.AppProjectSpec) []map[string]interface{} {
 		"namespace_resource_blacklist": flattenK8SGroupKinds(s.NamespaceResourceBlacklist),
 		"namespace_resource_whitelist": flattenK8SGroupKinds(s.NamespaceResourceWhitelist),
 		"destination":                  flattenApplicationDestinations(s.Destinations),
+		"destination_service_account":  flattenProjectDestinationServiceAccounts(s.DestinationServiceAccounts),
 		"orphaned_resources":           flattenProjectOrphanedResources(s.OrphanedResources),
 		"role":                         flattenProjectRoles(s.Roles),
 		"sync_window":                  flattenSyncWindows(s.SyncWindows),
@@ -243,6 +244,18 @@ func flattenProjectRoles(rs []application.ProjectRole) (result []map[string]inte
 			"description": r.Description,
 			"groups":      r.Groups,
 			"policies":    r.Policies,
+		})
+	}
+
+	return
+}
+
+func flattenProjectDestinationServiceAccounts(dsas []application.ApplicationDestinationServiceAccount) (result []map[string]string) {
+	for _, dsa := range dsas {
+		result = append(result, map[string]string{
+			"default_service_account": dsa.DefaultServiceAccount,
+			"namespace":               dsa.Namespace,
+			"server":                  dsa.Server,
 		})
 	}
 
