@@ -12,7 +12,6 @@ issues:
     - path: _test\.go
       linters:
         - contextcheck
-  max-per-linter: 0
   max-same-issues: 0
 
 linters:
@@ -22,12 +21,12 @@ linters:
     - asciicheck
     - containedctx
     - contextcheck
+    - copyloopvar
     - dogsled
     - durationcheck
     - errcheck
     - errname
     - errorlint
-    - exportloopref
     - goconst
     - gocritic
     - gofmt
@@ -44,12 +43,12 @@ linters:
     - predeclared
     - staticcheck
     - stylecheck
-    - tenv
     - tparallel
     - typecheck
     - unconvert
     - unparam
     - unused
+    - usetesting
     - whitespace
     - wsl
 
@@ -99,7 +98,6 @@ linters-settings:
       - strings.SplitN
   nolintlint:
     allow-unused: false
-    allow-leading-space: false
     require-explanation: true
     require-specific: true
     allow-no-explanation:
