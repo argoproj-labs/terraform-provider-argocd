@@ -4,7 +4,7 @@ go 1.22.7
 
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
-	github.com/ProtonMail/gopenpgp/v2 v2.8.3
+	github.com/ProtonMail/gopenpgp/v3 v3.1.3
 	github.com/argoproj/argo-cd/v2 v2.12.10
 	// make sure this matches with version used in Argo CD's go.mod
 	github.com/argoproj/gitops-engine v0.7.1-0.20250129155113-faf5a4e5c37d
@@ -26,6 +26,8 @@ require (
 	k8s.io/apimachinery v0.29.6
 	k8s.io/client-go v0.29.6
 )
+
+require github.com/ProtonMail/gopenpgp/v2 v2.8.3
 
 require (
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect
