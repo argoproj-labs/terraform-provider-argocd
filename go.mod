@@ -27,8 +27,6 @@ require (
 	k8s.io/client-go v0.29.6
 )
 
-require github.com/ProtonMail/gopenpgp/v2 v2.8.3
-
 require (
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect
 	dario.cat/mergo v1.0.0 // indirect
@@ -40,7 +38,6 @@ require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/PagerDuty/go-pagerduty v1.7.0 // indirect
 	github.com/ProtonMail/go-crypto v1.1.6 // indirect
-	github.com/ProtonMail/go-mime v0.0.0-20230322103455-7d82a3887f2f // indirect
 	github.com/RocketChat/Rocket.Chat.Go.SDK v0.0.0-20210112200207-10ab4d695d60 // indirect
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
