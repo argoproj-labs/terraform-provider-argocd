@@ -94,6 +94,8 @@ jobs:
           make testacc_prepare_env
           until $(nc -z 127.0.0.1 8080); do sleep 2;done
           netstat -tulpn
+      - name: Download go deps for tests
+        run: go mod download
       - name: Run acceptance tests
         env:
           ARGOCD_VERSION: ${{ matrix.argocd_version }}
