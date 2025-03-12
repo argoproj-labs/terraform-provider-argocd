@@ -38,10 +38,9 @@ func TestAccArgoCDCluster(t *testing.T) {
 						"shard",
 						"1",
 					),
-					resource.TestCheckResourceAttr(
+					resource.TestCheckResourceAttrSet(
 						"argocd_cluster.simple",
 						"info.0.server_version",
-						"1.27",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.simple",
@@ -69,10 +68,9 @@ func TestAccArgoCDCluster(t *testing.T) {
 						"info.0.connection_state.0.status",
 						"Successful",
 					),
-					resource.TestCheckResourceAttr(
+					resource.TestCheckResourceAttrSet(
 						"argocd_cluster.tls",
 						"info.0.server_version",
-						"1.27",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.tls",

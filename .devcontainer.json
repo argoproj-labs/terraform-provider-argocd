@@ -18,7 +18,7 @@
     },
     // https://github.com/devcontainers/features/tree/main/src/kubectl-helm-minikube
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
-      "version": "1.27.11"
+      "version": "1.29.15"
     },
     // https://github.com/rio/features/tree/main/src/kustomize
     "ghcr.io/rio/features/kustomize:1": {},

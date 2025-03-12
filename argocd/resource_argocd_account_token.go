@@ -10,7 +10,7 @@ import (
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/account"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/session"
-	"github.com/cristalhq/jwt/v3"
+	"github.com/cristalhq/jwt/v5"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -202,13 +202,13 @@ func resourceArgoCDAccountTokenCreate(ctx context.Context, d *schema.ResourceDat
 		return argoCDAPIError("create", "token for account", accountName, err)
 	}
 
-	token, err := jwt.ParseString(resp.GetToken())
+	token, err := jwt.ParseNoVerify([]byte(resp.GetToken()))
 	if err != nil {
 		return errorToDiagnostics(fmt.Sprintf("token for account %s is not a valid jwt", accountName), err)
 	}
 
-	var claims jwt.StandardClaims
-	if err = json.Unmarshal(token.RawClaims(), &claims); err != nil {
+	var claims jwt.RegisteredClaims
+	if err = json.Unmarshal(token.Claims(), &claims); err != nil {
 		return errorToDiagnostics(fmt.Sprintf("token claims for account %s could not be parsed", accountName), err)
 	}
 

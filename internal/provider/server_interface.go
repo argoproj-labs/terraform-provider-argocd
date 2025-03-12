@@ -30,8 +30,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/runtime"
 )
 
-// var runtimeErrorHandlers []func(error)
-
 var runtimeErrorHandlers []runtime.ErrorHandler
 
 type ServerInterface struct {
