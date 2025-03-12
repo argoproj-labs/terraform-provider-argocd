@@ -48,6 +48,16 @@ func isKeyInMap(key string, d map[string]interface{}) bool {
 	return false
 }
 
+func expandBoolMap(m map[string]interface{}) map[string]bool {
+	result := make(map[string]bool)
+
+	for k, v := range m {
+		result[k] = v.(bool)
+	}
+
+	return result
+}
+
 func expandStringMap(m map[string]interface{}) map[string]string {
 	result := make(map[string]string)
 
