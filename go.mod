@@ -296,7 +296,7 @@ replace (
 	// https://github.com/argoproj/notifications-engine/pull/265
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 => github.com/OvyFlash/telegram-bot-api/v5 v5.0.0-20240108230938-63e5c59035bf
 
-	github.com/grpc-ecosystem/grpc-gateway => github.com/grpc-ecosystem/grpc-gateway v1.16.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 => github.com/grpc-ecosystem/grpc-gateway v2.26.3
 
 	// Apple Silicon support https://github.com/argoproj-labs/terraform-provider-argocd/pull/222
 	github.com/remyoudompheng/bigfft => github.com/remyoudompheng/bigfft v0.0.0-20220927061507-ef77025ab5aa
