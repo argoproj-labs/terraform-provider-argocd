@@ -331,7 +331,7 @@ func TestAccArgoCDCluster_outsideDeletion(t *testing.T) {
 					if err != nil {
 						t.Error(fmt.Errorf("failed to get server interface: %s", err.Error()))
 					}
-					ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+					ctx, cancel := context.WithTimeout(t.Context(), 120*time.Second)
 					defer cancel()
 					_, err = si.ClusterClient.Delete(ctx, &cluster.ClusterQuery{Name: clusterName})
 					if err != nil {

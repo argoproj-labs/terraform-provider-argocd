@@ -1,7 +1,7 @@
 {
   "name": "terraform-provider-argocd",
   // officiall MS template from https://github.com/devcontainers/templates/tree/main/src/go
-  "image": "mcr.microsoft.com/devcontainers/go:1.21-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/go:1.24-bookworm",
   "features": {
     // https://github.com/devcontainers/features/tree/main/src/docker-in-docker
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
