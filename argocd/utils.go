@@ -98,6 +98,8 @@ func isValidPolicyAction(action string) bool {
 	}
 	validActionPatterns := []*regexp.Regexp{
 		regexp.MustCompile("action/.*"),
+		regexp.MustCompile("update/.*"),
+		regexp.MustCompile("delete/.*"),
 	}
 
 	if validActions[action] {
