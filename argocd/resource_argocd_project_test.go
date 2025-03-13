@@ -258,7 +258,7 @@ func TestAccArgoCDProjectWithFineGrainedPolicy(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ProjectFineGrainedPolicy) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
