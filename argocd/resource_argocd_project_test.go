@@ -282,6 +282,31 @@ func TestAccArgoCDProjectWithDestinationServiceAccounts(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDProjectWithFineGrainedPolicy(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ProjectFineGrainedPolicy) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDProjectWithFineGrainedPolicy(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.fine_grained_policy",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.fine_grained_policy",
+						"spec.0.role.0.policies.#",
+						"2",
+					),
+				),
+			},
+		},
+	})
+}
+
 func testAccArgoCDProjectSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_project" "simple" {
@@ -902,4 +927,36 @@ resource "argocd_project" "simple" {
   }
 }
   `, name)
+}
+
+func testAccArgoCDProjectWithFineGrainedPolicy(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "fine_grained_policy" {
+    metadata {
+      name      = "%[1]s"
+      namespace = "argocd"
+      labels = {
+        acceptance = "true"
+      }
+    }
+
+    spec {
+      description  = "simple project with fine-grained policies"
+      source_repos = ["*"]
+
+      destination {
+        server    = "https://kubernetes.default.svc"
+        namespace = "default"
+      }
+
+      role {
+        name = "fine-grained"
+        policies = [
+          "p, proj:%[1]s:fine-grained, applications, update/*, %[1]s/*, allow",
+          "p, proj:%[1]s:fine-grained, applications, delete/*/Pod/*/*, %[1]s/*, allow",
+        ]
+      }
+    }
+  }
+	`, name)
 }
