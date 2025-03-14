@@ -53,6 +53,22 @@ Then, setup your environment following [these
 instructions](https://www.terraform.io/plugin/debugging#terraform-cli-development-overrides)
 to make your local terraform use your local build.
 
+## Debugging
+
+Hasicorp Docs: https://developer.hashicorp.com/terraform/plugin/debugging#starting-a-provider-in-debug-mode
+
+### Running the Terraform provider in debug mode
+
+In VS Code open the Debug tab and select the profile "Debug Terraform Provider". Set some breakpoints and then run this task. 
+
+Then head to the debug console and copy the line where it says `TF_REATTACH_PROVIDERS` and copy it.
+
+Now that your provider is running in debug-mode in VS Code, you can head to any terminal where you want to run a Terraform stack and prepend the terraform command with the copied text. The Terraform CLI will then ensure it's using the provider already running inside VS Code.
+
+### Running acceptance tests in debug mode
+
+Open a test file, hover over a test function name and in the Debug tab hit "Debug selected Test". You shouldn't use the builtin "Debug Test" profile that is shown when hovering over a test function since it doesn't contain the necessary configuration to find your Argo CD environment.
+
 ## Troubleshooting during local development
 
 * **"too many open files":** Running all acceptance tests in parallel (the

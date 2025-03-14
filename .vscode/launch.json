@@ -1,0 +1,38 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Terraform Provider",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}",
+      "env": {},
+      "args": [
+        "-debug"
+      ]
+    },
+    {
+      "name": "Debug Selected Test",
+      "request": "launch",
+      "type": "go",
+      "args": [
+        "-test.v",
+        "-test.run",
+        "^${selectedText}$"
+      ],
+      "mode": "auto",
+      "program": "${fileDirname}",
+      "env": {
+        "PKG_NAME": "${relativeFileDirname}",
+        "TF_ACC": "1",
+        "TF_LOG": "info",
+        "ARGOCD_INSECURE": "true",
+        "ARGOCD_SERVER": "127.0.0.1:8080",
+        "ARGOCD_AUTH_USERNAME": "admin",
+        "ARGOCD_AUTH_PASSWORD": "acceptancetesting"
+      },
+      "showLog": true
+    }
+  ]
+}
