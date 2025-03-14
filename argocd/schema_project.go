@@ -488,6 +488,30 @@ func projectSpecSchemaV2() *schema.Schema {
 						},
 					},
 				},
+				"destination_service_account": {
+					Type:        schema.TypeSet,
+					Description: "Service accounts to be impersonated for the application sync operation for each destination.",
+					Optional:    true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"default_service_account": {
+								Type:        schema.TypeString,
+								Description: "Used for impersonation during the sync operation",
+								Required:    true,
+							},
+							"namespace": {
+								Type:        schema.TypeString,
+								Description: "Specifies the target namespace for the application's resources.",
+								Optional:    true,
+							},
+							"server": {
+								Type:        schema.TypeString,
+								Description: "Specifies the URL of the target cluster's Kubernetes control plane API.",
+								Required:    true,
+							},
+						},
+					},
+				},
 				"namespace_resource_blacklist": {
 					Type:        schema.TypeSet,
 					Description: "Blacklisted namespace level resources.",
