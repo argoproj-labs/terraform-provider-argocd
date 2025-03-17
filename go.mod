@@ -297,9 +297,6 @@ replace (
 
 	github.com/grpc-ecosystem/grpc-gateway => github.com/grpc-ecosystem/grpc-gateway v1.16.0
 
-	// Apple Silicon support https://github.com/argoproj-labs/terraform-provider-argocd/pull/222
-	github.com/remyoudompheng/bigfft => github.com/remyoudompheng/bigfft v0.0.0-20220927061507-ef77025ab5aa
-
 	// Avoid CVE-2022-28948
 	gopkg.in/yaml.v3 => gopkg.in/yaml.v3 v3.0.1
 
