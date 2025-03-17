@@ -1,7 +1,6 @@
 package argocd
 
 import (
-	"context"
 	"reflect"
 	"strings"
 	"testing"
@@ -51,7 +50,7 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds(t *testing.T) {
 		},
 	}
 
-	actual, _ := resourceArgoCDApplicationStateUpgradeV0(context.TODO(), v0, nil)
+	actual, _ := resourceArgoCDApplicationStateUpgradeV0(t.Context(), v0, nil)
 
 	if !reflect.DeepEqual(v1, actual) {
 		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", v1, actual)
@@ -77,7 +76,7 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds_NoChange(t *testing.T) {
 		},
 	}
 
-	actual, _ := resourceArgoCDApplicationStateUpgradeV0(context.TODO(), v0, nil)
+	actual, _ := resourceArgoCDApplicationStateUpgradeV0(t.Context(), v0, nil)
 
 	if !reflect.DeepEqual(v0, actual) {
 		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", v0, actual)
@@ -108,7 +107,7 @@ func TestUpgradeSchemaApplication_V1V2_Default_NoChange(t *testing.T) {
 		},
 	}
 
-	actual, _ := resourceArgoCDApplicationStateUpgradeV1(context.TODO(), v1, nil)
+	actual, _ := resourceArgoCDApplicationStateUpgradeV1(t.Context(), v1, nil)
 
 	if !reflect.DeepEqual(v1, actual) {
 		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", v1, actual)
@@ -140,7 +139,7 @@ func TestUpgradeSchemaApplication_V1V2_WithKsonnet(t *testing.T) {
 		},
 	}
 
-	_, err := resourceArgoCDApplicationStateUpgradeV1(context.TODO(), v1, nil)
+	_, err := resourceArgoCDApplicationStateUpgradeV1(t.Context(), v1, nil)
 
 	if err == nil || !strings.Contains(err.Error(), "'ksonnet' support has been removed") {
 		t.Fatalf("\n\nexpected error during state migration was not found - err returned was: %v", err)
@@ -177,7 +176,7 @@ func TestUpgradeSchemaApplication_V2V3_Default_NoChange(t *testing.T) {
 		},
 	}
 
-	actual, _ := resourceArgoCDApplicationStateUpgradeV2(context.TODO(), v2, nil)
+	actual, _ := resourceArgoCDApplicationStateUpgradeV2(t.Context(), v2, nil)
 
 	if !reflect.DeepEqual(v2, actual) {
 		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", v2, actual)
@@ -550,7 +549,7 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			actualState, err := resourceArgoCDApplicationStateUpgradeV3(context.TODO(), tc.sourceState, nil)
+			actualState, err := resourceArgoCDApplicationStateUpgradeV3(t.Context(), tc.sourceState, nil)
 			if err != nil {
 				t.Fatalf("error migrating state: %s", err)
 			}

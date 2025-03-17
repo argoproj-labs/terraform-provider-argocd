@@ -1,7 +1,6 @@
 package argocd
 
 import (
-	"context"
 	"reflect"
 	"testing"
 )
@@ -131,7 +130,7 @@ func TestResourceArgoCDProjectStateUpgradeV0(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			actualState, err := resourceArgoCDProjectStateUpgradeV0(context.TODO(), tc.sourceState, nil)
+			actualState, err := resourceArgoCDProjectStateUpgradeV0(t.Context(), tc.sourceState, nil)
 			if err != nil {
 				t.Fatalf("error migrating state: %s", err)
 			}

@@ -1,7 +1,7 @@
 {
   "name": "terraform-provider-argocd",
   // officiall MS template from https://github.com/devcontainers/templates/tree/main/src/go
-  "image": "mcr.microsoft.com/devcontainers/go:1.21-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/go:1.24-bookworm",
   "features": {
     // https://github.com/devcontainers/features/tree/main/src/docker-in-docker
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
@@ -18,7 +18,7 @@
     },
     // https://github.com/devcontainers/features/tree/main/src/kubectl-helm-minikube
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
-      "version": "1.29.15"
+      "version": "1.31.7"
     },
     // https://github.com/rio/features/tree/main/src/kustomize
     "ghcr.io/rio/features/kustomize:1": {},
