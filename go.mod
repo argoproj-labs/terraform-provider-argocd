@@ -289,16 +289,10 @@ require (
 )
 
 replace (
-	// https://github.com/golang/go/issues/33546#issuecomment-519656923
-	github.com/go-check/check => github.com/go-check/check v0.0.0-20180628173108-788fd7840127
-
 	// https://github.com/argoproj/notifications-engine/pull/265
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 => github.com/OvyFlash/telegram-bot-api/v5 v5.0.0-20240108230938-63e5c59035bf
 
 	github.com/grpc-ecosystem/grpc-gateway => github.com/grpc-ecosystem/grpc-gateway v1.16.0
-
-	// Apple Silicon support https://github.com/argoproj-labs/terraform-provider-argocd/pull/222
-	github.com/remyoudompheng/bigfft => github.com/remyoudompheng/bigfft v0.0.0-20220927061507-ef77025ab5aa
 
 	// Avoid CVE-2022-28948
 	gopkg.in/yaml.v3 => gopkg.in/yaml.v3 v3.0.1
