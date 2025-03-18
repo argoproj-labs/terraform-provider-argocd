@@ -254,6 +254,34 @@ func TestAccArgoCDProjectWithSourceNamespaces(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDProjectWithDestinationServiceAccounts(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureSupported(t, features.ProjectDestinationServiceAccounts)
+		},
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDProjectWithDestinationServiceAccounts(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+					),
+				),
+			},
+			{
+				ResourceName:      "argocd_project.simple",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccArgoCDProjectWithFineGrainedPolicy(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
@@ -858,6 +886,47 @@ resource "argocd_project" "failure" {
   }
 }
   `, name, name, name)
+}
+
+func testAccArgoCDProjectWithDestinationServiceAccounts(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "simple" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+    annotations = {
+      "this.is.a.really.long.nested.key" = "yes, really!"
+    }
+  }
+
+  spec {
+    description  = "simple"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "foo"
+    }
+    destination_service_account {
+      default_service_account = "default"
+      namespace = "default"
+      server = "https://kubernetes.default.svc"
+    }
+    destination_service_account {
+      default_service_account = "foo"
+      namespace = "foo"
+      server = "https://kubernetes.default.svc"
+    }
+  }
+}
+  `, name)
 }
 
 func testAccArgoCDProjectWithFineGrainedPolicy(name string) string {
