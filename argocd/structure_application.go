@@ -469,15 +469,16 @@ func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, error
 	}
 
 	if _mnm, ok := p["managed_namespace_metadata"].([]interface{}); ok && len(_mnm) > 0 {
-		mnm := _mnm[0].(map[string]interface{})
-		syncPolicy.ManagedNamespaceMetadata = &application.ManagedNamespaceMetadata{}
+		if mnm, ok := _mnm[0].(map[string]interface{}); ok {
+			syncPolicy.ManagedNamespaceMetadata = &application.ManagedNamespaceMetadata{}
 
-		if a, ok := mnm["annotations"]; ok {
-			syncPolicy.ManagedNamespaceMetadata.Annotations = expandStringMap(a.(map[string]interface{}))
-		}
+			if a, ok := mnm["annotations"]; ok {
+				syncPolicy.ManagedNamespaceMetadata.Annotations = expandStringMap(a.(map[string]interface{}))
+			}
 
-		if l, ok := mnm["labels"]; ok {
-			syncPolicy.ManagedNamespaceMetadata.Labels = expandStringMap(l.(map[string]interface{}))
+			if l, ok := mnm["labels"]; ok {
+				syncPolicy.ManagedNamespaceMetadata.Labels = expandStringMap(l.(map[string]interface{}))
+			}
 		}
 	}
 
