@@ -29,6 +29,7 @@ to the Kubernetes API to perform any actions.
 - use `port_forward_with_namespace` and optionally `kubernetes` configuration
   (to temporarily expose the ArgoCD API server using port forwarding) along with
   a `username`/`password` or `auth_token`.
+    - if you use port-forwarding and your argo-cd-server is running on plain HTTP you need to add the flag `plain_text = true` to the provider configuration as well
 - use `core` to run a local ArgoCD API server that communicates directly with
   the Kubernetes API. **NB**: When using `core`, take note of the warning in 
   the docs below.
