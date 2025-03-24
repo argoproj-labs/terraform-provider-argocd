@@ -2,10 +2,13 @@ terraform-provider-argocd
 /manifests/install/argocd.yml
 /bin
 .idea
-.vscode
+
 # Env variables settings
 /scripts/testacc
 /scripts/testacc_prepare_env
 
 # debug build
-__debug_bin
+__debug_bin*
+
+# local reproduction folders
+reproduce/
