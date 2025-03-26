@@ -29,6 +29,51 @@ Official documentation on how to use this provider can be found on the
 [Terraform
 Registry](https://registry.terraform.io/providers/argoproj-labs/argocd/latest/docs).
 
+## Version Compatibility 
+
+The provider supports all versions Argo-CD itself currently supports. See the [Argo CD documentation](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/#supported-versions) for supported versions.
+
+The following table shows which provider version to use given your Argo CD version:
+
+| Argo CD version | minimum provider version | maximum provider version |
+|-----------------|--------------------------|--------------------------|
+| 2.14            | 7.5.0                    | not yet available        |
+| 2.13            | 7.4.0                    | not yet available        |
+| 2.12            | 7.2.0                    | not yet available        |
+| 2.11            | 7.1.0                    | 7.4.0                    |
+| 2.10            | 6.1.0                    | 7.3.1                    |
+
+Note: these numbers are based on our testing matrix that tests the provider against these versions of Argo CD. You may be able to use other provider versions as the ones listed here and it may still work.
+
+## Motivations
+
+### *I thought ArgoCD already allowed for 100% declarative configuration?*
+
+While that is true through the use of ArgoCD Kubernetes Custom Resources, there
+are some resources that simply cannot be managed using Kubernetes manifests,
+such as project roles JWTs whose respective lifecycles are better handled by a
+tool like Terraform. Even more so when you need to export these JWTs to another
+external system using Terraform, like a CI platform.
+
+### *Wouldn't using a Kubernetes provider to handle ArgoCD configuration be enough?*
+
+Existing Kubernetes providers do not patch arrays of objects, losing project
+role JWTs when doing small project changes just happen.
+
+ArgoCD Kubernetes admission webhook controller is not as exhaustive as ArgoCD
+API validation, this can be seen with RBAC policies, where no validation occur
+when creating/patching a project.
+
+Using Terraform to manage Kubernetes Custom Resource becomes increasingly
+difficult the further you use HCL2 DSL to merge different data structures *and*
+want to preserve type safety.
+
+Whatever the Kubernetes CRD provider you are using, you will probably end up
+using `locals` and the `yamlencode` function **which does not preserve the
+values' type**. In these cases, not only the readability of your Terraform plan
+will worsen, but you will also be losing some safeties that Terraform provides
+in the process.
+
 ## Upgrading
 
 ### Migrate provider source `oboukili` -> `argoproj-labs`
@@ -121,47 +166,10 @@ HashiCorps [replace-provider] docs. In summary, you can do the following:
 
 5. You have successfully migrated
 
-## Compatibility promise
-
-This provider is compatible with _at least_ the last 2 minor releases of ArgoCD
-(e.g, ranging from 1.(n).m, to 1.(n-1).0, where `n` is the latest available
-minor version).
-
-Older releases are not supported and some resources may not work as expected.
-
-## Motivations
-
-### *I thought ArgoCD already allowed for 100% declarative configuration?*
-
-While that is true through the use of ArgoCD Kubernetes Custom Resources, there
-are some resources that simply cannot be managed using Kubernetes manifests,
-such as project roles JWTs whose respective lifecycles are better handled by a
-tool like Terraform. Even more so when you need to export these JWTs to another
-external system using Terraform, like a CI platform.
-
-### *Wouldn't using a Kubernetes provider to handle ArgoCD configuration be enough?*
-
-Existing Kubernetes providers do not patch arrays of objects, losing project
-role JWTs when doing small project changes just happen.
-
-ArgoCD Kubernetes admission webhook controller is not as exhaustive as ArgoCD
-API validation, this can be seen with RBAC policies, where no validation occur
-when creating/patching a project.
-
-Using Terraform to manage Kubernetes Custom Resource becomes increasingly
-difficult the further you use HCL2 DSL to merge different data structures *and*
-want to preserve type safety.
-
-Whatever the Kubernetes CRD provider you are using, you will probably end up
-using `locals` and the `yamlencode` function **which does not preserve the
-values' type**. In these cases, not only the readability of your Terraform plan
-will worsen, but you will also be losing some safeties that Terraform provides
-in the process.
-
 ## Requirements
 
 * [Terraform](https://www.terraform.io/downloads) (>= 1.0)
-* [Go](https://go.dev/doc/install) (1.19)
+* [Go](https://go.dev/doc/install) (1.24)
 * [GNU Make](https://www.gnu.org/software/make/)
 * [golangci-lint](https://golangci-lint.run/usage/install/#local-installation) (optional)
 
