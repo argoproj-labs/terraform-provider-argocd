@@ -33,15 +33,16 @@ Registry](https://registry.terraform.io/providers/argoproj-labs/argocd/latest/do
 
 The provider supports all versions Argo-CD itself currently supports. See the [Argo CD documentation](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/#supported-versions) for supported versions.
 
-The following table shows which provider version to use given your Argo CD version:
+The following table shows the versions of Argo CD that are tested with each version of the provider.
 
-| Argo CD version | minimum provider version | maximum provider version |
-|-----------------|--------------------------|--------------------------|
-| 2.14            | 7.5.0                    | not yet available        |
-| 2.13            | 7.4.0                    | not yet available        |
-| 2.12            | 7.2.0                    | not yet available        |
-| 2.11            | 7.1.0                    | 7.4.0                    |
-| 2.10            | 6.1.0                    | 7.3.1                    |
+| Provider version | Argo CD versions |
+|---|---|
+| 7.5 | v2.12, v2.13, v2.14 | 
+| 7.4 | v2.11, v2.12, v2.13 | 
+| 7.2 | v2.10, v2.11, v2.12 | 
+| 7.1 | v2.9, v2.10, v2.11 | 
+| 7.0 | v2.8, v2.9, v2.10 | 
+| 6.x | v2.8, v2.9, v2.10 | 
 
 Note: these numbers are based on our testing matrix that tests the provider against these versions of Argo CD. You may be able to use other provider versions as the ones listed here and it may still work.
 
