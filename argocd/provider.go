@@ -152,7 +152,6 @@ func Provider() *schema.Provider {
 			"argocd_cluster":                resourceArgoCDCluster(),
 			"argocd_project":                resourceArgoCDProject(),
 			"argocd_project_token":          resourceArgoCDProjectToken(),
-			"argocd_repository":             resourceArgoCDRepository(),
 			"argocd_repository_credentials": resourceArgoCDRepositoryCredentials(),
 		},
 		ConfigureContextFunc: func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
