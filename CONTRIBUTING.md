@@ -2,6 +2,21 @@
 
 Contributions are welcome! 
 
+## Dependency Management
+
+### K8s version
+In our CI we test against a Kubernetes version that is supported by all Argo CD versions we support.
+
+That version can be obtained when looking at [this table](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/#tested-versions) in the Argo CD documentation.
+
+### Argo CD client-lib
+
+Some dependencies we use are strictly aligned with the Argo CD client-lib that we use and should only be updated together:
+- github.com/argoproj/gitops-engine
+- k8s.io/*
+
+Please don't update any of these dependencies without having discussed this first!
+
 ## Building
 
 1. `git clone` this repository and `cd` into its directory
