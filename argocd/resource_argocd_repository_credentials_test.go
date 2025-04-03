@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -171,4 +172,29 @@ func mustGenerateSSHPrivateKey(t *testing.T) string {
 	assert.NoError(t, err)
 
 	return pk
+}
+
+func testCheckMultipleResourceAttr(name, key, value string, count int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for i := 0; i < count; i++ {
+			ms := s.RootModule()
+			_name := fmt.Sprintf("%s.%d", name, i)
+
+			rs, ok := ms.Resources[_name]
+			if !ok {
+				return fmt.Errorf("not found: %s in %s", _name, ms.Path)
+			}
+
+			is := rs.Primary
+			if is == nil {
+				return fmt.Errorf("no primary instance: %s in %s", _name, ms.Path)
+			}
+
+			if val, ok := is.Attributes[key]; !ok || val != value {
+				return fmt.Errorf("%s: Attribute '%s' expected to be set and have value '%s': %s", _name, key, value, val)
+			}
+		}
+
+		return nil
+	}
 }
