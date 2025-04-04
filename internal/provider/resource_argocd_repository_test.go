@@ -1,6 +1,10 @@
-package argocd
+package provider
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"testing"
 
@@ -12,8 +16,8 @@ import (
 
 func TestAccArgoCDRepository_Simple(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositorySimple(),
@@ -43,8 +47,8 @@ func TestAccArgoCDRepository_Helm(t *testing.T) {
 	projectName := acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryHelm(),
@@ -80,8 +84,8 @@ func TestAccArgoCDRepository_Helm(t *testing.T) {
 
 func TestAccArgoCDRepository_PrivateSSH(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryPrivateGitSSH("git@private-git-repository.argocd.svc.cluster.local:~/project-1.git"),
@@ -122,8 +126,8 @@ func TestAccArgoCDRepository_GitHubApp(t *testing.T) {
 	assert.NoError(t, err)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryGitHubApp(
@@ -259,6 +263,27 @@ resource "argocd_repository" "githubapp" {
 EOT
 }
 `, repoUrl, id, installID, baseURL, appKey)
+}
+
+func generateSSHPrivateKey() (privateKey string, err error) {
+	pk, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return
+	}
+
+	err = pk.Validate()
+	if err != nil {
+		return
+	}
+
+	privDER := x509.MarshalPKCS1PrivateKey(pk)
+	privBlock := pem.Block{
+		Type:    "RSA PRIVATE KEY",
+		Headers: nil,
+		Bytes:   privDER,
+	}
+
+	return string(pem.EncodeToMemory(&privBlock)), nil
 }
 
 func testCheckMultipleResourceAttr(name, key, value string, count int) resource.TestCheckFunc {
