@@ -64,9 +64,23 @@ your
 (defaults to `${GOPATH}/bin` or `${HOME}/go/bin` if `${GOPATH}` is not set).
 Repeat this every time you make changes to the provider locally.
 
-Then, setup your environment following [these
-instructions](https://www.terraform.io/plugin/debugging#terraform-cli-development-overrides)
-to make your local terraform use your local build.
+Then write this config to a file:
+```hcl filename="../reproduce/.terraformrc"
+provider_installation {
+  dev_overrides {
+    "argoproj-labs/argocd" = "/Users/username/go/bin" # path must be absolute and point to the directoy containing the binary
+  }
+
+  direct {}
+}
+```
+
+And lastly use the following environment variable in a terminal session to tell Terraform to use this file for picking up the development binary:
+```console
+export TF_CLI_CONFIG_FILE=../.reproduce/.terraformrc
+```
+
+For further reference consult [HashiCorp's article](https://www.terraform.io/plugin/debugging#terraform-cli-development-overrides) about this topic.
 
 ## Debugging
 
