@@ -29,6 +29,8 @@ github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/OvyFlash/telegram-bot-api/v5 v5.0.0-20240108230938-63e5c59035bf h1:a7VKhbjKYPO8twGy/1AxMpM2Fp0qT7bf25fmCVMVu4s=
 github.com/OvyFlash/telegram-bot-api/v5 v5.0.0-20240108230938-63e5c59035bf/go.mod h1:A2S0CWkNylc2phvKXWBBdD3K0iGnDBGbzRpISP2zBl8=
+github.com/OvyFlash/telegram-bot-api/v5 v5.0.0-20241013102643-36756d99d4ae h1:eEV0xhlSxX6TIGEo5/2JCmS8nDooEgZ86wu0LzZjtcQ=
+github.com/OvyFlash/telegram-bot-api/v5 v5.0.0-20241013102643-36756d99d4ae/go.mod h1:A2S0CWkNylc2phvKXWBBdD3K0iGnDBGbzRpISP2zBl8=
 github.com/PagerDuty/go-pagerduty v1.7.0 h1:S1NcMKECxT5hJwV4VT+QzeSsSiv4oWl1s2821dUqG/8=
 github.com/PagerDuty/go-pagerduty v1.7.0/go.mod h1:PuFyJKRz1liIAH4h5KVXVD18Obpp1ZXRdxHvmGXooro=
 github.com/ProtonMail/go-crypto v1.1.6 h1:ZcV+Ropw6Qn0AX9brlQLAUXfqLBc7Bl+f/DmNxpLfdw=
