@@ -87,15 +87,15 @@ func expandClusterConfig(config interface{}) application.ClusterConfig {
 		for k, v := range tls[0].(map[string]interface{}) {
 			switch k {
 			case "ca_data":
-				clusterConfig.TLSClientConfig.CAData = []byte(v.(string))
+				clusterConfig.CAData = []byte(v.(string))
 			case "cert_data":
-				clusterConfig.TLSClientConfig.CertData = []byte(v.(string))
+				clusterConfig.CertData = []byte(v.(string))
 			case "key_data":
-				clusterConfig.TLSClientConfig.KeyData = []byte(v.(string))
+				clusterConfig.KeyData = []byte(v.(string))
 			case "insecure":
-				clusterConfig.TLSClientConfig.Insecure = v.(bool)
+				clusterConfig.Insecure = v.(bool)
 			case "server_name":
-				clusterConfig.TLSClientConfig.ServerName = v.(string)
+				clusterConfig.ServerName = v.(string)
 			}
 		}
 	}

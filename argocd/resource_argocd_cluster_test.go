@@ -682,9 +682,9 @@ func getInternalRestConfig() (*rest.Config, error) {
 			authInfo := cfg.AuthInfos[key]
 			rc.Host = cluster.Server
 			rc.ServerName = cluster.TLSServerName
-			rc.TLSClientConfig.CAData = cluster.CertificateAuthorityData
-			rc.TLSClientConfig.CertData = authInfo.ClientCertificateData
-			rc.TLSClientConfig.KeyData = authInfo.ClientKeyData
+			rc.CAData = cluster.CertificateAuthorityData
+			rc.CertData = authInfo.ClientCertificateData
+			rc.KeyData = authInfo.ClientKeyData
 
 			return rc, nil
 		}
