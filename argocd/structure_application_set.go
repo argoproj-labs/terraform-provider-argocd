@@ -95,6 +95,8 @@ func expandApplicationSetGenerators(g []interface{}, featureMultipleApplicationS
 			g, err = expandApplicationSetSCMProviderGenerator(asg[0], featureMultipleApplicationSourcesSupported)
 		} else if asg, ok = v["pull_request"].([]interface{}); ok && len(asg) > 0 {
 			g, err = expandApplicationSetPullRequestGeneratorGenerator(asg[0], featureMultipleApplicationSourcesSupported)
+		} else if asg, ok = v["plugin"].([]interface{}); ok && len(asg) > 0 {
+			g, err = expandApplicationSetPluginGenerator(asg[0], featureMultipleApplicationSourcesSupported)
 		}
 
 		if err != nil {
@@ -391,6 +393,70 @@ func expandApplicationSetMergeGenerator(mg interface{}, featureMultipleApplicati
 	}
 
 	return asg, nil
+}
+
+func expandApplicationSetPluginGenerator(mg interface{}, featureMultipleApplicationSourcesSupported bool) (*application.ApplicationSetGenerator, error) {
+	asg := &application.ApplicationSetGenerator{
+		Plugin: &application.PluginGenerator{},
+	}
+
+	m := mg.(map[string]interface{})
+
+	if v, ok := m["input"].([]interface{}); ok && len(v) > 0 {
+		tmp, err := expandApplicationSetInputParameters(v[0].(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
+
+		asg.Plugin.Input.Parameters = tmp
+	}
+
+	if v, ok := m["config_map_ref"].(string); ok && v != "" {
+		asg.Plugin.ConfigMapRef.Name = v
+	}
+
+	if v, ok := m["requeue_after_seconds"].(string); ok && v != "" {
+		ras, err := convertStringToInt64Pointer(v)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert requeue_after_seconds to *int64: %w", err)
+		}
+
+		asg.Plugin.RequeueAfterSeconds = ras
+	}
+
+	if v, ok := m["template"].([]interface{}); ok && len(v) > 0 {
+		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
+		if err != nil {
+			return nil, err
+		}
+
+		asg.Plugin.Template = temp
+	}
+
+	if v, ok := m["values"]; ok {
+		asg.Plugin.Values = expandStringMap(v.(map[string]interface{}))
+	}
+
+	return asg, nil
+}
+
+func expandApplicationSetInputParameters(m map[string]interface{}) (application.PluginParameters, error) {
+	params := application.PluginParameters{}
+
+	if v, ok := m["parameters"].(map[string]interface{}); ok && len(v) > 0 {
+		for k, v := range v {
+			json, err := json.Marshal(v)
+			if err != nil {
+				return params, fmt.Errorf("failed to marshal plugin param to json: %w", err)
+			}
+
+			params[k] = apiextensionsv1.JSON{
+				Raw: json,
+			}
+		}
+	}
+
+	return params, nil
 }
 
 func expandApplicationSetPullRequestGeneratorGenerator(mg interface{}, featureMultipleApplicationSourcesSupported bool) (*application.ApplicationSetGenerator, error) {
@@ -1021,6 +1087,13 @@ func flattenGenerator(g application.ApplicationSetGenerator) (map[string]interfa
 		generator["scm_provider"] = flattenApplicationSetSCMProviderGenerator(g.SCMProvider)
 	} else if g.PullRequest != nil {
 		generator["pull_request"] = flattenApplicationSetPullRequestGenerator(g.PullRequest)
+	} else if g.Plugin != nil {
+		pluginGenerator, err := flattenApplicationSetPluginGenerator(g.Plugin)
+		if err != nil {
+			return nil, err
+		}
+
+		generator["plugin"] = pluginGenerator
 	}
 
 	if g.Selector != nil {
@@ -1151,6 +1224,44 @@ func flattenApplicationSetMergeGenerator(mg *application.MergeGenerator) ([]map[
 		"generator":  generators,
 		"template":   flattenApplicationSetTemplate(mg.Template),
 	}
+
+	return []map[string]interface{}{g}, nil
+}
+
+func flattenApplicationSetPluginGenerator(plg *application.PluginGenerator) ([]map[string]interface{}, error) {
+	g := map[string]interface{}{}
+
+	if plg.Input.Parameters != nil {
+		input := map[string]interface{}{}
+		parameters := map[string]string{}
+
+		// TODO: In reality, the parameters map can potentially contain anything, but
+		// terraform-plugin-sdk doesn't really support the notion of `any`. We need to
+		// improve this once we upgrade to terraform-plugin-framework
+		for k, v := range plg.Input.Parameters {
+			var str string
+			err := json.Unmarshal(v.Raw, &str)
+
+			if err != nil {
+				return nil, err
+			}
+
+			parameters[k] = str
+		}
+
+		input["parameters"] = parameters
+		g["input"] = []map[string]interface{}{input}
+	}
+
+	if plg.ConfigMapRef.Name != "" {
+		g["config_map_ref"] = plg.ConfigMapRef.Name
+	}
+
+	if plg.RequeueAfterSeconds != nil {
+		g["requeue_after_seconds"] = convertInt64PointerToString(plg.RequeueAfterSeconds)
+	}
+
+	g["template"] = flattenApplicationSetTemplate(plg.Template)
 
 	return []map[string]interface{}{g}, nil
 }
