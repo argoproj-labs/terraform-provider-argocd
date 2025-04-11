@@ -7,7 +7,9 @@ import (
 	"strings"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
-	"github.com/argoproj/argo-cd/v2/server/rbacpolicy"
+
+	"github.com/argoproj/argo-cd/v2/util/rbac"
+
 	fwdiag "github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -88,13 +90,13 @@ func sliceOfString(slice []interface{}) []string {
 
 func isValidPolicyAction(action string) bool {
 	validActions := map[string]bool{
-		rbacpolicy.ActionGet:      true,
-		rbacpolicy.ActionCreate:   true,
-		rbacpolicy.ActionUpdate:   true,
-		rbacpolicy.ActionDelete:   true,
-		rbacpolicy.ActionSync:     true,
-		rbacpolicy.ActionOverride: true,
-		"*":                       true,
+		rbac.ActionGet:      true,
+		rbac.ActionCreate:   true,
+		rbac.ActionUpdate:   true,
+		rbac.ActionDelete:   true,
+		rbac.ActionSync:     true,
+		rbac.ActionOverride: true,
+		"*":                 true,
 	}
 	validActionPatterns := []*regexp.Regexp{
 		regexp.MustCompile("action/.*"),
@@ -132,11 +134,13 @@ func validatePolicy(project string, role string, policy string) error {
 	// resource
 	// https://github.com/argoproj/argo-cd/blob/c99669e088b5f25c8ce8faff6df25797a8beb5ba/pkg/apis/application/v1alpha1/types.go#L1554
 	validResources := map[string]bool{
-		rbacpolicy.ResourceApplications: true,
-		rbacpolicy.ResourceRepositories: true,
-		rbacpolicy.ResourceClusters:     true,
-		rbacpolicy.ResourceExec:         true,
-		rbacpolicy.ResourceLogs:         true,
+		rbac.ResourceApplications:    true,
+		rbac.ResourceRepositories:    true,
+		rbac.ResourceClusters:        true,
+		rbac.ResourceExec:            true,
+		rbac.ResourceLogs:            true,
+		rbac.ResourceApplicationSets: true,
+		rbac.ResourceProjects:        true,
 	}
 
 	resource := strings.Trim(policyComponents[2], " ")
