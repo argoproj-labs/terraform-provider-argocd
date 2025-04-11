@@ -5,6 +5,8 @@ import (
 )
 
 func TestValidatePolicy(t *testing.T) {
+	t.Parallel()
+
 	project := "myproject"
 	role := "admin"
 
@@ -67,6 +69,8 @@ func TestValidatePolicy(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			err := validatePolicy(project, role, tc.policy)
 			if (err != nil) != tc.expectError {
 				t.Errorf("validatePolicy() error = %v, expectError = %v", err, tc.expectError)
