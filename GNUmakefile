@@ -51,8 +51,16 @@ testacc_prepare_env:
 	echo "\n--- Fetch ArgoCD installation manifests\n"
 	curl https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml > manifests/install/argocd.yml
 
+
 	echo "\n--- Install ArgoCD ${ARGOCD_VERSION}\n"
-	kustomize build manifests/install | kubectl apply -f - && \
+	kustomize build manifests/install | kubectl apply -f -
+
+	echo "\n--- Wait until CRDs are established\n"
+	kubectl wait --for=condition=Established crd/applications.argoproj.io --timeout=60s
+	kubectl wait --for=condition=Established crd/applicationsets.argoproj.io --timeout=60s
+	kubectl wait --for=condition=Established crd/appprojects.argoproj.io --timeout=60s
+
+	echo "\n--- Install ArgoCD test data\n"
 	kubectl apply -f manifests/testdata/
 
 	echo "\n--- Wait for ArgoCD components to be ready...\n"

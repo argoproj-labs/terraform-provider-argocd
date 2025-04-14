@@ -163,6 +163,42 @@ func TestAccArgoCDApplicationSet_gitFiles(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplicationSet_plugin(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSet_plugin(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.plugin",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.plugin",
+						"spec.0.generator.0.plugin.0.requeue_after_seconds",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.plugin",
+						"spec.0.generator.0.plugin.0.config_map_ref",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.plugin",
+						"spec.0.generator.0.plugin.0.input.0.parameters.key1",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.plugin",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplicationSet_list(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
@@ -1175,6 +1211,52 @@ resource "argocd_application_set" "git_files" {
 
 				destination {
 					server    = "{{cluster.address}}"
+					namespace = "guestbook"
+				}
+			}
+		}
+	}
+}`
+}
+
+func testAccArgoCDApplicationSet_plugin() string {
+	return `
+resource "argocd_application_set" "plugin" {
+	metadata {
+		name = "plugin"
+	}
+
+	spec {
+		generator {
+			plugin {
+				config_map_ref = "plugin"
+
+				input {
+					parameters = {
+						key1 = "value1"
+					}
+				}
+
+				requeue_after_seconds = 30
+			}
+		}
+
+		template {
+			metadata {
+				name = "{{cluster}}-guestbook"
+			}
+
+			spec {
+				project = "default"
+
+				source {
+					repo_url        = "https://github.com/argoproj/argo-cd.git"
+					target_revision = "HEAD"
+					path            = "applicationset/examples/list-generator/guestbook/{{cluster}}"
+				}
+
+				destination {
+					server    = "{{url}}"
 					namespace = "guestbook"
 				}
 			}
