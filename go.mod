@@ -5,7 +5,7 @@ go 1.24
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/ProtonMail/gopenpgp/v3 v3.1.3
-	github.com/argoproj/argo-cd/v2 v2.14.9
+	github.com/argoproj/argo-cd/v2 v2.14.10
 	// make sure this matches with version used in Argo CD's go.mod
 	github.com/argoproj/gitops-engine v0.7.1-0.20250328191959-6d3cf122b03f
 	github.com/argoproj/pkg v0.13.7-0.20230626144333-d56162821bd1
