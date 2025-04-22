@@ -69,6 +69,8 @@ github.com/argoproj/argo-cd/v2 v2.14.10 h1:sli/t0QX/aDzXnbgb8OfNJFUZXzmSAF2qtPWO
 github.com/argoproj/argo-cd/v2 v2.14.10/go.mod h1:50mfVqU+TKu2qIUwELpJ3+lmDKEuwEVj/0caQhYqDz8=
 github.com/argoproj/gitops-engine v0.7.1-0.20250328191959-6d3cf122b03f h1:T18BJdtZF/HWdkyCqcNI6kQ3SbIomn6g+AZtZtvQUjE=
 github.com/argoproj/gitops-engine v0.7.1-0.20250328191959-6d3cf122b03f/go.mod h1:WsnykM8idYRUnneeT31cM/Fq/ZsjkefCbjiD8ioCJkU=
+github.com/argoproj/gitops-engine v0.7.3 h1:0ZlRTReAJG5Y1PviQ8ZIJq/+VowxWe2uFwoXqYcbtXU=
+github.com/argoproj/gitops-engine v0.7.3/go.mod h1:pRgVpLW7pZqf7n3COJ7UcDepk4cI61LAcJd64Q3Jq/c=
 github.com/argoproj/notifications-engine v0.4.1-0.20241007194503-2fef5c9049fd h1:lOVVoK89j9Nd4+JYJiKAaMNYC1402C0jICROOfUPWn0=
 github.com/argoproj/notifications-engine v0.4.1-0.20241007194503-2fef5c9049fd/go.mod h1:N0A4sEws2soZjEpY4hgZpQS8mRIEw6otzwfkgc3g9uQ=
 github.com/argoproj/pkg v0.13.7-0.20230626144333-d56162821bd1 h1:qsHwwOJ21K2Ao0xPju1sNuqphyMnMYkyB3ZLoLtxWpo=

@@ -7,7 +7,7 @@ require (
 	github.com/ProtonMail/gopenpgp/v3 v3.1.3
 	github.com/argoproj/argo-cd/v2 v2.14.10
 	// make sure this matches with version used in Argo CD's go.mod
-	github.com/argoproj/gitops-engine v0.7.1-0.20250328191959-6d3cf122b03f
+	github.com/argoproj/gitops-engine v0.7.3
 	github.com/argoproj/pkg v0.13.7-0.20230626144333-d56162821bd1
 	github.com/cristalhq/jwt/v5 v5.4.0
 	github.com/elliotchance/pie/v2 v2.9.1
