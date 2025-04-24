@@ -1,10 +1,12 @@
 package argocd
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -1037,6 +1039,32 @@ func TestAccArgoCDApplicationSet_templatePatch(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
+func TestAccArgoCDApplicationSet_CustomNamespace(t *testing.T) {
+	name := acctest.RandomWithPrefix("appset-ns")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSetCustomNamespace(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.custom_namespace",
+						"metadata.0.uid",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.custom_namespace",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
 			},
 		},
 	})
@@ -3201,4 +3229,75 @@ resource "argocd_application_set" "template_patch" {
     }
   }
 }`
+}
+
+func testAccArgoCDApplicationSetCustomNamespace(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "custom_namespace" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "project with source namespace"
+    source_repos = ["*"]
+    source_namespaces = ["mynamespace-1"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+
+resource "argocd_application_set" "custom_namespace" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "mynamespace-1"
+  }
+
+  spec {
+    generator {
+      list {
+        elements = [
+          {
+            cluster = "in-cluster"
+          }
+        ]
+      }
+    }
+
+    template {
+      metadata {
+        name = "test"
+      }
+      spec {
+		project = argocd_project.custom_namespace.metadata[0].name
+		source {
+		  repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
+		  chart           = "redis"
+		  target_revision = "16.9.11"
+		  helm {
+		    parameter {
+		      name  = "image.tag"
+			  value = "6.2.5"
+			}
+			parameter {
+			  name  = "architecture"
+			  value = "standalone"
+			}
+			release_name = "testing"
+		  }
+		}
+
+		destination {
+		  server    = "https://kubernetes.default.svc"
+		  namespace = "mynamespace-1"
+	    }
+	  }
+    }
+  }
+}
+`, name)
 }

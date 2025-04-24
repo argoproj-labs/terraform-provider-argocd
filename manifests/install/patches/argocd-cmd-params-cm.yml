@@ -4,3 +4,5 @@ metadata:
   name: argocd-cmd-params-cm
 data:
   application.namespaces: mynamespace-*
+  applicationsetcontroller.enable.scm.providers: "false"
+  applicationsetcontroller.namespaces: "*"
