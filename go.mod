@@ -5,7 +5,7 @@ go 1.24
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/ProtonMail/gopenpgp/v3 v3.1.3
-	github.com/argoproj/argo-cd/v2 v2.14.10
+	github.com/argoproj/argo-cd/v2 v2.14.11
 	// make sure this matches with version used in Argo CD's go.mod
 	github.com/argoproj/gitops-engine v0.7.1-0.20250328191959-6d3cf122b03f
 	github.com/argoproj/pkg v0.13.7-0.20230626144333-d56162821bd1
@@ -86,7 +86,7 @@ require (
 	github.com/evanphx/json-patch v5.9.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20151013193312-d6023ce2651d // indirect
-	github.com/expr-lang/expr v1.16.9 // indirect
+	github.com/expr-lang/expr v1.17.0 // indirect
 	github.com/fatih/camelcase v1.0.0 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
