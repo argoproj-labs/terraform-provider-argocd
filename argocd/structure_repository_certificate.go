@@ -41,7 +41,8 @@ func expandRepositoryCertificate(d *schema.ResourceData) *application.Repository
 func flattenRepositoryCertificate(certificate *application.RepositoryCertificate, d *schema.ResourceData, ctx context.Context) error {
 	var r map[string]interface{}
 
-	if certificate.CertType == "ssh" {
+	switch certificate.CertType {
+	case "ssh":
 		r = map[string]interface{}{
 			"ssh": []map[string]string{
 				{
@@ -52,7 +53,7 @@ func flattenRepositoryCertificate(certificate *application.RepositoryCertificate
 				},
 			},
 		}
-	} else if certificate.CertType == "https" {
+	case "https":
 		r = map[string]interface{}{
 			"https": []map[string]string{
 				{
