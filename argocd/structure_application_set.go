@@ -856,14 +856,14 @@ func expandApplicationMatchExpressions(mes []interface{}) []application.Applicat
 }
 
 func expandApplicationSetSyncPolicyApplicationsSyncPolicy(p string) (asp application.ApplicationsSyncPolicy) {
-	switch {
-	case p == "create-only":
+	switch p {
+	case "create-only":
 		asp = application.ApplicationsSyncPolicyCreateOnly
-	case p == "create-update":
+	case "create-update":
 		asp = application.ApplicationsSyncPolicyCreateUpdate
-	case p == "create-delete":
+	case "create-delete":
 		asp = application.ApplicationsSyncPolicyCreateDelete
-	case p == "sync":
+	case "sync":
 		asp = application.ApplicationsSyncPolicySync
 	}
 
