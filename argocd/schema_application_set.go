@@ -1033,7 +1033,7 @@ func applicationSetTemplateResource(allOptional bool) *schema.Resource {
 					},
 				},
 			},
-			"spec": applicationSpecSchemaV4(allOptional),
+			"spec": applicationSpecSchemaV4(allOptional, true),
 		},
 	}
 }

@@ -1,8 +1,9 @@
 package argocd
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func clusterSchema() map[string]*schema.Schema {
@@ -226,7 +227,7 @@ func clusterSchema() map[string]*schema.Schema {
 						Description:  "Map of string keys and values that can be used to organize and categorize (scope and select) the cluster secret. May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels",
 						Optional:     true,
 						Elem:         &schema.Schema{Type: schema.TypeString},
-						ValidateFunc: validateMetadataLabels,
+						ValidateFunc: validateMetadataLabels(false),
 					},
 				},
 			},

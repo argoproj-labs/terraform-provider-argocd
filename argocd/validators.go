@@ -14,25 +14,31 @@ import (
 	utilValidation "k8s.io/apimachinery/pkg/util/validation"
 )
 
-func validateMetadataLabels(value interface{}, key string) (ws []string, es []error) {
-	m := value.(map[string]interface{})
-	for k, v := range m {
-		for _, msg := range utilValidation.IsQualifiedName(k) {
-			es = append(es, fmt.Errorf("%s (%q) %s", key, k, msg))
+func validateMetadataLabels(isAppSet bool) func(value interface{}, key string) (ws []string, es []error) {
+	return func(value interface{}, key string) (ws []string, es []error) {
+		m := value.(map[string]interface{})
+		for k, v := range m {
+			for _, msg := range utilValidation.IsQualifiedName(k) {
+				es = append(es, fmt.Errorf("%s (%q) %s", key, k, msg))
+			}
+
+			val, isString := v.(string)
+			if !isString {
+				es = append(es, fmt.Errorf("%s.%s (%#v): Expected value to be string", key, k, v))
+				return
+			}
+
+			if isAppSet && strings.HasPrefix(val, "{{") && strings.HasSuffix(val, "}}") {
+				return
+			}
+
+			for _, msg := range utilValidation.IsValidLabelValue(val) {
+				es = append(es, fmt.Errorf("%s (%q) %s", key, val, msg))
+			}
 		}
 
-		val, isString := v.(string)
-		if !isString {
-			es = append(es, fmt.Errorf("%s.%s (%#v): Expected value to be string", key, k, v))
-			return
-		}
-
-		for _, msg := range utilValidation.IsValidLabelValue(val) {
-			es = append(es, fmt.Errorf("%s (%q) %s", key, val, msg))
-		}
+		return
 	}
-
-	return
 }
 
 func validateMetadataAnnotations(value interface{}, key string) (ws []string, es []error) {

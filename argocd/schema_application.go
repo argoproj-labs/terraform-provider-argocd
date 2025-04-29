@@ -140,7 +140,7 @@ func applicationSpecSchemaV0() *schema.Schema {
 											Type:         schema.TypeMap,
 											Optional:     true,
 											Elem:         &schema.Schema{Type: schema.TypeString},
-											ValidateFunc: validateMetadataLabels,
+											ValidateFunc: validateMetadataLabels(false),
 										},
 										"common_annotations": {
 											Type:         schema.TypeMap,
@@ -520,7 +520,7 @@ func applicationSpecSchemaV1() *schema.Schema {
 											Type:         schema.TypeMap,
 											Optional:     true,
 											Elem:         &schema.Schema{Type: schema.TypeString},
-											ValidateFunc: validateMetadataLabels,
+											ValidateFunc: validateMetadataLabels(false),
 										},
 										"common_annotations": {
 											Type:         schema.TypeMap,
@@ -951,7 +951,7 @@ func applicationSpecSchemaV2() *schema.Schema {
 											Description:  "List of additional labels to add to rendered manifests.",
 											Optional:     true,
 											Elem:         &schema.Schema{Type: schema.TypeString},
-											ValidateFunc: validateMetadataLabels,
+											ValidateFunc: validateMetadataLabels(false),
 										},
 										"common_annotations": {
 											Type:         schema.TypeMap,
@@ -1232,7 +1232,7 @@ func applicationSpecSchemaV3() *schema.Schema {
 	return applicationSpecSchemaV2()
 }
 
-func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
+func applicationSpecSchemaV4(allOptional, isAppSet bool) *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
 		MinItems:    1,
@@ -1432,7 +1432,7 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 											Description:  "List of additional labels to add to rendered manifests.",
 											Optional:     true,
 											Elem:         &schema.Schema{Type: schema.TypeString},
-											ValidateFunc: validateMetadataLabels,
+											ValidateFunc: validateMetadataLabels(false),
 										},
 										"common_annotations": {
 											Type:         schema.TypeMap,
@@ -1784,7 +1784,7 @@ func applicationSpecSchemaV4(allOptional bool) *schema.Schema {
 											Description:  "Labels to apply to the namespace.",
 											Optional:     true,
 											Elem:         &schema.Schema{Type: schema.TypeString},
-											ValidateFunc: validateMetadataLabels,
+											ValidateFunc: validateMetadataLabels(isAppSet),
 										},
 									},
 								},

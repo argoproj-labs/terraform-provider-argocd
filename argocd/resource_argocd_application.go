@@ -30,7 +30,7 @@ func resourceArgoCDApplication() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("applications.argoproj.io"),
-			"spec":     applicationSpecSchemaV4(false),
+			"spec":     applicationSpecSchemaV4(false, false),
 			"wait": {
 				Type:        schema.TypeBool,
 				Description: "Upon application creation or update, wait for application health/sync status to be healthy/Synced, upon application deletion, wait for application to be removed, when set to true. Wait timeouts are controlled by Terraform Create, Update and Delete resource timeouts (all default to 5 minutes). **Note**: if ArgoCD decides not to sync an application (e.g. because the project to which the application belongs has a `sync_window` applied) then you will experience an expected timeout event if `wait = true`.",
