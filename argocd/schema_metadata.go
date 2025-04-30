@@ -65,5 +65,11 @@ func metadataFields(objectName string) map[string]*schema.Schema {
 			Description: fmt.Sprintf("The unique in time and space value for this %s. More info: http://kubernetes.io/docs/user-guide/identifiers#uids", objectName),
 			Computed:    true,
 		},
+		"finalizers": {
+			Type:        schema.TypeList,
+			Description: "List of finalizers for the resource.",
+			Optional:    true,
+			Elem:        &schema.Schema{Type: schema.TypeString},
+		},
 	}
 }
