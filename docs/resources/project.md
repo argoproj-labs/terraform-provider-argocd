@@ -153,6 +153,7 @@ Required:
 Optional:
 
 - `annotations` (Map of String) An unstructured key value map stored with the appproject that may be used to store arbitrary metadata. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+- `finalizers` (List of String) List of finalizers attached to the appproject. Finalizers are used to ensure proper resource cleanup. Must be empty before the object is deleted from the registry.
 - `labels` (Map of String) Map of string keys and values that can be used to organize and categorize (scope and select) the appproject. May match selectors of replication controllers and services. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
 - `namespace` (String) Namespace of the appproject, must be unique. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
 
