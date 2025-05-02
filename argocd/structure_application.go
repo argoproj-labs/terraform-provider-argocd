@@ -272,23 +272,23 @@ func expandApplicationSourceKustomizePatchTarget(in []interface{}) *application.
 	t := in[0].(map[string]interface{})
 
 	if group, ok := t["group"]; ok {
-		result.KustomizeResId.KustomizeGvk.Group = group.(string)
+		result.Group = group.(string)
 	}
 
 	if version, ok := t["version"]; ok {
-		result.KustomizeResId.KustomizeGvk.Version = version.(string)
+		result.Version = version.(string)
 	}
 
 	if kind, ok := t["kind"]; ok {
-		result.KustomizeResId.KustomizeGvk.Kind = kind.(string)
+		result.Kind = kind.(string)
 	}
 
 	if name, ok := t["name"]; ok {
-		result.KustomizeResId.Name = name.(string)
+		result.Name = name.(string)
 	}
 
 	if namespace, ok := t["namespace"]; ok {
-		result.KustomizeResId.Namespace = namespace.(string)
+		result.Namespace = namespace.(string)
 	}
 
 	if label_selector, ok := t["label_selector"]; ok {
@@ -469,15 +469,16 @@ func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, error
 	}
 
 	if _mnm, ok := p["managed_namespace_metadata"].([]interface{}); ok && len(_mnm) > 0 {
-		mnm := _mnm[0].(map[string]interface{})
-		syncPolicy.ManagedNamespaceMetadata = &application.ManagedNamespaceMetadata{}
+		if mnm, ok := _mnm[0].(map[string]interface{}); ok {
+			syncPolicy.ManagedNamespaceMetadata = &application.ManagedNamespaceMetadata{}
 
-		if a, ok := mnm["annotations"]; ok {
-			syncPolicy.ManagedNamespaceMetadata.Annotations = expandStringMap(a.(map[string]interface{}))
-		}
+			if a, ok := mnm["annotations"]; ok {
+				syncPolicy.ManagedNamespaceMetadata.Annotations = expandStringMap(a.(map[string]interface{}))
+			}
 
-		if l, ok := mnm["labels"]; ok {
-			syncPolicy.ManagedNamespaceMetadata.Labels = expandStringMap(l.(map[string]interface{}))
+			if l, ok := mnm["labels"]; ok {
+				syncPolicy.ManagedNamespaceMetadata.Labels = expandStringMap(l.(map[string]interface{}))
+			}
 		}
 	}
 
@@ -833,11 +834,11 @@ func flattenApplicationSourceKustomize(as []*application.ApplicationSourceKustom
 				if p.Target != nil {
 					patch["target"] = []map[string]interface{}{
 						{
-							"group":               p.Target.KustomizeResId.KustomizeGvk.Group,
-							"version":             p.Target.KustomizeResId.KustomizeGvk.Version,
-							"kind":                p.Target.KustomizeResId.KustomizeGvk.Kind,
-							"name":                p.Target.KustomizeResId.Name,
-							"namespace":           p.Target.KustomizeResId.Namespace,
+							"group":               p.Target.Group,
+							"version":             p.Target.Version,
+							"kind":                p.Target.Kind,
+							"name":                p.Target.Name,
+							"namespace":           p.Target.Namespace,
 							"label_selector":      p.Target.LabelSelector,
 							"annotation_selector": p.Target.AnnotationSelector,
 						},

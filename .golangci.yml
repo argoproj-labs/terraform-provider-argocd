@@ -1,21 +1,6 @@
-issues:
-  exclude-rules:
-    - linters:
-        - paralleltest
-      text: "Function TestAcc"
-    - linters:
-        - tparallel
-      text: "TestAcc"
-    - linters:
-        - unparam
-      text: "always receives"
-    - path: _test\.go
-      linters:
-        - contextcheck
-  max-same-issues: 0
-
+version: "2"
 linters:
-  disable-all: true
+  default: none
   enable:
     - asasalint
     - asciicheck
@@ -29,8 +14,6 @@ linters:
     - errorlint
     - goconst
     - gocritic
-    - gofmt
-    - gosimple
     - govet
     - ineffassign
     - makezero
@@ -42,75 +25,117 @@ linters:
     - paralleltest
     - predeclared
     - staticcheck
-    - stylecheck
     - tparallel
-    - typecheck
     - unconvert
     - unparam
     - unused
     - usetesting
     - whitespace
     - wsl
-
-linters-settings:
-  dogsled:
-    max-blank-identifiers: 3
-  errcheck:
-    exclude-functions:
-      - github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:ForceNew|Set
-      - fmt:.*
-      - io:Close
-  errorlint:
-    errorf: false
-  goconst:
-    ignore-tests: true
-    min-occurrences: 6
-  gocritic:
-    enabled-tags:
-      - diagnostic
-    disabled-tags:
-      - style
-      - performance
-      - experimental
-      - opinionated
-  mnd:
-    checks:
-      - argument
-    ignored-functions:
-      # Terraform Plugin SDK
-      - resource.Retry
-      - schema.DefaultTimeout
-      - validation.*
-      # Terraform Plugin Framework
-      - int64validator.*
-      - listvalidator.*
-      - stringvalidator.*
-      - SetDefaultCreateTimeout
-      - SetDefaultReadTimeout
-      - SetDefaultUpdateTimeout
-      - SetDefaultDeleteTimeout
-      # Go
-      - make
-      - strconv.FormatFloat
-      - strconv.FormatInt
-      - strconv.ParseFloat
-      - strconv.ParseInt
-      - strings.SplitN
-  nolintlint:
-    allow-unused: false
-    require-explanation: true
-    require-specific: true
-    allow-no-explanation:
-      - gomnd
-      - paralleltest
-      - tparallel
-      - unparam
-  predeclared:
-    ignore: cap,close,copy,delete,len,new
-  staticcheck:
-    checks: ["all", "-SA1019"]
-  stylecheck:
-    checks: ["all", "-ST1005", "-ST1003"]
-
-run:
-  timeout: 5m
+  settings:
+    dogsled:
+      max-blank-identifiers: 3
+    errcheck:
+      exclude-functions:
+        - github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:ForceNew|Set
+        - fmt:.*
+        - io:Close
+    errorlint:
+      errorf: false
+    goconst:
+      min-occurrences: 6
+    gocritic:
+      enabled-tags:
+        - diagnostic
+      disabled-tags:
+        - style
+        - performance
+        - experimental
+        - opinionated
+    mnd:
+      checks:
+        - argument
+      ignored-functions:
+        - resource.Retry
+        - schema.DefaultTimeout
+        - validation.*
+        - int64validator.*
+        - listvalidator.*
+        - stringvalidator.*
+        - SetDefaultCreateTimeout
+        - SetDefaultReadTimeout
+        - SetDefaultUpdateTimeout
+        - SetDefaultDeleteTimeout
+        - make
+        - strconv.FormatFloat
+        - strconv.FormatInt
+        - strconv.ParseFloat
+        - strconv.ParseInt
+        - strings.SplitN
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+      allow-no-explanation:
+        - gomnd
+        - paralleltest
+        - tparallel
+        - unparam
+      allow-unused: false
+    predeclared:
+      ignore:
+        - cap
+        - close
+        - copy
+        - delete
+        - len
+        - new
+    staticcheck:
+      checks:
+        - -SA1019
+        - -ST1005
+        - all
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - paralleltest
+        text: Function TestAcc
+      - linters:
+          - tparallel
+        text: TestAcc
+      - linters:
+          - unparam
+        text: always receives
+      - linters:
+          - contextcheck
+        path: _test\.go
+      - linters:
+          - goconst
+        path: (.+)_test\.go
+      - linters:
+          - staticcheck
+        text: "ST1003:"
+      - linters:
+        - staticcheck
+        text: "SA1019:"
+        path: internal/types/pgp_public_key.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  max-same-issues: 0
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

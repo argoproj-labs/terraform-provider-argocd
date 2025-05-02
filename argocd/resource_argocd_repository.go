@@ -85,6 +85,7 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 	tokenMutexConfiguration.RLock()
 	r, err := si.RepositoryClient.Get(ctx, &repository.RepoQuery{
 		Repo:         d.Id(),
+		AppProject:   d.State().Attributes["project"],
 		ForceRefresh: true,
 	})
 	tokenMutexConfiguration.RUnlock()
@@ -155,7 +156,7 @@ func resourceArgoCDRepositoryDelete(ctx context.Context, d *schema.ResourceData,
 	tokenMutexConfiguration.Lock()
 	_, err := si.RepositoryClient.DeleteRepository(
 		ctx,
-		&repository.RepoQuery{Repo: d.Id()},
+		&repository.RepoQuery{Repo: d.Id(), AppProject: d.State().Attributes["project"]},
 	)
 	tokenMutexConfiguration.Unlock()
 

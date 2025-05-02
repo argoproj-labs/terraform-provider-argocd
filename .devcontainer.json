@@ -31,7 +31,5 @@
   },
   "forwardPorts": [
     8080 // the "hard-coded" port for forwarded argo-cd"
-  ],
-  // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "scripts/testacc_prepare_env.sh" // pre-create the kind cluster with argocd installed
+  ]
 }

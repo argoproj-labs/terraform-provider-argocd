@@ -37,7 +37,7 @@ func metadataFields(objectName string) map[string]*schema.Schema {
 			Description:  fmt.Sprintf("Map of string keys and values that can be used to organize and categorize (scope and select) the %s. May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels", objectName),
 			Optional:     true,
 			Elem:         &schema.Schema{Type: schema.TypeString},
-			ValidateFunc: validateMetadataLabels,
+			ValidateFunc: validateMetadataLabels(false),
 		},
 		"name": {
 			Type:         schema.TypeString,

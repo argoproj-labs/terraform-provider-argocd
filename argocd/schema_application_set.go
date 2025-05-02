@@ -156,6 +156,7 @@ func generatorResourceV0(level int) *schema.Resource {
 				"list":                      applicationSetListGeneratorSchemaV0(),
 				"matrix":                    applicationSetMatrixGeneratorSchemaV0(level),
 				"merge":                     applicationSetMergeGeneratorSchemaV0(level),
+				"plugin":                    applicationSetPluginGeneratorSchemaV0(),
 				"pull_request":              applicationSetPullRequestGeneratorSchemaV0(),
 				"scm_provider":              applicationSetSCMProviderGeneratorSchemaV0(),
 				"selector": {
@@ -173,6 +174,7 @@ func generatorResourceV0(level int) *schema.Resource {
 
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"plugin":                    applicationSetPluginGeneratorSchemaV0(),
 			"cluster_decision_resource": applicationSetClusterDecisionResourceGeneratorSchemaV0(),
 			"clusters":                  applicationSetClustersGeneratorSchemaV0(),
 			"git":                       applicationSetGitGeneratorSchemaV0(),
@@ -273,6 +275,57 @@ func applicationSetClusterDecisionResourceGeneratorSchemaV0() *schema.Schema {
 				"values": {
 					Type:        schema.TypeMap,
 					Description: "Arbitrary string key-value pairs which are passed directly as parameters to the template.",
+					Optional:    true,
+					Elem:        &schema.Schema{Type: schema.TypeString},
+				},
+			},
+		},
+	}
+}
+
+func applicationSetPluginGeneratorSchemaV0() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Description: "[Plugin generators](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Plugin/) generates parameters using a custom plugin.",
+		Optional:    true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"config_map_ref": {
+					Type:        schema.TypeString,
+					Description: "ConfigMap with the plugin configuration needed to retrieve the data.",
+					Required:    true,
+				},
+				"requeue_after_seconds": {
+					Type:        schema.TypeString,
+					Description: "How often to check for changes (in seconds). Default: 3min.",
+					Optional:    true,
+				},
+				"input": {
+					Type:        schema.TypeList,
+					Description: "The input parameters used for calling the plugin.",
+					Optional:    true,
+					MaxItems:    1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"parameters": {
+								Type:        schema.TypeMap,
+								Description: "Arbitrary key-value pairs which are passed directly as parameters to the plugin. A current limitation is that this cannot fully express the parameters that can be accepted by the plugin generator.",
+								Required:    true,
+								Elem:        &schema.Schema{Type: schema.TypeString},
+							},
+						},
+					},
+				},
+				"template": {
+					Type:        schema.TypeList,
+					Description: "Generator template. Used to override the values of the spec-level template.",
+					Optional:    true,
+					MaxItems:    1,
+					Elem:        applicationSetTemplateResource(true),
+				},
+				"values": {
+					Type:        schema.TypeMap,
+					Description: "Arbitrary string key-value pairs to pass to the template via the values field of the git generator.",
 					Optional:    true,
 					Elem:        &schema.Schema{Type: schema.TypeString},
 				},
@@ -980,7 +1033,7 @@ func applicationSetTemplateResource(allOptional bool) *schema.Resource {
 					},
 				},
 			},
-			"spec": applicationSpecSchemaV4(allOptional),
+			"spec": applicationSpecSchemaV4(allOptional, true),
 		},
 	}
 }
