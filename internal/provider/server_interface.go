@@ -21,6 +21,7 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repocreds"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repository"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/session"
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient/settings"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/version"
 	"github.com/argoproj/argo-cd/v2/util/io"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -44,6 +45,7 @@ type ServerInterface struct {
 	RepoCredsClient      repocreds.RepoCredsServiceClient
 	RepositoryClient     repository.RepositoryServiceClient
 	SessionClient        session.SessionServiceClient
+	SettingsClient       settings.SettingsServiceClient
 
 	ServerVersion        *semver.Version
 	ServerVersionMessage *version.VersionMessage
@@ -127,6 +129,11 @@ func (si *ServerInterface) InitClients(ctx context.Context) diag.Diagnostics {
 	_, si.SessionClient, err = ac.NewSessionClient()
 	if err != nil {
 		diags.Append(diagnostics.Error("failed to initialize session client", err)...)
+	}
+
+	_, si.SettingsClient, err = ac.NewSettingsClient()
+	if err != nil {
+		diags.Append(diagnostics.Error("failed to initialize settings client", err)...)
 	}
 
 	acCloser, versionClient, err := ac.NewVersionClient()
