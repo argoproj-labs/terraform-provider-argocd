@@ -1585,6 +1585,12 @@ func flattenNestedGenerator(g application.ApplicationSetNestedGenerator) (map[st
 		generator["scm_provider"] = flattenApplicationSetSCMProviderGenerator(g.SCMProvider)
 	} else if g.PullRequest != nil {
 		generator["pull_request"] = flattenApplicationSetPullRequestGenerator(g.PullRequest)
+	} else if g.Plugin != nil {
+		plugin, err := flattenApplicationSetPluginGenerator(g.Plugin)
+		if err != nil {
+			return nil, err
+		}
+		generator["plugin"] = plugin
 	}
 
 	if g.Selector != nil {
