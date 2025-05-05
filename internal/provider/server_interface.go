@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -21,6 +22,7 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repocreds"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repository"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/session"
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient/settings"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/version"
 	"github.com/argoproj/argo-cd/v2/util/io"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -44,6 +46,7 @@ type ServerInterface struct {
 	RepoCredsClient      repocreds.RepoCredsServiceClient
 	RepositoryClient     repository.RepositoryServiceClient
 	SessionClient        session.SessionServiceClient
+	SettingsClient       settings.SettingsServiceClient
 
 	ServerVersion        *semver.Version
 	ServerVersionMessage *version.VersionMessage
@@ -129,6 +132,11 @@ func (si *ServerInterface) InitClients(ctx context.Context) diag.Diagnostics {
 		diags.Append(diagnostics.Error("failed to initialize session client", err)...)
 	}
 
+	_, si.SettingsClient, err = ac.NewSettingsClient()
+	if err != nil {
+		diags.Append(diagnostics.Error("failed to initialize settings client", err)...)
+	}
+
 	acCloser, versionClient, err := ac.NewVersionClient()
 	if err != nil {
 		diags.Append(diagnostics.Error("failed to initialize version client", err)...)
@@ -159,10 +167,44 @@ func (si *ServerInterface) InitClients(ctx context.Context) diag.Diagnostics {
 	return diags
 }
 
+// func (si *ServerInterface) IsSettingSupported(feature features.Feature) bool {
+// 	set, _ := si.SettingsClient.Get(context.Background(), &settings.SettingsQuery{})
+// 	set.Descriptor()
+// }
+
 // Checks that a specific feature is available for the current ArgoCD server version.
 // 'feature' argument must match one of the predefined feature* constants.
 func (si *ServerInterface) IsFeatureSupported(feature features.Feature) bool {
 	fc, ok := features.ConstraintsMap[feature]
+	set, err := si.SettingsClient.Get(context.Background(), &settings.SettingsQuery{})
+	if err != nil {
+		tflog.Error(context.Background(), fmt.Sprintf("error checking argocd settings: %v", err))
+		return false
+	}
+	settingsJSON, err := json.Marshal(set)
+	if err != nil {
+		tflog.Error(context.Background(), fmt.Sprintf("error marshalling argocd settings: %v", err))
+		return false
+	}
+	var settings map[string]interface{}
+	if err := json.Unmarshal(settingsJSON, &settings); err != nil {
+		tflog.Error(context.Background(), fmt.Sprintf("error unmarshalling argocd settings: %v", err))
+		return false
+	}
+
+	if fc.RequiredSettings != nil {
+		for _, rs := range *fc.RequiredSettings {
+			result, err := rs.Search(settings)
+			if err != nil {
+				tflog.Error(context.Background(), fmt.Sprintf("error evaluating settings check expression '%v': %v", rs, err))
+				return false
+			}
+			if result == nil || !result.(bool) {
+				tflog.Debug(context.Background(), fmt.Sprintf("settings check expression '%v' evaluated to false", rs))
+				return false
+			}
+		}
+	}
 
 	return ok && fc.MinVersion.Compare(si.ServerVersion) != 1
 }
