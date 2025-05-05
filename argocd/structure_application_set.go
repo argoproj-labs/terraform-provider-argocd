@@ -6,10 +6,11 @@ import (
 	"reflect"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
-	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 )
 
 func expandApplicationSet(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool, featureApplicationSetTemplatePatch bool) (metadata meta.ObjectMeta, spec application.ApplicationSetSpec, err error) {
@@ -285,6 +286,7 @@ func expandApplicationSetMatrixGenerator(mg interface{}, featureMultipleApplicat
 			Clusters:                g.Clusters,
 			Git:                     g.Git,
 			List:                    g.List,
+			Plugin:                  g.Plugin,
 			PullRequest:             g.PullRequest,
 			SCMProvider:             g.SCMProvider,
 		}
@@ -354,6 +356,7 @@ func expandApplicationSetMergeGenerator(mg interface{}, featureMultipleApplicati
 			Clusters:                g.Clusters,
 			Git:                     g.Git,
 			List:                    g.List,
+			Plugin:                  g.Plugin,
 			PullRequest:             g.PullRequest,
 			SCMProvider:             g.SCMProvider,
 		}
@@ -1582,6 +1585,13 @@ func flattenNestedGenerator(g application.ApplicationSetNestedGenerator) (map[st
 		generator["scm_provider"] = flattenApplicationSetSCMProviderGenerator(g.SCMProvider)
 	} else if g.PullRequest != nil {
 		generator["pull_request"] = flattenApplicationSetPullRequestGenerator(g.PullRequest)
+	} else if g.Plugin != nil {
+		plugin, err := flattenApplicationSetPluginGenerator(g.Plugin)
+		if err != nil {
+			return nil, err
+		}
+
+		generator["plugin"] = plugin
 	}
 
 	if g.Selector != nil {

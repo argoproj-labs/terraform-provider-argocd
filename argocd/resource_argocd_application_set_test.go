@@ -263,6 +263,46 @@ func TestAccArgoCDApplicationSet_matrix(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplicationSet_matrixPluginGenerator(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSet_matrixPluginGenerator(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix-plugin_generator",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix-plugin_generator",
+						"spec.0.generator.0.matrix.0.generator.1.clusters.0.selector.0.match_labels.%",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix-plugin_generator",
+						"spec.0.generator.0.matrix.0.generator.0.plugin.0.requeue_after_seconds",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix-plugin_generator",
+						"spec.0.generator.0.matrix.0.generator.0.plugin.0.config_map_ref",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix-plugin_generator",
+						"spec.0.generator.0.matrix.0.generator.0.plugin.0.input.0.parameters.key1",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.matrix-plugin_generator",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplicationSet_matrixGitPathParamPrefix(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
@@ -1329,6 +1369,65 @@ resource "argocd_application_set" "matrix" {
 					}
 				}
 
+				generator {
+					clusters{
+						selector{
+							match_labels = {
+								"argocd.argoproj.io/secret-type" = "cluster"
+							}
+						}
+					}
+				}
+			}
+		}
+
+		template {
+			metadata {
+				name = "{{path.basename}}-{{name}}"
+			}
+
+			spec {
+				project = "default"
+
+				source {
+					repo_url        = "https://github.com/argoproj/argo-cd.git"
+					target_revision = "HEAD"
+					path            = "{{path}}"
+				}
+
+				destination {
+					server    = "{{server}}"
+					namespace = "{{path.basename}}"
+				}
+			}
+		}
+	}
+}`
+}
+
+func testAccArgoCDApplicationSet_matrixPluginGenerator() string {
+	return `
+resource "argocd_application_set" "matrix-plugin_generator" {
+	metadata {
+		name = "matrix-plugin-generator"
+	}
+
+	spec {
+		generator {
+			matrix {
+				generator {
+					plugin {
+						config_map_ref = "plugin"
+		
+						input {
+							parameters = {
+								key1 = "value1"
+							}
+						}
+		
+						requeue_after_seconds = 30
+					}
+				}
 				generator {
 					clusters{
 						selector{
