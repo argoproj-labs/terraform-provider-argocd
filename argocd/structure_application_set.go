@@ -1590,6 +1590,7 @@ func flattenNestedGenerator(g application.ApplicationSetNestedGenerator) (map[st
 		if err != nil {
 			return nil, err
 		}
+
 		generator["plugin"] = plugin
 	}
 
