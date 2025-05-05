@@ -1409,7 +1409,7 @@ func testAccArgoCDApplicationSet_matrixPluginGenerator() string {
 	return `
 resource "argocd_application_set" "matrix-plugin_generator" {
 	metadata {
-		name = "matrix"
+		name = "matrix-plugin-generator"
 	}
 
 	spec {
