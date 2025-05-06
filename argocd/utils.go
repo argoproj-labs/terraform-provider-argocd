@@ -8,7 +8,7 @@ import (
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 
-	"github.com/argoproj/argo-cd/v2/util/rbac"
+	"github.com/argoproj/argo-cd/v3/util/rbac"
 
 	fwdiag "github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
