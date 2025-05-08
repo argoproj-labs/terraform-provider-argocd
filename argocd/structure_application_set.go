@@ -10,7 +10,7 @@ import (
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	application "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 )
 
 func expandApplicationSet(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool, featureApplicationSetTemplatePatch bool) (metadata meta.ObjectMeta, spec application.ApplicationSetSpec, err error) {

@@ -10,8 +10,8 @@ import (
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
-	applicationClient "github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
-	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	applicationClient "github.com/argoproj/argo-cd/v3/pkg/apiclient/application"
+	application "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/gitops-engine/pkg/health"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
