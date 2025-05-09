@@ -26,7 +26,15 @@ func resourceArgoCDApplicationSet() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("applicationsets.argoproj.io"),
-			"spec":     applicationSetSpecSchemaV0(),
+			"spec":     applicationSetSpecSchemaV1(),
+		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceArgoCDApplicationV1().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceArgoCDApplicationSetStateUpgradeV0,
+				Version: 0,
+			},
 		},
 	}
 }
