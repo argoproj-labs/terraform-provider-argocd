@@ -83,7 +83,7 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	d.SetId(as.Name)
+	d.SetId(fmt.Sprintf("%s:%s", as.Name, objectMeta.Namespace))
 
 	return resourceArgoCDApplicationSetRead(ctx, d, meta)
 }
@@ -94,10 +94,13 @@ func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceDat
 		return pluginSDKDiags(diags)
 	}
 
-	name := d.Id()
+	ids := strings.Split(d.Id(), ":")
+	appSetName := ids[0]
+	namespace := ids[1]
 
 	appSet, err := si.ApplicationSetClient.Get(ctx, &applicationset.ApplicationSetGetQuery{
-		Name: name,
+		Name:            appSetName,
+		AppsetNamespace: namespace,
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "NotFound") {
@@ -105,12 +108,12 @@ func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceDat
 			return diag.Diagnostics{}
 		}
 
-		return argoCDAPIError("read", "application set", name, err)
+		return argoCDAPIError("read", "application set", appSetName, err)
 	}
 
 	err = flattenApplicationSet(appSet, d)
 	if err != nil {
-		return errorToDiagnostics(fmt.Sprintf("failed to flatten application set %s", name), err)
+		return errorToDiagnostics(fmt.Sprintf("failed to flatten application set %s", appSetName), err)
 	}
 
 	return nil
@@ -172,12 +175,15 @@ func resourceArgoCDApplicationSetDelete(ctx context.Context, d *schema.ResourceD
 		return pluginSDKDiags(diags)
 	}
 
-	_, err := si.ApplicationSetClient.Delete(ctx, &applicationset.ApplicationSetDeleteRequest{
-		Name: d.Id(),
-	})
+	ids := strings.Split(d.Id(), ":")
+	appSetName := ids[0]
+	namespace := ids[1]
 
-	if err != nil && !strings.Contains(err.Error(), "NotFound") {
-		return argoCDAPIError("delete", "application set", d.Id(), err)
+	if _, err := si.ApplicationSetClient.Delete(ctx, &applicationset.ApplicationSetDeleteRequest{
+		Name:            appSetName,
+		AppsetNamespace: namespace,
+	}); err != nil && !strings.Contains(err.Error(), "NotFound") {
+		return argoCDAPIError("delete", "application set", appSetName, err)
 	}
 
 	d.SetId("")
