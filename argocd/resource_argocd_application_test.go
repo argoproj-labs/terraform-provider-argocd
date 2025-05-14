@@ -1075,12 +1075,12 @@ func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_application.multiple_sources",
 						"spec.0.source.0.chart",
-						"elasticsearch",
+						"opensearch",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.multiple_sources",
 						"spec.0.source.1.path",
-						"guestbook",
+						"test/e2e/testdata/guestbook",
 					),
 				),
 			},
@@ -1627,8 +1627,8 @@ resource "argocd_application" "directory" {
 
   spec {
     source {
-      repo_url        = "https://github.com/argoproj/argocd-example-apps"
-      path            = "guestbook"
+      repo_url        = "https://github.com/argoproj/argo-cd"
+      path            = "test/e2e/testdata/guestbook"
       target_revision = "HEAD"
       directory {
         recurse = %s
@@ -1657,8 +1657,8 @@ resource "argocd_application" "directory" {
 
   spec {
     source {
-      repo_url        = "https://github.com/argoproj/argocd-example-apps"
-      path            = "guestbook"
+      repo_url        = "https://github.com/argoproj/argo-cd"
+      path            = "test/e2e/testdata/guestbook"
       target_revision = "HEAD"
       directory {}
     }
@@ -1685,8 +1685,8 @@ resource "argocd_application" "directory" {
 
   spec {
     source {
-      repo_url        = "https://github.com/argoproj/argocd-example-apps"
-      path            = "guestbook"
+      repo_url        = "https://github.com/argoproj/argo-cd"
+      path            = "test/e2e/testdata/guestbook"
       target_revision = "HEAD"
       directory {
         recurse = true
@@ -2076,8 +2076,8 @@ resource "argocd_application" "info" {
       value = "%s"
     }
     source {
-      repo_url        = "https://github.com/argoproj/argocd-example-apps"
-      path            = "guestbook"
+      repo_url        = "https://github.com/argoproj/argo-cd"
+      path            = "test/e2e/testdata/guestbook"
       target_revision = "HEAD"
     }
 
@@ -2106,8 +2106,8 @@ resource "argocd_application" "info" {
       value = "%s"
     }
     source {
-      repo_url        = "https://github.com/argoproj/argocd-example-apps"
-      path            = "guestbook"
+      repo_url        = "https://github.com/argoproj/argo-cd"
+      path            = "test/e2e/testdata/guestbook"
       target_revision = "HEAD"
     }
 
@@ -2136,8 +2136,8 @@ resource "argocd_application" "info" {
       name = "%s"
     }
     source {
-      repo_url        = "https://github.com/argoproj/argocd-example-apps"
-      path            = "guestbook"
+      repo_url        = "https://github.com/argoproj/argo-cd"
+      path            = "test/e2e/testdata/guestbook"
       target_revision = "HEAD"
     }
 
@@ -2165,8 +2165,8 @@ resource "argocd_application" "info" {
     info {
     }
     source {
-      repo_url        = "https://github.com/argoproj/argocd-example-apps"
-      path            = "guestbook"
+      repo_url        = "https://github.com/argoproj/argo-cd"
+      path            = "test/e2e/testdata/guestbook"
       target_revision = "HEAD"
     }
 
@@ -2192,8 +2192,8 @@ resource "argocd_application" "info" {
 
   spec {
     source {
-      repo_url        = "https://github.com/argoproj/argocd-example-apps"
-      path            = "guestbook"
+      repo_url        = "https://github.com/argoproj/argo-cd"
+      path            = "test/e2e/testdata/guestbook"
       target_revision = "HEAD"
     }
 
@@ -2347,14 +2347,36 @@ resource "argocd_application" "multiple_sources" {
     project = "default" 
 	
 	source {
-		repo_url        = "https://helm.elastic.co"
-		chart           = "elasticsearch"
-		target_revision = "8.5.1"
+		repo_url        = "https://opensearch-project.github.io/helm-charts"
+		chart           = "opensearch"
+		target_revision = "3.0.0"
+		helm {
+			parameter {
+				name  = "replicas"
+				value = "1"
+			}
+
+			parameter {
+				name = "singleNode"
+				value = "true"
+			}
+
+			parameter {
+				name = "persistence.enabled"
+				value = "false"
+			}
+
+			values = <<-EOT
+			  extraEnvs:
+			    - name: "DISABLE_SECURITY_PLUGIN"
+			      value: "true"
+			EOT
+		}
 	}
 
 	source {
-		repo_url        = "https://github.com/argoproj/argocd-example-apps.git"
-		path            = "guestbook"
+		repo_url        = "https://github.com/argoproj/argo-cd.git"
+		path            = "test/e2e/testdata/guestbook"
 		target_revision = "HEAD"
 	}
 
