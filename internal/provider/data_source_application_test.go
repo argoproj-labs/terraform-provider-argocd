@@ -69,9 +69,9 @@ resource "argocd_application" "foo" {
 		revision_history_limit = 1
 	
 		source {
-			repo_url        = "https://helm.elastic.co"
-			chart           = "elasticsearch"
-			target_revision = "8.5.1"
+			repo_url        = "https://opensearch-project.github.io/helm-charts"
+			chart           = "opensearch"
+			target_revision = "3.0.0"
 
 			helm {
 				parameter {
@@ -80,20 +80,26 @@ resource "argocd_application" "foo" {
 				}
 	
 				parameter {
-					name = "minimumMasterNodes"
-					value = "1"
+					name = "singleNode"
+					value = "true"
 				}
-	
+
 				parameter {
 					name = "persistence.enabled"
 					value = "false"
 				}
+
+				values = <<-EOT
+				  extraEnvs:
+				    - name: "DISABLE_SECURITY_PLUGIN"
+				      value: "true"
+				EOT
 			}
 		}
 	
 		source {
-			repo_url        = "https://github.com/argoproj/argocd-example-apps.git"
-			path            = "guestbook"
+			repo_url        = "https://github.com/argoproj/argo-cd.git"
+			path            = "test/e2e/testdata/guestbook"
 			target_revision = "HEAD"
 		}
 
@@ -136,11 +142,11 @@ resource "argocd_application" "foo" {
 					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.info.0.value", "foo"),
 					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.project", "foo"),
 					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.revision_history_limit", "1"),
-					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.source.0.repo_url", "https://helm.elastic.co"),
-					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.source.0.chart", "elasticsearch"),
-					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.source.0.target_revision", "8.5.1"),
-					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.source.1.repo_url", "https://github.com/argoproj/argocd-example-apps.git"),
-					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.source.1.path", "guestbook"),
+					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.source.0.repo_url", "https://opensearch-project.github.io/helm-charts"),
+					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.source.0.chart", "opensearch"),
+					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.source.0.target_revision", "3.0.0"),
+					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.source.1.repo_url", "https://github.com/argoproj/argo-cd.git"),
+					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.source.1.path", "test/e2e/testdata/guestbook"),
 					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.source.1.target_revision", "HEAD"),
 					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.sync_policy.0.automated.0.allow_empty", "true"),
 					resource.TestCheckResourceAttr("argocd_application.foo", "spec.0.sync_policy.0.automated.0.prune", "true"),
@@ -177,11 +183,11 @@ data "argocd_application" "foo" {
 					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.info.value", "foo"),
 					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.project", "foo"),
 					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.revision_history_limit", "1"),
-					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sources.0.repo_url", "https://helm.elastic.co"),
-					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sources.0.chart", "elasticsearch"),
-					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sources.0.target_revision", "8.5.1"),
-					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sources.1.repo_url", "https://github.com/argoproj/argocd-example-apps.git"),
-					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sources.1.path", "guestbook"),
+					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sources.0.repo_url", "https://opensearch-project.github.io/helm-charts"),
+					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sources.0.chart", "opensearch"),
+					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sources.0.target_revision", "3.0.0"),
+					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sources.1.repo_url", "https://github.com/argoproj/argo-cd.git"),
+					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sources.1.path", "test/e2e/testdata/guestbook"),
 					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sources.1.target_revision", "HEAD"),
 					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sync_policy.automated.allow_empty", "true"),
 					resource.TestCheckResourceAttr("data.argocd_application.foo", "spec.sync_policy.automated.prune", "true"),

@@ -1089,9 +1089,9 @@ resource "argocd_application_set" "clusters" {
 
 			spec {
 				source {
-					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
-					path            = "guestbook"
+					path            = "test/e2e/testdata/guestbook"
 				}
 
 				destination {
@@ -1129,9 +1129,9 @@ resource "argocd_application_set" "clusters_selector" {
 
 			spec {
 				source {
-					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
-					path = "guestbook"
+					path            = "test/e2e/testdata/guestbook"
 				}
 
 				destination {
@@ -1182,9 +1182,9 @@ resource "argocd_application_set" "cluster_decision_resource" {
 
 			spec {
 				source {
-					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
-					path            = "guestbook"
+					path            = "test/e2e/testdata/guestbook"
 				}
 
 				destination {
@@ -2983,9 +2983,9 @@ resource "argocd_application_set" "go_template" {
 
 			spec {
 				source {
-					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
-					path            = "guestbook"
+					path            = "test/e2e/testdata/guestbook"
 				}
 
 				destination {
@@ -3021,9 +3021,9 @@ resource "argocd_application_set" "sync_policy" {
 
 			spec {
 				source {
-					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
-					path            = "guestbook"
+					path            = "test/e2e/testdata/guestbook"
 				}
 
 				destination {
@@ -3060,9 +3060,9 @@ resource "argocd_application_set" "applications_sync_policy" {
 
 			spec {
 				source {
-					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
-					path            = "guestbook"
+					path            = "test/e2e/testdata/guestbook"
 				}
 
 				destination {
