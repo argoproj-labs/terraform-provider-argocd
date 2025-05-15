@@ -3,12 +3,12 @@
 page_title: "argocd_repository Resource - terraform-provider-argocd"
 subcategory: ""
 description: |-
-  Manages repositories https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#repositories within ArgoCD.
+  
 ---
 
 # argocd_repository (Resource)
 
-Manages [repositories](https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#repositories) within ArgoCD.
+
 
 ## Example Usage
 
@@ -63,7 +63,6 @@ resource "argocd_repository" "private" {
 ### Read-Only
 
 - `connection_state_status` (String) Contains information about the current state of connection to the repository server.
-- `id` (String) The ID of this resource.
 - `inherited_creds` (Boolean) Whether credentials were inherited from a credential set.
 
 ## Import
