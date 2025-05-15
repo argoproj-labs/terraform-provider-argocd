@@ -2,6 +2,7 @@ package argocd
 
 import (
 	"fmt"
+	"reflect"
 	"regexp"
 	"testing"
 
@@ -1068,6 +1069,52 @@ func TestAccArgoCDApplicationSet_CustomNamespace(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestUpgradeSchemaApplicationSet_V0V1_Default_NoChange(t *testing.T) {
+	t.Parallel()
+
+	v0 := map[string]interface{}{
+		"metadata": []interface{}{
+			map[string]interface{}{
+				"name":      "test",
+				"namespace": "argocd",
+			},
+		},
+		"spec": []interface{}{
+			map[string]interface{}{
+				"generator": []interface{}{
+					map[string]interface{}{
+						"clusters": []interface{}{map[string]interface{}{}},
+					},
+				},
+				"template": []interface{}{
+					map[string]interface{}{
+						"metadata": []interface{}{map[string]interface{}{
+							"name": "{{ name }}-clusters",
+						}},
+						"spec": []interface{}{map[string]interface{}{
+							"source": []interface{}{map[string]interface{}{
+								"repo_url":        "https://github.com/argoproj/argocd-example-apps",
+								"target_revision": "HEAD",
+								"path":            "guestbook",
+							}},
+							"destination": []interface{}{map[string]interface{}{
+								"server":    "{{ server }}",
+								"namespace": "default",
+							}},
+						}},
+					},
+				},
+			},
+		},
+	}
+
+	actual, _ := resourceArgoCDApplicationStateUpgradeV0(t.Context(), v0, nil)
+
+	if !reflect.DeepEqual(v0, actual) {
+		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", v0, actual)
+	}
 }
 
 func testAccArgoCDApplicationSet_clusters() string {
