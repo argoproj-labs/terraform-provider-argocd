@@ -140,12 +140,11 @@ func applicationSetSpecSchemaV0() *schema.Schema {
 }
 
 func applicationSetSpecSchemaV1() *schema.Schema {
-	// To support deploying applicationsets to non-default namespaces (aka project
-	// source namespaces), we need to do a state migration to ensure that the Id
-	// on existing resources is updated to include the namespace.
-	// For this to happen, we need to trigger a schema version upgrade on the
-	// application resource however, the schema of the application `spec` has
-	// changed from `v0`.
+	// To support deploying applicationsets to non-default namespaces we need to
+	// do a state migration to ensure that the Id on existing resources is
+	// updated to include the namespace. For this to happen, we need to trigger
+	// a schema version upgrade on the applicationset resource however, the
+	// schema of the applicationset `spec` has not changed from `v0`.
 	return applicationSetSpecSchemaV0()
 }
 
