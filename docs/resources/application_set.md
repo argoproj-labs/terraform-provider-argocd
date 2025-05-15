@@ -578,6 +578,7 @@ resource "argocd_application_set" "progressive_sync" {
 Optional:
 
 - `annotations` (Map of String) An unstructured key value map stored with the applicationsets.argoproj.io that may be used to store arbitrary metadata. More info: http://kubernetes.io/docs/user-guide/annotations
+- `finalizers` (List of String) List of finalizers for the resource.
 - `labels` (Map of String) Map of string keys and values that can be used to organize and categorize (scope and select) the applicationsets.argoproj.io. May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels
 - `name` (String) Name of the applicationsets.argoproj.io, must be unique. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names
 - `namespace` (String) Namespace of the applicationsets.argoproj.io, must be unique. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
