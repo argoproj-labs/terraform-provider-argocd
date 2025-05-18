@@ -111,6 +111,7 @@ Read-Only:
 - `directory` (Attributes) Path/directory specific options. (see [below for nested schema](#nestedatt--spec--sources--directory))
 - `helm` (Attributes) Helm specific options. (see [below for nested schema](#nestedatt--spec--sources--helm))
 - `kustomize` (Attributes) Kustomize specific options. (see [below for nested schema](#nestedatt--spec--sources--kustomize))
+- `name` (String) Name of the source object. Supported since version 2.14. See related PR on [Add optional 'name' to Source object](https://github.com/argoproj/argo-cd/pull/20470).
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Attributes) Config management plugin specific options. (see [below for nested schema](#nestedatt--spec--sources--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.

@@ -49,7 +49,13 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		return featureNotSupported(features.ApplicationSet)
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources), si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences), si.IsFeatureSupported(features.ApplicationSetTemplatePatch))
+	objectMeta, spec, err := expandApplicationSet(
+		d,
+		si.IsFeatureSupported(features.MultipleApplicationSources),
+		si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences),
+		si.IsFeatureSupported(features.ApplicationSetTemplatePatch),
+		si.IsFeatureSupported(features.ApplicationSourceName),
+	)
 	if err != nil {
 		return errorToDiagnostics("failed to expand application set", err)
 	}
@@ -141,7 +147,13 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 		return nil
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources), si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences), si.IsFeatureSupported(features.ApplicationSetTemplatePatch))
+	objectMeta, spec, err := expandApplicationSet(
+		d,
+		si.IsFeatureSupported(features.MultipleApplicationSources),
+		si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences),
+		si.IsFeatureSupported(features.ApplicationSetTemplatePatch),
+		si.IsFeatureSupported(features.ApplicationSourceName),
+	)
 	if err != nil {
 		return errorToDiagnostics(fmt.Sprintf("failed to expand application set %s", d.Id()), err)
 	}

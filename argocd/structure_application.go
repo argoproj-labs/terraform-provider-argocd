@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	application "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -11,14 +12,14 @@ import (
 
 // Expand
 
-func expandApplication(d *schema.ResourceData) (metadata meta.ObjectMeta, spec application.ApplicationSpec, err error) {
+func expandApplication(d *schema.ResourceData, featureApplicationSourceNameSupported bool) (metadata meta.ObjectMeta, spec application.ApplicationSpec, err error) {
 	metadata = expandMetadata(d)
-	spec, err = expandApplicationSpec(d.Get("spec.0").(map[string]interface{}))
+	spec, err = expandApplicationSpec(d.Get("spec.0").(map[string]interface{}), featureApplicationSourceNameSupported)
 
 	return
 }
 
-func expandApplicationSpec(s map[string]interface{}) (spec application.ApplicationSpec, err error) {
+func expandApplicationSpec(s map[string]interface{}, featureApplicationSourceNameSupported bool) (spec application.ApplicationSpec, err error) {
 	if v, ok := s["project"]; ok {
 		spec.Project = v.(string)
 	}
@@ -51,14 +52,17 @@ func expandApplicationSpec(s map[string]interface{}) (spec application.Applicati
 	}
 
 	if v, ok := s["source"].([]interface{}); ok && len(v) > 0 {
-		spec.Sources = expandApplicationSource(v)
+		spec.Sources, err = expandApplicationSource(v, featureApplicationSourceNameSupported)
+		if err != nil {
+			return spec, err
+		}
 	}
 
 	return spec, nil
 }
 
-func expandApplicationSource(_ass []interface{}) []application.ApplicationSource {
-	ass := make([]application.ApplicationSource, len(_ass))
+func expandApplicationSource(_ass []interface{}, featureApplicationSourceNameSupported bool) (ass []application.ApplicationSource, err error) {
+	ass = make([]application.ApplicationSource, len(_ass))
 
 	for i, v := range _ass {
 		as := v.(map[string]interface{})
@@ -74,6 +78,17 @@ func expandApplicationSource(_ass []interface{}) []application.ApplicationSource
 
 		if v, ok := as["ref"]; ok {
 			s.Ref = v.(string)
+		}
+
+		if v, ok := as["name"]; ok && v.(string) != "" {
+			if !featureApplicationSourceNameSupported {
+				f := features.ConstraintsMap[features.ApplicationSourceName]
+				err = fmt.Errorf("%s is only supported from ArgoCD %s onwards", f.Name, f.MinVersion.String())
+
+				return ass, err
+			}
+
+			s.Name = v.(string)
 		}
 
 		if v, ok := as["target_revision"]; ok {
@@ -103,7 +118,7 @@ func expandApplicationSource(_ass []interface{}) []application.ApplicationSource
 		ass[i] = s
 	}
 
-	return ass
+	return ass, err
 }
 
 func expandApplicationSourcePlugin(in []interface{}) *application.ApplicationSourcePlugin {
@@ -742,6 +757,7 @@ func flattenApplicationSource(source []application.ApplicationSource) (result []
 			"directory":       flattenApplicationSourceDirectory([]*application.ApplicationSourceDirectory{s.Directory}),
 			"helm":            flattenApplicationSourceHelm([]*application.ApplicationSourceHelm{s.Helm}),
 			"kustomize":       flattenApplicationSourceKustomize([]*application.ApplicationSourceKustomize{s.Kustomize}),
+			"name":            s.Name,
 			"path":            s.Path,
 			"plugin":          flattenApplicationSourcePlugin([]*application.ApplicationSourcePlugin{s.Plugin}),
 			"ref":             s.Ref,
