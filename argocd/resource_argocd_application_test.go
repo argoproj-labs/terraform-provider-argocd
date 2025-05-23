@@ -760,6 +760,29 @@ func TestAccArgoCDApplication_EmptySyncPolicyBlock(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplication_Finalizers(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplication_finalizers(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.finalizers",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.finalizers",
+						"metadata.0.finalizers.0",
+						"finalizer.argocd.argoproj.io",
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplication_NoAutomatedBlock(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -2414,6 +2437,35 @@ resource "argocd_application" "multiple_sources" {
       namespace = "default"
     }
   }
+}`
+}
+func testAccArgoCDApplication_finalizers() string {
+	return `
+resource "argocd_application" "finalizers" {
+	metadata {
+		name      = "finalizers"
+		namespace = "argocd"
+		finalizers = ["finalizer.argocd.argoproj.io"]
+	}
+
+	spec {
+		project = "default" 
+
+		source {
+			repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
+			chart           = "apache"
+			target_revision = "9.4.1"
+		}
+
+		destination {
+			server    = "https://kubernetes.default.svc"
+			namespace = "managed-namespace"
+		}
+
+		sync_policy {
+			sync_options = ["CreateNamespace=true"]
+		}
+	}
 }`
 }
 
