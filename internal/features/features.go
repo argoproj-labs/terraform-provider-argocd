@@ -18,6 +18,7 @@ const (
 	ApplicationSetTemplatePatch
 	ApplicationKustomizePatches
 	ProjectFineGrainedPolicy
+	ApplicationSourceName
 )
 
 type FeatureConstraint struct {
@@ -37,4 +38,5 @@ var ConstraintsMap = map[Feature]FeatureConstraint{
 	ApplicationSetTemplatePatch:                {"application set template patch", semver.MustParse("2.10.0")},
 	ApplicationKustomizePatches:                {"application kustomize patches", semver.MustParse("2.9.0")},
 	ProjectFineGrainedPolicy:                   {"fine-grained policy in project", semver.MustParse("2.12.0")},
+	ApplicationSourceName:                      {"named application sources", semver.MustParse("2.14.0")},
 }

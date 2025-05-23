@@ -1299,6 +1299,11 @@ func applicationSpecSchemaV4(allOptional, isAppSet bool) *schema.Schema {
 								Description: "Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.",
 								Optional:    true,
 							},
+							"name": {
+								Type:        schema.TypeString,
+								Description: "Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14",
+								Optional:    true,
+							},
 							"chart": {
 								Type:        schema.TypeString,
 								Description: "Helm chart name. Must be specified for applications sourced from a Helm repo.",

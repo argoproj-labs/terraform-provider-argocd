@@ -1062,7 +1062,11 @@ func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
 
 func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.MultipleApplicationSources) },
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureSupported(t, features.MultipleApplicationSources)
+			testAccPreCheckFeatureSupported(t, features.ApplicationSourceName)
+		},
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -1079,8 +1083,18 @@ func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.multiple_sources",
+						"spec.0.source.0.name",
+						"",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.multiple_sources",
 						"spec.0.source.1.path",
 						"test/e2e/testdata/guestbook",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.multiple_sources",
+						"spec.0.source.1.name",
+						"guestbook",
 					),
 				),
 			},
@@ -1096,7 +1110,11 @@ func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 
 func TestAccArgoCDApplication_HelmValuesFromExternalGitRepo(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.MultipleApplicationSources) },
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureSupported(t, features.MultipleApplicationSources)
+			testAccPreCheckFeatureSupported(t, features.ApplicationSourceName)
+		},
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -1111,6 +1129,11 @@ func TestAccArgoCDApplication_HelmValuesFromExternalGitRepo(t *testing.T) {
 						"spec.0.source.0.chart",
 						"wordpress",
 					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.helm_values_external",
+						"spec.0.source.0.name",
+						"wordpress-helm",
+					),
 					resource.TestCheckResourceAttrSet(
 						"argocd_application.helm_values_external",
 						"spec.0.source.0.helm.0.value_files.#",
@@ -1119,6 +1142,11 @@ func TestAccArgoCDApplication_HelmValuesFromExternalGitRepo(t *testing.T) {
 						"argocd_application.helm_values_external",
 						"spec.0.source.1.ref",
 						"values",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.helm_values_external",
+						"spec.0.source.1.name",
+						"wordpress-values",
 					),
 				),
 			},
@@ -2378,6 +2406,7 @@ resource "argocd_application" "multiple_sources" {
 		repo_url        = "https://github.com/argoproj/argo-cd.git"
 		path            = "test/e2e/testdata/guestbook"
 		target_revision = "HEAD"
+		name            = "guestbook"
 	}
 
     destination {
@@ -2437,6 +2466,7 @@ resource "argocd_application" "helm_values_external" {
     project = "default" 
   
     source {
+      name            = "wordpress-helm"   
       repo_url        = "https://charts.helm.sh/stable"
       chart           = "wordpress"
       target_revision = "9.0.3"
@@ -2446,9 +2476,10 @@ resource "argocd_application" "helm_values_external" {
     }
 
     source {
+      name            = "wordpress-values"
+      ref             = "values"
       repo_url        = "https://github.com/argoproj/argocd-example-apps.git"
       target_revision = "HEAD"
-      ref             = "values"
     }
 
     destination {

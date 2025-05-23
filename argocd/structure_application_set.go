@@ -13,18 +13,18 @@ import (
 	application "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 )
 
-func expandApplicationSet(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool, featureApplicationSetTemplatePatch bool) (metadata meta.ObjectMeta, spec application.ApplicationSetSpec, err error) {
+func expandApplicationSet(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool, featureApplicationSetTemplatePatch bool, featureApplicationSourceNameSupported bool) (metadata meta.ObjectMeta, spec application.ApplicationSetSpec, err error) {
 	metadata = expandMetadata(d)
-	spec, err = expandApplicationSetSpec(d, featureMultipleApplicationSourcesSupported, featureApplicationSetIgnoreApplicationDifferences, featureApplicationSetTemplatePatch)
+	spec, err = expandApplicationSetSpec(d, featureMultipleApplicationSourcesSupported, featureApplicationSetIgnoreApplicationDifferences, featureApplicationSetTemplatePatch, featureApplicationSourceNameSupported)
 
 	return
 }
 
-func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool, featureApplicationSetTemplatePatch bool) (spec application.ApplicationSetSpec, err error) {
+func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplicationSourcesSupported bool, featureApplicationSetIgnoreApplicationDifferences bool, featureApplicationSetTemplatePatch bool, featureApplicationSourceNameSupported bool) (spec application.ApplicationSetSpec, err error) {
 	s := d.Get("spec.0").(map[string]interface{})
 
 	if v, ok := s["generator"].([]interface{}); ok && len(v) > 0 {
-		spec.Generators, err = expandApplicationSetGenerators(v, featureMultipleApplicationSourcesSupported)
+		spec.Generators, err = expandApplicationSetGenerators(v, featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		if err != nil {
 			return spec, err
 		}
@@ -61,7 +61,7 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 	}
 
 	if v, ok := s["template"].([]interface{}); ok && len(v) > 0 {
-		spec.Template, err = expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
+		spec.Template, err = expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		if err != nil {
 			return spec, err
 		}
@@ -70,7 +70,7 @@ func expandApplicationSetSpec(d *schema.ResourceData, featureMultipleApplication
 	return spec, nil
 }
 
-func expandApplicationSetGenerators(g []interface{}, featureMultipleApplicationSourcesSupported bool) ([]application.ApplicationSetGenerator, error) {
+func expandApplicationSetGenerators(g []interface{}, featureMultipleApplicationSourcesSupported bool, featureApplicationSourceNameSupported bool) ([]application.ApplicationSetGenerator, error) {
 	asgs := make([]application.ApplicationSetGenerator, len(g))
 
 	for i, v := range g {
@@ -81,23 +81,23 @@ func expandApplicationSetGenerators(g []interface{}, featureMultipleApplicationS
 		var err error
 
 		if asg, ok := v["clusters"].([]interface{}); ok && len(asg) > 0 {
-			g, err = expandApplicationSetClustersGenerator(asg[0], featureMultipleApplicationSourcesSupported)
+			g, err = expandApplicationSetClustersGenerator(asg[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		} else if asg, ok = v["cluster_decision_resource"].([]interface{}); ok && len(asg) > 0 {
-			g, err = expandApplicationSetClusterDecisionResourceGenerator(asg[0], featureMultipleApplicationSourcesSupported)
+			g, err = expandApplicationSetClusterDecisionResourceGenerator(asg[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		} else if asg, ok = v["git"].([]interface{}); ok && len(asg) > 0 {
-			g, err = expandApplicationSetGitGenerator(asg[0], featureMultipleApplicationSourcesSupported)
+			g, err = expandApplicationSetGitGenerator(asg[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		} else if asg, ok = v["list"].([]interface{}); ok && len(asg) > 0 {
-			g, err = expandApplicationSetListGenerator(asg[0], featureMultipleApplicationSourcesSupported)
+			g, err = expandApplicationSetListGenerator(asg[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		} else if asg, ok = v["matrix"].([]interface{}); ok && len(asg) > 0 {
-			g, err = expandApplicationSetMatrixGenerator(asg[0], featureMultipleApplicationSourcesSupported)
+			g, err = expandApplicationSetMatrixGenerator(asg[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		} else if asg, ok = v["merge"].([]interface{}); ok && len(asg) > 0 {
-			g, err = expandApplicationSetMergeGenerator(asg[0], featureMultipleApplicationSourcesSupported)
+			g, err = expandApplicationSetMergeGenerator(asg[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		} else if asg, ok = v["scm_provider"].([]interface{}); ok && len(asg) > 0 {
-			g, err = expandApplicationSetSCMProviderGenerator(asg[0], featureMultipleApplicationSourcesSupported)
+			g, err = expandApplicationSetSCMProviderGenerator(asg[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		} else if asg, ok = v["pull_request"].([]interface{}); ok && len(asg) > 0 {
-			g, err = expandApplicationSetPullRequestGeneratorGenerator(asg[0], featureMultipleApplicationSourcesSupported)
+			g, err = expandApplicationSetPullRequestGeneratorGenerator(asg[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		} else if asg, ok = v["plugin"].([]interface{}); ok && len(asg) > 0 {
-			g, err = expandApplicationSetPluginGenerator(asg[0], featureMultipleApplicationSourcesSupported)
+			g, err = expandApplicationSetPluginGenerator(asg[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		}
 
 		if err != nil {
@@ -115,7 +115,7 @@ func expandApplicationSetGenerators(g []interface{}, featureMultipleApplicationS
 	return asgs, nil
 }
 
-func expandApplicationSetClustersGenerator(cg interface{}, featureMultipleApplicationSourcesSupported bool) (*application.ApplicationSetGenerator, error) {
+func expandApplicationSetClustersGenerator(cg interface{}, featureMultipleApplicationSourcesSupported bool, featureApplicationSourceNameSupported bool) (*application.ApplicationSetGenerator, error) {
 	asg := &application.ApplicationSetGenerator{
 		Clusters: &application.ClusterGenerator{},
 	}
@@ -127,7 +127,7 @@ func expandApplicationSetClustersGenerator(cg interface{}, featureMultipleApplic
 	}
 
 	if v, ok := c["template"].([]interface{}); ok && len(v) > 0 {
-		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
+		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		if err != nil {
 			return nil, err
 		}
@@ -142,7 +142,7 @@ func expandApplicationSetClustersGenerator(cg interface{}, featureMultipleApplic
 	return asg, nil
 }
 
-func expandApplicationSetClusterDecisionResourceGenerator(cdrg interface{}, featureMultipleApplicationSourcesSupported bool) (*application.ApplicationSetGenerator, error) {
+func expandApplicationSetClusterDecisionResourceGenerator(cdrg interface{}, featureMultipleApplicationSourcesSupported bool, featureApplicationSourceNameSupported bool) (*application.ApplicationSetGenerator, error) {
 	c := cdrg.(map[string]interface{})
 
 	asg := &application.ApplicationSetGenerator{
@@ -166,7 +166,7 @@ func expandApplicationSetClusterDecisionResourceGenerator(cdrg interface{}, feat
 	}
 
 	if v, ok := c["template"].([]interface{}); ok && len(v) > 0 {
-		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
+		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		if err != nil {
 			return nil, err
 		}
@@ -181,7 +181,7 @@ func expandApplicationSetClusterDecisionResourceGenerator(cdrg interface{}, feat
 	return asg, nil
 }
 
-func expandApplicationSetGitGenerator(gg interface{}, featureMultipleApplicationSourcesSupported bool) (*application.ApplicationSetGenerator, error) {
+func expandApplicationSetGitGenerator(gg interface{}, featureMultipleApplicationSourcesSupported bool, featureApplicationSourceNameSupported bool) (*application.ApplicationSetGenerator, error) {
 	g := gg.(map[string]interface{})
 
 	asg := &application.ApplicationSetGenerator{
@@ -221,7 +221,7 @@ func expandApplicationSetGitGenerator(gg interface{}, featureMultipleApplication
 	}
 
 	if v, ok := g["template"].([]interface{}); ok && len(v) > 0 {
-		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
+		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		if err != nil {
 			return nil, err
 		}
@@ -236,7 +236,7 @@ func expandApplicationSetGitGenerator(gg interface{}, featureMultipleApplication
 	return asg, nil
 }
 
-func expandApplicationSetListGenerator(lg interface{}, featureMultipleApplicationSourcesSupported bool) (*application.ApplicationSetGenerator, error) {
+func expandApplicationSetListGenerator(lg interface{}, featureMultipleApplicationSourcesSupported bool, featureApplicationSourceNameSupported bool) (*application.ApplicationSetGenerator, error) {
 	asg := &application.ApplicationSetGenerator{
 		List: &application.ListGenerator{},
 	}
@@ -257,7 +257,7 @@ func expandApplicationSetListGenerator(lg interface{}, featureMultipleApplicatio
 	}
 
 	if v, ok := l["template"].([]interface{}); ok && len(v) > 0 {
-		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
+		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		if err != nil {
 			return nil, err
 		}
@@ -268,13 +268,13 @@ func expandApplicationSetListGenerator(lg interface{}, featureMultipleApplicatio
 	return asg, nil
 }
 
-func expandApplicationSetMatrixGenerator(mg interface{}, featureMultipleApplicationSourcesSupported bool) (*application.ApplicationSetGenerator, error) {
+func expandApplicationSetMatrixGenerator(mg interface{}, featureMultipleApplicationSourcesSupported bool, featureApplicationSourceNameSupported bool) (*application.ApplicationSetGenerator, error) {
 	asg := &application.ApplicationSetGenerator{}
 	m := mg.(map[string]interface{})
 
 	gs := m["generator"].([]interface{})
 
-	asgs, err := expandApplicationSetGenerators(gs, featureMultipleApplicationSourcesSupported)
+	asgs, err := expandApplicationSetGenerators(gs, featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 	if err != nil {
 		return nil, err
 	}
@@ -319,7 +319,7 @@ func expandApplicationSetMatrixGenerator(mg interface{}, featureMultipleApplicat
 	}
 
 	if v, ok := m["template"].([]interface{}); ok && len(v) > 0 {
-		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
+		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		if err != nil {
 			return nil, err
 		}
@@ -330,7 +330,7 @@ func expandApplicationSetMatrixGenerator(mg interface{}, featureMultipleApplicat
 	return asg, nil
 }
 
-func expandApplicationSetMergeGenerator(mg interface{}, featureMultipleApplicationSourcesSupported bool) (*application.ApplicationSetGenerator, error) {
+func expandApplicationSetMergeGenerator(mg interface{}, featureMultipleApplicationSourcesSupported bool, featureApplicationSourceNameSupported bool) (*application.ApplicationSetGenerator, error) {
 	asg := &application.ApplicationSetGenerator{
 		Merge: &application.MergeGenerator{},
 	}
@@ -344,7 +344,7 @@ func expandApplicationSetMergeGenerator(mg interface{}, featureMultipleApplicati
 
 	gs := m["generator"].([]interface{})
 
-	asgs, err := expandApplicationSetGenerators(gs, featureMultipleApplicationSourcesSupported)
+	asgs, err := expandApplicationSetGenerators(gs, featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 	if err != nil {
 		return nil, err
 	}
@@ -387,7 +387,7 @@ func expandApplicationSetMergeGenerator(mg interface{}, featureMultipleApplicati
 	asg.Merge.Generators = ngs
 
 	if v, ok := m["template"].([]interface{}); ok && len(v) > 0 {
-		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
+		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		if err != nil {
 			return nil, err
 		}
@@ -398,7 +398,7 @@ func expandApplicationSetMergeGenerator(mg interface{}, featureMultipleApplicati
 	return asg, nil
 }
 
-func expandApplicationSetPluginGenerator(mg interface{}, featureMultipleApplicationSourcesSupported bool) (*application.ApplicationSetGenerator, error) {
+func expandApplicationSetPluginGenerator(mg interface{}, featureMultipleApplicationSourcesSupported bool, featureApplicationSourceNameSupported bool) (*application.ApplicationSetGenerator, error) {
 	asg := &application.ApplicationSetGenerator{
 		Plugin: &application.PluginGenerator{},
 	}
@@ -428,7 +428,7 @@ func expandApplicationSetPluginGenerator(mg interface{}, featureMultipleApplicat
 	}
 
 	if v, ok := m["template"].([]interface{}); ok && len(v) > 0 {
-		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
+		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		if err != nil {
 			return nil, err
 		}
@@ -462,7 +462,7 @@ func expandApplicationSetInputParameters(m map[string]interface{}) (application.
 	return params, nil
 }
 
-func expandApplicationSetPullRequestGeneratorGenerator(mg interface{}, featureMultipleApplicationSourcesSupported bool) (*application.ApplicationSetGenerator, error) {
+func expandApplicationSetPullRequestGeneratorGenerator(mg interface{}, featureMultipleApplicationSourcesSupported bool, featureApplicationSourceNameSupported bool) (*application.ApplicationSetGenerator, error) {
 	asg := &application.ApplicationSetGenerator{
 		PullRequest: &application.PullRequestGenerator{},
 	}
@@ -493,7 +493,7 @@ func expandApplicationSetPullRequestGeneratorGenerator(mg interface{}, featureMu
 	}
 
 	if v, ok := m["template"].([]interface{}); ok && len(v) > 0 {
-		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
+		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		if err != nil {
 			return nil, err
 		}
@@ -599,7 +599,7 @@ func expandApplicationSetPullRequestGeneratorFilters(fs []interface{}) []applica
 	return prgfs
 }
 
-func expandApplicationSetSCMProviderGenerator(mg interface{}, featureMultipleApplicationSourcesSupported bool) (*application.ApplicationSetGenerator, error) {
+func expandApplicationSetSCMProviderGenerator(mg interface{}, featureMultipleApplicationSourcesSupported bool, featureApplicationSourceNameSupported bool) (*application.ApplicationSetGenerator, error) {
 	m := mg.(map[string]interface{})
 
 	asg := &application.ApplicationSetGenerator{
@@ -636,7 +636,7 @@ func expandApplicationSetSCMProviderGenerator(mg interface{}, featureMultipleApp
 	}
 
 	if v, ok := m["template"].([]interface{}); ok && len(v) > 0 {
-		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported)
+		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		if err != nil {
 			return nil, err
 		}
@@ -888,7 +888,7 @@ func expandApplicationSetSyncPolicy(sp map[string]interface{}) (assp *applicatio
 	return assp
 }
 
-func expandApplicationSetTemplate(temp interface{}, featureMultipleApplicationSourcesSupported bool) (template application.ApplicationSetTemplate, err error) {
+func expandApplicationSetTemplate(temp interface{}, featureMultipleApplicationSourcesSupported bool, featureApplicationSourceNameSupported bool) (template application.ApplicationSetTemplate, err error) {
 	t, ok := temp.(map[string]interface{})
 	if !ok {
 		return template, fmt.Errorf("could not expand application set template")
@@ -904,7 +904,7 @@ func expandApplicationSetTemplate(temp interface{}, featureMultipleApplicationSo
 	if v, ok := t["spec"]; ok {
 		s := v.([]interface{})[0].(map[string]interface{})
 
-		template.Spec, err = expandApplicationSpec(s)
+		template.Spec, err = expandApplicationSpec(s, featureApplicationSourceNameSupported)
 		if err != nil {
 			return template, err
 		}
