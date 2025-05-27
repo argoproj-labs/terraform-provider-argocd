@@ -7,9 +7,9 @@ toolchain go1.24.3
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/ProtonMail/gopenpgp/v3 v3.1.3
-	github.com/argoproj/argo-cd/v3 v3.0.1
+	github.com/argoproj/argo-cd/v3 v3.0.3
 	// make sure this matches with version used in Argo CD's go.mod
-	github.com/argoproj/gitops-engine v0.7.1-0.20250328191959-6d3cf122b03f
+	github.com/argoproj/gitops-engine v0.7.1-0.20250520182409-89c110b5952e
 	github.com/argoproj/pkg v0.13.7-0.20250305113207-cbc37dc61de5
 	github.com/cristalhq/jwt/v5 v5.4.0
 	github.com/elliotchance/pie/v2 v2.9.1
@@ -251,7 +251,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f // indirect
 	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/net v0.37.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/oauth2 v0.28.0 // indirect
 	golang.org/x/sync v0.12.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
