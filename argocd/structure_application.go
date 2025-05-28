@@ -99,11 +99,11 @@ func expandApplicationSource(_ass []interface{}, featureApplicationSourceNameSup
 			s.Chart = v.(string)
 		}
 
-		if v, ok := as["helm"]; ok && v != nil {
+		if v, ok := as["helm"]; ok {
 			s.Helm = expandApplicationSourceHelm(v.([]interface{}))
 		}
 
-		if v, ok := as["kustomize"]; ok && v != nil {
+		if v, ok := as["kustomize"]; ok {
 			s.Kustomize = expandApplicationSourceKustomize(v.([]interface{}))
 		}
 
@@ -214,59 +214,60 @@ func expandApplicationSourceKustomize(in []interface{}) *application.Application
 
 	result := &application.ApplicationSourceKustomize{}
 
-	a := in[0].(map[string]interface{})
-	if v, ok := a["name_prefix"]; ok {
-		result.NamePrefix = v.(string)
-	}
-
-	if v, ok := a["name_suffix"]; ok {
-		result.NameSuffix = v.(string)
-	}
-
-	if v, ok := a["version"]; ok {
-		result.Version = v.(string)
-	}
-
-	if v, ok := a["images"]; ok {
-		for _, i := range v.(*schema.Set).List() {
-			result.Images = append(result.Images, application.KustomizeImage(i.(string)))
+	if a, ok := in[0].(map[string]interface{}); ok {
+		if v, ok := a["name_prefix"]; ok {
+			result.NamePrefix = v.(string)
 		}
-	}
 
-	if cls, ok := a["common_labels"]; ok {
-		result.CommonLabels = make(map[string]string, 0)
-
-		for k, v := range cls.(map[string]interface{}) {
-			result.CommonLabels[k] = v.(string)
+		if v, ok := a["name_suffix"]; ok {
+			result.NameSuffix = v.(string)
 		}
-	}
 
-	if cas, ok := a["common_annotations"]; ok {
-		result.CommonAnnotations = make(map[string]string, 0)
-
-		for k, v := range cas.(map[string]interface{}) {
-			result.CommonAnnotations[k] = v.(string)
+		if v, ok := a["version"]; ok {
+			result.Version = v.(string)
 		}
-	}
 
-	if patches, ok := a["patches"]; ok {
-		for _, v := range patches.([]interface{}) {
-			patchMap := v.(map[string]interface{})
-			kustomizePatch := application.KustomizePatch{}
-
-			if patch, ok := patchMap["patch"]; ok {
-				kustomizePatch.Patch = patch.(string)
+		if v, ok := a["images"]; ok {
+			for _, i := range v.(*schema.Set).List() {
+				result.Images = append(result.Images, application.KustomizeImage(i.(string)))
 			}
+		}
 
-			if target, ok := patchMap["target"]; ok {
-				kustomizePatch.Target = expandApplicationSourceKustomizePatchTarget(target.([]interface{}))
+		if cls, ok := a["common_labels"]; ok {
+			result.CommonLabels = make(map[string]string, 0)
+
+			for k, v := range cls.(map[string]interface{}) {
+				result.CommonLabels[k] = v.(string)
 			}
+		}
 
-			if options, ok := patchMap["options"]; ok {
-				kustomizePatch.Options = expandBoolMap(options.(map[string]interface{}))
+		if cas, ok := a["common_annotations"]; ok {
+			result.CommonAnnotations = make(map[string]string, 0)
+
+			for k, v := range cas.(map[string]interface{}) {
+				result.CommonAnnotations[k] = v.(string)
 			}
+		}
 
-			result.Patches = append(result.Patches, kustomizePatch)
+		if patches, ok := a["patches"]; ok {
+			for _, v := range patches.([]interface{}) {
+				patchMap := v.(map[string]interface{})
+				kustomizePatch := application.KustomizePatch{}
+
+				if patch, ok := patchMap["patch"]; ok {
+					kustomizePatch.Patch = patch.(string)
+				}
+
+				if target, ok := patchMap["target"]; ok {
+					kustomizePatch.Target = expandApplicationSourceKustomizePatchTarget(target.([]interface{}))
+				}
+
+				if options, ok := patchMap["options"]; ok {
+					kustomizePatch.Options = expandBoolMap(options.(map[string]interface{}))
+				}
+
+				result.Patches = append(result.Patches, kustomizePatch)
+			}
 		}
 	}
 
@@ -324,75 +325,76 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 
 	result := &application.ApplicationSourceHelm{}
 
-	a := in[0].(map[string]interface{})
-	if v, ok := a["value_files"]; ok {
-		for _, vf := range v.([]interface{}) {
-			result.ValueFiles = append(result.ValueFiles, vf.(string))
+	if a, ok := in[0].(map[string]interface{}); ok {
+		if v, ok := a["value_files"]; ok {
+			for _, vf := range v.([]interface{}) {
+				result.ValueFiles = append(result.ValueFiles, vf.(string))
+			}
 		}
-	}
 
-	if v, ok := a["values"]; ok {
-		result.Values = v.(string)
-	}
-
-	if v, ok := a["release_name"]; ok {
-		result.ReleaseName = v.(string)
-	}
-
-	if v, ok := a["pass_credentials"]; ok {
-		result.PassCredentials = v.(bool)
-	}
-
-	if v, ok := a["ignore_missing_value_files"]; ok {
-		result.IgnoreMissingValueFiles = v.(bool)
-	}
-
-	if parameters, ok := a["parameter"]; ok {
-		for _, _p := range parameters.(*schema.Set).List() {
-			p := _p.(map[string]interface{})
-
-			parameter := application.HelmParameter{}
-
-			if v, ok := p["force_string"]; ok {
-				parameter.ForceString = v.(bool)
-			}
-
-			if v, ok := p["name"]; ok {
-				parameter.Name = v.(string)
-			}
-
-			if v, ok := p["value"]; ok {
-				parameter.Value = v.(string)
-			}
-
-			result.Parameters = append(result.Parameters, parameter)
+		if v, ok := a["values"]; ok {
+			result.Values = v.(string)
 		}
-	}
 
-	if fileParameters, ok := a["file_parameter"]; ok {
-		for _, _p := range fileParameters.(*schema.Set).List() {
-			p := _p.(map[string]interface{})
-
-			parameter := application.HelmFileParameter{}
-
-			if v, ok := p["name"]; ok {
-				parameter.Name = v.(string)
-			}
-
-			if v, ok := p["path"]; ok {
-				parameter.Path = v.(string)
-			}
-
-			result.FileParameters = append(result.FileParameters, parameter)
+		if v, ok := a["release_name"]; ok {
+			result.ReleaseName = v.(string)
 		}
-	}
 
-	if v, ok := a["skip_crds"]; ok {
-		result.SkipCrds = v.(bool)
-	}
+		if v, ok := a["pass_credentials"]; ok {
+			result.PassCredentials = v.(bool)
+		}
 
-	if v, ok := a["version"]; ok {
-		result.Version = v.(string)
+		if v, ok := a["ignore_missing_value_files"]; ok {
+			result.IgnoreMissingValueFiles = v.(bool)
+		}
+
+		if parameters, ok := a["parameter"]; ok {
+			for _, _p := range parameters.(*schema.Set).List() {
+				p := _p.(map[string]interface{})
+
+				parameter := application.HelmParameter{}
+
+				if v, ok := p["force_string"]; ok {
+					parameter.ForceString = v.(bool)
+				}
+
+				if v, ok := p["name"]; ok {
+					parameter.Name = v.(string)
+				}
+
+				if v, ok := p["value"]; ok {
+					parameter.Value = v.(string)
+				}
+
+				result.Parameters = append(result.Parameters, parameter)
+			}
+		}
+
+		if fileParameters, ok := a["file_parameter"]; ok {
+			for _, _p := range fileParameters.(*schema.Set).List() {
+				p := _p.(map[string]interface{})
+
+				parameter := application.HelmFileParameter{}
+
+				if v, ok := p["name"]; ok {
+					parameter.Name = v.(string)
+				}
+
+				if v, ok := p["path"]; ok {
+					parameter.Path = v.(string)
+				}
+
+				result.FileParameters = append(result.FileParameters, parameter)
+			}
+		}
+
+		if v, ok := a["skip_crds"]; ok {
+			result.SkipCrds = v.(bool)
+		}
+
+		if v, ok := a["version"]; ok {
+			result.Version = v.(string)
+		}
 	}
 
 	return result
