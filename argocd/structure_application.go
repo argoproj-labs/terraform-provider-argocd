@@ -99,11 +99,11 @@ func expandApplicationSource(_ass []interface{}, featureApplicationSourceNameSup
 			s.Chart = v.(string)
 		}
 
-		if v, ok := as["helm"]; ok {
+		if v, ok := as["helm"]; ok && v != nil {
 			s.Helm = expandApplicationSourceHelm(v.([]interface{}))
 		}
 
-		if v, ok := as["kustomize"]; ok {
+		if v, ok := as["kustomize"]; ok && v != nil {
 			s.Kustomize = expandApplicationSourceKustomize(v.([]interface{}))
 		}
 
