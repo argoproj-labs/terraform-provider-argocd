@@ -2,7 +2,7 @@ module github.com/argoproj-labs/terraform-provider-argocd
 
 go 1.24.1
 
-toolchain go1.24.3
+toolchain go1.24.4
 
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
