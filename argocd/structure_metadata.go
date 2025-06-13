@@ -20,6 +20,10 @@ func expandMetadata(d *schema.ResourceData) (meta meta.ObjectMeta) {
 		meta.Labels = expandStringMap(m["labels"].(map[string]interface{}))
 	}
 
+	if v, ok := m["finalizers"].([]interface{}); ok && len(v) > 0 {
+		meta.Finalizers = expandStringList(v)
+	}
+
 	if v, ok := m["name"]; ok {
 		meta.Name = v.(string)
 	}
@@ -37,6 +41,7 @@ func flattenMetadata(meta meta.ObjectMeta, d *schema.ResourceData) []interface{}
 		"name":             meta.Name,
 		"namespace":        meta.Namespace,
 		"resource_version": meta.ResourceVersion,
+		"finalizers":       meta.Finalizers,
 		"uid":              fmt.Sprintf("%v", meta.UID),
 	}
 
