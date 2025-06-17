@@ -83,24 +83,33 @@ func resourceArgoCDRepositoryRead(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	tokenMutexConfiguration.RLock()
-	r, err := si.RepositoryClient.Get(ctx, &repository.RepoQuery{
-		Repo:         d.Id(),
-		AppProject:   d.State().Attributes["project"],
-		ForceRefresh: true,
-	})
+	repos, err := si.RepositoryClient.List(ctx, &repository.RepoQuery{})
 	tokenMutexConfiguration.RUnlock()
 
-	if err != nil {
-		// Repository has already been deleted in an out-of-band fashion
-		if strings.Contains(err.Error(), "NotFound") {
-			d.SetId("")
-			return nil
-		}
+	var finalRepo *application.Repository
 
+	if repos != nil {
+		if len(repos.Items) >= 1 {
+			for _, repo := range repos.Items {
+				if repo.Repo == d.Id() {
+					finalRepo = repo
+				}
+			}
+		}
+	}
+
+	if finalRepo == nil {
+		// if finalRepo is empty this means that either there no repositories at all or the desired one isn't in the list
+		// that means we clear it from state and terraform will create it if desired
+		d.SetId("")
+		return nil
+	}
+
+	if err != nil {
 		return argoCDAPIError("read", "repository", d.Id(), err)
 	}
 
-	if err = flattenRepository(r, d); err != nil {
+	if err = flattenRepository(finalRepo, d); err != nil {
 		return errorToDiagnostics(fmt.Sprintf("failed to flatten repository %s", d.Id()), err)
 	}
 
