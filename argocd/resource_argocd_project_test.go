@@ -96,6 +96,25 @@ func TestAccArgoCDProject(t *testing.T) {
 					),
 				),
 			},
+			{
+				Config: testAccArgoCDProjectSimpleWithFinalizers(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.simple",
+						"metadata.0.finalizers.0",
+						"finalizer1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.simple",
+						"metadata.0.finalizers.1",
+						"finalizer2",
+					),
+				),
+			},
 		},
 	})
 }
@@ -386,6 +405,34 @@ func testAccArgoCDProjectSimpleWithoutOrphaned(name string) string {
       annotations = {
         "this.is.a.really.long.nested.key" = "yes, really!"
       }
+    }
+  
+    spec {
+      description  = "simple project"
+      source_repos = ["*"]
+  
+      destination {
+        name      = "anothercluster"
+        namespace = "bar"
+      }
+    }
+  }
+	`, name)
+}
+
+func testAccArgoCDProjectSimpleWithFinalizers(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "simple" {
+    metadata {
+      name      = "%s"
+      namespace = "argocd"
+      labels = {
+        acceptance = "true"
+      }
+      annotations = {
+        "this.is.a.really.long.nested.key" = "yes, really!"
+      }
+      finalizers = ["finalizer1", "finalizer2"]
     }
   
     spec {
