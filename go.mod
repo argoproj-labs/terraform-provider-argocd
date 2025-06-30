@@ -339,7 +339,7 @@ replace (
 	k8s.io/sample-controller => k8s.io/sample-controller v0.32.2
 )
 
-replace k8s.io/endpointslice => k8s.io/endpointslice v0.32.2
+replace k8s.io/endpointslice => k8s.io/endpointslice v0.33.2
 
 replace k8s.io/cri-client => k8s.io/cri-client v0.32.2
 
