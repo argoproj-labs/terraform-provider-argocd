@@ -6,6 +6,7 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/testhelpers"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -17,6 +18,10 @@ import (
 // reattach.
 var testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 	"argocd": providerserver.NewProtocol6WithError(New("test")),
+}
+
+func TestMain(m *testing.M) {
+	testhelpers.TestMain(m)
 }
 
 func TestProvider_headers(t *testing.T) {

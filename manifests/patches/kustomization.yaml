@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+patches:
+  - target:
+      kind: ConfigMap
+      name: argocd-cm
+    path: argocd-cm.yml
+  - target:
+      kind: ConfigMap
+      name: argocd-cmd-params-cm
+    path: argocd-cmd-params-cm.yml
+  - target:
+      kind: Secret
+      name: argocd-secret
+    path: secret.yml
