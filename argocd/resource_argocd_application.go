@@ -305,6 +305,20 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	// Check if resource is being deleted to prevent updates during deletion
+	if apps.Items[0].DeletionTimestamp != nil {
+		return []diag.Diagnostic{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("cannot update application %s: resource is being deleted", objectMeta.Name),
+				Detail:   "The application has a deletion timestamp and is in the process of being deleted. Updates are not allowed during deletion.",
+			},
+		}
+	}
+
+	// Use safer metadata expansion that preserves system finalizers
+	objectMeta = expandMetadataForUpdate(d, apps.Items[0].ObjectMeta)
+
 	validate := d.Get("validate").(bool)
 	if _, err = si.ApplicationClient.Update(ctx, &applicationClient.ApplicationUpdateRequest{
 		Application: &application.Application{
