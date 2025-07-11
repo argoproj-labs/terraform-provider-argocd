@@ -16,6 +16,11 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
+const (
+	// DefaultFileMode represents standard file permissions (0o644)
+	DefaultFileMode = 0o644
+)
+
 // K3sTestEnvironment represents a test environment with K3s and ArgoCD
 type K3sTestEnvironment struct {
 	K3sContainer *k3s.K3sContainer
@@ -25,6 +30,7 @@ type K3sTestEnvironment struct {
 // SetupK3sWithArgoCD sets up a K3s cluster with ArgoCD using testcontainers
 func SetupK3sWithArgoCD(ctx context.Context, argoCDVersion, k8sVersion string) (*K3sTestEnvironment, error) {
 	log.Println("Setting up K3s test environment...")
+
 	k3sContainer, err := k3s.Run(ctx,
 		fmt.Sprintf("rancher/k3s:%s-k3s1", k8sVersion),
 		testcontainers.WithWaitStrategy(wait.ForLog("k3s is up and running")),
@@ -37,13 +43,14 @@ func SetupK3sWithArgoCD(ctx context.Context, argoCDVersion, k8sVersion string) (
 	env := &K3sTestEnvironment{K3sContainer: k3sContainer}
 
 	if err := env.installArgoCD(ctx, argoCDVersion); err != nil {
-		env.Cleanup()
+		env.Cleanup(ctx)
 		return nil, fmt.Errorf("failed to install ArgoCD: %w", err)
 	}
 
 	log.Println("Waiting for ArgoCD to be ready...")
+
 	if err := env.waitForArgoCD(ctx); err != nil {
-		env.Cleanup()
+		env.Cleanup(ctx)
 		return nil, fmt.Errorf("failed to wait for ArgoCD: %w", err)
 	}
 
@@ -66,6 +73,7 @@ func (env *K3sTestEnvironment) installArgoCD(ctx context.Context, version string
 	}
 
 	log.Println("Applying manifests...")
+
 	if err = env.applyManifestsToContainer(ctx, kustomizedManifests, "/tmp/argocd-kustomized.yaml"); err != nil {
 		return fmt.Errorf("failed to copy kustomized manifests to container: %w", err)
 	}
@@ -75,7 +83,7 @@ func (env *K3sTestEnvironment) installArgoCD(ctx context.Context, version string
 		return nil // No test data to install
 	}
 
-	if err = env.K3sContainer.CopyFileToContainer(ctx, testDataDir, "/tmp/testdata", 0644); err != nil {
+	if err = env.K3sContainer.CopyFileToContainer(ctx, testDataDir, "/tmp/testdata", DefaultFileMode); err != nil {
 		return fmt.Errorf("failed to copy testdata to container: %w", err)
 	}
 
@@ -88,7 +96,7 @@ func (env *K3sTestEnvironment) installArgoCD(ctx context.Context, version string
 
 func (env *K3sTestEnvironment) applyManifestsToContainer(ctx context.Context, manifests []byte, containerFilePath string) error {
 	// Copy manifests to container
-	if err := env.K3sContainer.CopyToContainer(ctx, manifests, containerFilePath, 0644); err != nil {
+	if err := env.K3sContainer.CopyToContainer(ctx, manifests, containerFilePath, DefaultFileMode); err != nil {
 		return fmt.Errorf("failed to copy kustomized manifests to container: %w", err)
 	}
 
@@ -103,6 +111,7 @@ func (env *K3sTestEnvironment) applyManifestsToContainer(ctx context.Context, ma
 // projectRoot gets the project root directory by checking `go env GOMOD`
 func (env *K3sTestEnvironment) projectRoot() (string, error) {
 	cmd := exec.Command("go", "env", "GOMOD")
+
 	output, err := cmd.Output()
 	if err != nil {
 		return "", fmt.Errorf("failed to find project root: %w", err)
@@ -114,12 +123,14 @@ func (env *K3sTestEnvironment) projectRoot() (string, error) {
 // runKustomizeBuild runs kustomize build on the temporary directory
 func (env *K3sTestEnvironment) runKustomizeBuild(dir string) ([]byte, error) {
 	cmd := exec.Command("kustomize", "build", dir)
+
 	output, err := cmd.Output()
 	if err != nil {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
 			return nil, fmt.Errorf("kustomize build failed: %s", string(exitErr.Stderr))
 		}
+
 		return nil, fmt.Errorf("failed to run kustomize: %w", err)
 	}
 
@@ -129,16 +140,20 @@ func (env *K3sTestEnvironment) runKustomizeBuild(dir string) ([]byte, error) {
 func (env *K3sTestEnvironment) execInK3s(ctx context.Context, args ...string) error {
 	concat := strings.Join(args, " ")
 	exitCode, reader, err := env.K3sContainer.Exec(ctx, args)
+
 	if err != nil {
 		return fmt.Errorf("failed to exec '%s': %w", concat, err)
 	}
+
 	output, err := io.ReadAll(reader)
 	if err != nil {
 		return fmt.Errorf("failed to read kubectl output: %w", err)
 	}
+
 	if exitCode != 0 {
 		return fmt.Errorf("'%s' failed with exit code %d: %s", concat, exitCode, string(output))
 	}
+
 	return nil
 }
 
@@ -189,10 +204,10 @@ func (env *K3sTestEnvironment) GetEnvironmentVariables() map[string]string {
 }
 
 // Cleanup cleans up the test environment
-func (env *K3sTestEnvironment) Cleanup() {
+func (env *K3sTestEnvironment) Cleanup(ctx context.Context) {
 	// Terminate container
 	if env.K3sContainer != nil {
-		if err := env.K3sContainer.Terminate(context.Background()); err != nil {
+		if err := env.K3sContainer.Terminate(ctx); err != nil {
 			fmt.Printf("Warning: failed to terminate container: %v\n", err)
 		}
 	}

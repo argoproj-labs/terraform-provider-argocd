@@ -23,13 +23,24 @@ func TestMain(m *testing.M) {
 	}
 }
 
+const (
+	// DefaultTestTimeout is the default timeout for test setup
+	DefaultTestTimeout = 15 * time.Minute
+)
+
 // SetupTestSuite sets up a shared test environment for all acceptance tests
 func SetupTestSuite(m *testing.M) {
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Minute)
+	code := runTestSuite(m)
+	os.Exit(code)
+}
+
+func runTestSuite(m *testing.M) int {
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultTestTimeout)
 	defer cancel()
 
 	// Setup the test environment once
 	var setupErr error
+
 	testEnvOnce.Do(func() {
 		argoCDVersion := os.Getenv("ARGOCD_VERSION")
 		if argoCDVersion == "" {
@@ -59,8 +70,8 @@ func SetupTestSuite(m *testing.M) {
 
 	// Cleanup
 	if globalTestEnv != nil {
-		globalTestEnv.Cleanup()
+		globalTestEnv.Cleanup(ctx)
 	}
 
-	os.Exit(code)
+	return code
 }
