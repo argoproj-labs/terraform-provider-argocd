@@ -5,6 +5,7 @@ ARGOCD_SERVER?=127.0.0.1:8080
 ARGOCD_AUTH_USERNAME?=admin
 ARGOCD_AUTH_PASSWORD?=acceptancetesting
 ARGOCD_VERSION?=v3.0.0
+K3S_VERSION?=v1.31.6-k3s1
 
 export
 
@@ -30,6 +31,9 @@ test:
 testacc:
 	TF_ACC=1 go test -v -cover -timeout 20m ./...
 
+testacc_testcontainers:
+	TF_ACC=1 USE_TESTCONTAINERS=true go test -v -cover -timeout 30m ./...
+
 testacc_clean_env:
 	kind delete cluster --name argocd
 
@@ -48,12 +52,8 @@ testacc_prepare_env:
 	kubectl get pods --all-namespaces -o wide
 	kubectl get services --all-namespaces -o wide
 
-	echo "\n--- Fetch ArgoCD installation manifests\n"
-	curl https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml > manifests/install/argocd.yml
-
-
 	echo "\n--- Install ArgoCD ${ARGOCD_VERSION}\n"
-	kustomize build manifests/install | kubectl apply -f -
+	kustomize build manifests/overlays/${ARGOCD_VERSION} | kubectl apply -f -
 
 	echo "\n--- Wait until CRDs are established\n"
 	kubectl wait --for=condition=Established crd/applications.argoproj.io --timeout=60s
@@ -72,4 +72,4 @@ testacc_prepare_env:
 clean:
 	git clean -fXd -e \!vendor -e \!vendor/**/* -e \!.vscode
 
-.PHONY: build install lint generate fmt test testacc testacc_clean_env testacc_prepare_env clean
+.PHONY: build install lint generate fmt test testacc testacc_testcontainers testacc_clean_env testacc_prepare_env clean
