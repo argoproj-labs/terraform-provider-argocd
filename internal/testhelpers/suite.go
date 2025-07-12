@@ -43,18 +43,14 @@ func runTestSuite(m *testing.M) int {
 
 	testEnvOnce.Do(func() {
 		argoCDVersion := os.Getenv("ARGOCD_VERSION")
-		if argoCDVersion == "" {
-			argoCDVersion = "v3.0.0"
-		}
-
-		k8sVersion := "v1.31.6"
-
-		globalTestEnv, setupErr = SetupK3sWithArgoCD(ctx, argoCDVersion, k8sVersion)
+		k3sVersion := os.Getenv("K3S_VERSION")
+		globalTestEnv, setupErr = SetupK3sWithArgoCD(ctx, argoCDVersion, k3sVersion)
 		if setupErr != nil {
 			return
 		}
 
-		// Set environment variables for tests
+		// Set environment variables for tests; currently only ARGOCD_SERVER is used (since we're port-forwarding the k8s
+		// service) but can be extended with more env vars if needed
 		envVars := globalTestEnv.GetEnvironmentVariables()
 		for key, value := range envVars {
 			os.Setenv(key, value)

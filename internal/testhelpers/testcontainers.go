@@ -28,11 +28,11 @@ type K3sTestEnvironment struct {
 }
 
 // SetupK3sWithArgoCD sets up a K3s cluster with ArgoCD using testcontainers
-func SetupK3sWithArgoCD(ctx context.Context, argoCDVersion, k8sVersion string) (*K3sTestEnvironment, error) {
+func SetupK3sWithArgoCD(ctx context.Context, argoCDVersion, k3sVersion string) (*K3sTestEnvironment, error) {
 	log.Println("Setting up K3s test environment...")
 
 	k3sContainer, err := k3s.Run(ctx,
-		fmt.Sprintf("rancher/k3s:%s-k3s1", k8sVersion),
+		fmt.Sprintf("rancher/k3s:%s", k3sVersion),
 		testcontainers.WithWaitStrategy(wait.ForLog("k3s is up and running")),
 		testcontainers.WithExposedPorts("30124/tcp", "30123/tcp"),
 	)
@@ -53,6 +53,8 @@ func SetupK3sWithArgoCD(ctx context.Context, argoCDVersion, k8sVersion string) (
 		env.Cleanup(ctx)
 		return nil, fmt.Errorf("failed to wait for ArgoCD: %w", err)
 	}
+
+	log.Println("ArgoCD ready!")
 
 	return env, nil
 }
@@ -194,13 +196,7 @@ func (env *K3sTestEnvironment) waitForArgoCD(ctx context.Context) error {
 
 // GetEnvironmentVariables returns the environment variables needed for tests
 func (env *K3sTestEnvironment) GetEnvironmentVariables() map[string]string {
-	return map[string]string{
-		"ARGOCD_SERVER":        env.ArgoCDURL,
-		"ARGOCD_AUTH_USERNAME": "admin",
-		"ARGOCD_AUTH_PASSWORD": "acceptancetesting",
-		"ARGOCD_INSECURE":      "true",
-		"ARGOCD_VERSION":       "v3.0.0",
-	}
+	return map[string]string{"ARGOCD_SERVER": env.ArgoCDURL}
 }
 
 // Cleanup cleans up the test environment
