@@ -43,6 +43,7 @@ func runTestSuite(m *testing.M) int {
 	testEnvOnce.Do(func() {
 		argoCDVersion := os.Getenv("ARGOCD_VERSION")
 		k3sVersion := os.Getenv("K3S_VERSION")
+
 		GlobalTestEnv, setupErr = SetupK3sWithArgoCD(ctx, argoCDVersion, k3sVersion)
 		if setupErr != nil {
 			return

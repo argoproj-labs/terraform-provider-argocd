@@ -453,9 +453,12 @@ func getSshKeysForHost(host string) ([]string, error) {
 	}
 
 	var err error
+
 	var output []byte
+
 	if testhelpers.GlobalTestEnv != nil {
 		args = append([]string{app}, args...)
+
 		output, err = testhelpers.GlobalTestEnv.ExecInK3s(context.Background(), args...)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -466,6 +469,7 @@ func getSshKeysForHost(host string) ([]string, error) {
 		output = []byte(n[1])
 	} else {
 		cmd := exec.Command(app, args...)
+
 		output, err = cmd.Output()
 		if err != nil {
 			fmt.Println(err.Error())
