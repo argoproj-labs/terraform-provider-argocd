@@ -14,6 +14,8 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/k3s"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 const (
@@ -25,6 +27,7 @@ const (
 type K3sTestEnvironment struct {
 	K3sContainer *k3s.K3sContainer
 	ArgoCDURL    string
+	RESTConfig   *rest.Config
 }
 
 // SetupK3sWithArgoCD sets up a K3s cluster with ArgoCD using testcontainers
@@ -40,7 +43,17 @@ func SetupK3sWithArgoCD(ctx context.Context, argoCDVersion, k3sVersion string) (
 		return nil, fmt.Errorf("failed to start K3s container: %w", err)
 	}
 
-	env := &K3sTestEnvironment{K3sContainer: k3sContainer}
+	config, err := k3sContainer.GetKubeConfig(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get kubeconfig: %w", err)
+	}
+
+	restConfig, err := clientcmd.RESTConfigFromKubeConfig(config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get rest config: %w", err)
+	}
+
+	env := &K3sTestEnvironment{K3sContainer: k3sContainer, RESTConfig: restConfig}
 
 	if err := env.installArgoCD(ctx, argoCDVersion); err != nil {
 		env.Cleanup(ctx)
@@ -89,7 +102,7 @@ func (env *K3sTestEnvironment) installArgoCD(ctx context.Context, version string
 		return fmt.Errorf("failed to copy testdata to container: %w", err)
 	}
 
-	if err = env.execInK3s(ctx, "kubectl", "apply", "-f", "/tmp/testdata"); err != nil {
+	if _, err = env.ExecInK3s(ctx, "kubectl", "apply", "-f", "/tmp/testdata"); err != nil {
 		return err
 	}
 
@@ -103,7 +116,7 @@ func (env *K3sTestEnvironment) applyManifestsToContainer(ctx context.Context, ma
 	}
 
 	// Apply manifests
-	if err := env.execInK3s(ctx, "kubectl", "apply", "-f", containerFilePath); err != nil {
+	if _, err := env.ExecInK3s(ctx, "kubectl", "apply", "-f", containerFilePath); err != nil {
 		return err
 	}
 
@@ -139,24 +152,24 @@ func (env *K3sTestEnvironment) runKustomizeBuild(dir string) ([]byte, error) {
 	return output, nil
 }
 
-func (env *K3sTestEnvironment) execInK3s(ctx context.Context, args ...string) error {
+func (env *K3sTestEnvironment) ExecInK3s(ctx context.Context, args ...string) ([]byte, error) {
 	concat := strings.Join(args, " ")
 	exitCode, reader, err := env.K3sContainer.Exec(ctx, args)
 
 	if err != nil {
-		return fmt.Errorf("failed to exec '%s': %w", concat, err)
+		return []byte{}, fmt.Errorf("failed to exec '%s': %w", concat, err)
 	}
 
 	output, err := io.ReadAll(reader)
 	if err != nil {
-		return fmt.Errorf("failed to read kubectl output: %w", err)
+		return []byte{}, fmt.Errorf("failed to read kubectl output: %w", err)
 	}
 
 	if exitCode != 0 {
-		return fmt.Errorf("'%s' failed with exit code %d: %s", concat, exitCode, string(output))
+		return output, fmt.Errorf("'%s' failed with exit code %d: %s", concat, exitCode, string(output))
 	}
 
-	return nil
+	return output, nil
 }
 
 // waitForArgoCD waits for ArgoCD components to be ready
@@ -169,7 +182,7 @@ func (env *K3sTestEnvironment) waitForArgoCD(ctx context.Context) error {
 	}
 
 	for _, crd := range crds {
-		if err := env.execInK3s(ctx, "kubectl", "wait", "--for=condition=Established", fmt.Sprintf("crd/%s", crd), "--timeout=60s"); err != nil {
+		if _, err := env.ExecInK3s(ctx, "kubectl", "wait", "--for=condition=Established", fmt.Sprintf("crd/%s", crd), "--timeout=60s"); err != nil {
 			return err
 		}
 	}
@@ -179,7 +192,7 @@ func (env *K3sTestEnvironment) waitForArgoCD(ctx context.Context) error {
 
 	timeout := "60s"
 	for _, deployment := range deployments {
-		if err := env.execInK3s(ctx, "kubectl", "wait", "--for=condition=available", fmt.Sprintf("deployment/%s", deployment), "-n", "argocd", "--timeout="+timeout); err != nil {
+		if _, err := env.ExecInK3s(ctx, "kubectl", "wait", "--for=condition=available", fmt.Sprintf("deployment/%s", deployment), "-n", "argocd", "--timeout="+timeout); err != nil {
 			return fmt.Errorf("failed to wait for deployment %s: %w", deployment, err)
 		}
 	}

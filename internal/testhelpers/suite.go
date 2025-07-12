@@ -9,8 +9,7 @@ import (
 )
 
 var (
-	// Global test environment - shared across all tests
-	globalTestEnv *K3sTestEnvironment
+	GlobalTestEnv *K3sTestEnvironment
 	testEnvOnce   sync.Once
 )
 
@@ -44,14 +43,14 @@ func runTestSuite(m *testing.M) int {
 	testEnvOnce.Do(func() {
 		argoCDVersion := os.Getenv("ARGOCD_VERSION")
 		k3sVersion := os.Getenv("K3S_VERSION")
-		globalTestEnv, setupErr = SetupK3sWithArgoCD(ctx, argoCDVersion, k3sVersion)
+		GlobalTestEnv, setupErr = SetupK3sWithArgoCD(ctx, argoCDVersion, k3sVersion)
 		if setupErr != nil {
 			return
 		}
 
 		// Set environment variables for tests; currently only ARGOCD_SERVER is used (since we're port-forwarding the k8s
 		// service) but can be extended with more env vars if needed
-		envVars := globalTestEnv.GetEnvironmentVariables()
+		envVars := GlobalTestEnv.GetEnvironmentVariables()
 		for key, value := range envVars {
 			os.Setenv(key, value)
 		}
@@ -65,8 +64,8 @@ func runTestSuite(m *testing.M) int {
 	code := m.Run()
 
 	// Cleanup
-	if globalTestEnv != nil {
-		globalTestEnv.Cleanup(ctx)
+	if GlobalTestEnv != nil {
+		GlobalTestEnv.Cleanup(ctx)
 	}
 
 	return code
