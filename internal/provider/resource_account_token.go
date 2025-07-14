@@ -22,6 +22,7 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &accountTokenResource{}
+var _ resource.ResourceWithModifyPlan = &accountTokenResource{}
 
 func NewAccountTokenResource() resource.Resource {
 	return &accountTokenResource{}
@@ -239,7 +240,6 @@ func (r *accountTokenResource) Update(ctx context.Context, req resource.UpdateRe
 	accountName := data.Account.ValueString()
 
 	var expiresIn int64
-
 	if !data.ExpiresIn.IsNull() && !data.ExpiresIn.IsUnknown() {
 		ei := data.ExpiresIn.ValueString()
 		expiresInDuration, err := time.ParseDuration(ei)
@@ -316,6 +316,117 @@ func (r *accountTokenResource) Delete(ctx context.Context, req resource.DeleteRe
 		resp.Diagnostics.Append(diagnostics.ArgoCDAPIError("delete", "token for account", accountName, err)...)
 		return
 	}
+}
+
+func (r *accountTokenResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	// If this is a destroy operation, we don't need to check for renewal
+	if req.Plan.Raw.IsNull() {
+		return
+	}
+
+	var plan, state accountTokenResourceModel
+
+	// Get the planned values
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get the current state (if it exists)
+	if !req.State.Raw.IsNull() {
+		resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		// Check if token needs renewal based on renewal policies
+		needsRenewal, err := r.checkTokenRenewal(ctx, &state)
+		if err != nil {
+			resp.Diagnostics.AddError("Failed to check token renewal", err.Error())
+			return
+		}
+
+		if needsRenewal {
+			tflog.Debug(ctx, "Token renewal required, forcing resource recreation")
+
+			// Force replacement by requiring recreate on the issued_at field
+			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("issued_at"), types.StringUnknown())...)
+			resp.RequiresReplace = append(resp.RequiresReplace, path.Root("issued_at"))
+		}
+	}
+}
+
+func (r *accountTokenResource) checkTokenRenewal(ctx context.Context, state *accountTokenResourceModel) (bool, error) {
+	now := time.Now()
+
+	// Check if issued_at is available
+	if state.IssuedAt.IsNull() || state.IssuedAt.IsUnknown() {
+		return false, nil
+	}
+
+	issuedAtStr := state.IssuedAt.ValueString()
+	issuedAt, err := strconv.ParseInt(issuedAtStr, 10, 64)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse issued_at: %w", err)
+	}
+
+	// Check renew_after logic: if currentTime - issued_at > renew_after
+	if !state.RenewAfter.IsNull() && !state.RenewAfter.IsUnknown() {
+		renewAfterStr := state.RenewAfter.ValueString()
+		renewAfterDuration, err := time.ParseDuration(renewAfterStr)
+		if err != nil {
+			return false, fmt.Errorf("failed to parse renew_after: %w", err)
+		}
+
+		if now.Unix()-issuedAt > int64(renewAfterDuration.Seconds()) {
+			tflog.Debug(ctx, fmt.Sprintf("Token renewal triggered by renew_after: age=%d, threshold=%d",
+				now.Unix()-issuedAt, int64(renewAfterDuration.Seconds())))
+			return true, nil
+		}
+	}
+
+	// Check renew_before logic: if expires_at - currentTime < renew_before
+	if !state.RenewBefore.IsNull() && !state.RenewBefore.IsUnknown() &&
+		!state.ExpiresAt.IsNull() && !state.ExpiresAt.IsUnknown() {
+
+		expiresAtStr := state.ExpiresAt.ValueString()
+		if expiresAtStr != "0" { // "0" means no expiration
+			expiresAt, err := strconv.ParseInt(expiresAtStr, 10, 64)
+			if err != nil {
+				return false, fmt.Errorf("failed to parse expires_at: %w", err)
+			}
+
+			renewBeforeStr := state.RenewBefore.ValueString()
+			renewBeforeDuration, err := time.ParseDuration(renewBeforeStr)
+			if err != nil {
+				return false, fmt.Errorf("failed to parse renew_before: %w", err)
+			}
+
+			if expiresAt-now.Unix() < int64(renewBeforeDuration.Seconds()) {
+				tflog.Debug(ctx, fmt.Sprintf("Token renewal triggered by renew_before: remaining=%d, threshold=%d",
+					expiresAt-now.Unix(), int64(renewBeforeDuration.Seconds())))
+				return true, nil
+			}
+		}
+	}
+
+	// Check if token has already expired
+	if !state.ExpiresAt.IsNull() && !state.ExpiresAt.IsUnknown() {
+		expiresAtStr := state.ExpiresAt.ValueString()
+		if expiresAtStr != "0" { // "0" means no expiration
+			expiresAt, err := strconv.ParseInt(expiresAtStr, 10, 64)
+			if err != nil {
+				return false, fmt.Errorf("failed to parse expires_at: %w", err)
+			}
+
+			if expiresAt < now.Unix() {
+				tflog.Debug(ctx, "Token renewal triggered by expiration")
+				return true, nil
+			}
+		}
+	}
+
+	return false, nil
 }
 
 func (r *accountTokenResource) getAccount(ctx context.Context, accountName string) (string, error) {
