@@ -1,11 +1,14 @@
 package argocd
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"regexp"
+	"strings"
 	"testing"
 
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/testhelpers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/assert"
@@ -449,16 +452,33 @@ func getSshKeysForHost(host string) ([]string, error) {
 		host,
 	}
 
-	cmd := exec.Command(app, args...)
-	stdout, err := cmd.Output()
+	var err error
 
-	if err != nil {
-		fmt.Println(err.Error())
-		return nil, err
+	var output []byte
+
+	if testhelpers.GlobalTestEnv != nil {
+		args = append([]string{app}, args...)
+
+		output, err = testhelpers.GlobalTestEnv.ExecInK3s(context.Background(), args...)
+		if err != nil {
+			fmt.Println(err.Error())
+			return nil, err
+		}
+
+		n := strings.Split(string(output), "`")
+		output = []byte(n[1])
+	} else {
+		cmd := exec.Command(app, args...)
+
+		output, err = cmd.Output()
+		if err != nil {
+			fmt.Println(err.Error())
+			return nil, err
+		}
 	}
 
 	re, _ := regexp.Compile(`(?m)^private-git-repository (?P<subtype>[^\s]+) (?P<key>.+)$`)
-	matches := re.FindAllStringSubmatch(string(stdout), 3)
+	matches := re.FindAllStringSubmatch(string(output), 3)
 
 	subTypesKeys := make([]string, 0)
 	for _, match := range matches {
