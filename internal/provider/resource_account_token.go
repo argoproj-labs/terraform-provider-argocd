@@ -240,6 +240,7 @@ func (r *accountTokenResource) Update(ctx context.Context, req resource.UpdateRe
 	accountName := data.Account.ValueString()
 
 	var expiresIn int64
+
 	if !data.ExpiresIn.IsNull() && !data.ExpiresIn.IsUnknown() {
 		ei := data.ExpiresIn.ValueString()
 		expiresInDuration, err := time.ParseDuration(ei)
@@ -328,6 +329,7 @@ func (r *accountTokenResource) ModifyPlan(ctx context.Context, req resource.Modi
 
 	// Get the planned values
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -335,6 +337,7 @@ func (r *accountTokenResource) ModifyPlan(ctx context.Context, req resource.Modi
 	// Get the current state (if it exists)
 	if !req.State.Raw.IsNull() {
 		resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -365,6 +368,7 @@ func (r *accountTokenResource) checkTokenRenewal(ctx context.Context, state *acc
 	}
 
 	issuedAtStr := state.IssuedAt.ValueString()
+
 	issuedAt, err := strconv.ParseInt(issuedAtStr, 10, 64)
 	if err != nil {
 		return false, fmt.Errorf("failed to parse issued_at: %w", err)
@@ -373,6 +377,7 @@ func (r *accountTokenResource) checkTokenRenewal(ctx context.Context, state *acc
 	// Check renew_after logic: if currentTime - issued_at > renew_after
 	if !state.RenewAfter.IsNull() && !state.RenewAfter.IsUnknown() {
 		renewAfterStr := state.RenewAfter.ValueString()
+
 		renewAfterDuration, err := time.ParseDuration(renewAfterStr)
 		if err != nil {
 			return false, fmt.Errorf("failed to parse renew_after: %w", err)
@@ -388,7 +393,6 @@ func (r *accountTokenResource) checkTokenRenewal(ctx context.Context, state *acc
 	// Check renew_before logic: if expires_at - currentTime < renew_before
 	if !state.RenewBefore.IsNull() && !state.RenewBefore.IsUnknown() &&
 		!state.ExpiresAt.IsNull() && !state.ExpiresAt.IsUnknown() {
-
 		expiresAtStr := state.ExpiresAt.ValueString()
 		if expiresAtStr != "0" { // "0" means no expiration
 			expiresAt, err := strconv.ParseInt(expiresAtStr, 10, 64)
@@ -397,6 +401,7 @@ func (r *accountTokenResource) checkTokenRenewal(ctx context.Context, state *acc
 			}
 
 			renewBeforeStr := state.RenewBefore.ValueString()
+
 			renewBeforeDuration, err := time.ParseDuration(renewBeforeStr)
 			if err != nil {
 				return false, fmt.Errorf("failed to parse renew_before: %w", err)
