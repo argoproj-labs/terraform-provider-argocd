@@ -22,7 +22,7 @@ import (
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/repocreds"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/repository"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/session"
-  "github.com/argoproj/argo-cd/v3/pkg/apiclient/settings"
+	"github.com/argoproj/argo-cd/v3/pkg/apiclient/settings"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/version"
 	"github.com/argoproj/argo-cd/v3/util/io"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -167,15 +167,14 @@ func (si *ServerInterface) InitClients(ctx context.Context) diag.Diagnostics {
 	return diags
 }
 
-// func (si *ServerInterface) IsSettingSupported(feature features.Feature) bool {
-// 	set, _ := si.SettingsClient.Get(context.Background(), &settings.SettingsQuery{})
-// 	set.Descriptor()
-// }
+func (si *ServerInterface) IsSettingSupported(fc features.FeatureConstraint) bool {
+	if fc.RequiredSettings == nil || len(*fc.RequiredSettings) == 0 {
+		return true
+	}
 
-// Checks that a specific feature is available for the current ArgoCD server version.
-// 'feature' argument must match one of the predefined feature* constants.
-func (si *ServerInterface) IsFeatureSupported(feature features.Feature) bool {
-	fc, ok := features.ConstraintsMap[feature]
+	// Fetch settings from server
+	// Note: we could cache these settings in the ServerInterface struct, but that would make
+	// things more complex if the user changes settings during a terraform run.
 	set, err := si.SettingsClient.Get(context.Background(), &settings.SettingsQuery{})
 	if err != nil {
 		tflog.Error(context.Background(), fmt.Sprintf("error checking argocd settings: %v", err))
@@ -192,21 +191,33 @@ func (si *ServerInterface) IsFeatureSupported(feature features.Feature) bool {
 		return false
 	}
 
-	if fc.RequiredSettings != nil {
-		for _, rs := range *fc.RequiredSettings {
-			result, err := rs.Search(settings)
-			if err != nil {
-				tflog.Error(context.Background(), fmt.Sprintf("error evaluating settings check expression '%v': %v", rs, err))
-				return false
-			}
-			if result == nil || !result.(bool) {
-				tflog.Debug(context.Background(), fmt.Sprintf("settings check expression '%v' evaluated to false", rs))
-				return false
-			}
+	for _, rs := range *fc.RequiredSettings {
+		result, err := rs.Search(settings)
+		if err != nil {
+			tflog.Error(context.Background(), fmt.Sprintf("error evaluating settings check expression '%v': %v", rs, err))
+			return false
+		}
+		if result == nil || !result.(bool) {
+			tflog.Debug(context.Background(), fmt.Sprintf("settings check expression '%v' evaluated to false", rs))
+			return false
 		}
 	}
 
-	return ok && fc.MinVersion.Compare(si.ServerVersion) != 1
+	return true
+}
+
+func (si *ServerInterface) IsVersionSupported(fc features.FeatureConstraint) bool {
+	if fc.MinVersion == nil {
+		return true
+	}
+	return fc.MinVersion.Compare(si.ServerVersion) != 1
+}
+
+// Checks that a specific feature is available for the current ArgoCD server version.
+// 'feature' argument must match one of the predefined feature* constants.
+func (si *ServerInterface) IsFeatureSupported(feature features.Feature) bool {
+	fc, ok := features.ConstraintsMap[feature]
+	return ok && si.IsVersionSupported(fc) && si.IsSettingSupported(fc)
 }
 
 func getDefaultString(s types.String, envKey string) string {
