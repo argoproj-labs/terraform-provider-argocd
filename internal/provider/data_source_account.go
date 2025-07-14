@@ -84,7 +84,9 @@ func (d *accountDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			resp.Diagnostics.AddError("Account not found", fmt.Sprintf("Account %s not found", accountName))
 			return
 		}
+
 		resp.Diagnostics.Append(diagnostics.ArgoCDAPIError("read", "account", accountName, err)...)
+
 		return
 	}
 
@@ -103,11 +105,13 @@ func (d *accountDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	for i, cap := range accountResp.Capabilities {
 		capabilities[i] = types.StringValue(cap)
 	}
+
 	capList, diag := types.ListValueFrom(ctx, types.StringType, capabilities)
 	if diag.HasError() {
 		resp.Diagnostics.Append(diag...)
 		return
 	}
+
 	data.Capabilities = capList
 
 	// Convert tokens to types.List
@@ -119,6 +123,7 @@ func (d *accountDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			ExpiresAt: types.StringValue(strconv.FormatInt(token.ExpiresAt, 10)),
 		}
 	}
+
 	tokenList, diag := types.ListValueFrom(ctx, types.ObjectType{
 		AttrTypes: map[string]attr.Type{
 			"id":         types.StringType,
@@ -130,6 +135,7 @@ func (d *accountDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		resp.Diagnostics.Append(diag...)
 		return
 	}
+
 	data.Tokens = tokenList
 
 	// Save data into Terraform state

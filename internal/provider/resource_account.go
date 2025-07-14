@@ -207,7 +207,9 @@ func (r *accountResource) readAccount(ctx context.Context, data *accountModel, a
 			diags.AddError("Account not found", fmt.Sprintf("Account %s not found", accountName))
 			return diags
 		}
+
 		diags.Append(diagnostics.ArgoCDAPIError("read", "account", accountName, err)...)
+
 		return diags
 	}
 
@@ -225,11 +227,13 @@ func (r *accountResource) readAccount(ctx context.Context, data *accountModel, a
 	for i, cap := range accountResp.Capabilities {
 		capabilities[i] = types.StringValue(cap)
 	}
+
 	capList, diag := types.ListValue(types.StringType, capabilities)
 	if diag.HasError() {
 		diags.Append(diag...)
 		return diags
 	}
+
 	data.Capabilities = capList
 
 	// Convert tokens to types.List
@@ -240,17 +244,20 @@ func (r *accountResource) readAccount(ctx context.Context, data *accountModel, a
 	}
 
 	tokens := make([]attr.Value, len(accountResp.Tokens))
+
 	for i, token := range accountResp.Tokens {
 		tokenAttrs := map[string]attr.Value{
 			"id":         types.StringValue(token.Id),
 			"issued_at":  types.StringValue(strconv.FormatInt(token.IssuedAt, 10)),
 			"expires_at": types.StringValue(strconv.FormatInt(token.ExpiresAt, 10)),
 		}
+
 		tokenObj, tokenDiag := types.ObjectValue(tokenAttrTypes, tokenAttrs)
 		if tokenDiag.HasError() {
 			diags.Append(tokenDiag...)
 			return diags
 		}
+
 		tokens[i] = tokenObj
 	}
 
@@ -259,6 +266,7 @@ func (r *accountResource) readAccount(ctx context.Context, data *accountModel, a
 		diags.Append(diag...)
 		return diags
 	}
+
 	data.Tokens = tokenList
 
 	return diags

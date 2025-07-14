@@ -91,11 +91,13 @@ func (r *accountTokenResource) Create(ctx context.Context, req resource.CreateRe
 	if !data.ExpiresIn.IsNull() && !data.ExpiresIn.IsUnknown() {
 		ei := data.ExpiresIn.ValueString()
 		expiresInDuration, err := time.ParseDuration(ei)
+
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Invalid expires_in duration",
 				fmt.Sprintf("Token expiration duration (%s) for account %s could not be parsed: %s", ei, accountName, err),
 			)
+
 			return
 		}
 
@@ -106,11 +108,13 @@ func (r *accountTokenResource) Create(ctx context.Context, req resource.CreateRe
 	if !data.RenewBefore.IsNull() && !data.RenewBefore.IsUnknown() {
 		rb := data.RenewBefore.ValueString()
 		renewBeforeDuration, err := time.ParseDuration(rb)
+
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Invalid renew_before duration",
 				fmt.Sprintf("Token renewal duration (%s) for account %s could not be parsed: %s", rb, accountName, err),
 			)
+
 			return
 		}
 
@@ -121,6 +125,7 @@ func (r *accountTokenResource) Create(ctx context.Context, req resource.CreateRe
 				"Invalid renew_before configuration",
 				fmt.Sprintf("renew_before (%d) cannot be greater than expires_in (%d) for account token", renewBefore, expiresIn),
 			)
+
 			return
 		}
 	}
@@ -142,6 +147,7 @@ func (r *accountTokenResource) Create(ctx context.Context, req resource.CreateRe
 			"Invalid JWT token",
 			fmt.Sprintf("Token for account %s is not a valid jwt: %s", accountName, err),
 		)
+
 		return
 	}
 
@@ -151,6 +157,7 @@ func (r *accountTokenResource) Create(ctx context.Context, req resource.CreateRe
 			"Failed to parse token claims",
 			fmt.Sprintf("Token claims for account %s could not be parsed: %s", accountName, err),
 		)
+
 		return
 	}
 
@@ -166,6 +173,7 @@ func (r *accountTokenResource) Create(ctx context.Context, req resource.CreateRe
 				"Missing token expiration",
 				fmt.Sprintf("Token claims expiration date for account %s is missing", accountName),
 			)
+
 			return
 		} else {
 			data.ExpiresAt = types.StringValue(strconv.FormatInt(claims.ExpiresAt.Unix(), 10))
@@ -235,11 +243,13 @@ func (r *accountTokenResource) Update(ctx context.Context, req resource.UpdateRe
 	if !data.ExpiresIn.IsNull() && !data.ExpiresIn.IsUnknown() {
 		ei := data.ExpiresIn.ValueString()
 		expiresInDuration, err := time.ParseDuration(ei)
+
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Invalid expires_in duration",
 				fmt.Sprintf("Token expiration duration (%s) for account %s could not be parsed: %s", ei, accountName, err),
 			)
+
 			return
 		}
 
@@ -249,11 +259,13 @@ func (r *accountTokenResource) Update(ctx context.Context, req resource.UpdateRe
 	if !data.RenewBefore.IsNull() && !data.RenewBefore.IsUnknown() {
 		rb := data.RenewBefore.ValueString()
 		renewBeforeDuration, err := time.ParseDuration(rb)
+
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Invalid renew_before duration",
 				fmt.Sprintf("Token renewal duration (%s) for account %s could not be parsed: %s", rb, accountName, err),
 			)
+
 			return
 		}
 
@@ -263,6 +275,7 @@ func (r *accountTokenResource) Update(ctx context.Context, req resource.UpdateRe
 				"Invalid renew_before configuration",
 				fmt.Sprintf("renew_before (%d) cannot be greater than expires_in (%d) for account %s", renewBefore, expiresIn, accountName),
 			)
+
 			return
 		}
 	}
@@ -287,6 +300,7 @@ func (r *accountTokenResource) Delete(ctx context.Context, req resource.DeleteRe
 	accountName := data.Account.ValueString()
 
 	var tokenID string
+
 	req.State.GetAttribute(ctx, path.Root("id"), &tokenID)
 
 	tflog.Trace(ctx, fmt.Sprintf("deleting account token %s for %s", tokenID, accountName))
