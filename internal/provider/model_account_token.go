@@ -35,8 +35,10 @@ func accountTokenResourceSchemaAttributes() map[string]rschema.Attribute {
 		"account": rschema.StringAttribute{
 			MarkdownDescription: "Account name. Defaults to the current account. I.e. the account configured on the `provider` block.",
 			Optional:            true,
+			Computed:            true,
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
+				stringplanmodifier.UseStateForUnknown(),
 			},
 		},
 		"expires_in": rschema.StringAttribute{
