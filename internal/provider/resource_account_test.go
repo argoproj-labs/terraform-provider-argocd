@@ -1,21 +1,21 @@
-package argocd
+package provider
 
 import (
 	"fmt"
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
-func TestAccArgoCDAccount_Basic(t *testing.T) {
+func TestAccArgoCDAccountResource_Basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDAccount_Basic(),
+				Config: testAccArgoCDAccountResource_Basic(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"argocd_account.test",
@@ -31,22 +31,22 @@ func TestAccArgoCDAccount_Basic(t *testing.T) {
 						"argocd_account.test",
 						"capabilities.#",
 					),
-					testAccCheckArgoCDAccountExists("argocd_account.test"),
+					testAccCheckArgoCDAccountResourceExists("argocd_account.test"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccArgoCDAccount_Import(t *testing.T) {
+func TestAccArgoCDAccountResource_Import(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDAccount_Basic(),
+				Config: testAccArgoCDAccountResource_Basic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckArgoCDAccountExists("argocd_account.test"),
+					testAccCheckArgoCDAccountResourceExists("argocd_account.test"),
 				),
 			},
 			{
@@ -62,13 +62,13 @@ func TestAccArgoCDAccount_Import(t *testing.T) {
 	})
 }
 
-func TestAccArgoCDAccount_WithTokens(t *testing.T) {
+func TestAccArgoCDAccountResource_WithTokens(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDAccount_WithTokens(),
+				Config: testAccArgoCDAccountResource_WithTokens(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"argocd_account.test",
@@ -79,51 +79,51 @@ func TestAccArgoCDAccount_WithTokens(t *testing.T) {
 						"argocd_account.test",
 						"tokens.#",
 					),
-					testAccCheckArgoCDAccountExists("argocd_account.test"),
+					testAccCheckArgoCDAccountResourceExists("argocd_account.test"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccArgoCDAccount_PasswordUpdate(t *testing.T) {
+func TestAccArgoCDAccountResource_PasswordUpdate(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDAccount_NewAccountWithPassword("test", "acceptancetesting"),
+				Config: testAccArgoCDAccountResource_NewAccountWithPassword("test", "acceptancetesting"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"argocd_account.test",
 						"name",
 						"test",
 					),
-					testAccCheckArgoCDAccountExists("argocd_account.test"),
+					testAccCheckArgoCDAccountResourceExists("argocd_account.test"),
 				),
 			},
 			{
-				Config: testAccArgoCDAccount_NewAccountWithPassword("test", "updated-password"),
+				Config: testAccArgoCDAccountResource_NewAccountWithPassword("test", "updated-password"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"argocd_account.test",
 						"name",
 						"test",
 					),
-					testAccCheckArgoCDAccountExists("argocd_account.test"),
+					testAccCheckArgoCDAccountResourceExists("argocd_account.test"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccArgoCDAccount_ComputedFields(t *testing.T) {
+func TestAccArgoCDAccountResource_ComputedFields(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDAccount_Basic(),
+				Config: testAccArgoCDAccountResource_Basic(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"argocd_account.test",
@@ -142,41 +142,41 @@ func TestAccArgoCDAccount_ComputedFields(t *testing.T) {
 						"argocd_account.test",
 						"tokens.#",
 					),
-					testAccCheckArgoCDAccountExists("argocd_account.test"),
+					testAccCheckArgoCDAccountResourceExists("argocd_account.test"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccArgoCDAccount_InitialPasswordSet(t *testing.T) {
+func TestAccArgoCDAccountResource_InitialPasswordSet(t *testing.T) {
 	// This test demonstrates that ArgoCD API requires the current password
 	// to update/set a password, even for accounts without existing passwords.
 	// This is a limitation of the ArgoCD API itself.
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDAccount_NewAccountWithoutPassword("test"),
+				Config: testAccArgoCDAccountResource_NewAccountWithoutPassword("test"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"argocd_account.test",
 						"name",
 						"test",
 					),
-					testAccCheckArgoCDAccountExists("argocd_account.test"),
+					testAccCheckArgoCDAccountResourceExists("argocd_account.test"),
 				),
 			},
 			{
-				Config:      testAccArgoCDAccount_NewAccountWithPassword("test", "new-password"),
+				Config:      testAccArgoCDAccountResource_NewAccountWithPassword("test", "new-password"),
 				ExpectError: regexp.MustCompile("current password does not match"),
 			},
 		},
 	})
 }
 
-func testAccCheckArgoCDAccountExists(resourceName string) resource.TestCheckFunc {
+func testAccCheckArgoCDAccountResourceExists(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -200,7 +200,7 @@ func testAccCheckArgoCDAccountExists(resourceName string) resource.TestCheckFunc
 	}
 }
 
-func testAccArgoCDAccount_Basic() string {
+func testAccArgoCDAccountResource_Basic() string {
 	return `
 resource "argocd_account" "test" {
   name = "admin"
@@ -208,21 +208,20 @@ resource "argocd_account" "test" {
 `
 }
 
-func testAccArgoCDAccount_WithTokens() string {
+func testAccArgoCDAccountResource_WithTokens() string {
 	return `
+resource "argocd_account" "test" {
+  name = "admin"
+}
+
 resource "argocd_account_token" "test" {
-  account = "admin"
+  account = argocd_account.test.name
   expires_in = "1h"
 }
-
-resource "argocd_account" "test" {
-  name = "admin"
-  depends_on = [argocd_account_token.test]
-}
 `
 }
 
-func testAccArgoCDAccount_NewAccountWithPassword(accountName, password string) string {
+func testAccArgoCDAccountResource_NewAccountWithPassword(accountName, password string) string {
 	return fmt.Sprintf(`
 resource "argocd_account" "test" {
   name = "%s"
@@ -231,7 +230,7 @@ resource "argocd_account" "test" {
 `, accountName, password)
 }
 
-func testAccArgoCDAccount_NewAccountWithoutPassword(accountName string) string {
+func testAccArgoCDAccountResource_NewAccountWithoutPassword(accountName string) string {
 	return fmt.Sprintf(`
 resource "argocd_account" "test" {
   name = "%s"

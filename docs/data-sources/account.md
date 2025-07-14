@@ -23,14 +23,14 @@ Retrieves information about a specific ArgoCD account.
 
 - `capabilities` (List of String) List of account capabilities.
 - `enabled` (Boolean) Whether the account is enabled.
-- `id` (String) The ID of this resource.
-- `tokens` (List of Object) List of active tokens for the account. (see [below for nested schema](#nestedatt--tokens))
+- `id` (String) The ID of the account (same as name).
+- `tokens` (Attributes List) List of active tokens for the account. (see [below for nested schema](#nestedatt--tokens))
 
 <a id="nestedatt--tokens"></a>
 ### Nested Schema for `tokens`
 
 Read-Only:
 
-- `expires_at` (String)
-- `id` (String)
-- `issued_at` (String)
+- `expires_at` (String) Unix timestamp when the token expires, 0 if no expiration.
+- `id` (String) Token ID.
+- `issued_at` (String) Unix timestamp when the token was issued.
