@@ -1,14 +1,8 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: argocd
 resources:
   - namespace.yml
-  - argocd.yml
   - git-private-repository.yml
   - proxy-service.yml
   - cluster-rbac.yml
-patchesStrategicMerge:
-  - patches/argocd-cm.yml
-  - patches/argocd-cmd-params-cm.yml
-  - patches/secret.yml

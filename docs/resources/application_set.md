@@ -729,6 +729,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -1028,6 +1029,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -1334,6 +1336,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -1615,6 +1618,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -1946,6 +1950,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -2245,6 +2250,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -2551,6 +2557,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -2832,6 +2839,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -3161,6 +3169,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -3460,6 +3469,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -3766,6 +3776,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -4047,6 +4058,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -4339,6 +4351,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--plugin--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--plugin--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--plugin--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--plugin--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -4735,6 +4748,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -5184,6 +5198,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -5474,6 +5489,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -5804,6 +5820,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -6103,6 +6120,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -6409,6 +6427,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -6690,6 +6709,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -6982,6 +7002,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--plugin--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--plugin--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--plugin--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--plugin--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -7378,6 +7399,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -7827,6 +7849,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -8117,6 +8140,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -8409,6 +8433,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--plugin--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--plugin--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--plugin--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--plugin--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -8805,6 +8830,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -9254,6 +9280,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -9544,6 +9571,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -9876,6 +9904,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -10175,6 +10204,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -10481,6 +10511,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -10762,6 +10793,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -11091,6 +11123,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -11390,6 +11423,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -11696,6 +11730,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -11977,6 +12012,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -12269,6 +12305,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--plugin--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--plugin--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--plugin--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--plugin--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -12665,6 +12702,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -13114,6 +13152,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -13404,6 +13443,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -13734,6 +13774,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -14033,6 +14074,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -14339,6 +14381,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -14620,6 +14663,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -14912,6 +14956,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--plugin--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--plugin--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--plugin--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--plugin--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -15308,6 +15353,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -15757,6 +15803,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -16047,6 +16094,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -16339,6 +16387,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--plugin--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--plugin--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--plugin--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--plugin--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -16735,6 +16784,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -17184,6 +17234,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -17474,6 +17525,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -17766,6 +17818,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--plugin--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--plugin--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--plugin--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--plugin--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -18162,6 +18215,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -18611,6 +18665,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.
@@ -18888,6 +18943,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--template--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--template--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--template--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--template--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.

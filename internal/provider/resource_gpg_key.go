@@ -7,8 +7,8 @@ import (
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/diagnostics"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/sync"
-	"github.com/argoproj/argo-cd/v2/pkg/apiclient/gpgkey"
-	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	"github.com/argoproj/argo-cd/v3/pkg/apiclient/gpgkey"
+	"github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"

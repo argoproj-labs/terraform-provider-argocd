@@ -20,6 +20,7 @@ const (
 	ApplicationKustomizePatches
 	ProjectDestinationServiceAccounts
 	ProjectFineGrainedPolicy
+	ApplicationSourceName
 )
 
 type FeatureConstraint struct {

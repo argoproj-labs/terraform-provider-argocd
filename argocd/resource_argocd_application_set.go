@@ -7,8 +7,8 @@ import (
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
-	"github.com/argoproj/argo-cd/v2/pkg/apiclient/applicationset"
-	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	"github.com/argoproj/argo-cd/v3/pkg/apiclient/applicationset"
+	application "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -26,7 +26,15 @@ func resourceArgoCDApplicationSet() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"metadata": metadataSchema("applicationsets.argoproj.io"),
-			"spec":     applicationSetSpecSchemaV0(),
+			"spec":     applicationSetSpecSchemaV1(),
+		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceArgoCDApplicationV1().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceArgoCDApplicationSetStateUpgradeV0,
+				Version: 0,
+			},
 		},
 	}
 }
@@ -41,7 +49,13 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		return featureNotSupported(features.ApplicationSet)
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources), si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences), si.IsFeatureSupported(features.ApplicationSetTemplatePatch))
+	objectMeta, spec, err := expandApplicationSet(
+		d,
+		si.IsFeatureSupported(features.MultipleApplicationSources),
+		si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences),
+		si.IsFeatureSupported(features.ApplicationSetTemplatePatch),
+		si.IsFeatureSupported(features.ApplicationSourceName),
+	)
 	if err != nil {
 		return errorToDiagnostics("failed to expand application set", err)
 	}
@@ -83,7 +97,7 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	d.SetId(as.Name)
+	d.SetId(fmt.Sprintf("%s:%s", as.Name, objectMeta.Namespace))
 
 	return resourceArgoCDApplicationSetRead(ctx, d, meta)
 }
@@ -94,10 +108,13 @@ func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceDat
 		return pluginSDKDiags(diags)
 	}
 
-	name := d.Id()
+	ids := strings.Split(d.Id(), ":")
+	appSetName := ids[0]
+	namespace := ids[1]
 
 	appSet, err := si.ApplicationSetClient.Get(ctx, &applicationset.ApplicationSetGetQuery{
-		Name: name,
+		Name:            appSetName,
+		AppsetNamespace: namespace,
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "NotFound") {
@@ -105,12 +122,12 @@ func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceDat
 			return diag.Diagnostics{}
 		}
 
-		return argoCDAPIError("read", "application set", name, err)
+		return argoCDAPIError("read", "application set", appSetName, err)
 	}
 
 	err = flattenApplicationSet(appSet, d)
 	if err != nil {
-		return errorToDiagnostics(fmt.Sprintf("failed to flatten application set %s", name), err)
+		return errorToDiagnostics(fmt.Sprintf("failed to flatten application set %s", appSetName), err)
 	}
 
 	return nil
@@ -130,7 +147,13 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 		return nil
 	}
 
-	objectMeta, spec, err := expandApplicationSet(d, si.IsFeatureSupported(features.MultipleApplicationSources), si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences), si.IsFeatureSupported(features.ApplicationSetTemplatePatch))
+	objectMeta, spec, err := expandApplicationSet(
+		d,
+		si.IsFeatureSupported(features.MultipleApplicationSources),
+		si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences),
+		si.IsFeatureSupported(features.ApplicationSetTemplatePatch),
+		si.IsFeatureSupported(features.ApplicationSourceName),
+	)
 	if err != nil {
 		return errorToDiagnostics(fmt.Sprintf("failed to expand application set %s", d.Id()), err)
 	}
@@ -172,12 +195,15 @@ func resourceArgoCDApplicationSetDelete(ctx context.Context, d *schema.ResourceD
 		return pluginSDKDiags(diags)
 	}
 
-	_, err := si.ApplicationSetClient.Delete(ctx, &applicationset.ApplicationSetDeleteRequest{
-		Name: d.Id(),
-	})
+	ids := strings.Split(d.Id(), ":")
+	appSetName := ids[0]
+	namespace := ids[1]
 
-	if err != nil && !strings.Contains(err.Error(), "NotFound") {
-		return argoCDAPIError("delete", "application set", d.Id(), err)
+	if _, err := si.ApplicationSetClient.Delete(ctx, &applicationset.ApplicationSetDeleteRequest{
+		Name:            appSetName,
+		AppsetNamespace: namespace,
+	}); err != nil && !strings.Contains(err.Error(), "NotFound") {
+		return argoCDAPIError("delete", "application set", appSetName, err)
 	}
 
 	d.SetId("")

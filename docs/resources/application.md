@@ -241,6 +241,7 @@ Optional:
 - `directory` (Block List, Max: 1) Path/directory specific options. (see [below for nested schema](#nestedblock--spec--source--directory))
 - `helm` (Block List, Max: 1) Helm specific options. (see [below for nested schema](#nestedblock--spec--source--helm))
 - `kustomize` (Block List, Max: 1) Kustomize specific options. (see [below for nested schema](#nestedblock--spec--source--kustomize))
+- `name` (String) Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14
 - `path` (String) Directory path within the repository. Only valid for applications sourced from Git.
 - `plugin` (Block List, Max: 1) Config management plugin specific options. (see [below for nested schema](#nestedblock--spec--source--plugin))
 - `ref` (String) Reference to another `source` within defined sources. See associated documentation on [Helm value files from external Git repository](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository) regarding combining `ref` with `path` and/or `chart`.

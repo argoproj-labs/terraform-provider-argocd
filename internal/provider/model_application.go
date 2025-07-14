@@ -3,7 +3,7 @@ package provider
 import (
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/utils"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/validators"
-	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	"github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/elliotchance/pie/v2"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -236,6 +236,7 @@ type applicationSource struct {
 	Directory      *applicationSourceDirectory `tfsdk:"directory"`
 	Helm           *applicationSourceHelm      `tfsdk:"helm"`
 	Kustomize      *applicationSourceKustomize `tfsdk:"kustomize"`
+	Name           types.String                `tfsdk:"name"`
 	Path           types.String                `tfsdk:"path"`
 	Plugin         *applicationSourcePlugin    `tfsdk:"plugin"`
 	Ref            types.String                `tfsdk:"ref"`
@@ -258,6 +259,11 @@ func applicationSourcesSchemaAttribute(allOptional, computed bool) schema.Attrib
 				"directory": applicationSourceDirectorySchemaAttribute(computed),
 				"helm":      applicationSourceHelmSchemaAttribute(computed),
 				"kustomize": applicationSourceKustomizeSchemaAttribute(computed),
+				"name": schema.StringAttribute{
+					MarkdownDescription: "Name is used to refer to a source and is displayed in the UI. It is supported in multi-source Applications since version 2.14",
+					Computed:            computed,
+					Optional:            !computed,
+				},
 				"path": schema.StringAttribute{
 					MarkdownDescription: "Directory path within the repository. Only valid for applications sourced from Git.",
 					Computed:            computed,
@@ -292,6 +298,7 @@ func newApplicationSource(as v1alpha1.ApplicationSource) applicationSource {
 		Directory:      newApplicationSourceDirectory(as.Directory),
 		Helm:           newApplicationSourceHelm(as.Helm),
 		Kustomize:      newApplicationSourceKustomize(as.Kustomize),
+		Name:           types.StringValue(as.Name),
 		Path:           types.StringValue(as.Path),
 		Plugin:         newApplicationSourcePlugin(as.Plugin),
 		Ref:            types.StringValue(as.Ref),

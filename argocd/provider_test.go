@@ -7,6 +7,7 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/testhelpers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -20,6 +21,10 @@ func init() {
 			return Provider(), nil
 		},
 	}
+}
+
+func TestMain(m *testing.M) {
+	testhelpers.TestMain(m)
 }
 
 func TestProvider(t *testing.T) {
@@ -95,7 +100,7 @@ func testAccPreCheckFeatureSupported(t *testing.T, feature features.Feature) {
 // func testAccPreCheckFeatureNotSupported(t *testing.T, feature int) {
 // 	v := os.Getenv("ARGOCD_VERSION")
 // 	if v == "" {
-// 		t.Skip("ARGOCD_VERSION must be set set for feature supported acceptance tests")
+// 		t.Skip("ARGOCD_VERSION must be set for feature supported acceptance tests")
 // 	}
 
 // 	serverVersion, err := semver.NewVersion(v)

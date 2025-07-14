@@ -10,8 +10,8 @@ import (
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
-	applicationClient "github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
-	application "github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	applicationClient "github.com/argoproj/argo-cd/v3/pkg/apiclient/application"
+	application "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/gitops-engine/pkg/health"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
@@ -83,14 +83,14 @@ func resourceArgoCDApplication() *schema.Resource {
 }
 
 func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	objectMeta, spec, err := expandApplication(d)
-	if err != nil {
-		return errorToDiagnostics("failed to expand application", err)
-	}
-
 	si := meta.(*provider.ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
+	}
+
+	objectMeta, spec, err := expandApplication(d, si.IsFeatureSupported(features.ApplicationSourceName))
+	if err != nil {
+		return errorToDiagnostics("failed to expand application", err)
 	}
 
 	apps, err := si.ApplicationClient.List(ctx, &applicationClient.ApplicationQuery{
@@ -259,7 +259,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		AppNamespace: &ids[1],
 	}
 
-	objectMeta, spec, err := expandApplication(d)
+	objectMeta, spec, err := expandApplication(d, si.IsFeatureSupported(features.ApplicationSourceName))
 	if err != nil {
 		return errorToDiagnostics(fmt.Sprintf("failed to expand application %s", *appQuery.Name), err)
 	}

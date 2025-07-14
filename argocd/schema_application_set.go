@@ -1,6 +1,9 @@
 package argocd
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -136,6 +139,15 @@ func applicationSetSpecSchemaV0() *schema.Schema {
 	}
 }
 
+func applicationSetSpecSchemaV1() *schema.Schema {
+	// To support deploying applicationsets to non-default namespaces we need to
+	// do a state migration to ensure that the Id on existing resources is
+	// updated to include the namespace. For this to happen, we need to trigger
+	// a schema version upgrade on the applicationset resource however, the
+	// schema of the applicationset `spec` has not changed from `v0`.
+	return applicationSetSpecSchemaV0()
+}
+
 func applicationSetGeneratorSchemaV0() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
@@ -144,6 +156,18 @@ func applicationSetGeneratorSchemaV0() *schema.Schema {
 		MinItems:    1,
 		Elem:        generatorResourceV0(generatorSchemaLevel),
 	}
+}
+
+func resourceArgoCDApplicationSetStateUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+	_metadata, ok := rawState["metadata"].([]interface{})
+	if !ok || len(_metadata) == 0 {
+		return nil, fmt.Errorf("failed to read metadata during state migration v0 to v1")
+	}
+
+	metadata := _metadata[0].(map[string]interface{})
+	rawState["id"] = fmt.Sprintf("%s:%s", metadata["name"].(string), metadata["namespace"].(string))
+
+	return rawState, nil
 }
 
 func generatorResourceV0(level int) *schema.Resource {

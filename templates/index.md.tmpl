@@ -4,46 +4,33 @@ description: |-
   The ArgoCD provider provides lifecycle management of ArgoCD resources.
 ---
 
+{{/* This template serves as a starting point for documentation generation, and can be customized with hardcoded values and/or doc gen templates.
+
+For example, the {{ .SchemaMarkdown }} template can be used to replace manual schema documentation if descriptions of schema attributes are added in the provider source code. */ -}}
+
 # ArgoCD Provider
 
-The ArgoCD Provider provides lifecycle management of
-[ArgoCD](https://argo-cd.readthedocs.io/en/stable/) resources.
+The ArgoCD Provider provides lifecycle management of [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) resources.
 
-**NB**: The provider is not concerned with the installation/configuration of
-ArgoCD itself. To make use of the provider, you will need to have an existing
-ArgoCD installation.
+**NB**: The provider is not concerned with the installation/configuration of ArgoCD itself. To make use of the provider, you will need to have an existing ArgoCD installation.
 
-The correct provider configuration largely depends on whether or not your 
-ArgoCD API server is exposed or not.
+The correct provider configuration largely depends on whether or not your ArgoCD API server is exposed or not.
 
 If your ArgoCD API server is exposed, then:
-- use `server_addr` along with a `username`/`password` or `auth_token`. 
-- use `use_local_config` if you have (pre)authenticated via the ArgoCD CLI (E.g.
-  via SSO using `argocd login --sso`.
+- use `server_addr` along with a `username`/`password` or `auth_token`.
+- use `use_local_config` if you have (pre)authenticated via the ArgoCD CLI (E.g. via SSO using `argocd login --sso`.
 
-If you have not exposed your ArgoCD API server or have not deployed the API
-server ([ArgoCD
-core](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/#core)),
-see below for options. **Note**: in both these cases, you need sufficient access
-to the Kubernetes API to perform any actions.
-- use `port_forward_with_namespace` and optionally `kubernetes` configuration
-  (to temporarily expose the ArgoCD API server using port forwarding) along with
-  a `username`/`password` or `auth_token`.
-    - if you use port-forwarding and your argo-cd-server is running on plain HTTP you need to add the flag `plain_text = true` to the provider configuration as well
-- use `core` to run a local ArgoCD API server that communicates directly with
-  the Kubernetes API. **NB**: When using `core`, take note of the warning in 
-  the docs below.
+If you have not exposed your ArgoCD API server or have not deployed the API server ([ArgoCD core](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/#core)), see below for options. **Note**: in both these cases, you need sufficient access to the Kubernetes API to perform any actions.
+- use `port_forward_with_namespace` and optionally `kubernetes` configuration (to temporarily expose the ArgoCD API server using port forwarding) along with a `username`/`password` or `auth_token`.
+  - if you use port-forwarding and your argo-cd-server is running on plain HTTP you need to add the flag `plain_text = true` to the provider configuration as well
+- use `core` to run a local ArgoCD API server that communicates directly with the Kubernetes API. **NB**: When using `core`, take note of the warning in the docs below.
 
-If you are struggling to determine the correct configuration for the provider or
-the provider is behaving strangely and failing to connect for whatever reason,
-then we would suggest that you first figure out what combination of parameters
-work to log in using the ArgoCD CLI (`argocd login`) and then set the provider
-configuration to match what you used in the CLI. See also the ArgoCD [Getting
-Started](https://argo-cd.readthedocs.io/en/stable/getting_started/#3-access-the-argo-cd-api-server)
-docs.
+If you are struggling to determine the correct configuration for the provider or the provider is behaving strangely and failing to connect for whatever reason, then we would suggest that you first figure out what combination of parameters work to log in using the ArgoCD CLI (`argocd login`) and then set the provider configuration to match what you used in the CLI. See also the ArgoCD [Getting Started](https://argo-cd.readthedocs.io/en/stable/getting_started/#3-access-the-argo-cd-api-server) docs.
 
 ## Example Usage
 
-{{ tffile "examples/provider/provider.tf" }}
+{{tffile "examples/example_1.tf"}}
 
-{{ .SchemaMarkdown | trimspace }}
+<br/>
+
+{{- .SchemaMarkdown | trimspace -}}

@@ -1,10 +1,13 @@
 package argocd
 
 import (
+	"fmt"
+	"reflect"
 	"regexp"
 	"testing"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -255,6 +258,46 @@ func TestAccArgoCDApplicationSet_matrix(t *testing.T) {
 			},
 			{
 				ResourceName:            "argocd_application_set.matrix",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
+func TestAccArgoCDApplicationSet_matrixPluginGenerator(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSet_matrixPluginGenerator(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix-plugin_generator",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix-plugin_generator",
+						"spec.0.generator.0.matrix.0.generator.1.clusters.0.selector.0.match_labels.%",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix-plugin_generator",
+						"spec.0.generator.0.matrix.0.generator.0.plugin.0.requeue_after_seconds",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix-plugin_generator",
+						"spec.0.generator.0.matrix.0.generator.0.plugin.0.config_map_ref",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix-plugin_generator",
+						"spec.0.generator.0.matrix.0.generator.0.plugin.0.input.0.parameters.key1",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.matrix-plugin_generator",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
@@ -1002,6 +1045,78 @@ func TestAccArgoCDApplicationSet_templatePatch(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplicationSet_CustomNamespace(t *testing.T) {
+	name := acctest.RandomWithPrefix("appset-ns")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSetCustomNamespace(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.custom_namespace",
+						"metadata.0.uid",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.custom_namespace",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
+			},
+		},
+	})
+}
+
+func TestUpgradeSchemaApplicationSet_V0V1_Default_NoChange(t *testing.T) {
+	t.Parallel()
+
+	v0 := map[string]interface{}{
+		"metadata": []interface{}{
+			map[string]interface{}{
+				"name":      "test",
+				"namespace": "argocd",
+			},
+		},
+		"spec": []interface{}{
+			map[string]interface{}{
+				"generator": []interface{}{
+					map[string]interface{}{
+						"clusters": []interface{}{map[string]interface{}{}},
+					},
+				},
+				"template": []interface{}{
+					map[string]interface{}{
+						"metadata": []interface{}{map[string]interface{}{
+							"name": "{{ name }}-clusters",
+						}},
+						"spec": []interface{}{map[string]interface{}{
+							"source": []interface{}{map[string]interface{}{
+								"repo_url":        "https://github.com/argoproj/argocd-example-apps",
+								"target_revision": "HEAD",
+								"path":            "guestbook",
+							}},
+							"destination": []interface{}{map[string]interface{}{
+								"server":    "{{ server }}",
+								"namespace": "default",
+							}},
+						}},
+					},
+				},
+			},
+		},
+	}
+
+	actual, _ := resourceArgoCDApplicationStateUpgradeV0(t.Context(), v0, nil)
+
+	if !reflect.DeepEqual(v0, actual) {
+		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", v0, actual)
+	}
+}
+
 func testAccArgoCDApplicationSet_clusters() string {
 	return `
 resource "argocd_application_set" "clusters" {
@@ -1021,9 +1136,9 @@ resource "argocd_application_set" "clusters" {
 
 			spec {
 				source {
-					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
-					path            = "guestbook"
+					path            = "test/e2e/testdata/guestbook"
 				}
 
 				destination {
@@ -1061,9 +1176,9 @@ resource "argocd_application_set" "clusters_selector" {
 
 			spec {
 				source {
-					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
-					path = "guestbook"
+					path            = "test/e2e/testdata/guestbook"
 				}
 
 				destination {
@@ -1114,9 +1229,9 @@ resource "argocd_application_set" "cluster_decision_resource" {
 
 			spec {
 				source {
-					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
-					path            = "guestbook"
+					path            = "test/e2e/testdata/guestbook"
 				}
 
 				destination {
@@ -1329,6 +1444,65 @@ resource "argocd_application_set" "matrix" {
 					}
 				}
 
+				generator {
+					clusters{
+						selector{
+							match_labels = {
+								"argocd.argoproj.io/secret-type" = "cluster"
+							}
+						}
+					}
+				}
+			}
+		}
+
+		template {
+			metadata {
+				name = "{{path.basename}}-{{name}}"
+			}
+
+			spec {
+				project = "default"
+
+				source {
+					repo_url        = "https://github.com/argoproj/argo-cd.git"
+					target_revision = "HEAD"
+					path            = "{{path}}"
+				}
+
+				destination {
+					server    = "{{server}}"
+					namespace = "{{path.basename}}"
+				}
+			}
+		}
+	}
+}`
+}
+
+func testAccArgoCDApplicationSet_matrixPluginGenerator() string {
+	return `
+resource "argocd_application_set" "matrix-plugin_generator" {
+	metadata {
+		name = "matrix-plugin-generator"
+	}
+
+	spec {
+		generator {
+			matrix {
+				generator {
+					plugin {
+						config_map_ref = "plugin"
+		
+						input {
+							parameters = {
+								key1 = "value1"
+							}
+						}
+		
+						requeue_after_seconds = 30
+					}
+				}
 				generator {
 					clusters{
 						selector{
@@ -2856,9 +3030,9 @@ resource "argocd_application_set" "go_template" {
 
 			spec {
 				source {
-					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
-					path            = "guestbook"
+					path            = "test/e2e/testdata/guestbook"
 				}
 
 				destination {
@@ -2894,9 +3068,9 @@ resource "argocd_application_set" "sync_policy" {
 
 			spec {
 				source {
-					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
-					path            = "guestbook"
+					path            = "test/e2e/testdata/guestbook"
 				}
 
 				destination {
@@ -2933,9 +3107,9 @@ resource "argocd_application_set" "applications_sync_policy" {
 
 			spec {
 				source {
-					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
-					path            = "guestbook"
+					path            = "test/e2e/testdata/guestbook"
 				}
 
 				destination {
@@ -3102,4 +3276,75 @@ resource "argocd_application_set" "template_patch" {
     }
   }
 }`
+}
+
+func testAccArgoCDApplicationSetCustomNamespace(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "custom_namespace" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "project with source namespace"
+    source_repos = ["*"]
+    source_namespaces = ["mynamespace-1"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+
+resource "argocd_application_set" "custom_namespace" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "mynamespace-1"
+  }
+
+  spec {
+    generator {
+      list {
+        elements = [
+          {
+            cluster = "in-cluster"
+          }
+        ]
+      }
+    }
+
+    template {
+      metadata {
+        name = "test"
+      }
+      spec {
+		project = argocd_project.custom_namespace.metadata[0].name
+		source {
+		  repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
+		  chart           = "redis"
+		  target_revision = "16.9.11"
+		  helm {
+		    parameter {
+		      name  = "image.tag"
+			  value = "6.2.5"
+			}
+			parameter {
+			  name  = "architecture"
+			  value = "standalone"
+			}
+			release_name = "testing"
+		  }
+		}
+
+		destination {
+		  server    = "https://kubernetes.default.svc"
+		  namespace = "mynamespace-1"
+	    }
+	  }
+    }
+  }
+}
+`, name)
 }
