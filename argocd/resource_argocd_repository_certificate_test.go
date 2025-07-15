@@ -3,6 +3,7 @@ package argocd
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -202,6 +203,11 @@ func TestAccArgoCDRepositoryCertificatesSSH_Allow_Random_Subtype(t *testing.T) {
 }
 
 func TestAccArgoCDRepositoryCertificatesSSH_WithApplication(t *testing.T) {
+	// Skip if we're not in an acceptance test environment
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Acceptance tests skipped unless env 'TF_ACC' set")
+	}
+
 	appName := acctest.RandomWithPrefix("testacc")
 
 	subtypesKeys, err := getSshKeysForHost("private-git-repository")

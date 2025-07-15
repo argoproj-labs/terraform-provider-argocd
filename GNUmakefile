@@ -6,6 +6,7 @@ ARGOCD_AUTH_USERNAME?=admin
 ARGOCD_AUTH_PASSWORD?=acceptancetesting
 ARGOCD_VERSION?=v3.0.0
 K3S_VERSION?=v1.31.6-k3s1
+TEST_FILTER?=
 
 export
 
@@ -26,13 +27,13 @@ fmt:
 	gofmt -s -w -e .
 
 test:
-	go test -v -cover -timeout=120s -parallel=4 ./...
+	go test -v -cover -timeout=120s -parallel=4 -run="$(TEST_FILTER)" ./...
 
 testacc:
-	TF_ACC=1 go test -v -cover -timeout 20m ./...
+	TF_ACC=1 go test -v -cover -timeout 20m -run="$(TEST_FILTER)" ./...
 
 testacc_testcontainers:
-	TF_ACC=1 USE_TESTCONTAINERS=true go test -v -cover -timeout 30m ./...
+	TF_ACC=1 USE_TESTCONTAINERS=true go test -v -cover -timeout 30m -run="$(TEST_FILTER)" ./...
 
 testacc_clean_env:
 	kind delete cluster --name argocd
