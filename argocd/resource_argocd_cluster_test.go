@@ -400,6 +400,11 @@ resource "argocd_cluster" "simple" {
 }
 
 func testAccArgoCDClusterTLSCertificate(t *testing.T, clusterName string) string {
+	// Skip if we're not in an acceptance test environment
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Acceptance tests skipped unless env 'TF_ACC' set")
+	}
+
 	rc, err := getInternalRestConfig()
 	if err != nil {
 		t.Error(err)
