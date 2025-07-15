@@ -1,16 +1,11 @@
 package provider
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -263,50 +258,4 @@ resource "argocd_repository" "githubapp" {
 EOT
 }
 `, repoUrl, id, installID, baseURL, appKey)
-}
-
-func testCheckMultipleResourceAttr(name, key, value string, count int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		for i := 0; i < count; i++ {
-			ms := s.RootModule()
-			_name := fmt.Sprintf("%s.%d", name, i)
-
-			rs, ok := ms.Resources[_name]
-			if !ok {
-				return fmt.Errorf("not found: %s in %s", _name, ms.Path)
-			}
-
-			is := rs.Primary
-			if is == nil {
-				return fmt.Errorf("no primary instance: %s in %s", _name, ms.Path)
-			}
-
-			if val, ok := is.Attributes[key]; !ok || val != value {
-				return fmt.Errorf("%s: Attribute '%s' expected to be set and have value '%s': %s", _name, key, value, val)
-			}
-		}
-
-		return nil
-	}
-}
-
-func generateSSHPrivateKey() (privateKey string, err error) {
-	pk, err := rsa.GenerateKey(rand.Reader, 2048)
-	if err != nil {
-		return
-	}
-
-	err = pk.Validate()
-	if err != nil {
-		return
-	}
-
-	privDER := x509.MarshalPKCS1PrivateKey(pk)
-	privBlock := pem.Block{
-		Type:    "RSA PRIVATE KEY",
-		Headers: nil,
-		Bytes:   privDER,
-	}
-
-	return string(pem.EncodeToMemory(&privBlock)), nil
 }
