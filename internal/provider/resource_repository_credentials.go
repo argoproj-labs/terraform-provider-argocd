@@ -113,12 +113,14 @@ func (r *repositoryCredentialsResource) Create(ctx context.Context, req resource
 	if createdCreds.Username != "" {
 		result.Username = types.StringValue(createdCreds.Username)
 	}
+
 	result.EnableOCI = types.BoolValue(createdCreds.EnableOCI)
 
 	// Update computed fields if available
 	if createdCreds.TLSClientCertData != "" {
 		result.TLSClientCertData = types.StringValue(createdCreds.TLSClientCertData)
 	}
+
 	if createdCreds.GitHubAppEnterpriseBaseURL != "" {
 		result.GitHubAppEnterpriseBaseURL = types.StringValue(createdCreds.GitHubAppEnterpriseBaseURL)
 	}
@@ -176,12 +178,14 @@ func (r *repositoryCredentialsResource) Read(ctx context.Context, req resource.R
 	if creds.Username != "" {
 		result.Username = types.StringValue(creds.Username)
 	}
+
 	result.EnableOCI = types.BoolValue(creds.EnableOCI)
 
 	// Update computed fields if available
 	if creds.TLSClientCertData != "" {
 		result.TLSClientCertData = types.StringValue(creds.TLSClientCertData)
 	}
+
 	if creds.GitHubAppEnterpriseBaseURL != "" {
 		result.GitHubAppEnterpriseBaseURL = types.StringValue(creds.GitHubAppEnterpriseBaseURL)
 	}
@@ -246,12 +250,14 @@ func (r *repositoryCredentialsResource) Update(ctx context.Context, req resource
 	if updatedCreds.Username != "" {
 		result.Username = types.StringValue(updatedCreds.Username)
 	}
+
 	result.EnableOCI = types.BoolValue(updatedCreds.EnableOCI)
 
 	// Update computed fields if available
 	if updatedCreds.TLSClientCertData != "" {
 		result.TLSClientCertData = types.StringValue(updatedCreds.TLSClientCertData)
 	}
+
 	if updatedCreds.GitHubAppEnterpriseBaseURL != "" {
 		result.GitHubAppEnterpriseBaseURL = types.StringValue(updatedCreds.GitHubAppEnterpriseBaseURL)
 	}

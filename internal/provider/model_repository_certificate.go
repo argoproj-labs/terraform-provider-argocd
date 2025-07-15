@@ -116,32 +116,6 @@ func (m *repositoryCertificateModel) toAPIModel() *v1alpha1.RepositoryCertificat
 	return cert
 }
 
-func newRepositoryCertificateModel(cert *v1alpha1.RepositoryCertificate) *repositoryCertificateModel {
-	model := &repositoryCertificateModel{}
-
-	// Generate ID based on certificate type
-	switch cert.CertType {
-	case "ssh":
-		model.ID = types.StringValue(cert.CertType + "/" + cert.CertSubType + "/" + cert.ServerName)
-		model.SSH = &repositoryCertificateSSHModel{
-			ServerName:  types.StringValue(cert.ServerName),
-			CertSubType: types.StringValue(cert.CertSubType),
-			CertData:    types.StringValue(string(cert.CertData)),
-			CertInfo:    types.StringValue(cert.CertInfo),
-		}
-	case "https":
-		model.ID = types.StringValue(cert.CertType + "/" + cert.ServerName)
-		model.HTTPS = &repositoryCertificateHTTPSModel{
-			ServerName:  types.StringValue(cert.ServerName),
-			CertData:    types.StringValue(string(cert.CertData)),
-			CertSubType: types.StringValue(cert.CertSubType),
-			CertInfo:    types.StringValue(cert.CertInfo),
-		}
-	}
-
-	return model
-}
-
 func (m *repositoryCertificateModel) generateID() string {
 	if m.SSH != nil {
 		return "ssh/" + m.SSH.CertSubType.ValueString() + "/" + m.SSH.ServerName.ValueString()

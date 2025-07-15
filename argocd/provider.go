@@ -145,14 +145,12 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"argocd_account_token":          resourceArgoCDAccountToken(),
-			"argocd_application":            resourceArgoCDApplication(),
-			"argocd_application_set":        resourceArgoCDApplicationSet(),
-			"argocd_repository_certificate": resourceArgoCDRepositoryCertificates(),
-			"argocd_cluster":                resourceArgoCDCluster(),
-			"argocd_project":                resourceArgoCDProject(),
-			"argocd_project_token":          resourceArgoCDProjectToken(),
-			"argocd_repository_credentials": resourceArgoCDRepositoryCredentials(),
+			"argocd_account_token":   resourceArgoCDAccountToken(),
+			"argocd_application":     resourceArgoCDApplication(),
+			"argocd_application_set": resourceArgoCDApplicationSet(),
+			"argocd_cluster":         resourceArgoCDCluster(),
+			"argocd_project":         resourceArgoCDProject(),
+			"argocd_project_token":   resourceArgoCDProjectToken(),
 		},
 		ConfigureContextFunc: func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 			config, diags := argoCDProviderConfigFromResourceData(ctx, d)

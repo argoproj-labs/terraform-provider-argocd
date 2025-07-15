@@ -17,6 +17,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
+const sshCertType = "ssh"
+
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &repositoryCertificateResource{}
 var _ resource.ResourceWithImportState = &repositoryCertificateResource{}
@@ -139,7 +141,7 @@ func (r *repositoryCertificateResource) Create(ctx context.Context, req resource
 	result.ID = types.StringValue(data.generateID())
 
 	// Update computed fields from API response
-	if data.SSH != nil && resultCert.CertType == "ssh" {
+	if data.SSH != nil && resultCert.CertType == sshCertType {
 		result.SSH.CertInfo = types.StringValue(resultCert.CertInfo)
 	}
 
@@ -194,7 +196,7 @@ func (r *repositoryCertificateResource) Read(ctx context.Context, req resource.R
 	result.ID = data.ID
 
 	// Update computed fields from API response
-	if data.SSH != nil && cert.CertType == "ssh" {
+	if data.SSH != nil && cert.CertType == sshCertType {
 		result.SSH.CertInfo = types.StringValue(cert.CertInfo)
 	}
 
@@ -305,7 +307,7 @@ func (r *repositoryCertificateResource) parseID(id string) (certType, certSubTyp
 
 	certType = parts[0]
 	switch certType {
-	case "ssh":
+	case sshCertType:
 		if len(parts) < 3 {
 			return "", "", "", fmt.Errorf("invalid SSH certificate ID format: %s", id)
 		}
@@ -323,7 +325,7 @@ func (r *repositoryCertificateResource) parseID(id string) (certType, certSubTyp
 }
 
 func (r *repositoryCertificateResource) generateID(certType, certSubType, serverName string) string {
-	if certType == "ssh" {
+	if certType == sshCertType {
 		return fmt.Sprintf("%s/%s/%s", certType, certSubType, serverName)
 	}
 
@@ -331,7 +333,7 @@ func (r *repositoryCertificateResource) generateID(certType, certSubType, server
 }
 
 func (r *repositoryCertificateResource) generateIDFromCert(cert *v1alpha1.RepositoryCertificate) string {
-	if cert.CertType == "ssh" {
+	if cert.CertType == sshCertType {
 		return fmt.Sprintf("%s/%s/%s", cert.CertType, cert.CertSubType, cert.ServerName)
 	}
 

@@ -175,13 +175,6 @@ func generateSSHPrivateKey() (privateKey string, err error) {
 	return string(pem.EncodeToMemory(&privBlock)), nil
 }
 
-func mustGenerateSSHPrivateKey(t *testing.T) string {
-	pk, err := generateSSHPrivateKey()
-	assert.NoError(t, err)
-
-	return pk
-}
-
 func testCheckMultipleResourceAttr(name, key, value string, count int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for i := 0; i < count; i++ {
