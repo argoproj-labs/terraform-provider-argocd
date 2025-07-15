@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/account"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/session"
 	"github.com/cristalhq/jwt/v5"
@@ -144,7 +143,7 @@ func resourceArgoCDAccountToken() *schema.Resource {
 }
 
 func resourceArgoCDAccountTokenCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -242,7 +241,7 @@ func resourceArgoCDAccountTokenCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceArgoCDAccountTokenRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -312,7 +311,7 @@ func resourceArgoCDAccountTokenUpdate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceArgoCDAccountTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -338,7 +337,7 @@ func resourceArgoCDAccountTokenDelete(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func getAccount(ctx context.Context, si *provider.ServerInterface, d *schema.ResourceData) (string, error) {
+func getAccount(ctx context.Context, si *ServerInterface, d *schema.ResourceData) (string, error) {
 	accountName := d.Get("account").(string)
 	if len(accountName) > 0 {
 		return accountName, nil
