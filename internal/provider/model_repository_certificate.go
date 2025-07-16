@@ -9,9 +9,9 @@ import (
 )
 
 type repositoryCertificateModel struct {
-	ID    types.String                     `tfsdk:"id"`
-	SSH   []repositoryCertificateSSHModel  `tfsdk:"ssh"`
-	HTTPS *repositoryCertificateHTTPSModel `tfsdk:"https"`
+	ID    types.String                      `tfsdk:"id"`
+	SSH   []repositoryCertificateSSHModel   `tfsdk:"ssh"`
+	HTTPS []repositoryCertificateHTTPSModel `tfsdk:"https"`
 }
 
 type repositoryCertificateSSHModel struct {
@@ -71,30 +71,32 @@ func repositoryCertificateSchemaBlocks() map[string]schema.Block {
 				},
 			},
 		},
-		"https": schema.SingleNestedBlock{
+		"https": schema.ListNestedBlock{
 			MarkdownDescription: "HTTPS certificate configuration",
-			Attributes: map[string]schema.Attribute{
-				"server_name": schema.StringAttribute{
-					MarkdownDescription: "DNS name of the server this certificate is intended for",
-					Optional:            true,
-					PlanModifiers: []planmodifier.String{
-						stringplanmodifier.RequiresReplace(),
+			NestedObject: schema.NestedBlockObject{
+				Attributes: map[string]schema.Attribute{
+					"server_name": schema.StringAttribute{
+						MarkdownDescription: "DNS name of the server this certificate is intended for",
+						Optional:            true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplace(),
+						},
 					},
-				},
-				"cert_data": schema.StringAttribute{
-					MarkdownDescription: "The actual certificate data, dependent on the certificate type",
-					Optional:            true,
-					PlanModifiers: []planmodifier.String{
-						stringplanmodifier.RequiresReplace(),
+					"cert_data": schema.StringAttribute{
+						MarkdownDescription: "The actual certificate data, dependent on the certificate type",
+						Optional:            true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplace(),
+						},
 					},
-				},
-				"cert_subtype": schema.StringAttribute{
-					MarkdownDescription: "The sub type of the cert, i.e. `ssh-rsa`",
-					Computed:            true,
-				},
-				"cert_info": schema.StringAttribute{
-					MarkdownDescription: "Additional certificate info, dependent on the certificate type (e.g. SSH fingerprint, X509 CommonName)",
-					Computed:            true,
+					"cert_subtype": schema.StringAttribute{
+						MarkdownDescription: "The sub type of the cert, i.e. `ssh-rsa`",
+						Computed:            true,
+					},
+					"cert_info": schema.StringAttribute{
+						MarkdownDescription: "Additional certificate info, dependent on the certificate type (e.g. SSH fingerprint, X509 CommonName)",
+						Computed:            true,
+					},
 				},
 			},
 		},
@@ -110,10 +112,11 @@ func (m *repositoryCertificateModel) toAPIModel() *v1alpha1.RepositoryCertificat
 		cert.ServerName = ssh.ServerName.ValueString()
 		cert.CertSubType = ssh.CertSubType.ValueString()
 		cert.CertData = []byte(ssh.CertData.ValueString())
-	} else if m.HTTPS != nil {
+	} else if len(m.HTTPS) > 0 {
+		https := m.HTTPS[0]
 		cert.CertType = "https"
-		cert.ServerName = m.HTTPS.ServerName.ValueString()
-		cert.CertData = []byte(m.HTTPS.CertData.ValueString())
+		cert.ServerName = https.ServerName.ValueString()
+		cert.CertData = []byte(https.CertData.ValueString())
 	}
 
 	return cert
@@ -123,8 +126,9 @@ func (m *repositoryCertificateModel) generateID() string {
 	if len(m.SSH) > 0 {
 		ssh := m.SSH[0]
 		return "ssh/" + ssh.CertSubType.ValueString() + "/" + ssh.ServerName.ValueString()
-	} else if m.HTTPS != nil {
-		return "https/" + m.HTTPS.ServerName.ValueString()
+	} else if len(m.HTTPS) > 0 {
+		https := m.HTTPS[0]
+		return "https/" + https.ServerName.ValueString()
 	}
 
 	return ""

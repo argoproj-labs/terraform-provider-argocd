@@ -153,9 +153,9 @@ func (r *repositoryCertificateResource) Create(ctx context.Context, req resource
 		result.SSH[0].CertInfo = types.StringValue(resultCert.CertInfo)
 	}
 
-	if data.HTTPS != nil && resultCert.CertType == "https" {
-		result.HTTPS.CertInfo = types.StringValue(resultCert.CertInfo)
-		result.HTTPS.CertSubType = types.StringValue(resultCert.CertSubType)
+	if len(data.HTTPS) > 0 && resultCert.CertType == "https" {
+		result.HTTPS[0].CertInfo = types.StringValue(resultCert.CertInfo)
+		result.HTTPS[0].CertSubType = types.StringValue(resultCert.CertSubType)
 	}
 
 	// Save data into Terraform state
@@ -208,9 +208,9 @@ func (r *repositoryCertificateResource) Read(ctx context.Context, req resource.R
 		result.SSH[0].CertInfo = types.StringValue(cert.CertInfo)
 	}
 
-	if data.HTTPS != nil && cert.CertType == "https" {
-		result.HTTPS.CertInfo = types.StringValue(cert.CertInfo)
-		result.HTTPS.CertSubType = types.StringValue(cert.CertSubType)
+	if len(data.HTTPS) > 0 && cert.CertType == "https" {
+		result.HTTPS[0].CertInfo = types.StringValue(cert.CertInfo)
+		result.HTTPS[0].CertSubType = types.StringValue(cert.CertSubType)
 	}
 
 	// Save updated data into Terraform state

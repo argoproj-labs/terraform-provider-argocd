@@ -23,7 +23,7 @@ func (v repositoryCertificateValidator) MarkdownDescription(ctx context.Context)
 func (v repositoryCertificateValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var ssh types.List
 
-	var https types.Object
+	var https types.List
 
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("ssh"), &ssh)...)
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("https"), &https)...)
@@ -33,7 +33,26 @@ func (v repositoryCertificateValidator) ValidateResource(ctx context.Context, re
 	}
 
 	sshConfigured := !ssh.IsNull() && len(ssh.Elements()) > 0
-	httpsConfigured := !https.IsNull()
+	httpsConfigured := !https.IsNull() && len(https.Elements()) > 0
+
+	// Validate that each list contains at most one element
+	if sshConfigured && len(ssh.Elements()) > 1 {
+		resp.Diagnostics.AddError(
+			"Too many SSH certificates",
+			"Only one SSH certificate can be specified",
+		)
+
+		return
+	}
+
+	if httpsConfigured && len(https.Elements()) > 1 {
+		resp.Diagnostics.AddError(
+			"Too many HTTPS certificates",
+			"Only one HTTPS certificate can be specified",
+		)
+
+		return
+	}
 
 	if !sshConfigured && !httpsConfigured {
 		resp.Diagnostics.AddError(
@@ -94,8 +113,8 @@ func (v repositoryCertificateValidator) ValidateResource(ctx context.Context, re
 	if httpsConfigured {
 		var httpsServerName, httpsCertData types.String
 
-		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("https").AtName("server_name"), &httpsServerName)...)
-		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("https").AtName("cert_data"), &httpsCertData)...)
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("https").AtListIndex(0).AtName("server_name"), &httpsServerName)...)
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("https").AtListIndex(0).AtName("cert_data"), &httpsCertData)...)
 
 		if resp.Diagnostics.HasError() {
 			return
@@ -103,7 +122,7 @@ func (v repositoryCertificateValidator) ValidateResource(ctx context.Context, re
 
 		if httpsServerName.IsNull() || httpsServerName.ValueString() == "" {
 			resp.Diagnostics.AddAttributeError(
-				path.Root("https").AtName("server_name"),
+				path.Root("https").AtListIndex(0).AtName("server_name"),
 				"Missing required attribute",
 				"https.server_name is required when https block is specified",
 			)
@@ -111,7 +130,7 @@ func (v repositoryCertificateValidator) ValidateResource(ctx context.Context, re
 
 		if httpsCertData.IsNull() || httpsCertData.ValueString() == "" {
 			resp.Diagnostics.AddAttributeError(
-				path.Root("https").AtName("cert_data"),
+				path.Root("https").AtListIndex(0).AtName("cert_data"),
 				"Missing required attribute",
 				"https.cert_data is required when https block is specified",
 			)

@@ -40,7 +40,7 @@ EOT
 
 ### Optional
 
-- `https` (Block, Optional) HTTPS certificate configuration (see [below for nested schema](#nestedblock--https))
+- `https` (Block List) HTTPS certificate configuration (see [below for nested schema](#nestedblock--https))
 - `ssh` (Block List) SSH certificate configuration (see [below for nested schema](#nestedblock--ssh))
 
 ### Read-Only
