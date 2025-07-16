@@ -71,7 +71,6 @@ func (v repositoryCertificateValidator) ValidateResource(ctx context.Context, re
 
 		return
 	}
-
 	// SSH and HTTPS block fields are required at the schema level, so no additional validation needed
 }
 

@@ -145,6 +145,7 @@ func (r *repositoryCertificateResource) Create(ctx context.Context, req resource
 
 	readCert, diags := r.readCertificate(ctx, certType, certSubType, serverName)
 	resp.Diagnostics.Append(diags...)
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
