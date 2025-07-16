@@ -9,9 +9,9 @@ import (
 )
 
 type repositoryCertificateModel struct {
-	ID    types.String                       `tfsdk:"id"`
-	SSH   []repositoryCertificateSSHModel    `tfsdk:"ssh"`
-	HTTPS *repositoryCertificateHTTPSModel   `tfsdk:"https"`
+	ID    types.String                     `tfsdk:"id"`
+	SSH   []repositoryCertificateSSHModel  `tfsdk:"ssh"`
+	HTTPS *repositoryCertificateHTTPSModel `tfsdk:"https"`
 }
 
 type repositoryCertificateSSHModel struct {
@@ -43,20 +43,20 @@ func repositoryCertificateSchemaBlocks() map[string]schema.Block {
 			MarkdownDescription: "SSH certificate configuration",
 			NestedObject: schema.NestedBlockObject{
 				Attributes: map[string]schema.Attribute{
-				"server_name": schema.StringAttribute{
-					MarkdownDescription: "DNS name of the server this certificate is intended for",
-					Optional:            true,
-					PlanModifiers: []planmodifier.String{
-						stringplanmodifier.RequiresReplace(),
+					"server_name": schema.StringAttribute{
+						MarkdownDescription: "DNS name of the server this certificate is intended for",
+						Optional:            true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplace(),
+						},
 					},
-				},
-				"cert_subtype": schema.StringAttribute{
-					MarkdownDescription: "The sub type of the cert, i.e. `ssh-rsa`",
-					Optional:            true,
-					PlanModifiers: []planmodifier.String{
-						stringplanmodifier.RequiresReplace(),
+					"cert_subtype": schema.StringAttribute{
+						MarkdownDescription: "The sub type of the cert, i.e. `ssh-rsa`",
+						Optional:            true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplace(),
+						},
 					},
-				},
 					"cert_data": schema.StringAttribute{
 						MarkdownDescription: "The actual certificate data, dependent on the certificate type",
 						Optional:            true,

@@ -22,6 +22,7 @@ func (v repositoryCertificateValidator) MarkdownDescription(ctx context.Context)
 
 func (v repositoryCertificateValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var ssh types.List
+
 	var https types.Object
 
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("ssh"), &ssh)...)
@@ -39,6 +40,7 @@ func (v repositoryCertificateValidator) ValidateResource(ctx context.Context, re
 			"Missing required configuration",
 			"one of `https,ssh` must be specified",
 		)
+
 		return
 	}
 
@@ -47,6 +49,7 @@ func (v repositoryCertificateValidator) ValidateResource(ctx context.Context, re
 			"Conflicting configuration",
 			"only one of `https,ssh` can be specified",
 		)
+
 		return
 	}
 
