@@ -50,7 +50,7 @@ EOT
 <a id="nestedblock--https"></a>
 ### Nested Schema for `https`
 
-Optional:
+Required:
 
 - `cert_data` (String) The actual certificate data, dependent on the certificate type
 - `server_name` (String) DNS name of the server this certificate is intended for
@@ -64,7 +64,7 @@ Read-Only:
 <a id="nestedblock--ssh"></a>
 ### Nested Schema for `ssh`
 
-Optional:
+Required:
 
 - `cert_data` (String) The actual certificate data, dependent on the certificate type
 - `cert_subtype` (String) The sub type of the cert, i.e. `ssh-rsa`
