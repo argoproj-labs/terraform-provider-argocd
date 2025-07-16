@@ -94,7 +94,6 @@ func (r *repositoryCertificateResource) Create(ctx context.Context, req resource
 		existing, err := r.si.CertificateClient.ListCertificates(ctx, &certificate.RepositoryCertificateQuery{
 			HostNamePattern: cert.ServerName,
 			CertType:        cert.CertType,
-			CertSubType:     cert.CertSubType,
 		})
 		sync.CertificateMutex.Unlock()
 
@@ -106,7 +105,7 @@ func (r *repositoryCertificateResource) Create(ctx context.Context, req resource
 		if len(existing.Items) > 0 {
 			resp.Diagnostics.AddError(
 				"Repository certificate already exists",
-				fmt.Sprintf("https certificate for '%s' already exists", cert.ServerName),
+				fmt.Sprintf("https certificate for '%s' already exist.", cert.ServerName),
 			)
 
 			return
@@ -119,7 +118,7 @@ func (r *repositoryCertificateResource) Create(ctx context.Context, req resource
 	}
 
 	sync.CertificateMutex.Lock()
-	createdCerts, err := r.si.CertificateClient.CreateCertificate(
+	_, err := r.si.CertificateClient.CreateCertificate(
 		ctx,
 		&certificate.RepositoryCertificateCreateRequest{
 			Certificates: &certs,
@@ -133,29 +132,40 @@ func (r *repositoryCertificateResource) Create(ctx context.Context, req resource
 		return
 	}
 
-	// Handle the response - use the created certificate or the original if empty
-	var resultCert *v1alpha1.RepositoryCertificate
-	if len(createdCerts.Items) > 0 {
-		resultCert = &createdCerts.Items[0]
-	} else {
-		resultCert = cert
-	}
-
-	// Generate ID and update model
+	// Set the ID so we can read the certificate back
 	data.ID = types.StringValue(data.generateID())
 
-	// Update the model with the created certificate data
-	result := data // Start with the original data to preserve all fields
-	result.ID = types.StringValue(data.generateID())
-
-	// Update computed fields from API response
-	if len(data.SSH) > 0 && resultCert.CertType == sshCertType {
-		result.SSH[0].CertInfo = types.StringValue(resultCert.CertInfo)
+	// Read the certificate back to get computed fields like cert_subtype for HTTPS
+	// This is necessary because the create response doesn't include computed fields
+	certType, certSubType, serverName, err := r.parseID(data.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to parse certificate ID", err.Error())
+		return
 	}
 
-	if len(data.HTTPS) > 0 && resultCert.CertType == "https" {
-		result.HTTPS[0].CertInfo = types.StringValue(resultCert.CertInfo)
-		result.HTTPS[0].CertSubType = types.StringValue(resultCert.CertSubType)
+	readCert, diags := r.readCertificate(ctx, certType, certSubType, serverName)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if readCert == nil {
+		resp.Diagnostics.AddError("Certificate not found", "Certificate was created but could not be read back")
+		return
+	}
+
+	// Update the model with the read certificate data
+	result := data // Start with the original data to preserve all fields
+	result.ID = data.ID
+
+	// Update computed fields from API response
+	if len(data.SSH) > 0 && readCert.CertType == sshCertType {
+		result.SSH[0].CertInfo = types.StringValue(readCert.CertInfo)
+	}
+
+	if len(data.HTTPS) > 0 && readCert.CertType == "https" {
+		result.HTTPS[0].CertInfo = types.StringValue(readCert.CertInfo)
+		result.HTTPS[0].CertSubType = types.StringValue(readCert.CertSubType)
 	}
 
 	// Save data into Terraform state

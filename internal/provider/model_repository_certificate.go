@@ -45,21 +45,21 @@ func repositoryCertificateSchemaBlocks() map[string]schema.Block {
 				Attributes: map[string]schema.Attribute{
 					"server_name": schema.StringAttribute{
 						MarkdownDescription: "DNS name of the server this certificate is intended for",
-						Optional:            true,
+						Required:            true,
 						PlanModifiers: []planmodifier.String{
 							stringplanmodifier.RequiresReplace(),
 						},
 					},
 					"cert_subtype": schema.StringAttribute{
 						MarkdownDescription: "The sub type of the cert, i.e. `ssh-rsa`",
-						Optional:            true,
+						Required:            true,
 						PlanModifiers: []planmodifier.String{
 							stringplanmodifier.RequiresReplace(),
 						},
 					},
 					"cert_data": schema.StringAttribute{
 						MarkdownDescription: "The actual certificate data, dependent on the certificate type",
-						Optional:            true,
+						Required:            true,
 						PlanModifiers: []planmodifier.String{
 							stringplanmodifier.RequiresReplace(),
 						},
@@ -77,14 +77,14 @@ func repositoryCertificateSchemaBlocks() map[string]schema.Block {
 				Attributes: map[string]schema.Attribute{
 					"server_name": schema.StringAttribute{
 						MarkdownDescription: "DNS name of the server this certificate is intended for",
-						Optional:            true,
+						Required:            true,
 						PlanModifiers: []planmodifier.String{
 							stringplanmodifier.RequiresReplace(),
 						},
 					},
 					"cert_data": schema.StringAttribute{
 						MarkdownDescription: "The actual certificate data, dependent on the certificate type",
-						Optional:            true,
+						Required:            true,
 						PlanModifiers: []planmodifier.String{
 							stringplanmodifier.RequiresReplace(),
 						},
