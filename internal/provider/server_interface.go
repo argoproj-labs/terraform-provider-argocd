@@ -167,7 +167,7 @@ func (si *ServerInterface) InitClients(ctx context.Context) diag.Diagnostics {
 	return diags
 }
 
-func (si *ServerInterface) IsSettingSupported(fc features.FeatureConstraint) bool {
+func (si *ServerInterface) IsSettingSupported(ctx context.Context, fc features.FeatureConstraint) bool {
 	if fc.RequiredSettings == nil || len(*fc.RequiredSettings) == 0 {
 		return true
 	}
@@ -175,30 +175,30 @@ func (si *ServerInterface) IsSettingSupported(fc features.FeatureConstraint) boo
 	// Fetch settings from server
 	// Note: we could cache these settings in the ServerInterface struct, but that would make
 	// things more complex if the user changes settings during a terraform run.
-	set, err := si.SettingsClient.Get(context.Background(), &settings.SettingsQuery{})
+	set, err := si.SettingsClient.Get(ctx, &settings.SettingsQuery{})
 	if err != nil {
-		tflog.Error(context.Background(), fmt.Sprintf("error checking argocd settings: %v", err))
+		tflog.Error(ctx, fmt.Sprintf("error checking argocd settings: %v", err))
 		return false
 	}
+
 	settingsJSON, err := json.Marshal(set)
 	if err != nil {
-		tflog.Error(context.Background(), fmt.Sprintf("error marshalling argocd settings: %v", err))
+		tflog.Error(ctx, fmt.Sprintf("error marshalling argocd settings: %v", err))
 		return false
 	}
-	var settings map[string]interface{}
+
+	var settings map[string]any
 	if err := json.Unmarshal(settingsJSON, &settings); err != nil {
-		tflog.Error(context.Background(), fmt.Sprintf("error unmarshalling argocd settings: %v", err))
+		tflog.Error(ctx, fmt.Sprintf("error unmarshalling argocd settings: %v", err))
 		return false
 	}
 
 	for _, rs := range *fc.RequiredSettings {
-		result, err := rs.Search(settings)
-		if err != nil {
-			tflog.Error(context.Background(), fmt.Sprintf("error evaluating settings check expression '%v': %v", rs, err))
+		if result, err := rs.Search(settings); err != nil {
+			tflog.Error(ctx, fmt.Sprintf("error evaluating settings check expression '%v': %v", rs, err))
 			return false
-		}
-		if result == nil || !result.(bool) {
-			tflog.Debug(context.Background(), fmt.Sprintf("settings check expression '%v' evaluated to false", rs))
+		} else if result == nil || !result.(bool) {
+			tflog.Debug(ctx, fmt.Sprintf("settings check expression '%v' evaluated to false", rs))
 			return false
 		}
 	}
@@ -210,14 +210,15 @@ func (si *ServerInterface) IsVersionSupported(fc features.FeatureConstraint) boo
 	if fc.MinVersion == nil {
 		return true
 	}
+
 	return fc.MinVersion.Compare(si.ServerVersion) != 1
 }
 
 // Checks that a specific feature is available for the current ArgoCD server version.
 // 'feature' argument must match one of the predefined feature* constants.
-func (si *ServerInterface) IsFeatureSupported(feature features.Feature) bool {
+func (si *ServerInterface) IsFeatureSupported(ctx context.Context, feature features.Feature) bool {
 	fc, ok := features.ConstraintsMap[feature]
-	return ok && si.IsVersionSupported(fc) && si.IsSettingSupported(fc)
+	return ok && si.IsVersionSupported(fc) && si.IsSettingSupported(ctx, fc)
 }
 
 func getDefaultString(s types.String, envKey string) string {
