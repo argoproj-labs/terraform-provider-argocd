@@ -9,9 +9,9 @@ import (
 )
 
 type repositoryCertificateModel struct {
-	ID    types.String                     `tfsdk:"id"`
-	SSH   *repositoryCertificateSSHModel   `tfsdk:"ssh"`
-	HTTPS *repositoryCertificateHTTPSModel `tfsdk:"https"`
+	ID    types.String                       `tfsdk:"id"`
+	SSH   []repositoryCertificateSSHModel    `tfsdk:"ssh"`
+	HTTPS *repositoryCertificateHTTPSModel   `tfsdk:"https"`
 }
 
 type repositoryCertificateSSHModel struct {
@@ -39,9 +39,10 @@ func repositoryCertificateSchemaAttributes() map[string]schema.Attribute {
 
 func repositoryCertificateSchemaBlocks() map[string]schema.Block {
 	return map[string]schema.Block{
-		"ssh": schema.SingleNestedBlock{
+		"ssh": schema.ListNestedBlock{
 			MarkdownDescription: "SSH certificate configuration",
-			Attributes: map[string]schema.Attribute{
+			NestedObject: schema.NestedBlockObject{
+				Attributes: map[string]schema.Attribute{
 				"server_name": schema.StringAttribute{
 					MarkdownDescription: "DNS name of the server this certificate is intended for",
 					Optional:            true,
@@ -56,16 +57,17 @@ func repositoryCertificateSchemaBlocks() map[string]schema.Block {
 						stringplanmodifier.RequiresReplace(),
 					},
 				},
-				"cert_data": schema.StringAttribute{
-					MarkdownDescription: "The actual certificate data, dependent on the certificate type",
-					Optional:            true,
-					PlanModifiers: []planmodifier.String{
-						stringplanmodifier.RequiresReplace(),
+					"cert_data": schema.StringAttribute{
+						MarkdownDescription: "The actual certificate data, dependent on the certificate type",
+						Optional:            true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplace(),
+						},
 					},
-				},
-				"cert_info": schema.StringAttribute{
-					MarkdownDescription: "Additional certificate info, dependent on the certificate type (e.g. SSH fingerprint, X509 CommonName)",
-					Computed:            true,
+					"cert_info": schema.StringAttribute{
+						MarkdownDescription: "Additional certificate info, dependent on the certificate type (e.g. SSH fingerprint, X509 CommonName)",
+						Computed:            true,
+					},
 				},
 			},
 		},
@@ -102,11 +104,12 @@ func repositoryCertificateSchemaBlocks() map[string]schema.Block {
 func (m *repositoryCertificateModel) toAPIModel() *v1alpha1.RepositoryCertificate {
 	cert := &v1alpha1.RepositoryCertificate{}
 
-	if m.SSH != nil {
+	if len(m.SSH) > 0 {
+		ssh := m.SSH[0]
 		cert.CertType = "ssh"
-		cert.ServerName = m.SSH.ServerName.ValueString()
-		cert.CertSubType = m.SSH.CertSubType.ValueString()
-		cert.CertData = []byte(m.SSH.CertData.ValueString())
+		cert.ServerName = ssh.ServerName.ValueString()
+		cert.CertSubType = ssh.CertSubType.ValueString()
+		cert.CertData = []byte(ssh.CertData.ValueString())
 	} else if m.HTTPS != nil {
 		cert.CertType = "https"
 		cert.ServerName = m.HTTPS.ServerName.ValueString()
@@ -117,8 +120,9 @@ func (m *repositoryCertificateModel) toAPIModel() *v1alpha1.RepositoryCertificat
 }
 
 func (m *repositoryCertificateModel) generateID() string {
-	if m.SSH != nil {
-		return "ssh/" + m.SSH.CertSubType.ValueString() + "/" + m.SSH.ServerName.ValueString()
+	if len(m.SSH) > 0 {
+		ssh := m.SSH[0]
+		return "ssh/" + ssh.CertSubType.ValueString() + "/" + ssh.ServerName.ValueString()
 	} else if m.HTTPS != nil {
 		return "https/" + m.HTTPS.ServerName.ValueString()
 	}

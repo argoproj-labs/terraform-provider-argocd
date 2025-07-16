@@ -149,8 +149,8 @@ func (r *repositoryCertificateResource) Create(ctx context.Context, req resource
 	result.ID = types.StringValue(data.generateID())
 
 	// Update computed fields from API response
-	if data.SSH != nil && resultCert.CertType == sshCertType {
-		result.SSH.CertInfo = types.StringValue(resultCert.CertInfo)
+	if len(data.SSH) > 0 && resultCert.CertType == sshCertType {
+		result.SSH[0].CertInfo = types.StringValue(resultCert.CertInfo)
 	}
 
 	if data.HTTPS != nil && resultCert.CertType == "https" {
@@ -204,8 +204,8 @@ func (r *repositoryCertificateResource) Read(ctx context.Context, req resource.R
 	result.ID = data.ID
 
 	// Update computed fields from API response
-	if data.SSH != nil && cert.CertType == sshCertType {
-		result.SSH.CertInfo = types.StringValue(cert.CertInfo)
+	if len(data.SSH) > 0 && cert.CertType == sshCertType {
+		result.SSH[0].CertInfo = types.StringValue(cert.CertInfo)
 	}
 
 	if data.HTTPS != nil && cert.CertType == "https" {
