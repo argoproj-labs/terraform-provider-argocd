@@ -7,6 +7,7 @@ import (
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/diagnostics"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/sync"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/validators"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/certificate"
 	"github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -22,6 +23,7 @@ const sshCertType = "ssh"
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &repositoryCertificateResource{}
 var _ resource.ResourceWithImportState = &repositoryCertificateResource{}
+var _ resource.ResourceWithConfigValidators = &repositoryCertificateResource{}
 
 func NewRepositoryCertificateResource() resource.Resource {
 	return &repositoryCertificateResource{}
@@ -41,6 +43,12 @@ func (r *repositoryCertificateResource) Schema(ctx context.Context, req resource
 		MarkdownDescription: "Manages [custom TLS certificates](https://argo-cd.readthedocs.io/en/stable/user-guide/private-repositories/#self-signed-untrusted-tls-certificates) used by ArgoCD for connecting Git repositories.",
 		Attributes:          repositoryCertificateSchemaAttributes(),
 		Blocks:              repositoryCertificateSchemaBlocks(),
+	}
+}
+
+func (r *repositoryCertificateResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		validators.RepositoryCertificate(),
 	}
 }
 
@@ -98,7 +106,7 @@ func (r *repositoryCertificateResource) Create(ctx context.Context, req resource
 		if len(existing.Items) > 0 {
 			resp.Diagnostics.AddError(
 				"Repository certificate already exists",
-				fmt.Sprintf("HTTPS certificate for '%s' already exists", cert.ServerName),
+				fmt.Sprintf("https certificate for '%s' already exists", cert.ServerName),
 			)
 
 			return
