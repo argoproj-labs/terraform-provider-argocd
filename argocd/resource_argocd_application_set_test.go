@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccArgoCDApplicationSet_clusters(t *testing.T) {
@@ -436,7 +436,7 @@ func TestAccArgoCDApplicationSet_merge(t *testing.T) {
 				ResourceName:            "argocd_application_set.merge",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "spec.0.template.0.spec.0.source.0.helm.0.parameter.0.force_string", "spec.0.template.0.spec.0.source.0.helm.0.parameter.1.force_string"},
 			},
 		},
 	})
@@ -482,7 +482,7 @@ func TestAccArgoCDApplicationSet_mergeNested(t *testing.T) {
 				ResourceName:            "argocd_application_set.merge_nested",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "spec.0.template.0.spec.0.source.0.helm.0.parameter.0.force_string", "spec.0.template.0.spec.0.source.0.helm.0.parameter.1.force_string"},
 			},
 		},
 	})
@@ -729,7 +729,7 @@ func TestAccArgoCDApplicationSet_pullRequestBitbucketServer(t *testing.T) {
 				ResourceName:            "argocd_application_set.pr_bitbucket_server",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "spec.0.template.0.spec.0.source.0.helm.0.parameter.0.force_string"},
 			},
 		},
 	})
@@ -758,7 +758,7 @@ func TestAccArgoCDApplicationSet_pullRequestGitea(t *testing.T) {
 				ResourceName:            "argocd_application_set.pr_gitea",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "spec.0.template.0.spec.0.source.0.helm.0.parameter.0.force_string"},
 			},
 		},
 	})
@@ -792,7 +792,7 @@ func TestAccArgoCDApplicationSet_pullRequestGithub(t *testing.T) {
 				ResourceName:            "argocd_application_set.pr_github",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "spec.0.template.0.spec.0.source.0.helm.0.parameter.0.force_string"},
 			},
 		},
 	})
@@ -826,7 +826,7 @@ func TestAccArgoCDApplicationSet_pullRequestGitlab(t *testing.T) {
 				ResourceName:            "argocd_application_set.pr_gitlab",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "spec.0.template.0.spec.0.source.0.helm.0.parameter.0.force_string"},
 			},
 		},
 	})
@@ -1065,7 +1065,7 @@ func TestAccArgoCDApplicationSet_CustomNamespace(t *testing.T) {
 				ResourceName:            "argocd_application_set.custom_namespace",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate", "metadata.0.resource_version", "spec.0.template.0.spec.0.source.0.helm.0.parameter.0.force_string", "spec.0.template.0.spec.0.source.0.helm.0.parameter.1.force_string"},
 			},
 		},
 	})
