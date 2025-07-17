@@ -167,6 +167,7 @@ func (si *ServerInterface) InitClients(ctx context.Context) diag.Diagnostics {
 	return diags
 }
 
+// Checks that any specific setting required for the feature is configured/enabled on the server.
 func (si *ServerInterface) IsSettingSupported(ctx context.Context, fc features.FeatureConstraint) bool {
 	if fc.RequiredSettings == nil || len(*fc.RequiredSettings) == 0 {
 		return true
@@ -206,6 +207,7 @@ func (si *ServerInterface) IsSettingSupported(ctx context.Context, fc features.F
 	return true
 }
 
+// Checks that the server version meets the minimum version required for the feature.
 func (si *ServerInterface) IsVersionSupported(fc features.FeatureConstraint) bool {
 	if fc.MinVersion == nil {
 		return true
