@@ -32,6 +32,10 @@ test:
 testacc:
 	TF_ACC=1 go test -v -cover -timeout 20m -run="$(TEST_FILTER)" ./...
 
+testacc_unstable_features: TEST_FILTER=TestAccUnstable.+
+testacc_unstable_features:
+	TF_ACC=1 INCL_UNSTABLE_FEATURES=1 go test -v -cover -timeout 20m -run="$(TEST_FILTER)" ./...
+
 testacc_testcontainers:
 	TF_ACC=1 USE_TESTCONTAINERS=true go test -v -cover -timeout 30m -run="$(TEST_FILTER)" ./...
 

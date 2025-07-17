@@ -2,6 +2,7 @@ package argocd
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"testing"
 
@@ -254,10 +255,20 @@ func TestAccArgoCDProjectWithSourceNamespaces(t *testing.T) {
 	})
 }
 
-func TestAccArgoCDProjectWithDestinationServiceAccounts(t *testing.T) {
+func TestAccUnstableArgoCDProjectWithDestinationServiceAccounts(t *testing.T) {
+	if os.Getenv("INCL_UNSTABLE_FEATURES") == "" {
+		t.Skip("Skipping. Set INCL_UNSTABLE_FEATURES to include this test.")
+	}
+
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.Test(t, resource.TestCase{
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"kubernetes": {
+				VersionConstraint: "2.37.1",
+				Source:            "hashicorp/kubernetes",
+			},
+		},
 		PreCheck: func() {
 			testAccPreCheck(t)
 			testAccPreCheckFeatureSupported(t, features.ProjectDestinationServiceAccounts)
@@ -265,11 +276,44 @@ func TestAccArgoCDProjectWithDestinationServiceAccounts(t *testing.T) {
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
+				/* NOTE: On my local this isn't being respected during acceptance testing, even though this way of specifying
+				   the config works as a standalone .tf file. Calling the tests like:
+				     `KUBE_CONFIG_PATH=~/.kube/config KUBE_CTX=kind-argocd make testacc_unstable_features`
+				   works around this for now.
+				*/
+				Config: `
+provider "kubernetes" {
+  config_path    = "~/.kube/config"
+  config_context = "kind-argocd"
+}
+
+resource "kubernetes_config_map_v1_data" "argocd_cm" {
+  metadata {
+    name      = "argocd-cm"
+    namespace = "argocd"
+  }
+  data = {
+    "application.sync.impersonation.enabled" = "true"
+  }
+}
+`,
+			},
+			{
 				Config: testAccArgoCDProjectWithDestinationServiceAccounts(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"argocd_project.simple",
 						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.simple",
+						"spec.0.destination_service_account.0.default_service_account",
+						"default",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.simple",
+						"spec.0.destination_service_account.1.default_service_account",
+						"foo",
 					),
 				),
 			},
