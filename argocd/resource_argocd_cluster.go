@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
 	clusterClient "github.com/argoproj/argo-cd/v3/pkg/apiclient/cluster"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -26,7 +25,7 @@ func resourceArgoCDCluster() *schema.Resource {
 }
 
 func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -92,7 +91,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -168,7 +167,7 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -190,7 +189,7 @@ func resourceArgoCDClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}

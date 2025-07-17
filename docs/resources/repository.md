@@ -62,7 +62,7 @@ resource "argocd_repository" "private" {
 ### Read-Only
 
 - `connection_state_status` (String) Contains information about the current state of connection to the repository server.
-- `id` (String) The ID of this resource.
+- `id` (String) Repository identifier
 - `inherited_creds` (Boolean) Whether credentials were inherited from a credential set.
 
 ## Import

@@ -1,24 +1,59 @@
 package argocd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/testhelpers"
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
+	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 var testAccProviders map[string]func() (*schema.Provider, error)
+var testAccProtoV6ProviderFactories map[string]func() (tfprotov6.ProviderServer, error)
 
 func init() {
 	testAccProviders = map[string]func() (*schema.Provider, error){
 		"argocd": func() (*schema.Provider, error) { //nolint:unparam
 			return Provider(), nil
+		},
+	}
+
+	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
+		"argocd": func() (tfprotov6.ProviderServer, error) {
+			ctx := context.Background()
+
+			upgradedSdkServer, err := tf5to6server.UpgradeServer(
+				ctx,
+				Provider().GRPCProvider,
+			)
+			if err != nil {
+				return nil, err
+			}
+
+			providers := []func() tfprotov6.ProviderServer{
+				providerserver.NewProtocol6(provider.New("test")),
+				func() tfprotov6.ProviderServer {
+					return upgradedSdkServer
+				},
+			}
+
+			muxServer, err := tf6muxserver.NewMuxServer(ctx, providers...)
+			if err != nil {
+				return nil, err
+			}
+
+			return muxServer.ProviderServer(), nil
 		},
 	}
 }

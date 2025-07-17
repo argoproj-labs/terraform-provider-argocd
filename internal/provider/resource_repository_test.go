@@ -1,4 +1,4 @@
-package argocd
+package provider
 
 import (
 	"fmt"
@@ -6,14 +6,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAccArgoCDRepository_Simple(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositorySimple(),
@@ -43,8 +42,8 @@ func TestAccArgoCDRepository_Helm(t *testing.T) {
 	projectName := acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryHelm(),
@@ -80,8 +79,8 @@ func TestAccArgoCDRepository_Helm(t *testing.T) {
 
 func TestAccArgoCDRepository_PrivateSSH(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryPrivateGitSSH("git@private-git-repository.argocd.svc.cluster.local:~/project-1.git"),
@@ -122,8 +121,8 @@ func TestAccArgoCDRepository_GitHubApp(t *testing.T) {
 	assert.NoError(t, err)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryGitHubApp(
@@ -259,29 +258,4 @@ resource "argocd_repository" "githubapp" {
 EOT
 }
 `, repoUrl, id, installID, baseURL, appKey)
-}
-
-func testCheckMultipleResourceAttr(name, key, value string, count int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		for i := 0; i < count; i++ {
-			ms := s.RootModule()
-			_name := fmt.Sprintf("%s.%d", name, i)
-
-			rs, ok := ms.Resources[_name]
-			if !ok {
-				return fmt.Errorf("not found: %s in %s", _name, ms.Path)
-			}
-
-			is := rs.Primary
-			if is == nil {
-				return fmt.Errorf("no primary instance: %s in %s", _name, ms.Path)
-			}
-
-			if val, ok := is.Attributes[key]; !ok || val != value {
-				return fmt.Errorf("%s: Attribute '%s' expected to be set and have value '%s': %s", _name, key, value, val)
-			}
-		}
-
-		return nil
-	}
 }

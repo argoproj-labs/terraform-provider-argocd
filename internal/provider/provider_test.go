@@ -1,14 +1,18 @@
 package provider
 
 import (
+	"context"
 	"os"
 	"testing"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/argoproj-labs/terraform-provider-argocd/argocd"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/testhelpers"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
+	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -17,7 +21,31 @@ import (
 // CLI command executed to create a provider server to which the CLI can
 // reattach.
 var testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
-	"argocd": providerserver.NewProtocol6WithError(New("test")),
+	"argocd": func() (tfprotov6.ProviderServer, error) {
+		ctx := context.Background()
+
+		upgradedSdkServer, err := tf5to6server.UpgradeServer(
+			ctx,
+			argocd.Provider().GRPCProvider,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		providers := []func() tfprotov6.ProviderServer{
+			providerserver.NewProtocol6(New("test")),
+			func() tfprotov6.ProviderServer {
+				return upgradedSdkServer
+			},
+		}
+
+		muxServer, err := tf6muxserver.NewMuxServer(ctx, providers...)
+		if err != nil {
+			return nil, err
+		}
+
+		return muxServer.ProviderServer(), nil
+	},
 }
 
 func TestMain(m *testing.M) {

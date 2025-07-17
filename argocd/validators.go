@@ -9,7 +9,6 @@ import (
 
 	argocdtime "github.com/argoproj/pkg/time"
 	"github.com/robfig/cron/v3"
-	"golang.org/x/crypto/ssh"
 	apiValidation "k8s.io/apimachinery/pkg/api/validation"
 	utilValidation "k8s.io/apimachinery/pkg/util/validation"
 )
@@ -134,27 +133,6 @@ func validateDuration(value interface{}, key string) (ws []string, es []error) {
 
 	if _, err := time.ParseDuration(v); err != nil {
 		es = append(es, fmt.Errorf("%s: invalid duration '%s': %s", key, v, err))
-	}
-
-	return
-}
-
-func validateSSHPrivateKey(value interface{}, key string) (ws []string, es []error) {
-	v := value.(string)
-
-	if _, err := ssh.ParsePrivateKey([]byte(v)); err != nil {
-		es = append(es, fmt.Errorf("%s: invalid ssh private key: %s", key, err))
-	}
-
-	return
-}
-
-func validatePositiveInteger(value interface{}, key string) (ws []string, es []error) {
-	v := value.(string)
-
-	positiveIntegerRegexp := regexp.MustCompile(`^[+]?\d+?$`)
-	if !positiveIntegerRegexp.MatchString(v) {
-		es = append(es, fmt.Errorf("%s: invalid input '%s'. String input must match a positive integer, e.g.'12345'", key, v))
 	}
 
 	return
