@@ -43,6 +43,7 @@ var ConstraintsMap = map[Feature]FeatureConstraint{
 	ApplicationSetIgnoreApplicationDifferences: {"application set ignore application differences", semver.MustParse("2.9.0"), nil},
 	ApplicationSetTemplatePatch:                {"application set template patch", semver.MustParse("2.10.0"), nil},
 	ApplicationKustomizePatches:                {"application kustomize patches", semver.MustParse("2.9.0"), nil},
-	ProjectDestinationServiceAccounts:          {"project destination service accounts", semver.MustParse("2.13.0"), &[]*jmespath.JMESPath{jmespath.MustCompile("impersonationEnabled")}},
 	ProjectFineGrainedPolicy:                   {"fine-grained policy in project", semver.MustParse("2.12.0"), nil},
+	ApplicationSourceName:                      {"named application sources", semver.MustParse("2.14.0"), nil},
+	ProjectDestinationServiceAccounts:          {"project destination service accounts", semver.MustParse("2.13.0"), &[]*jmespath.JMESPath{jmespath.MustCompile("impersonationEnabled")}},
 }
