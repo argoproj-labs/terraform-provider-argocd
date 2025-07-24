@@ -45,34 +45,34 @@ func resourceArgoCDApplicationSetCreate(ctx context.Context, d *schema.ResourceD
 		return pluginSDKDiags(diags)
 	}
 
-	if !si.IsFeatureSupported(features.ApplicationSet) {
+	if !si.IsFeatureSupported(ctx, features.ApplicationSet) {
 		return featureNotSupported(features.ApplicationSet)
 	}
 
 	objectMeta, spec, err := expandApplicationSet(
 		d,
-		si.IsFeatureSupported(features.MultipleApplicationSources),
-		si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences),
-		si.IsFeatureSupported(features.ApplicationSetTemplatePatch),
-		si.IsFeatureSupported(features.ApplicationSourceName),
+		si.IsFeatureSupported(ctx, features.MultipleApplicationSources),
+		si.IsFeatureSupported(ctx, features.ApplicationSetIgnoreApplicationDifferences),
+		si.IsFeatureSupported(ctx, features.ApplicationSetTemplatePatch),
+		si.IsFeatureSupported(ctx, features.ApplicationSourceName),
 	)
 	if err != nil {
 		return errorToDiagnostics("failed to expand application set", err)
 	}
 
-	if !si.IsFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
+	if !si.IsFeatureSupported(ctx, features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
 		return featureNotSupported(features.ApplicationSetProgressiveSync)
 	}
 
-	if !si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences) && spec.IgnoreApplicationDifferences != nil {
+	if !si.IsFeatureSupported(ctx, features.ApplicationSetIgnoreApplicationDifferences) && spec.IgnoreApplicationDifferences != nil {
 		return featureNotSupported(features.ApplicationSetIgnoreApplicationDifferences)
 	}
 
-	if !si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy != nil && spec.SyncPolicy.ApplicationsSync != nil {
+	if !si.IsFeatureSupported(ctx, features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy != nil && spec.SyncPolicy.ApplicationsSync != nil {
 		return featureNotSupported(features.ApplicationSetApplicationsSyncPolicy)
 	}
 
-	if !si.IsFeatureSupported(features.ApplicationSetTemplatePatch) && spec.TemplatePatch != nil {
+	if !si.IsFeatureSupported(ctx, features.ApplicationSetTemplatePatch) && spec.TemplatePatch != nil {
 		return featureNotSupported(features.ApplicationSetTemplatePatch)
 	}
 
@@ -139,7 +139,7 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 		return pluginSDKDiags(diags)
 	}
 
-	if !si.IsFeatureSupported(features.ApplicationSet) {
+	if !si.IsFeatureSupported(ctx, features.ApplicationSet) {
 		return featureNotSupported(features.ApplicationSet)
 	}
 
@@ -149,24 +149,24 @@ func resourceArgoCDApplicationSetUpdate(ctx context.Context, d *schema.ResourceD
 
 	objectMeta, spec, err := expandApplicationSet(
 		d,
-		si.IsFeatureSupported(features.MultipleApplicationSources),
-		si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences),
-		si.IsFeatureSupported(features.ApplicationSetTemplatePatch),
-		si.IsFeatureSupported(features.ApplicationSourceName),
+		si.IsFeatureSupported(ctx, features.MultipleApplicationSources),
+		si.IsFeatureSupported(ctx, features.ApplicationSetIgnoreApplicationDifferences),
+		si.IsFeatureSupported(ctx, features.ApplicationSetTemplatePatch),
+		si.IsFeatureSupported(ctx, features.ApplicationSourceName),
 	)
 	if err != nil {
 		return errorToDiagnostics(fmt.Sprintf("failed to expand application set %s", d.Id()), err)
 	}
 
-	if !si.IsFeatureSupported(features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
+	if !si.IsFeatureSupported(ctx, features.ApplicationSetProgressiveSync) && spec.Strategy != nil {
 		return featureNotSupported(features.ApplicationSetProgressiveSync)
 	}
 
-	if !si.IsFeatureSupported(features.ApplicationSetIgnoreApplicationDifferences) && spec.IgnoreApplicationDifferences != nil {
+	if !si.IsFeatureSupported(ctx, features.ApplicationSetIgnoreApplicationDifferences) && spec.IgnoreApplicationDifferences != nil {
 		return featureNotSupported(features.ApplicationSetIgnoreApplicationDifferences)
 	}
 
-	if !si.IsFeatureSupported(features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy != nil && spec.SyncPolicy.ApplicationsSync != nil {
+	if !si.IsFeatureSupported(ctx, features.ApplicationSetApplicationsSyncPolicy) && spec.SyncPolicy != nil && spec.SyncPolicy.ApplicationsSync != nil {
 		return featureNotSupported(features.ApplicationSetApplicationsSyncPolicy)
 	}
 
