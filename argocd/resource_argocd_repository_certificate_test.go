@@ -1,13 +1,17 @@
 package argocd
 
 import (
+	"context"
 	"fmt"
+	"os"
 	"os/exec"
 	"regexp"
+	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/testhelpers"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -199,6 +203,11 @@ func TestAccArgoCDRepositoryCertificatesSSH_Allow_Random_Subtype(t *testing.T) {
 }
 
 func TestAccArgoCDRepositoryCertificatesSSH_WithApplication(t *testing.T) {
+	// Skip if we're not in an acceptance test environment
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Acceptance tests skipped unless env 'TF_ACC' set")
+	}
+
 	appName := acctest.RandomWithPrefix("testacc")
 
 	subtypesKeys, err := getSshKeysForHost("private-git-repository")
@@ -449,16 +458,33 @@ func getSshKeysForHost(host string) ([]string, error) {
 		host,
 	}
 
-	cmd := exec.Command(app, args...)
-	stdout, err := cmd.Output()
+	var err error
 
-	if err != nil {
-		fmt.Println(err.Error())
-		return nil, err
+	var output []byte
+
+	if testhelpers.GlobalTestEnv != nil {
+		args = append([]string{app}, args...)
+
+		output, err = testhelpers.GlobalTestEnv.ExecInK3s(context.Background(), args...)
+		if err != nil {
+			fmt.Println(err.Error())
+			return nil, err
+		}
+
+		n := strings.Split(string(output), "`")
+		output = []byte(n[1])
+	} else {
+		cmd := exec.Command(app, args...)
+
+		output, err = cmd.Output()
+		if err != nil {
+			fmt.Println(err.Error())
+			return nil, err
+		}
 	}
 
 	re, _ := regexp.Compile(`(?m)^private-git-repository (?P<subtype>[^\s]+) (?P<key>.+)$`)
-	matches := re.FindAllStringSubmatch(string(stdout), 3)
+	matches := re.FindAllStringSubmatch(string(output), 3)
 
 	subTypesKeys := make([]string, 0)
 	for _, match := range matches {

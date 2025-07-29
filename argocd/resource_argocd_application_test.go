@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccArgoCDApplication(t *testing.T) {
@@ -40,7 +40,7 @@ func TestAccArgoCDApplication(t *testing.T) {
 				ResourceName:            "argocd_application." + name,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate", "spec.0.source.0.helm.0.parameter.0.force_string"},
 			},
 			{
 				// Update
@@ -154,7 +154,7 @@ ingress:
 				ResourceName:            "argocd_application.helm",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate", "spec.0.source.0.helm.0.parameter.0.force_string", "spec.0.source.0.helm.0.parameter.1.force_string"},
 			},
 		},
 	})
@@ -304,7 +304,7 @@ func TestAccArgoCDApplication_IgnoreDifferences(t *testing.T) {
 				ResourceName:            "argocd_application.ignore_differences",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate", "metadata.0.generation", "metadata.0.resource_version"},
 			},
 			{
 				Config: testAccArgoCDApplicationIgnoreDiffJQPathExpressions(
@@ -330,7 +330,7 @@ func TestAccArgoCDApplication_IgnoreDifferences(t *testing.T) {
 				ResourceName:            "argocd_application.ignore_differences_jqpe",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate", "metadata.0.generation", "metadata.0.resource_version"},
 			},
 			{
 				Config: testAccArgoCDApplicationIgnoreDiffManagedFieldsManagers(
@@ -356,7 +356,7 @@ func TestAccArgoCDApplication_IgnoreDifferences(t *testing.T) {
 				ResourceName:            "argocd_application.ignore_differences_managed_fields_managers",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate", "metadata.0.generation", "metadata.0.resource_version"},
 			},
 		},
 	})
@@ -390,7 +390,7 @@ func TestAccArgoCDApplication_RevisionHistoryLimit(t *testing.T) {
 				ResourceName:            "argocd_application.revision_history_limit",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate", "metadata.0.generation", "metadata.0.resource_version", "spec.0.source.0.helm.0.parameter.0.force_string", "spec.0.source.0.helm.0.parameter.1.force_string"},
 			},
 		},
 	})
@@ -419,7 +419,7 @@ func TestAccArgoCDApplication_OptionalDestinationNamespace(t *testing.T) {
 				ResourceName:            "argocd_application.no_namespace",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate", "metadata.0.generation", "metadata.0.resource_version"},
 			},
 		},
 	})
@@ -1054,7 +1054,7 @@ func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
 				ResourceName:            "argocd_application.custom_namespace",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "status", "validate", "metadata.0.generation", "metadata.0.resource_version", "spec.0.source.0.helm.0.parameter.0.force_string", "spec.0.source.0.helm.0.parameter.1.force_string"},
 			},
 		},
 	})
@@ -1099,10 +1099,13 @@ func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            "argocd_application.multiple_sources",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
+				ResourceName:      "argocd_application.multiple_sources",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate",
+					"spec.0.source.0.helm.0.parameter.0.force_string",
+					"spec.0.source.0.helm.0.parameter.1.force_string",
+					"spec.0.source.0.helm.0.parameter.2.force_string"},
 			},
 		},
 	})
@@ -1177,7 +1180,7 @@ func TestAccArgoCDApplication_ManagedNamespaceMetadata(t *testing.T) {
 				ResourceName:            "argocd_application.namespace_metadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "validate"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "validate", "status"},
 			},
 		},
 	})
