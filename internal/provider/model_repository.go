@@ -255,8 +255,8 @@ func newRepositoryModel(repo *v1alpha1.Repository) *repositoryModel {
 		model.TLSClientCertData = types.StringNull()
 	}
 
-	// Note: Sensitive fields (password, ssh_private_key, tls_client_cert_key, githubapp_private_key)
-	// are not returned by the ArgoCD API, so they remain as configured in Terraform state
+	// Note: The ArgoCD API does not return sensitive fields (password, ssh_private_key, tls_client_cert_key,
+	// githubapp_private_key), so they remain as configured in Terraform state
 	model.Password = types.StringNull()
 	model.SSHPrivateKey = types.StringNull()
 	model.TLSClientCertKey = types.StringNull()

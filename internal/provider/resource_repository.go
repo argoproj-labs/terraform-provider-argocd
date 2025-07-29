@@ -303,11 +303,21 @@ func (r *repositoryResource) readRepository(ctx context.Context, repoURL, projec
 	sync.RepositoryMutex.RLock()
 	defer sync.RepositoryMutex.RUnlock()
 
-	repo, err := r.si.RepositoryClient.Get(ctx, &repository.RepoQuery{
-		Repo:         repoURL,
-		AppProject:   project,
-		ForceRefresh: true,
+	repos, err := r.si.RepositoryClient.List(ctx, &repository.RepoQuery{
+		AppProject: project,
 	})
+
+	var finalRepo *v1alpha1.Repository
+
+	if repos != nil {
+		if len(repos.Items) >= 1 {
+			for _, repo := range repos.Items {
+				if repo.Repo == repoURL {
+					finalRepo = repo
+				}
+			}
+		}
+	}
 
 	if err != nil {
 		if strings.Contains(err.Error(), "NotFound") {
@@ -320,5 +330,5 @@ func (r *repositoryResource) readRepository(ctx context.Context, repoURL, projec
 		return nil, diags
 	}
 
-	return repo, diags
+	return finalRepo, diags
 }
