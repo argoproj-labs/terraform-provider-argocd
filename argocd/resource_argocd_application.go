@@ -9,7 +9,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
 	applicationClient "github.com/argoproj/argo-cd/v3/pkg/apiclient/application"
 	application "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/gitops-engine/pkg/health"
@@ -83,7 +82,7 @@ func resourceArgoCDApplication() *schema.Resource {
 }
 
 func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -196,7 +195,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -248,7 +247,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		return resourceArgoCDApplicationRead(ctx, d, meta)
 	}
 
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -353,7 +352,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}

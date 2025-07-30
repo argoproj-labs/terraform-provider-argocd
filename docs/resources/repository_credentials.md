@@ -28,24 +28,24 @@ resource "argocd_repository_credentials" "private" {
 
 ### Required
 
-- `url` (String) URL that these credentials matches to.
+- `url` (String) URL that these credentials match to
 
 ### Optional
 
-- `enable_oci` (Boolean) Whether `helm-oci` support should be enabled for this repo.
-- `githubapp_enterprise_base_url` (String) GitHub API URL for GitHub app authentication.
-- `githubapp_id` (String) Github App ID of the app used to access the repo for GitHub app authentication.
-- `githubapp_installation_id` (String) ID of the installed GitHub App for GitHub app authentication.
-- `githubapp_private_key` (String, Sensitive) Private key data (PEM) for authentication via GitHub app.
-- `password` (String, Sensitive) Password for authenticating at the repo server.
-- `ssh_private_key` (String, Sensitive) Private key data for authenticating at the repo server using SSH (only Git repos).
-- `tls_client_cert_data` (String) TLS client cert data for authenticating at the repo server.
-- `tls_client_cert_key` (String, Sensitive) TLS client cert key for authenticating at the repo server.
-- `username` (String) Username for authenticating at the repo server.
+- `enable_oci` (Boolean) Whether `helm-oci` support should be enabled for this repo
+- `githubapp_enterprise_base_url` (String) GitHub API URL for GitHub app authentication
+- `githubapp_id` (String) GitHub App ID of the app used to access the repo for GitHub app authentication
+- `githubapp_installation_id` (String) ID of the installed GitHub App for GitHub app authentication
+- `githubapp_private_key` (String, Sensitive) Private key data (PEM) for authentication via GitHub app
+- `password` (String, Sensitive) Password for authenticating at the repo server
+- `ssh_private_key` (String, Sensitive) Private key data for authenticating at the repo server using SSH (only Git repos)
+- `tls_client_cert_data` (String) TLS client cert data for authenticating at the repo server
+- `tls_client_cert_key` (String, Sensitive) TLS client cert key for authenticating at the repo server
+- `username` (String) Username for authenticating at the repo server
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Repository credentials identifier
 
 ## Import
 
