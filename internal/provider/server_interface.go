@@ -159,19 +159,14 @@ func (si *ServerInterface) InitClients(ctx context.Context) diag.Diagnostics {
 	return diags
 }
 
-// Checks that the server version meets the minimum version required for the feature.
-func (si *ServerInterface) IsVersionSupported(fc features.FeatureConstraint) bool {
-	if fc.MinVersion == nil {
-		return true
-	}
-
-	return fc.MinVersion.Compare(si.ServerVersion) != 1
-}
-
 // Checks that a specific feature is available for the current ArgoCD server version.
 // 'feature' argument must match one of the predefined feature* constants.
 func (si *ServerInterface) IsFeatureSupported(feature features.Feature) bool {
 	fc, ok := features.ConstraintsMap[feature]
+
+	if fc.MinVersion == nil {
+		return true
+	}
 
 	return ok && fc.MinVersion.Compare(si.ServerVersion) != 1
 }
