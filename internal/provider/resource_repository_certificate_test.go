@@ -1,4 +1,4 @@
-package argocd
+package provider
 
 import (
 	"context"
@@ -19,8 +19,8 @@ func TestAccArgoCDRepositoryCertificatesSSH(t *testing.T) {
 	serverName := acctest.RandomWithPrefix("mywebsite")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCertificatesSSH(
@@ -78,8 +78,8 @@ func TestAccArgoCDRepositoryCertificatesHttps(t *testing.T) {
 	serverName := acctest.RandomWithPrefix("github")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCertificateHttps(
@@ -113,8 +113,8 @@ func TestAccArgoCDRepositoryCertificatesHttps_Crash(t *testing.T) {
 	serverName := acctest.RandomWithPrefix("github")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCertificateHttps(
@@ -148,8 +148,8 @@ func TestAccArgoCDRepositoryCertificatesSSH_Invalid(t *testing.T) {
 	certSubType := acctest.RandomWithPrefix("cert")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCertificatesSSH(
@@ -173,8 +173,8 @@ func TestAccArgoCDRepositoryCertificatesSSH_Invalid(t *testing.T) {
 
 func TestAccArgoCDRepositoryCertificates_Empty(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccArgoCDRepositoryCertificates_Empty(),
@@ -188,8 +188,8 @@ func TestAccArgoCDRepositoryCertificatesSSH_Allow_Random_Subtype(t *testing.T) {
 	certSubType := acctest.RandomWithPrefix("cert")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCertificatesSSH(
@@ -214,8 +214,8 @@ func TestAccArgoCDRepositoryCertificatesSSH_WithApplication(t *testing.T) {
 	assert.NoError(t, err)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCertificateCredentialsApplicationWithSSH(appName, subtypesKeys),
@@ -236,8 +236,8 @@ func TestAccArgoCDRepositoryCertificatesSSH_WithApplication(t *testing.T) {
 
 func TestAccArgoCDRepositoryCertificatesSSH_CannotUpdateExisting(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCertificatesSSH(
@@ -254,8 +254,8 @@ func TestAccArgoCDRepositoryCertificatesSSH_CannotUpdateExisting(t *testing.T) {
 
 func TestAccArgoCDRepositoryCertificatesSSH_CannotUpdateExisting_MultipleAtOnce(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCertificateSSH_Duplicated(
@@ -274,8 +274,8 @@ func TestAccArgoCDRepositoryCertificatesHttps_CannotUpdateExisting_MultipleAtOnc
 	host := "github.com"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCertificateHttps_Duplicated(

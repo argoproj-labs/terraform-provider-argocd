@@ -1,4 +1,4 @@
-package argocd
+package provider
 
 import (
 	"crypto/rand"
@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,8 +18,8 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 	assert.NoError(t, err)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCredentialsSimple(
@@ -43,6 +44,14 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"ssh_private_key"},
 			},
+		},
+	})
+
+	// Run coexistence test separately with multiplexed provider
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCredentialsRepositoryCoexistence(),
 				Check: testCheckMultipleResourceAttr(
@@ -61,8 +70,8 @@ func TestAccArgoCDRepositoryCredentials_GitHubApp(t *testing.T) {
 	assert.NoError(t, err)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCredentialsGitHubApp(
@@ -166,9 +175,27 @@ func generateSSHPrivateKey() (privateKey string, err error) {
 	return string(pem.EncodeToMemory(&privBlock)), nil
 }
 
-func mustGenerateSSHPrivateKey(t *testing.T) string {
-	pk, err := generateSSHPrivateKey()
-	assert.NoError(t, err)
+func testCheckMultipleResourceAttr(name, key, value string, count int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for i := 0; i < count; i++ {
+			ms := s.RootModule()
+			_name := fmt.Sprintf("%s.%d", name, i)
 
-	return pk
+			rs, ok := ms.Resources[_name]
+			if !ok {
+				return fmt.Errorf("not found: %s in %s", _name, ms.Path)
+			}
+
+			is := rs.Primary
+			if is == nil {
+				return fmt.Errorf("no primary instance: %s in %s", _name, ms.Path)
+			}
+
+			if val, ok := is.Attributes[key]; !ok || val != value {
+				return fmt.Errorf("%s: Attribute '%s' expected to be set and have value '%s': %s", _name, key, value, val)
+			}
+		}
+
+		return nil
+	}
 }
