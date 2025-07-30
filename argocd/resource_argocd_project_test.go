@@ -254,7 +254,7 @@ func TestAccArgoCDProjectWithSourceNamespaces(t *testing.T) {
 	})
 }
 
-func TestAccUnstableArgoCDProjectWithDestinationServiceAccounts(t *testing.T) {
+func TestAccArgoCDProjectWithDestinationServiceAccounts(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.Test(t, resource.TestCase{
