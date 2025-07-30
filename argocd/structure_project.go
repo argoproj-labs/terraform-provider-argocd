@@ -128,24 +128,17 @@ func expandProjectSpec(d *schema.ResourceData) (spec application.AppProjectSpec,
 }
 
 func expandDestinationServiceAccounts(dsas *schema.Set) (result []application.ApplicationDestinationServiceAccount) {
-	for _, dsa := range dsas.List() {
-		result = append(result, expandDestinationServiceAccount(dsa))
+	for _, _dsa := range dsas.List() {
+		dsa := _dsa.(map[string]interface{})
+
+		result = append(result, application.ApplicationDestinationServiceAccount{
+			DefaultServiceAccount: dsa["default_service_account"].(string),
+			Namespace:             dsa["namespace"].(string),
+			Server:                dsa["server"].(string),
+		})
 	}
 
 	return
-}
-
-func expandDestinationServiceAccount(destsa interface{}) (result application.ApplicationDestinationServiceAccount) {
-	dsa, ok := destsa.(map[string]interface{})
-	if !ok {
-		panic(fmt.Errorf("could not expand destination service account"))
-	}
-
-	return application.ApplicationDestinationServiceAccount{
-		DefaultServiceAccount: dsa["default_service_account"].(string),
-		Namespace:             dsa["namespace"].(string),
-		Server:                dsa["server"].(string),
-	}
 }
 
 func expandOrphanedResourcesIgnore(ignore *schema.Set) (result []application.OrphanedResourceKey) {
