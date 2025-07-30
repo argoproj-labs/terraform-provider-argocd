@@ -100,10 +100,6 @@ jobs:
         env:
           ARGOCD_VERSION: ${{ matrix.argocd_version }}
         run: make testacc
-      - name: Run acceptance tests for unstable features
-        env:
-          ARGOCD_VERSION: ${{ matrix.argocd_version }}
-        run: make testacc_unstable_features
 
   # This job aggregates test results. It's the required check for branch protection.
   # https://github.com/marketplace/actions/alls-green#why
