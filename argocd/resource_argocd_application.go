@@ -87,7 +87,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 		return pluginSDKDiags(diags)
 	}
 
-	objectMeta, spec, err := expandApplication(d, si.IsFeatureSupported(ctx, features.ApplicationSourceName))
+	objectMeta, spec, err := expandApplication(d, si.IsFeatureSupported(features.ApplicationSourceName))
 	if err != nil {
 		return errorToDiagnostics("failed to expand application", err)
 	}
@@ -129,11 +129,11 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	case l == 1:
 		spec.Source = &spec.Sources[0]
 		spec.Sources = nil
-	case l > 1 && !si.IsFeatureSupported(ctx, features.MultipleApplicationSources):
+	case l > 1 && !si.IsFeatureSupported(features.MultipleApplicationSources):
 		return featureNotSupported(features.MultipleApplicationSources)
 	}
 
-	if spec.SyncPolicy != nil && spec.SyncPolicy.ManagedNamespaceMetadata != nil && !si.IsFeatureSupported(ctx, features.ManagedNamespaceMetadata) {
+	if spec.SyncPolicy != nil && spec.SyncPolicy.ManagedNamespaceMetadata != nil && !si.IsFeatureSupported(features.ManagedNamespaceMetadata) {
 		return featureNotSupported(features.ManagedNamespaceMetadata)
 	}
 
@@ -258,7 +258,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		AppNamespace: &ids[1],
 	}
 
-	objectMeta, spec, err := expandApplication(d, si.IsFeatureSupported(ctx, features.ApplicationSourceName))
+	objectMeta, spec, err := expandApplication(d, si.IsFeatureSupported(features.ApplicationSourceName))
 	if err != nil {
 		return errorToDiagnostics(fmt.Sprintf("failed to expand application %s", *appQuery.Name), err)
 	}
@@ -269,11 +269,11 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 	case l == 1:
 		spec.Source = &spec.Sources[0]
 		spec.Sources = nil
-	case l > 1 && !si.IsFeatureSupported(ctx, features.MultipleApplicationSources):
+	case l > 1 && !si.IsFeatureSupported(features.MultipleApplicationSources):
 		return featureNotSupported(features.MultipleApplicationSources)
 	}
 
-	if spec.SyncPolicy != nil && spec.SyncPolicy.ManagedNamespaceMetadata != nil && !si.IsFeatureSupported(ctx, features.ManagedNamespaceMetadata) {
+	if spec.SyncPolicy != nil && spec.SyncPolicy.ManagedNamespaceMetadata != nil && !si.IsFeatureSupported(features.ManagedNamespaceMetadata) {
 		return featureNotSupported(features.ManagedNamespaceMetadata)
 	}
 

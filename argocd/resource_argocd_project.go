@@ -57,7 +57,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 
 	projectName := objectMeta.Name
 
-	if !si.IsFeatureSupported(ctx, features.ProjectSourceNamespaces) {
+	if !si.IsFeatureSupported(features.ProjectSourceNamespaces) {
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
 			return featureNotSupported(features.ProjectSourceNamespaces)
@@ -163,7 +163,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		return errorToDiagnostics(fmt.Sprintf("failed to expand project %s", d.Id()), err)
 	}
 
-	if !si.IsFeatureSupported(ctx, features.ProjectSourceNamespaces) {
+	if !si.IsFeatureSupported(features.ProjectSourceNamespaces) {
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
 			return featureNotSupported(features.ProjectSourceNamespaces)

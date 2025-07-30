@@ -88,7 +88,7 @@ func TestServerInterface_isFeatureSupported(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := tt.si.IsFeatureSupported(t.Context(), tt.args.feature)
+			got := tt.si.IsFeatureSupported(tt.args.feature)
 
 			if got != tt.want {
 				t.Errorf("isFeatureSupported() got = %v, want %v, version %s",
