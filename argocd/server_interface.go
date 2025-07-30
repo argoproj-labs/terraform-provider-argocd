@@ -164,6 +164,10 @@ func (si *ServerInterface) InitClients(ctx context.Context) diag.Diagnostics {
 func (si *ServerInterface) IsFeatureSupported(feature features.Feature) bool {
 	fc, ok := features.ConstraintsMap[feature]
 
+	if fc.MinVersion == nil {
+		return true
+	}
+
 	return ok && fc.MinVersion.Compare(si.ServerVersion) != 1
 }
 
