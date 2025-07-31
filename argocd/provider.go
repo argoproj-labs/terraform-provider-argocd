@@ -4,7 +4,6 @@ import (
 	"context"
 	"sync"
 
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
 	fwdiag "github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -142,19 +141,16 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"argocd_application":            resourceArgoCDApplication(),
-			"argocd_application_set":        resourceArgoCDApplicationSet(),
-			"argocd_repository_certificate": resourceArgoCDRepositoryCertificates(),
-			"argocd_cluster":                resourceArgoCDCluster(),
-			"argocd_project":                resourceArgoCDProject(),
-			"argocd_project_token":          resourceArgoCDProjectToken(),
-			"argocd_repository":             resourceArgoCDRepository(),
-			"argocd_repository_credentials": resourceArgoCDRepositoryCredentials(),
+			"argocd_application":     resourceArgoCDApplication(),
+			"argocd_application_set": resourceArgoCDApplicationSet(),
+			"argocd_cluster":         resourceArgoCDCluster(),
+			"argocd_project":         resourceArgoCDProject(),
+			"argocd_project_token":   resourceArgoCDProjectToken(),
 		},
 		ConfigureContextFunc: func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 			config, diags := argoCDProviderConfigFromResourceData(ctx, d)
 
-			server := provider.NewServerInterface(config)
+			server := NewServerInterface(config)
 
 			return server, diags
 		},
@@ -258,8 +254,8 @@ func kubernetesResource() *schema.Resource {
 	}
 }
 
-func argoCDProviderConfigFromResourceData(ctx context.Context, d *schema.ResourceData) (provider.ArgoCDProviderConfig, diag.Diagnostics) {
-	c := provider.ArgoCDProviderConfig{
+func argoCDProviderConfigFromResourceData(ctx context.Context, d *schema.ResourceData) (ArgoCDProviderConfig, diag.Diagnostics) {
+	c := ArgoCDProviderConfig{
 		AuthToken:                getStringFromResourceData(d, "auth_token"),
 		CertFile:                 getStringFromResourceData(d, "cert_file"),
 		ClientCertFile:           getStringFromResourceData(d, "client_cert_file"),
@@ -291,12 +287,12 @@ func argoCDProviderConfigFromResourceData(ctx context.Context, d *schema.Resourc
 	return c, pluginSDKDiags(diags)
 }
 
-func kubernetesConfigFromResourceData(ctx context.Context, d *schema.ResourceData) ([]provider.Kubernetes, fwdiag.Diagnostics) {
+func kubernetesConfigFromResourceData(ctx context.Context, d *schema.ResourceData) ([]Kubernetes, fwdiag.Diagnostics) {
 	if _, ok := d.GetOk("kubernetes"); !ok {
 		return nil, nil
 	}
 
-	k8s := provider.Kubernetes{
+	k8s := Kubernetes{
 		ClientCertificate:     getStringFromResourceData(d, "kubernetes.0.client_certificate"),
 		ClientKey:             getStringFromResourceData(d, "kubernetes.0.client_key"),
 		ClusterCACertificate:  getStringFromResourceData(d, "kubernetes.0.cluster_ca_certificate"),
@@ -314,15 +310,15 @@ func kubernetesConfigFromResourceData(ctx context.Context, d *schema.ResourceDat
 
 	k8s.Exec, diags = kubernetesExecConfigFromResourceData(ctx, d)
 
-	return []provider.Kubernetes{k8s}, diags
+	return []Kubernetes{k8s}, diags
 }
 
-func kubernetesExecConfigFromResourceData(ctx context.Context, d *schema.ResourceData) ([]provider.KubernetesExec, fwdiag.Diagnostics) {
+func kubernetesExecConfigFromResourceData(ctx context.Context, d *schema.ResourceData) ([]KubernetesExec, fwdiag.Diagnostics) {
 	if _, ok := d.GetOk("kubernetes.0.exec"); !ok {
 		return nil, nil
 	}
 
-	exec := provider.KubernetesExec{
+	exec := KubernetesExec{
 		APIVersion: getStringFromResourceData(d, "kubernetes.0.exec.0.api_version"),
 		Command:    getStringFromResourceData(d, "kubernetes.0.exec.0.command"),
 	}
@@ -335,7 +331,7 @@ func kubernetesExecConfigFromResourceData(ctx context.Context, d *schema.Resourc
 
 	diags.Append(ds...)
 
-	return []provider.KubernetesExec{exec}, diags
+	return []KubernetesExec{exec}, diags
 }
 
 func getStringFromResourceData(d *schema.ResourceData, key string) types.String {

@@ -40,25 +40,25 @@ EOT
 
 ### Optional
 
-- `https` (Block List, Max: 1) Defines a `https` certificate. (see [below for nested schema](#nestedblock--https))
-- `ssh` (Block List, Max: 1) Defines a `ssh` certificate. (see [below for nested schema](#nestedblock--ssh))
+- `https` (Block List) HTTPS certificate configuration (see [below for nested schema](#nestedblock--https))
+- `ssh` (Block List) SSH certificate configuration (see [below for nested schema](#nestedblock--ssh))
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Repository certificate identifier
 
 <a id="nestedblock--https"></a>
 ### Nested Schema for `https`
 
 Required:
 
-- `cert_data` (String) The actual certificate data, dependent on the certificate type.
-- `server_name` (String) DNS name of the server this certificate is intended for.
+- `cert_data` (String) The actual certificate data, dependent on the certificate type
+- `server_name` (String) DNS name of the server this certificate is intended for
 
 Read-Only:
 
-- `cert_info` (String) Additional certificate info, dependent on the certificate type (e.g. SSH fingerprint, X509 CommonName).
-- `cert_subtype` (String) The sub type of the cert, i.e. `ssh-rsa`.
+- `cert_info` (String) Additional certificate info, dependent on the certificate type (e.g. SSH fingerprint, X509 CommonName)
+- `cert_subtype` (String) The sub type of the cert, i.e. `ssh-rsa`
 
 
 <a id="nestedblock--ssh"></a>
@@ -66,10 +66,10 @@ Read-Only:
 
 Required:
 
-- `cert_data` (String) The actual certificate data, dependent on the certificate type.
-- `cert_subtype` (String) The sub type of the cert, i.e. `ssh-rsa`.
-- `server_name` (String) DNS name of the server this certificate is intended for.
+- `cert_data` (String) The actual certificate data, dependent on the certificate type
+- `cert_subtype` (String) The sub type of the cert, i.e. `ssh-rsa`
+- `server_name` (String) DNS name of the server this certificate is intended for
 
 Read-Only:
 
-- `cert_info` (String) Additional certificate info, dependent on the certificate type (e.g. SSH fingerprint, X509 CommonName).
+- `cert_info` (String) Additional certificate info, dependent on the certificate type (e.g. SSH fingerprint, X509 CommonName)

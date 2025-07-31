@@ -17,12 +17,15 @@ const (
 	ApplicationSetIgnoreApplicationDifferences
 	ApplicationSetTemplatePatch
 	ApplicationKustomizePatches
+	ProjectDestinationServiceAccounts
 	ProjectFineGrainedPolicy
 	ApplicationSourceName
 )
 
 type FeatureConstraint struct {
-	Name       string
+	// Name is a human-readable name for the feature.
+	Name string
+	// MinVersion is the minimum ArgoCD version that supports this feature.
 	MinVersion *semver.Version
 }
 
@@ -39,4 +42,5 @@ var ConstraintsMap = map[Feature]FeatureConstraint{
 	ApplicationKustomizePatches:                {"application kustomize patches", semver.MustParse("2.9.0")},
 	ProjectFineGrainedPolicy:                   {"fine-grained policy in project", semver.MustParse("2.12.0")},
 	ApplicationSourceName:                      {"named application sources", semver.MustParse("2.14.0")},
+	ProjectDestinationServiceAccounts:          {"project destination service accounts", semver.MustParse("2.13.0")},
 }

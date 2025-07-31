@@ -173,6 +173,7 @@ Optional:
 - `cluster_resource_blacklist` (Block Set) Blacklisted cluster level resources. (see [below for nested schema](#nestedblock--spec--cluster_resource_blacklist))
 - `cluster_resource_whitelist` (Block Set) Whitelisted cluster level resources. (see [below for nested schema](#nestedblock--spec--cluster_resource_whitelist))
 - `description` (String) Project description.
+- `destination_service_account` (Block Set) Service accounts to be impersonated for the application sync operation for each destination. (see [below for nested schema](#nestedblock--spec--destination_service_account))
 - `namespace_resource_blacklist` (Block Set) Blacklisted namespace level resources. (see [below for nested schema](#nestedblock--spec--namespace_resource_blacklist))
 - `namespace_resource_whitelist` (Block Set) Whitelisted namespace level resources. (see [below for nested schema](#nestedblock--spec--namespace_resource_whitelist))
 - `orphaned_resources` (Block List, Max: 1) Settings specifying if controller should monitor orphaned resources of apps in this project. (see [below for nested schema](#nestedblock--spec--orphaned_resources))
@@ -210,6 +211,19 @@ Optional:
 
 - `group` (String) The Kubernetes resource Group to match for.
 - `kind` (String) The Kubernetes resource Kind to match for.
+
+
+<a id="nestedblock--spec--destination_service_account"></a>
+### Nested Schema for `spec.destination_service_account`
+
+Required:
+
+- `default_service_account` (String) Used for impersonation during the sync operation
+- `server` (String) Specifies the URL of the target cluster's Kubernetes control plane API.
+
+Optional:
+
+- `namespace` (String) Specifies the target namespace for the application's resources.
 
 
 <a id="nestedblock--spec--namespace_resource_blacklist"></a>

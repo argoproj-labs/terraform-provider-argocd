@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/project"
 	"github.com/cristalhq/jwt/v5"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -156,7 +155,7 @@ func resourceArgoCDProjectToken() *schema.Resource {
 }
 
 func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -274,7 +273,7 @@ func resourceArgoCDProjectTokenCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceArgoCDProjectTokenRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -357,7 +356,7 @@ func resourceArgoCDProjectTokenUpdate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceArgoCDProjectTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}

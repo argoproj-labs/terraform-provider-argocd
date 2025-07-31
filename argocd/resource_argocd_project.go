@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/provider"
 	projectClient "github.com/argoproj/argo-cd/v3/pkg/apiclient/project"
 	application "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -46,7 +45,7 @@ func resourceArgoCDProject() *schema.Resource {
 }
 
 func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -62,6 +61,13 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
 			return featureNotSupported(features.ProjectSourceNamespaces)
+		}
+	}
+
+	if !si.IsFeatureSupported(features.ProjectDestinationServiceAccounts) {
+		_, destinationServiceAccountsOk := d.GetOk("spec.0.destination_service_account")
+		if destinationServiceAccountsOk {
+			return featureNotSupported(features.ProjectDestinationServiceAccounts)
 		}
 	}
 
@@ -116,7 +122,7 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -154,7 +160,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		return resourceArgoCDProjectRead(ctx, d, meta)
 	}
 
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
@@ -168,6 +174,13 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
 			return featureNotSupported(features.ProjectSourceNamespaces)
+		}
+	}
+
+	if !si.IsFeatureSupported(features.ProjectDestinationServiceAccounts) {
+		_, destinationServiceAccountsOk := d.GetOk("spec.0.destination_service_account")
+		if destinationServiceAccountsOk {
+			return featureNotSupported(features.ProjectDestinationServiceAccounts)
 		}
 	}
 
@@ -232,7 +245,7 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceArgoCDProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	si := meta.(*provider.ServerInterface)
+	si := meta.(*ServerInterface)
 	if diags := si.InitClients(ctx); diags != nil {
 		return pluginSDKDiags(diags)
 	}
