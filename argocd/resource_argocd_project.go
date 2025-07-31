@@ -64,6 +64,13 @@ func resourceArgoCDProjectCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	if !si.IsFeatureSupported(features.ProjectDestinationServiceAccounts) {
+		_, destinationServiceAccountsOk := d.GetOk("spec.0.destination_service_account")
+		if destinationServiceAccountsOk {
+			return featureNotSupported(features.ProjectDestinationServiceAccounts)
+		}
+	}
+
 	if _, ok := tokenMutexProjectMap[projectName]; !ok {
 		tokenMutexProjectMap[projectName] = &sync.RWMutex{}
 	}
@@ -167,6 +174,13 @@ func resourceArgoCDProjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		_, sourceNamespacesOk := d.GetOk("spec.0.source_namespaces")
 		if sourceNamespacesOk {
 			return featureNotSupported(features.ProjectSourceNamespaces)
+		}
+	}
+
+	if !si.IsFeatureSupported(features.ProjectDestinationServiceAccounts) {
+		_, destinationServiceAccountsOk := d.GetOk("spec.0.destination_service_account")
+		if destinationServiceAccountsOk {
+			return featureNotSupported(features.ProjectDestinationServiceAccounts)
 		}
 	}
 

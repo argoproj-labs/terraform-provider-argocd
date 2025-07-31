@@ -104,6 +104,10 @@ func expandProjectSpec(d *schema.ResourceData) (spec application.AppProjectSpec,
 		spec.Destinations = expandApplicationDestinations(v.(*schema.Set))
 	}
 
+	if v, ok := s["destination_service_account"]; ok {
+		spec.DestinationServiceAccounts = expandDestinationServiceAccounts(v.(*schema.Set))
+	}
+
 	if v, ok := s["sync_window"]; ok {
 		spec.SyncWindows = expandSyncWindows(v.([]interface{}))
 	}
@@ -121,6 +125,20 @@ func expandProjectSpec(d *schema.ResourceData) (spec application.AppProjectSpec,
 	}
 
 	return spec, nil
+}
+
+func expandDestinationServiceAccounts(dsas *schema.Set) (result []application.ApplicationDestinationServiceAccount) {
+	for _, _dsa := range dsas.List() {
+		dsa := _dsa.(map[string]interface{})
+
+		result = append(result, application.ApplicationDestinationServiceAccount{
+			DefaultServiceAccount: dsa["default_service_account"].(string),
+			Namespace:             dsa["namespace"].(string),
+			Server:                dsa["server"].(string),
+		})
+	}
+
+	return
 }
 
 func expandOrphanedResourcesIgnore(ignore *schema.Set) (result []application.OrphanedResourceKey) {
@@ -161,6 +179,7 @@ func flattenProjectSpec(s application.AppProjectSpec) []map[string]interface{} {
 		"namespace_resource_blacklist": flattenK8SGroupKinds(s.NamespaceResourceBlacklist),
 		"namespace_resource_whitelist": flattenK8SGroupKinds(s.NamespaceResourceWhitelist),
 		"destination":                  flattenApplicationDestinations(s.Destinations),
+		"destination_service_account":  flattenProjectDestinationServiceAccounts(s.DestinationServiceAccounts),
 		"orphaned_resources":           flattenProjectOrphanedResources(s.OrphanedResources),
 		"role":                         flattenProjectRoles(s.Roles),
 		"sync_window":                  flattenSyncWindows(s.SyncWindows),
@@ -218,6 +237,18 @@ func flattenProjectRoles(rs []application.ProjectRole) (result []map[string]inte
 			"description": r.Description,
 			"groups":      r.Groups,
 			"policies":    r.Policies,
+		})
+	}
+
+	return
+}
+
+func flattenProjectDestinationServiceAccounts(dsas []application.ApplicationDestinationServiceAccount) (result []map[string]string) {
+	for _, dsa := range dsas {
+		result = append(result, map[string]string{
+			"default_service_account": dsa.DefaultServiceAccount,
+			"namespace":               dsa.Namespace,
+			"server":                  dsa.Server,
 		})
 	}
 
