@@ -14,9 +14,6 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
-// Used to handle concurrent access to ArgoCD common configuration
-var tokenMutexConfiguration = &sync.RWMutex{}
-
 // Used to handle concurrent access to ArgoCD clusters
 var tokenMutexClusters = &sync.RWMutex{}
 
