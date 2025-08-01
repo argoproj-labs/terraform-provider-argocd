@@ -58,7 +58,7 @@ func SetupK3sWithArgoCD(ctx context.Context, argoCDVersion, k3sVersion string) (
 	// Pull and preload Argo CD image in k3s to reduce waiting time during the `waitForArgoCD` step.
 	argoCDImage := fmt.Sprintf("quay.io/argoproj/argocd:%s", argoCDVersion)
 
-	log.Println(fmt.Sprintf("Pre-pulling Argo CD image %s...", argoCDImage))
+	log.Printf("Pre-pulling Argo CD image %s...\n", argoCDImage)
 
 	// First, pull the image to ensure it exists locally
 	_, err = testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
