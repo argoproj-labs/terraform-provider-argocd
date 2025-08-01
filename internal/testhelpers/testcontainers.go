@@ -55,6 +55,26 @@ func SetupK3sWithArgoCD(ctx context.Context, argoCDVersion, k3sVersion string) (
 
 	env := &K3sTestEnvironment{K3sContainer: k3sContainer, RESTConfig: restConfig}
 
+	// Pull and preload Argo CD image in k3s to reduce waiting time during the `waitForArgoCD` step.
+	argoCDImage := fmt.Sprintf("quay.io/argoproj/argocd:%s", argoCDVersion)
+
+	log.Println(fmt.Sprintf("Pre-pulling Argo CD image %s...", argoCDImage))
+
+	// First, pull the image to ensure it exists locally
+	_, err = testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{Image: argoCDImage},
+		Started:          false, // Don't start the container, just pull the image
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to pull Argo CD image: %w", err)
+	}
+
+	// Now load the image into k3s
+	err = k3sContainer.LoadImages(ctx, argoCDImage)
+	if err != nil {
+		return nil, fmt.Errorf("failed to preload Argo CD image: %w", err)
+	}
+
 	if err := env.installArgoCD(ctx, argoCDVersion); err != nil {
 		env.Cleanup(ctx)
 		return nil, fmt.Errorf("failed to install ArgoCD: %w", err)
