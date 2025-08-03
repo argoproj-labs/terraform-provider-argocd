@@ -224,24 +224,24 @@ func newRepositoryModel(repo *v1alpha1.Repository) *repositoryModel {
 		model.Username = types.StringNull()
 	}
 
+	// Note: ArgoCD API may not return GitHub App enterprise base URL for security reasons,
+	// so we only set the value if it's explicitly returned, otherwise leave it as is
 	if repo.GitHubAppEnterpriseBaseURL != "" {
 		model.GitHubAppEnterpriseBaseURL = types.StringValue(repo.GitHubAppEnterpriseBaseURL)
-	} else {
-		model.GitHubAppEnterpriseBaseURL = types.StringNull()
 	}
 
 	// Handle GitHub App ID conversion
+	// Note: ArgoCD API does not return GitHub App authentication fields for security reasons,
+	// so we only set the value if it's explicitly returned (> 0), otherwise leave it as is
 	if repo.GithubAppId > 0 {
 		model.GitHubAppID = types.StringValue(strconv.FormatInt(repo.GithubAppId, 10))
-	} else {
-		model.GitHubAppID = types.StringNull()
 	}
 
 	// Handle GitHub App Installation ID conversion
+	// Note: ArgoCD API does not return GitHub App authentication fields for security reasons,
+	// so we only set the value if it's explicitly returned (> 0), otherwise leave it as is
 	if repo.GithubAppInstallationId > 0 {
 		model.GitHubAppInstallationID = types.StringValue(strconv.FormatInt(repo.GithubAppInstallationId, 10))
-	} else {
-		model.GitHubAppInstallationID = types.StringNull()
 	}
 
 	// Handle credentials based on inheritance

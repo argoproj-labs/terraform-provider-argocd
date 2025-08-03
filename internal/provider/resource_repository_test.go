@@ -154,6 +154,382 @@ func TestAccArgoCDRepository_GitHubApp(t *testing.T) {
 	})
 }
 
+// TestAccArgoCDRepository_GitHubAppConsistency tests the fix for issue #697
+// This test verifies that GitHub App authentication fields remain consistent
+// across multiple applies without configuration changes
+func TestAccArgoCDRepository_GitHubAppConsistency(t *testing.T) {
+	sshPrivateKey, err := generateSSHPrivateKey()
+	assert.NoError(t, err)
+
+	config := testAccArgoCDRepositoryGitHubApp(
+		"https://github.com/MyCompany/MyRepo.git",
+		"12345",
+		"987654",
+		"",
+		sshPrivateKey,
+	)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.githubapp",
+						"githubapp_id",
+						"12345",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.githubapp",
+						"githubapp_installation_id",
+						"987654",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.githubapp",
+						"githubapp_id",
+						"12345",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.githubapp",
+						"githubapp_installation_id",
+						"987654",
+					),
+				),
+			},
+			{
+				// Third apply to ensure fields don't become null over time
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.githubapp",
+						"githubapp_id",
+						"12345",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.githubapp",
+						"githubapp_installation_id",
+						"987654",
+					),
+				),
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_UsernamePasswordConsistency tests consistency of username/password fields
+// Note: This test uses a Helm repository which doesn't require authentication but allows username/password fields
+func TestAccArgoCDRepository_UsernamePasswordConsistency(t *testing.T) {
+	config := `
+resource "argocd_repository" "username_password" {
+  repo     = "https://helm.nginx.com/stable"
+  type     = "helm"
+  username = "testuser"
+  password = "testpass"
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.username_password",
+						"username",
+						"testuser",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.username_password",
+						"password",
+						"testpass",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.username_password",
+						"connection_state_status",
+						"Successful",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.username_password",
+						"username",
+						"testuser",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.username_password",
+						"password",
+						"testpass",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.username_password",
+						"connection_state_status",
+						"Successful",
+					),
+				),
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_TLSCertificateConsistency tests consistency of TLS certificate fields
+func TestAccArgoCDRepository_TLSCertificateConsistency(t *testing.T) {
+	certData := `-----BEGIN CERTIFICATE-----
+MIICljCCAX4CCQCKXiP0ZxJxHDANBgkqhkiG9w0BAQsFADANMQswCQYDVQQGEwJV
+UzAeFw0yNDAxMDEwMDAwMDBaFw0yNTAxMDEwMDAwMDBaMA0xCzAJBgNVBAYTAlVT
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3qZ8x/example...
+-----END CERTIFICATE-----`
+
+	certKey := `-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDepnzH/example...
+-----END PRIVATE KEY-----`
+
+	config := fmt.Sprintf(`
+resource "argocd_repository" "tls_cert" {
+  repo                 = "https://github.com/kubernetes-sigs/kustomize"
+  tls_client_cert_data = %q
+  tls_client_cert_key  = %q
+}
+`, certData, certKey)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.tls_cert",
+						"tls_client_cert_data",
+						certData,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.tls_cert",
+						"tls_client_cert_key",
+						certKey,
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.tls_cert",
+						"tls_client_cert_data",
+						certData,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.tls_cert",
+						"tls_client_cert_key",
+						certKey,
+					),
+				),
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_OptionalFieldsConsistency tests consistency of optional fields
+func TestAccArgoCDRepository_OptionalFieldsConsistency(t *testing.T) {
+	projectName := acctest.RandString(10)
+
+	config := fmt.Sprintf(`
+resource "argocd_project" "test" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
+  spec {
+    description  = "test project"
+    source_repos = ["*"]
+    destination {
+      name      = "in-cluster"
+      namespace = "default"
+    }
+  }
+}
+
+resource "argocd_repository" "optional_fields" {
+  repo    = "https://helm.nginx.com/stable/"
+  name    = "nginx-stable-test"
+  type    = "helm"
+  project = argocd_project.test.metadata[0].name
+}
+`, projectName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.optional_fields",
+						"name",
+						"nginx-stable-test",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.optional_fields",
+						"type",
+						"helm",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.optional_fields",
+						"project",
+						projectName,
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.optional_fields",
+						"name",
+						"nginx-stable-test",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.optional_fields",
+						"type",
+						"helm",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.optional_fields",
+						"project",
+						projectName,
+					),
+				),
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_BooleanFieldsConsistency tests consistency of boolean fields
+func TestAccArgoCDRepository_BooleanFieldsConsistency(t *testing.T) {
+	config := `
+resource "argocd_repository" "boolean_fields" {
+  repo       = "https://github.com/kubernetes-sigs/kustomize"
+  enable_lfs = true
+  enable_oci = true
+  insecure   = true
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.boolean_fields",
+						"enable_lfs",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.boolean_fields",
+						"enable_oci",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.boolean_fields",
+						"insecure",
+						"true",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.boolean_fields",
+						"enable_lfs",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.boolean_fields",
+						"enable_oci",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.boolean_fields",
+						"insecure",
+						"true",
+					),
+				),
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_EmptyStringFieldsConsistency tests handling of empty string fields
+func TestAccArgoCDRepository_EmptyStringFieldsConsistency(t *testing.T) {
+	config := `
+resource "argocd_repository" "empty_strings" {
+  repo                          = "https://github.com/kubernetes-sigs/kustomize"
+  name                          = ""
+  githubapp_enterprise_base_url = ""
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.empty_strings",
+						"name",
+						"",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.empty_strings",
+						"githubapp_enterprise_base_url",
+						"",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.empty_strings",
+						"name",
+						"",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.empty_strings",
+						"githubapp_enterprise_base_url",
+						"",
+					),
+				),
+			},
+		},
+	})
+}
+
 func testAccArgoCDRepositorySimple() string {
 	return `
 resource "argocd_repository" "simple" {
