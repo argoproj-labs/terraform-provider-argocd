@@ -137,34 +137,12 @@ func (r *repositoryResource) Create(ctx context.Context, req resource.CreateRequ
 	result.SSHPrivateKey = data.SSHPrivateKey
 	result.TLSClientCertKey = data.TLSClientCertKey
 	result.GitHubAppPrivateKey = data.GitHubAppPrivateKey
-
-	// Preserve GitHub App authentication fields from the original configuration since ArgoCD API doesn't return them
-	if !data.GitHubAppID.IsNull() && !data.GitHubAppID.IsUnknown() {
-		result.GitHubAppID = data.GitHubAppID
-	}
-
-	if !data.GitHubAppInstallationID.IsNull() && !data.GitHubAppInstallationID.IsUnknown() {
-		result.GitHubAppInstallationID = data.GitHubAppInstallationID
-	}
-
-	if !data.GitHubAppEnterpriseBaseURL.IsNull() && !data.GitHubAppEnterpriseBaseURL.IsUnknown() {
-		result.GitHubAppEnterpriseBaseURL = data.GitHubAppEnterpriseBaseURL
-	}
-
-	// Preserve name field from the original configuration to handle empty string vs null properly
-	if !data.Name.IsNull() && !data.Name.IsUnknown() {
-		result.Name = data.Name
-	}
-
-	// Preserve TLS client cert data from the original configuration since ArgoCD API doesn't return it
-	if !data.TLSClientCertData.IsNull() && !data.TLSClientCertData.IsUnknown() {
-		result.TLSClientCertData = data.TLSClientCertData
-	}
-
-	// Preserve username from the original configuration if ArgoCD API doesn't return it
-	if !data.Username.IsNull() && !data.Username.IsUnknown() {
-		result.Username = data.Username
-	}
+	result.Name = data.Name
+	result.Username = data.Username
+	result.GitHubAppID = data.GitHubAppID
+	result.GitHubAppInstallationID = data.GitHubAppInstallationID
+	result.GitHubAppEnterpriseBaseURL = data.GitHubAppEnterpriseBaseURL
+	result.TLSClientCertData = data.TLSClientCertData
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
@@ -214,34 +192,12 @@ func (r *repositoryResource) Read(ctx context.Context, req resource.ReadRequest,
 	result.SSHPrivateKey = data.SSHPrivateKey
 	result.TLSClientCertKey = data.TLSClientCertKey
 	result.GitHubAppPrivateKey = data.GitHubAppPrivateKey
-
-	// Preserve GitHub App authentication fields from the original state since ArgoCD API doesn't return them
-	if !data.GitHubAppID.IsNull() && !data.GitHubAppID.IsUnknown() {
-		result.GitHubAppID = data.GitHubAppID
-	}
-
-	if !data.GitHubAppInstallationID.IsNull() && !data.GitHubAppInstallationID.IsUnknown() {
-		result.GitHubAppInstallationID = data.GitHubAppInstallationID
-	}
-
-	if !data.GitHubAppEnterpriseBaseURL.IsNull() && !data.GitHubAppEnterpriseBaseURL.IsUnknown() {
-		result.GitHubAppEnterpriseBaseURL = data.GitHubAppEnterpriseBaseURL
-	}
-
-	// Preserve name field from the original configuration to handle empty string vs null properly
-	if !data.Name.IsNull() && !data.Name.IsUnknown() {
-		result.Name = data.Name
-	}
-
-	// Preserve TLS client cert data from the original configuration since ArgoCD API doesn't return it
-	if !data.TLSClientCertData.IsNull() && !data.TLSClientCertData.IsUnknown() {
-		result.TLSClientCertData = data.TLSClientCertData
-	}
-
-	// Preserve username from the original configuration if ArgoCD API doesn't return it
-	if !data.Username.IsNull() && !data.Username.IsUnknown() {
-		result.Username = data.Username
-	}
+	result.Name = data.Name
+	result.Username = data.Username
+	result.GitHubAppID = data.GitHubAppID
+	result.GitHubAppInstallationID = data.GitHubAppInstallationID
+	result.GitHubAppEnterpriseBaseURL = data.GitHubAppEnterpriseBaseURL
+	result.TLSClientCertData = data.TLSClientCertData
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
@@ -307,34 +263,12 @@ func (r *repositoryResource) Update(ctx context.Context, req resource.UpdateRequ
 	result.SSHPrivateKey = data.SSHPrivateKey
 	result.TLSClientCertKey = data.TLSClientCertKey
 	result.GitHubAppPrivateKey = data.GitHubAppPrivateKey
-
-	// Preserve GitHub App authentication fields from the original configuration since ArgoCD API doesn't return them
-	if !data.GitHubAppID.IsNull() && !data.GitHubAppID.IsUnknown() {
-		result.GitHubAppID = data.GitHubAppID
-	}
-
-	if !data.GitHubAppInstallationID.IsNull() && !data.GitHubAppInstallationID.IsUnknown() {
-		result.GitHubAppInstallationID = data.GitHubAppInstallationID
-	}
-
-	if !data.GitHubAppEnterpriseBaseURL.IsNull() && !data.GitHubAppEnterpriseBaseURL.IsUnknown() {
-		result.GitHubAppEnterpriseBaseURL = data.GitHubAppEnterpriseBaseURL
-	}
-
-	// Preserve name field from the original configuration to handle empty string vs null properly
-	if !data.Name.IsNull() && !data.Name.IsUnknown() {
-		result.Name = data.Name
-	}
-
-	// Preserve TLS client cert data from the original configuration since ArgoCD API doesn't return it
-	if !data.TLSClientCertData.IsNull() && !data.TLSClientCertData.IsUnknown() {
-		result.TLSClientCertData = data.TLSClientCertData
-	}
-
-	// Preserve username from the original configuration if ArgoCD API doesn't return it
-	if !data.Username.IsNull() && !data.Username.IsUnknown() {
-		result.Username = data.Username
-	}
+	result.Name = data.Name
+	result.Username = data.Username
+	result.GitHubAppID = data.GitHubAppID
+	result.GitHubAppInstallationID = data.GitHubAppInstallationID
+	result.GitHubAppEnterpriseBaseURL = data.GitHubAppEnterpriseBaseURL
+	result.TLSClientCertData = data.TLSClientCertData
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
