@@ -67,9 +67,10 @@ EOF
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 # GPG Keys can be imported using the key ID.
 
-# Example:
 terraform import argocd_gpg_key.this 9AD92955401D388D
 ```

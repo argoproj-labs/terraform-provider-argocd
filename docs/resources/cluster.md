@@ -215,9 +215,10 @@ Read-Only:
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 # Cluster credentials can be imported using the server URL.
 
-# Example:
 terraform import argocd_cluster.mycluster https://mycluster.io:443
 ```

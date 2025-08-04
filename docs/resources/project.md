@@ -295,9 +295,10 @@ Optional:
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 # Projects can be imported using the project name.
 
-# Example:
 terraform import argocd_project.myproject myproject
 ```

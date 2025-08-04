@@ -559,8 +559,10 @@ Read-Only:
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
-# ArgoCD applications can be imported using an id consisting of `{name}:{namespace}`. E.g.
+# ArgoCD applications can be imported using an id consisting of `{name}:{namespace}`.
 
 terraform import argocd_application.myapp myapp:argocd
 ```
