@@ -1,11 +1,6 @@
 default: build
 
-ARGOCD_INSECURE?=true
-ARGOCD_SERVER?=127.0.0.1:8080
-ARGOCD_AUTH_USERNAME?=admin
-ARGOCD_AUTH_PASSWORD?=acceptancetesting
-ARGOCD_VERSION?=v3.0.0
-K3S_VERSION?=v1.31.6-k3s1
+# To see which other env vars are set, please refer to internal/testhelpers/suite.go
 TEST_FILTER?=
 
 export
@@ -31,9 +26,6 @@ test:
 
 testacc:
 	TF_ACC=1 go test -v -cover -timeout 20m -run="$(TEST_FILTER)" ./...
-
-testacc_testcontainers:
-	TF_ACC=1 USE_TESTCONTAINERS=true go test -v -cover -timeout 30m -run="$(TEST_FILTER)" ./...
 
 testacc_clean_env:
 	kind delete cluster --name argocd
