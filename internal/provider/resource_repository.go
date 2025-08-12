@@ -129,17 +129,8 @@ func (r *repositoryResource) Create(ctx context.Context, req resource.CreateRequ
 
 	tflog.Trace(ctx, fmt.Sprintf("created repository %s", createdRepo.Repo))
 
-	// Update the model with the created repository data
-	result := newRepositoryModel(createdRepo)
-
-	// Preserve sensitive fields from the original configuration
-	result.Password = data.Password
-	result.SSHPrivateKey = data.SSHPrivateKey
-	result.TLSClientCertKey = data.TLSClientCertKey
-	result.GitHubAppPrivateKey = data.GitHubAppPrivateKey
-
 	// Save data into Terraform state
-	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, data.updateFromAPI(repo))...)
 
 	// Perform a read to get the latest state with connection status
 	if !resp.Diagnostics.HasError() {
@@ -178,17 +169,8 @@ func (r *repositoryResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	// Update the model with the read repository data
-	result := newRepositoryModel(repo)
-
-	// Preserve sensitive fields from the original state
-	result.Password = data.Password
-	result.SSHPrivateKey = data.SSHPrivateKey
-	result.TLSClientCertKey = data.TLSClientCertKey
-	result.GitHubAppPrivateKey = data.GitHubAppPrivateKey
-
 	// Save updated data into Terraform state
-	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, data.updateFromAPI(repo))...)
 }
 
 func (r *repositoryResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -214,13 +196,12 @@ func (r *repositoryResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	// Update repository
 	sync.RepositoryMutex.Lock()
+	defer sync.RepositoryMutex.Unlock()
 
 	updatedRepo, err := r.si.RepositoryClient.UpdateRepository(
 		ctx,
 		&repository.RepoUpdateRequest{Repo: repo},
 	)
-
-	sync.RepositoryMutex.Unlock()
 
 	if err != nil {
 		resp.Diagnostics.Append(diagnostics.ArgoCDAPIError("update", "repository", repo.Repo, err)...)
@@ -243,17 +224,16 @@ func (r *repositoryResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	tflog.Trace(ctx, fmt.Sprintf("updated repository %s", updatedRepo.Repo))
 
-	// Update the model with the updated repository data
-	result := newRepositoryModel(updatedRepo)
-
-	// Preserve sensitive fields from the original configuration
-	result.Password = data.Password
-	result.SSHPrivateKey = data.SSHPrivateKey
-	result.TLSClientCertKey = data.TLSClientCertKey
-	result.GitHubAppPrivateKey = data.GitHubAppPrivateKey
-
 	// Save updated data into Terraform state
-	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
+
+	// Perform a read to get the latest state
+	if !resp.Diagnostics.HasError() {
+		readResp := &resource.ReadResponse{State: resp.State, Diagnostics: resp.Diagnostics}
+		r.Read(ctx, resource.ReadRequest{State: resp.State}, readResp)
+		resp.Diagnostics = readResp.Diagnostics
+		resp.State = readResp.State
+	}
 }
 
 func (r *repositoryResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -272,6 +252,7 @@ func (r *repositoryResource) Delete(ctx context.Context, req resource.DeleteRequ
 
 	// Delete repository
 	sync.RepositoryMutex.Lock()
+	defer sync.RepositoryMutex.Unlock()
 
 	_, err := r.si.RepositoryClient.DeleteRepository(
 		ctx,
@@ -280,8 +261,6 @@ func (r *repositoryResource) Delete(ctx context.Context, req resource.DeleteRequ
 			AppProject: data.Project.ValueString(),
 		},
 	)
-
-	sync.RepositoryMutex.Unlock()
 
 	if err != nil {
 		if !strings.Contains(err.Error(), "NotFound") {
@@ -310,11 +289,9 @@ func (r *repositoryResource) readRepository(ctx context.Context, repoURL, projec
 	var finalRepo *v1alpha1.Repository
 
 	if repos != nil {
-		if len(repos.Items) >= 1 {
-			for _, repo := range repos.Items {
-				if repo.Repo == repoURL {
-					finalRepo = repo
-				}
+		for _, repo := range repos.Items {
+			if repo.Repo == repoURL {
+				finalRepo = repo
 			}
 		}
 	}

@@ -177,90 +177,48 @@ func (m *repositoryModel) toAPIModel() (*v1alpha1.Repository, error) {
 	return repo, nil
 }
 
-func newRepositoryModel(repo *v1alpha1.Repository) *repositoryModel {
-	model := &repositoryModel{
-		ID:             types.StringValue(repo.Repo),
-		Repo:           types.StringValue(repo.Repo),
-		EnableLFS:      types.BoolValue(repo.EnableLFS),
-		EnableOCI:      types.BoolValue(repo.EnableOCI),
-		Insecure:       types.BoolValue(repo.Insecure),
-		InheritedCreds: types.BoolValue(repo.InheritedCreds),
+func (m *repositoryModel) updateFromAPI(repo *v1alpha1.Repository) *repositoryModel {
+	m.ID = types.StringValue(repo.Repo)
+	m.Repo = types.StringValue(repo.Repo)
+	m.Type = types.StringValue(repo.Type)
+	m.EnableLFS = types.BoolValue(repo.EnableLFS)
+	m.EnableOCI = types.BoolValue(repo.EnableOCI)
+	m.Insecure = types.BoolValue(repo.Insecure)
+	m.InheritedCreds = types.BoolValue(repo.InheritedCreds)
+
+	if repo.Name != "" {
+		m.Name = types.StringValue(repo.Name)
 	}
 
 	// Handle connection state status
 	if repo.ConnectionState.Status != "" {
-		model.ConnectionStateStatus = types.StringValue(repo.ConnectionState.Status)
-	} else {
-		model.ConnectionStateStatus = types.StringNull()
-	}
-
-	// Set string fields to null if empty, otherwise use the value
-	if repo.Name != "" {
-		model.Name = types.StringValue(repo.Name)
-	} else {
-		model.Name = types.StringNull()
-	}
-
-	if repo.Type != "" {
-		model.Type = types.StringValue(repo.Type)
-	} else {
-		model.Type = types.StringNull()
+		m.ConnectionStateStatus = types.StringValue(repo.ConnectionState.Status)
 	}
 
 	if repo.Project != "" {
-		model.Project = types.StringValue(repo.Project)
-	} else {
-		model.Project = types.StringNull()
+		m.Project = types.StringValue(repo.Project)
 	}
 
 	// Handle username based on inheritance
 	if !repo.InheritedCreds {
 		if repo.Username != "" {
-			model.Username = types.StringValue(repo.Username)
-		} else {
-			model.Username = types.StringNull()
+			m.Username = types.StringValue(repo.Username)
 		}
-	} else {
-		model.Username = types.StringNull()
 	}
 
 	if repo.GitHubAppEnterpriseBaseURL != "" {
-		model.GitHubAppEnterpriseBaseURL = types.StringValue(repo.GitHubAppEnterpriseBaseURL)
-	} else {
-		model.GitHubAppEnterpriseBaseURL = types.StringNull()
+		m.GitHubAppEnterpriseBaseURL = types.StringValue(repo.GitHubAppEnterpriseBaseURL)
 	}
 
 	// Handle GitHub App ID conversion
 	if repo.GithubAppId > 0 {
-		model.GitHubAppID = types.StringValue(strconv.FormatInt(repo.GithubAppId, 10))
-	} else {
-		model.GitHubAppID = types.StringNull()
+		m.GitHubAppID = types.StringValue(strconv.FormatInt(repo.GithubAppId, 10))
 	}
 
 	// Handle GitHub App Installation ID conversion
 	if repo.GithubAppInstallationId > 0 {
-		model.GitHubAppInstallationID = types.StringValue(strconv.FormatInt(repo.GithubAppInstallationId, 10))
-	} else {
-		model.GitHubAppInstallationID = types.StringNull()
+		m.GitHubAppInstallationID = types.StringValue(strconv.FormatInt(repo.GithubAppInstallationId, 10))
 	}
 
-	// Handle credentials based on inheritance
-	if !repo.InheritedCreds {
-		if repo.TLSClientCertData != "" {
-			model.TLSClientCertData = types.StringValue(repo.TLSClientCertData)
-		} else {
-			model.TLSClientCertData = types.StringNull()
-		}
-	} else {
-		model.TLSClientCertData = types.StringNull()
-	}
-
-	// Note: The ArgoCD API does not return sensitive fields (password, ssh_private_key, tls_client_cert_key,
-	// githubapp_private_key), so they remain as configured in Terraform state
-	model.Password = types.StringNull()
-	model.SSHPrivateKey = types.StringNull()
-	model.TLSClientCertKey = types.StringNull()
-	model.GitHubAppPrivateKey = types.StringNull()
-
-	return model
+	return m
 }
