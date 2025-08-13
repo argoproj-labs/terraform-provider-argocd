@@ -31,5 +31,6 @@ func GetProjectMutex(projectName string) *sync.RWMutex {
 	}
 
 	tokenMutexProjectMap[projectName] = &sync.RWMutex{}
+
 	return tokenMutexProjectMap[projectName]
 }

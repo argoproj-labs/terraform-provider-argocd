@@ -20,9 +20,6 @@ var tokenMutexConfiguration = &sync.RWMutex{}
 // Used to handle concurrent access to ArgoCD clusters
 var tokenMutexClusters = &sync.RWMutex{}
 
-// Used to handle concurrent access to each ArgoCD project
-var tokenMutexProjectMap = make(map[string]*sync.RWMutex, 0)
-
 // Used to handle concurrent access to ArgoCD secrets
 var tokenMutexSecrets = &sync.RWMutex{}
 

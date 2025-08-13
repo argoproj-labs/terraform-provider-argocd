@@ -34,6 +34,7 @@ func (v groupNameValidator) ValidateString(ctx context.Context, req validator.St
 
 	value := req.ConfigValue.ValueString()
 	invalidChars := regexp.MustCompile("[,\n\r\t]")
+
 	if invalidChars.MatchString(value) {
 		resp.Diagnostics.AddAttributeError(
 			req.Path,
@@ -66,6 +67,7 @@ func (v roleNameValidator) ValidateString(ctx context.Context, req validator.Str
 
 	value := req.ConfigValue.ValueString()
 	roleNameRegexp := regexp.MustCompile(`^[a-zA-Z0-9]([-_a-zA-Z0-9]*[a-zA-Z0-9])?$`)
+
 	if !roleNameRegexp.MatchString(value) {
 		resp.Diagnostics.AddAttributeError(
 			req.Path,
@@ -129,6 +131,7 @@ func (v syncWindowScheduleValidator) ValidateString(ctx context.Context, req val
 
 	value := req.ConfigValue.ValueString()
 	specParser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+
 	if _, err := specParser.Parse(value); err != nil {
 		resp.Diagnostics.AddAttributeError(
 			req.Path,

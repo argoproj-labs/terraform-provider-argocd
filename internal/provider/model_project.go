@@ -381,6 +381,7 @@ func newProject(project *v1alpha1.AppProject) *projectModel {
 		Metadata: []objectMeta{newObjectMeta(project.ObjectMeta)},
 		Spec:     []projectSpecModel{newProjectSpec(&project.Spec)},
 	}
+
 	return p
 }
 
@@ -460,6 +461,7 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 	// Convert destinations
 	if len(spec.Destinations) > 0 {
 		ps.Destination = make([]destinationModel, len(spec.Destinations))
+
 		for i, dest := range spec.Destinations {
 			d := destinationModel{
 				Namespace: types.StringValue(dest.Namespace),
@@ -469,11 +471,13 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 			} else {
 				d.Server = types.StringNull()
 			}
+
 			if dest.Name != "" {
 				d.Name = types.StringValue(dest.Name)
 			} else {
 				d.Name = types.StringNull()
 			}
+
 			ps.Destination[i] = d
 		}
 	}
@@ -505,12 +509,14 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 				}
 			}
 		}
+
 		ps.OrphanedResources = []orphanedResourcesModel{or}
 	}
 
 	// Convert roles
 	if len(spec.Roles) > 0 {
 		ps.Role = make([]projectRoleModel, len(spec.Roles))
+
 		for i, role := range spec.Roles {
 			pr := projectRoleModel{
 				Name: types.StringValue(role.Name),
@@ -550,6 +556,7 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 	// Convert sync windows
 	if len(spec.SyncWindows) > 0 {
 		ps.SyncWindow = make([]syncWindowModel, len(spec.SyncWindows))
+
 		for i, sw := range spec.SyncWindows {
 			swm := syncWindowModel{
 				Duration:   types.StringValue(sw.Duration),

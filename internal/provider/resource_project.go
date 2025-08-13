@@ -59,6 +59,7 @@ func (r *projectResource) Configure(ctx context.Context, req resource.ConfigureR
 			"Unexpected Provider Data Type",
 			fmt.Sprintf("Expected *ServerInterface, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
+
 		return
 	}
 
@@ -85,12 +86,14 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 			"Invalid Configuration",
 			"spec block is required but not provided",
 		)
+
 		return
 	}
 
 	// Convert model to ArgoCD project
 	objectMeta, spec, diags := expandProject(ctx, &data)
 	resp.Diagnostics.Append(diags...)
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -148,6 +151,7 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 			"Project Creation Failed",
 			fmt.Sprintf("project %s could not be created: unknown reason", projectName),
 		)
+
 		return
 	}
 
@@ -195,6 +199,7 @@ func (r *projectResource) readUnsafe(ctx context.Context, data projectModel, pro
 			"Invalid State",
 			"metadata block is missing from state",
 		)
+
 		return
 	}
 
@@ -207,7 +212,9 @@ func (r *projectResource) readUnsafe(ctx context.Context, data projectModel, pro
 			resp.State.RemoveResource(ctx)
 			return
 		}
+
 		resp.Diagnostics.Append(diagnostics.ArgoCDAPIError("read", "project", projectName, err)...)
+
 		return
 	}
 
@@ -237,12 +244,14 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 			"Invalid Configuration",
 			"spec block is required but not provided",
 		)
+
 		return
 	}
 
 	// Convert model to ArgoCD project
 	objectMeta, spec, diags := expandProject(ctx, &data)
 	resp.Diagnostics.Append(diags...)
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -278,6 +287,7 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 	roles := expandProjectRoles(ctx, data.Spec[0].Role)
 	for _, r := range roles {
 		var pr *v1alpha1.ProjectRole
+
 		var i int
 
 		pr, i, err = p.GetRoleByName(r.Name)
@@ -288,6 +298,7 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 					"Project Role Retrieval Failed",
 					fmt.Sprintf("project role %s could not be retrieved: %s", r.Name, err.Error()),
 				)
+
 				return
 			}
 		} else {
@@ -349,6 +360,7 @@ func (r *projectResource) Delete(ctx context.Context, req resource.DeleteRequest
 			"Invalid State",
 			"metadata block is missing from state",
 		)
+
 		return
 	}
 
@@ -372,6 +384,7 @@ func (r *projectResource) Delete(ctx context.Context, req resource.DeleteRequest
 func (r *projectResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Initialize API clients
 	resp.Diagnostics.Append(r.si.InitClients(ctx)...)
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -386,9 +399,12 @@ func (r *projectResource) ImportState(ctx context.Context, req resource.ImportSt
 				"Cannot import non-existent remote object",
 				fmt.Sprintf("Project %s does not exist in ArgoCD", req.ID),
 			)
+
 			return
 		}
+
 		resp.Diagnostics.Append(diagnostics.ArgoCDAPIError("get", "project", req.ID, err)...)
+
 		return
 	}
 
@@ -408,6 +424,7 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 			"Invalid Configuration",
 			"metadata block is required but not provided",
 		)
+
 		return metav1.ObjectMeta{}, v1alpha1.AppProjectSpec{}, diags
 	}
 
@@ -417,6 +434,7 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 			"Invalid Configuration",
 			"spec block is required but not provided",
 		)
+
 		return metav1.ObjectMeta{}, v1alpha1.AppProjectSpec{}, diags
 	}
 
@@ -430,6 +448,7 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 		for k, v := range data.Metadata[0].Labels {
 			labels[k] = v.ValueString()
 		}
+
 		objectMeta.Labels = labels
 	}
 
@@ -438,6 +457,7 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 		for k, v := range data.Metadata[0].Annotations {
 			annotations[k] = v.ValueString()
 		}
+
 		objectMeta.Annotations = annotations
 	}
 
@@ -470,9 +490,11 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 		if !dest.Server.IsNull() {
 			d.Server = dest.Server.ValueString()
 		}
+
 		if !dest.Name.IsNull() {
 			d.Name = dest.Name.ValueString()
 		}
+
 		spec.Destinations = append(spec.Destinations, d)
 	}
 
@@ -485,6 +507,7 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 		if !dsa.Namespace.IsNull() {
 			d.Namespace = dsa.Namespace.ValueString()
 		}
+
 		spec.DestinationServiceAccounts = append(spec.DestinationServiceAccounts, d)
 	}
 
@@ -524,6 +547,7 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 	if len(data.Spec[0].OrphanedResources) > 0 {
 		or := data.Spec[0].OrphanedResources[0]
 		spec.OrphanedResources = &v1alpha1.OrphanedResourcesMonitorSettings{}
+
 		if !or.Warn.IsNull() {
 			spec.OrphanedResources.Warn = or.Warn.ValueBoolPointer()
 		}
@@ -536,6 +560,7 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 			if !ignore.Name.IsNull() {
 				i.Name = ignore.Name.ValueString()
 			}
+
 			spec.OrphanedResources.Ignore = append(spec.OrphanedResources.Ignore, i)
 		}
 	}
@@ -549,15 +574,19 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 		if !sw.Duration.IsNull() {
 			window.Duration = sw.Duration.ValueString()
 		}
+
 		if !sw.Kind.IsNull() {
 			window.Kind = sw.Kind.ValueString()
 		}
+
 		if !sw.ManualSync.IsNull() {
 			window.ManualSync = sw.ManualSync.ValueBool()
 		}
+
 		if !sw.Schedule.IsNull() {
 			window.Schedule = sw.Schedule.ValueString()
 		}
+
 		if !sw.Timezone.IsNull() {
 			window.TimeZone = sw.Timezone.ValueString()
 		}
@@ -565,9 +594,11 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 		for _, app := range sw.Applications {
 			window.Applications = append(window.Applications, app.ValueString())
 		}
+
 		for _, cluster := range sw.Clusters {
 			window.Clusters = append(window.Clusters, cluster.ValueString())
 		}
+
 		for _, ns := range sw.Namespaces {
 			window.Namespaces = append(window.Namespaces, ns.ValueString())
 		}
@@ -579,7 +610,7 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 }
 
 // expandProjectRoles converts project role models to ArgoCD API types
-func expandProjectRoles(ctx context.Context, roles []projectRoleModel) []v1alpha1.ProjectRole {
+func expandProjectRoles(_ context.Context, roles []projectRoleModel) []v1alpha1.ProjectRole {
 	var result []v1alpha1.ProjectRole
 
 	for _, role := range roles {

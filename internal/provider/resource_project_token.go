@@ -54,6 +54,7 @@ func (r *projectTokenResource) Configure(ctx context.Context, req resource.Confi
 			"Unexpected Provider Data Type",
 			fmt.Sprintf("Expected *ServerInterface, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
+
 		return
 	}
 
@@ -67,9 +68,11 @@ func (r *projectTokenResource) ModifyPlan(ctx context.Context, req resource.Modi
 	}
 
 	var planData *projectTokenModel
+
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &planData)...)
 
 	var stateData *projectTokenModel
+
 	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
 
 	if resp.Diagnostics.HasError() {
@@ -101,6 +104,7 @@ func (r *projectTokenResource) ModifyPlan(ctx context.Context, req resource.Modi
 			resp.Plan.SetAttribute(ctx, path.Root("id"), types.StringUnknown())
 			resp.Plan.SetAttribute(ctx, path.Root("jwt"), types.StringUnknown())
 			resp.Plan.SetAttribute(ctx, path.Root("expires_at"), types.StringUnknown())
+
 			return
 		}
 	}
@@ -124,6 +128,7 @@ func (r *projectTokenResource) ModifyPlan(ctx context.Context, req resource.Modi
 			resp.Plan.SetAttribute(ctx, path.Root("id"), types.StringUnknown())
 			resp.Plan.SetAttribute(ctx, path.Root("jwt"), types.StringUnknown())
 			resp.Plan.SetAttribute(ctx, path.Root("expires_at"), types.StringUnknown())
+
 			return
 		}
 
@@ -172,6 +177,7 @@ func (r *projectTokenResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	var expiresIn int64
+
 	if !data.ExpiresIn.IsNull() {
 		expiresInDuration, err := time.ParseDuration(data.ExpiresIn.ValueString())
 		if err != nil {
@@ -179,6 +185,7 @@ func (r *projectTokenResource) Create(ctx context.Context, req resource.CreateRe
 				"Invalid Expiration Duration",
 				fmt.Sprintf("token expiration duration for project %s could not be parsed: %s", projectName, err.Error()),
 			)
+
 			return
 		}
 
@@ -193,6 +200,7 @@ func (r *projectTokenResource) Create(ctx context.Context, req resource.CreateRe
 				"Invalid Renewal Duration",
 				fmt.Sprintf("token renewal duration for project %s could not be parsed: %s", projectName, err.Error()),
 			)
+
 			return
 		}
 
@@ -202,6 +210,7 @@ func (r *projectTokenResource) Create(ctx context.Context, req resource.CreateRe
 				"Invalid Token Configuration",
 				fmt.Sprintf("renew_before (%d) cannot be greater than expires_in (%d) for project %s", renewBefore, expiresIn, projectName),
 			)
+
 			return
 		}
 	}
@@ -224,6 +233,7 @@ func (r *projectTokenResource) Create(ctx context.Context, req resource.CreateRe
 			"Invalid JWT Token",
 			fmt.Sprintf("token for project %s is not a valid jwt: %s", projectName, err.Error()),
 		)
+
 		return
 	}
 
@@ -233,6 +243,7 @@ func (r *projectTokenResource) Create(ctx context.Context, req resource.CreateRe
 			"JWT Claims Parse Error",
 			fmt.Sprintf("token claims for project %s could not be parsed: %s", projectName, err.Error()),
 		)
+
 		return
 	}
 
@@ -241,6 +252,7 @@ func (r *projectTokenResource) Create(ctx context.Context, req resource.CreateRe
 			"Missing JWT Issue Date",
 			fmt.Sprintf("token claims issue date for project %s is missing", projectName),
 		)
+
 		return
 	}
 
@@ -249,6 +261,7 @@ func (r *projectTokenResource) Create(ctx context.Context, req resource.CreateRe
 			"Missing JWT ID",
 			fmt.Sprintf("token claims ID for project %s is missing", projectName),
 		)
+
 		return
 	}
 
@@ -263,8 +276,10 @@ func (r *projectTokenResource) Create(ctx context.Context, req resource.CreateRe
 				"Missing JWT Expiration Date",
 				fmt.Sprintf("token claims expiration date for project %s is missing", projectName),
 			)
+
 			return
 		}
+
 		data.ExpiresAt = types.StringValue(strconv.FormatInt(claims.ExpiresAt.Unix(), 10))
 	} else {
 		data.ExpiresAt = types.StringValue("0")
@@ -298,6 +313,7 @@ func (r *projectTokenResource) Read(ctx context.Context, req resource.ReadReques
 	// Delete token from state if project has been deleted in an out-of-band fashion
 	projectMutex.RLock()
 	defer projectMutex.RUnlock()
+
 	p, err := r.si.ProjectClient.Get(ctx, &project.ProjectQuery{
 		Name: projectName,
 	})
@@ -307,7 +323,9 @@ func (r *projectTokenResource) Read(ctx context.Context, req resource.ReadReques
 			resp.State.RemoveResource(ctx)
 			return
 		}
+
 		resp.Diagnostics.Append(diagnostics.ArgoCDAPIError("read", "project", projectName, err)...)
+
 		return
 	}
 
@@ -332,6 +350,7 @@ func (r *projectTokenResource) Read(ctx context.Context, req resource.ReadReques
 
 func (r *projectTokenResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data *projectTokenModel
+
 	var stateData *projectTokenModel
 
 	// Read Terraform plan data into the model
@@ -366,6 +385,7 @@ func (r *projectTokenResource) Update(ctx context.Context, req resource.UpdateRe
 		r.Create(ctx, createReq, &createResp)
 		resp.State = createResp.State
 		resp.Diagnostics = createResp.Diagnostics
+
 		return
 	}
 
@@ -373,6 +393,7 @@ func (r *projectTokenResource) Update(ctx context.Context, req resource.UpdateRe
 
 	// Validate renewal configuration
 	var expiresIn int64
+
 	if !data.ExpiresIn.IsNull() {
 		expiresInDuration, err := time.ParseDuration(data.ExpiresIn.ValueString())
 		if err != nil {
@@ -380,8 +401,10 @@ func (r *projectTokenResource) Update(ctx context.Context, req resource.UpdateRe
 				"Invalid Expiration Duration",
 				fmt.Sprintf("token expiration duration for project %s could not be parsed: %s", projectName, err.Error()),
 			)
+
 			return
 		}
+
 		expiresIn = int64(expiresInDuration.Seconds())
 	}
 
@@ -392,6 +415,7 @@ func (r *projectTokenResource) Update(ctx context.Context, req resource.UpdateRe
 				"Invalid Renewal Duration",
 				fmt.Sprintf("token renewal duration for project %s could not be parsed: %s", projectName, err.Error()),
 			)
+
 			return
 		}
 
@@ -401,6 +425,7 @@ func (r *projectTokenResource) Update(ctx context.Context, req resource.UpdateRe
 				"Invalid Token Configuration",
 				fmt.Sprintf("renew_before (%d) cannot be greater than expires_in (%d) for project %s", renewBefore, expiresIn, projectName),
 			)
+
 			return
 		}
 	}
@@ -453,6 +478,7 @@ func (r *projectTokenResource) ImportState(ctx context.Context, req resource.Imp
 			"Invalid Import ID",
 			"Import ID must be in the format 'project:role:id'",
 		)
+
 		return
 	}
 
