@@ -14,17 +14,11 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
-// Used to handle concurrent access to ArgoCD common configuration
-var tokenMutexConfiguration = &sync.RWMutex{}
-
 // Used to handle concurrent access to ArgoCD clusters
 var tokenMutexClusters = &sync.RWMutex{}
 
 // Used to handle concurrent access to each ArgoCD project
 var tokenMutexProjectMap = make(map[string]*sync.RWMutex, 0)
-
-// Used to handle concurrent access to ArgoCD secrets
-var tokenMutexSecrets = &sync.RWMutex{}
 
 func Provider() *schema.Provider {
 	return &schema.Provider{
@@ -144,7 +138,6 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"argocd_account_token":   resourceArgoCDAccountToken(),
 			"argocd_application":     resourceArgoCDApplication(),
 			"argocd_application_set": resourceArgoCDApplicationSet(),
 			"argocd_cluster":         resourceArgoCDCluster(),
