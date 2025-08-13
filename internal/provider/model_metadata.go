@@ -89,7 +89,9 @@ func objectMetaSchemaListBlock(objectName string, computed bool) schema.Block {
 	return schema.ListNestedBlock{
 		MarkdownDescription: "Standard Kubernetes object metadata. For more info see the [Kubernetes reference](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#metadata).",
 		Validators: []validator.List{
+			listvalidator.IsRequired(),
 			listvalidator.SizeAtLeast(1),
+			listvalidator.SizeAtMost(1),
 		},
 		NestedObject: schema.NestedBlockObject{
 			Attributes: map[string]schema.Attribute{

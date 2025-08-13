@@ -91,7 +91,9 @@ func projectSchemaBlocks() map[string]schema.Block {
 		"spec": schema.ListNestedBlock{
 			Description: "ArgoCD AppProject spec.",
 			Validators: []validator.List{
+				listvalidator.IsRequired(),
 				listvalidator.SizeAtLeast(1),
+				listvalidator.SizeAtMost(1),
 			},
 			NestedObject: schema.NestedBlockObject{
 				Attributes: projectSpecSchemaAttributesOnly(),
@@ -199,7 +201,7 @@ func projectSpecSchemaBlocks() map[string]schema.Block {
 			NestedObject: schema.NestedBlockObject{
 				Attributes: map[string]schema.Attribute{
 					"warn": schema.BoolAttribute{
-						Description: "Warn about orphaned resources.",
+						Description: "Whether a warning condition should be created for apps which have orphaned resources.",
 						Optional:    true,
 					},
 				},
@@ -220,7 +222,7 @@ func projectSpecSchemaBlocks() map[string]schema.Block {
 									Optional:    true,
 								},
 								"name": schema.StringAttribute{
-									Description: "The Kubernetes resource Name to match for.",
+									Description: "The Kubernetes resource name to match for.",
 									Optional:    true,
 								},
 							},
@@ -238,16 +240,16 @@ func projectSpecSchemaBlocks() map[string]schema.Block {
 						Required:    true,
 					},
 					"description": schema.StringAttribute{
-						Description: "The role description.",
+						Description: "Description of the role.",
 						Optional:    true,
 					},
-					"policies": schema.SetAttribute{
-						Description: "The list of policies associated with the role.",
+					"policies": schema.ListAttribute{
+						Description: "List of casbin formatted strings that define access policies for the role in the project. For more information, see the [ArgoCD RBAC reference](https://argoproj.github.io/argo-cd/operator-manual/rbac/#rbac-permission-structure).",
 						Required:    true,
 						ElementType: types.StringType,
 					},
-					"groups": schema.SetAttribute{
-						Description: "The list of groups associated with the role.",
+					"groups": schema.ListAttribute{
+						Description: "List of OIDC group claims bound to this role.",
 						Optional:    true,
 						ElementType: types.StringType,
 					},
@@ -298,29 +300,29 @@ func projectSpecSchemaBlocks() map[string]schema.Block {
 			NestedObject: schema.NestedBlockObject{
 				Attributes: map[string]schema.Attribute{
 					"kind": schema.StringAttribute{
-						Description: "Defines if the window allows or blocks syncs.",
+						Description: "Defines if the window allows or blocks syncs, allowed values are `allow` or `deny`.",
 						Optional:    true,
 						Validators: []validator.String{
 							validators.SyncWindowKindValidator(),
 						},
 					},
-					"applications": schema.SetAttribute{
-						Description: "The list of applications assigned to this sync window.",
+					"applications": schema.ListAttribute{
+						Description: "List of applications that the window will apply to.",
 						Optional:    true,
 						ElementType: types.StringType,
 					},
-					"namespaces": schema.SetAttribute{
-						Description: "The list of namespaces assigned to this sync window.",
+					"namespaces": schema.ListAttribute{
+						Description: "List of namespaces that the window will apply to.",
 						Optional:    true,
 						ElementType: types.StringType,
 					},
-					"clusters": schema.SetAttribute{
-						Description: "The list of clusters assigned to this sync window.",
+					"clusters": schema.ListAttribute{
+						Description: " List of clusters that the window will apply to.",
 						Optional:    true,
 						ElementType: types.StringType,
 					},
 					"manual_sync": schema.BoolAttribute{
-						Description: "Defines if sync will be blocked if the sync window is active.",
+						Description: "Enables manual syncs when they would otherwise be blocked.",
 						Optional:    true,
 					},
 					"schedule": schema.StringAttribute{
@@ -331,7 +333,7 @@ func projectSpecSchemaBlocks() map[string]schema.Block {
 						},
 					},
 					"duration": schema.StringAttribute{
-						Description: "The duration of the sync window.",
+						Description: "Amount of time the sync window will be open.",
 						Optional:    true,
 						Validators: []validator.String{
 							validators.DurationValidator(),
@@ -358,7 +360,7 @@ func projectSpecSchemaAttributesOnly() map[string]schema.Attribute {
 			Description: "Project description.",
 			Optional:    true,
 		},
-		"source_repos": schema.SetAttribute{
+		"source_repos": schema.ListAttribute{
 			Description: "List of repositories from which applications may be created.",
 			Optional:    true,
 			ElementType: types.StringType,
