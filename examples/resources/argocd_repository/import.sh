@@ -5,5 +5,4 @@
 # `ssh_private_key` and `tls_client_cert_key` attributes converge to their
 # expected values defined within the plan.
 
-# Example:
 terraform import argocd_repository.myrepo git@private-git-repository.local:somerepo.git
