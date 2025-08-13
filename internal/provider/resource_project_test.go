@@ -1,4 +1,4 @@
-package argocd
+package provider
 
 import (
 	"fmt"
@@ -14,8 +14,8 @@ func TestAccArgoCDProject(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDProjectPolicyError(
@@ -102,8 +102,8 @@ func TestAccArgoCDProject(t *testing.T) {
 
 func TestAccArgoCDProject_tokensCoexistence(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDProjectCoexistenceWithTokenResource(
@@ -149,8 +149,8 @@ func TestAccArgoCDProjectUpdateAddRole(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDProjectSimpleWithoutRole(name),
@@ -183,8 +183,8 @@ func TestAccArgoCDProjectWithClustersRepositoriesRolePolicy(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDProjectWithClustersRepositoriesRolePolicy(name),
@@ -208,8 +208,8 @@ func TestAccArgoCDProjectWithLogsExecRolePolicy(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ExecLogsPolicy) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ExecLogsPolicy) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDProjectWithExecLogsRolePolicy(name),
@@ -233,8 +233,8 @@ func TestAccArgoCDProjectWithSourceNamespaces(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ProjectSourceNamespaces) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ProjectSourceNamespaces) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDProjectWithSourceNamespaces(name),
@@ -262,7 +262,7 @@ func TestAccArgoCDProjectWithDestinationServiceAccounts(t *testing.T) {
 			testAccPreCheck(t)
 			testAccPreCheckFeatureSupported(t, features.ProjectDestinationServiceAccounts)
 		},
-		ProviderFactories: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDProjectWithDestinationServiceAccounts(name),
@@ -296,8 +296,8 @@ func TestAccArgoCDProjectWithFineGrainedPolicy(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ProjectFineGrainedPolicy) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ProjectFineGrainedPolicy) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDProjectWithFineGrainedPolicy(name),
@@ -937,6 +937,378 @@ resource "argocd_project" "simple" {
   }
 }
   `, name)
+}
+
+// TestAccArgoCDProject_MetadataFieldsConsistency tests consistency of metadata fields
+func TestAccArgoCDProject_MetadataFieldsConsistency(t *testing.T) {
+	name := acctest.RandString(10)
+	config := fmt.Sprintf(`
+resource "argocd_project" "metadata_consistency" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+      environment = "test"
+    }
+    annotations = {
+      "this.is.a.really.long.nested.key" = "yes, really!"
+      "description" = "test project"
+    }
+  }
+
+  spec {
+    description  = "test project for metadata consistency"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+`, name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.metadata_consistency",
+						"metadata.0.name",
+						name,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.metadata_consistency",
+						"metadata.0.labels.acceptance",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.metadata_consistency",
+						"metadata.0.labels.environment",
+						"test",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.metadata_consistency",
+						"metadata.0.annotations.this.is.a.really.long.nested.key",
+						"yes, really!",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.metadata_consistency",
+						"metadata.0.name",
+						name,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.metadata_consistency",
+						"metadata.0.labels.acceptance",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.metadata_consistency",
+						"metadata.0.labels.environment",
+						"test",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.metadata_consistency",
+						"metadata.0.annotations.this.is.a.really.long.nested.key",
+						"yes, really!",
+					),
+				),
+			},
+		},
+	})
+}
+
+// TestAccArgoCDProject_RolesConsistency tests consistency of role fields
+func TestAccArgoCDProject_RolesConsistency(t *testing.T) {
+	name := acctest.RandString(10)
+	config := fmt.Sprintf(`
+resource "argocd_project" "roles_consistency" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "test project with roles"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+
+    role {
+      name = "admin"
+      policies = [
+        "p, proj:%[1]s:admin, applications, get, %[1]s/*, allow",
+        "p, proj:%[1]s:admin, applications, sync, %[1]s/*, allow",
+      ]
+      groups = ["admin-group", "ops-group"]
+    }
+    role {
+      name = "read-only"
+      policies = [
+        "p, proj:%[1]s:read-only, applications, get, %[1]s/*, allow",
+      ]
+      groups = ["dev-group"]
+    }
+  }
+}
+`, name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.roles_consistency",
+						"spec.0.role.0.name",
+						"admin",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.roles_consistency",
+						"spec.0.role.0.policies.#",
+						"2",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.roles_consistency",
+						"spec.0.role.0.groups.#",
+						"2",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.roles_consistency",
+						"spec.0.role.1.name",
+						"read-only",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.roles_consistency",
+						"spec.0.role.0.name",
+						"admin",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.roles_consistency",
+						"spec.0.role.0.policies.#",
+						"2",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.roles_consistency",
+						"spec.0.role.0.groups.#",
+						"2",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.roles_consistency",
+						"spec.0.role.1.name",
+						"read-only",
+					),
+				),
+			},
+		},
+	})
+}
+
+// TestAccArgoCDProject_SyncWindowsConsistency tests consistency of sync window fields
+func TestAccArgoCDProject_SyncWindowsConsistency(t *testing.T) {
+	name := acctest.RandString(10)
+	config := fmt.Sprintf(`
+resource "argocd_project" "sync_windows_consistency" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "test project with sync windows"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+
+    sync_window {
+      kind = "allow"
+      applications = ["api-*"]
+      clusters = ["*"]
+      namespaces = ["*"]
+      duration = "3600s"
+      schedule = "10 1 * * *"
+      manual_sync = true
+    }
+    sync_window {
+      kind = "deny"
+      applications = ["foo"]
+      clusters = ["in-cluster"]
+      namespaces = ["default"]
+      duration = "12h"
+      schedule = "22 1 5 * *"
+      manual_sync = false
+      timezone = "Europe/London"
+    }
+  }
+}
+`, name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.sync_windows_consistency",
+						"spec.0.sync_window.0.kind",
+						"allow",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.sync_windows_consistency",
+						"spec.0.sync_window.0.duration",
+						"3600s",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.sync_windows_consistency",
+						"spec.0.sync_window.0.manual_sync",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.sync_windows_consistency",
+						"spec.0.sync_window.1.timezone",
+						"Europe/London",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.sync_windows_consistency",
+						"spec.0.sync_window.0.kind",
+						"allow",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.sync_windows_consistency",
+						"spec.0.sync_window.0.duration",
+						"3600s",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.sync_windows_consistency",
+						"spec.0.sync_window.0.manual_sync",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.sync_windows_consistency",
+						"spec.0.sync_window.1.timezone",
+						"Europe/London",
+					),
+				),
+			},
+		},
+	})
+}
+
+// TestAccArgoCDProject_OrphanedResourcesConsistency tests consistency of orphaned resources
+func TestAccArgoCDProject_OrphanedResourcesConsistency(t *testing.T) {
+	name := acctest.RandString(10)
+	config := fmt.Sprintf(`
+resource "argocd_project" "orphaned_resources_consistency" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "test project with orphaned resources"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+
+    orphaned_resources {
+      warn = true
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored1"
+      }
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "ignored2"
+      }
+    }
+  }
+}
+`, name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.orphaned_resources_consistency",
+						"spec.0.orphaned_resources.0.warn",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.orphaned_resources_consistency",
+						"spec.0.orphaned_resources.0.ignore.#",
+						"2",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.orphaned_resources_consistency",
+						"spec.0.orphaned_resources.0.ignore.0.name",
+						"ignored1",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.orphaned_resources_consistency",
+						"spec.0.orphaned_resources.0.warn",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.orphaned_resources_consistency",
+						"spec.0.orphaned_resources.0.ignore.#",
+						"2",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.orphaned_resources_consistency",
+						"spec.0.orphaned_resources.0.ignore.0.name",
+						"ignored1",
+					),
+				),
+			},
+		},
+	})
 }
 
 func testAccArgoCDProjectWithFineGrainedPolicy(name string) string {

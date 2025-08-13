@@ -148,8 +148,6 @@ func Provider() *schema.Provider {
 			"argocd_application":     resourceArgoCDApplication(),
 			"argocd_application_set": resourceArgoCDApplicationSet(),
 			"argocd_cluster":         resourceArgoCDCluster(),
-			"argocd_project":         resourceArgoCDProject(),
-			"argocd_project_token":   resourceArgoCDProjectToken(),
 		},
 		ConfigureContextFunc: func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 			config, diags := argoCDProviderConfigFromResourceData(ctx, d)
