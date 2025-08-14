@@ -51,6 +51,8 @@ resource "argocd_repository_credentials" "private" {
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 # Repository credentials can be imported using the repository URL.
 
@@ -59,6 +61,5 @@ Import is supported using the following syntax:
 # `ssh_private_key` and `tls_client_cert_key` attributes converge to their
 # expected values defined within the plan.
 
-# Example:
 terraform import argocd_repository_credentials.myrepocreds git@private-git-repository.local:somerepo.git
 ```

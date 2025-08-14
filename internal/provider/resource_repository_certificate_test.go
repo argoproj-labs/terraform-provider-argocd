@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAccArgoCDRepositoryCertificatesSSH(t *testing.T) {
@@ -493,4 +494,135 @@ func getSshKeysForHost(host string) ([]string, error) {
 	}
 
 	return subTypesKeys, nil
+}
+
+// TestAccArgoCDRepositoryCertificate_SSHConsistency tests consistency of SSH certificate fields
+func TestAccArgoCDRepositoryCertificate_SSHConsistency(t *testing.T) {
+	serverName := acctest.RandomWithPrefix("ssh-test")
+
+	config := testAccArgoCDRepositoryCertificatesSSH(
+		serverName,
+		"ssh-rsa",
+		"AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==",
+	)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository_certificate.simple",
+						"ssh.0.server_name",
+						serverName,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository_certificate.simple",
+						"ssh.0.cert_subtype",
+						"ssh-rsa",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_repository_certificate.simple",
+						"ssh.0.cert_info",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository_certificate.simple",
+						"ssh.0.server_name",
+						serverName,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository_certificate.simple",
+						"ssh.0.cert_subtype",
+						"ssh-rsa",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_repository_certificate.simple",
+						"ssh.0.cert_info",
+					),
+				),
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepositoryCertificate_HTTPSConsistency tests consistency of HTTPS certificate fields
+func TestAccArgoCDRepositoryCertificate_HTTPSConsistency(t *testing.T) {
+	serverName := acctest.RandomWithPrefix("https-test")
+	certData := "-----BEGIN CERTIFICATE-----\nMIIFajCCBPCgAwIBAgIQBRiaVOvox+kD4KsNklVF3jAKBggqhkjOPQQDAzBWMQsw\nCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMTAwLgYDVQQDEydEaWdp\nQ2VydCBUTFMgSHlicmlkIEVDQyBTSEEzODQgMjAyMCBDQTEwHhcNMjIwMzE1MDAw\nMDAwWhcNMjMwMzE1MjM1OTU5WjBmMQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2Fs\naWZvcm5pYTEWMBQGA1UEBxMNU2FuIEZyYW5jaXNjbzEVMBMGA1UEChMMR2l0SHVi\nLCBJbmMuMRMwEQYDVQQDEwpnaXRodWIuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0D\nAQcDQgAESrCTcYUh7GI/y3TARsjnANwnSjJLitVRgwgRI1JlxZ1kdZQQn5ltP3v7\nKTtYuDdUeEu3PRx3fpDdu2cjMlyA0aOCA44wggOKMB8GA1UdIwQYMBaAFAq8CCkX\njKU5bXoOzjPHLrPt+8N6MB0GA1UdDgQWBBR4qnLGcWloFLVZsZ6LbitAh0I7HjAl\nBgNVHREEHjAcggpnaXRodWIuY29tgg53d3cuZ2l0aHViLmNvbTAOBgNVHQ8BAf8E\nBAMCB4AwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMIGbBgNVHR8EgZMw\ngZAwRqBEoEKGQGh0dHA6Ly9jcmwzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydFRMU0h5\nYnJpZEVDQ1NIQTM4NDIwMjBDQTEtMS5jcmwwRqBEoEKGQGh0dHA6Ly9jcmw0LmRp\nZ2ljZXJ0LmNvbS9EaWdpQ2VydFRMU0h5YnJpZEVDQ1NIQTM4NDIwMjBDQTEtMS5j\ncmwwPgYDVR0gBDcwNTAzBgZngQwBAgIwKTAnBggrBgEFBQcCARYbaHR0cDovL3d3\ndy5kaWdpY2VydC5jb20vQ1BTMIGFBggrBgEFBQcBAQR5MHcwJAYIKwYBBQUHMAGG\nGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBPBggrBgEFBQcwAoZDaHR0cDovL2Nh\nY2VydHMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0VExTSHlicmlkRUNDU0hBMzg0MjAy\nMENBMS0xLmNydDAJBgNVHRMEAjAAMIIBfwYKKwYBBAHWeQIEAgSCAW8EggFrAWkA\ndgCt9776fP8QyIudPZwePhhqtGcpXc+xDCTKhYY069yCigAAAX+Oi8SRAAAEAwBH\nMEUCIAR9cNnvYkZeKs9JElpeXwztYB2yLhtc8bB0rY2ke98nAiEAjiML8HZ7aeVE\nP/DkUltwIS4c73VVrG9JguoRrII7gWMAdwA1zxkbv7FsV78PrUxtQsu7ticgJlHq\nP+Eq76gDwzvWTAAAAX+Oi8R7AAAEAwBIMEYCIQDNckqvBhup7GpANMf0WPueytL8\nu/PBaIAObzNZeNMpOgIhAMjfEtE6AJ2fTjYCFh/BNVKk1mkTwBTavJlGmWomQyaB\nAHYAs3N3B+GEUPhjhtYFqdwRCUp5LbFnDAuH3PADDnk2pZoAAAF/jovErAAABAMA\nRzBFAiEA9Uj5Ed/XjQpj/MxQRQjzG0UFQLmgWlc73nnt3CJ7vskCICqHfBKlDz7R\nEHdV5Vk8bLMBW1Q6S7Ga2SbFuoVXs6zFMAoGCCqGSM49BAMDA2gAMGUCMCiVhqft\n7L/stBmv1XqSRNfE/jG/AqKIbmjGTocNbuQ7kt1Cs7kRg+b3b3C9Ipu5FQIxAM7c\ntGKrYDGt0pH8iF6rzbp9Q4HQXMZXkNxg+brjWxnaOVGTDNwNH7048+s/hT9bUQ==\n-----END CERTIFICATE-----"
+
+	config := testAccArgoCDRepositoryCertificateHttps(serverName, certData)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository_certificate.simple",
+						"https.0.server_name",
+						serverName,
+					),
+					resource.TestCheckResourceAttrWith(
+						"argocd_repository_certificate.simple",
+						"https.0.cert_data",
+						func(value string) error {
+							// Not yet sure why the impl is suffixing with newline. Adding a newline only makes the test fail,
+							// since it'll add yet another newline.
+							require.Contains(t, value, certData)
+							return nil
+						},
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository_certificate.simple",
+						"https.0.cert_subtype",
+						"ecdsa",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_repository_certificate.simple",
+						"https.0.cert_info",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository_certificate.simple",
+						"https.0.server_name",
+						serverName,
+					),
+					resource.TestCheckResourceAttrWith(
+						"argocd_repository_certificate.simple",
+						"https.0.cert_data",
+						func(value string) error {
+							// Not yet sure why the impl is suffixing with newline. Adding a newline only makes the test fail,
+							// since it'll add yet another newline.
+							require.Contains(t, value, certData)
+							return nil
+						},
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository_certificate.simple",
+						"https.0.cert_subtype",
+						"ecdsa",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_repository_certificate.simple",
+						"https.0.cert_info",
+					),
+				),
+			},
+		},
+	})
 }
