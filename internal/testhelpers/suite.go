@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 	envDefaultValue("ARGOCD_VERSION", "v3.0.0")
 
 	if os.Getenv("USE_TESTCONTAINERS") == "true" {
-		SetupTestSuite(m)
+		os.Exit(runTestSuite(m))
 	} else {
 		os.Exit(m.Run())
 	}
@@ -33,7 +33,7 @@ func TestMain(m *testing.M) {
 
 func envDefaultValue(envvar, defaultValue string) {
 	if v := os.Getenv(envvar); v == "" {
-		fmt.Printf("%s not set; using %s as default value", envvar, defaultValue)
+		fmt.Printf("environment variable %s not set; using %s as default value\n", envvar, defaultValue)
 		_ = os.Setenv(envvar, defaultValue)
 	}
 }
@@ -42,12 +42,6 @@ const (
 	// DefaultTestTimeout is the default timeout for test setup
 	DefaultTestTimeout = 15 * time.Minute
 )
-
-// SetupTestSuite sets up a shared test environment for all acceptance tests
-func SetupTestSuite(m *testing.M) {
-	code := runTestSuite(m)
-	os.Exit(code)
-}
 
 func runTestSuite(m *testing.M) int {
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultTestTimeout)
