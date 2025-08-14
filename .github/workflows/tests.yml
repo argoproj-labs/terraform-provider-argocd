@@ -99,6 +99,7 @@ jobs:
       - name: Run acceptance tests
         env:
           ARGOCD_VERSION: ${{ matrix.argocd_version }}
+          USE_TESTCONTAINERS: false
         run: make testacc
 
   # This job aggregates test results. It's the required check for branch protection.
