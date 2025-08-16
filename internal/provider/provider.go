@@ -258,6 +258,8 @@ func (p *ArgoCDProvider) Resources(context.Context) []func() resource.Resource {
 		NewRepositoryResource,
 		NewRepositoryCertificateResource,
 		NewRepositoryCredentialsResource,
+		NewProjectResource,
+		NewProjectTokenResource,
 	}
 }
 
