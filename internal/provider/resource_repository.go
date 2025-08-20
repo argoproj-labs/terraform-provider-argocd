@@ -194,14 +194,16 @@ func (r *repositoryResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	// Update repository
-	sync.RepositoryMutex.Lock()
-	defer sync.RepositoryMutex.Unlock()
-
-	updatedRepo, err := r.si.RepositoryClient.UpdateRepository(
-		ctx,
-		&repository.RepoUpdateRequest{Repo: repo},
-	)
+	var updatedRepo *v1alpha1.Repository
+	func() {
+		// Keep mutex enclosed in a function to keep the lock scoped to it and to prevent deadlocking
+		sync.RepositoryMutex.Lock()
+		defer sync.RepositoryMutex.Unlock()
+		updatedRepo, err = r.si.RepositoryClient.UpdateRepository(
+			ctx,
+			&repository.RepoUpdateRequest{Repo: repo},
+		)
+	}()
 
 	if err != nil {
 		resp.Diagnostics.Append(diagnostics.ArgoCDAPIError("update", "repository", repo.Repo, err)...)
@@ -225,7 +227,7 @@ func (r *repositoryResource) Update(ctx context.Context, req resource.UpdateRequ
 	tflog.Trace(ctx, fmt.Sprintf("updated repository %s", updatedRepo.Repo))
 
 	// Save updated data into Terraform state
-	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, data.updateFromAPI(updatedRepo))...)
 
 	// Perform a read to get the latest state
 	if !resp.Diagnostics.HasError() {
