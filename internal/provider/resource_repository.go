@@ -195,10 +195,12 @@ func (r *repositoryResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 
 	var updatedRepo *v1alpha1.Repository
+
 	func() {
 		// Keep mutex enclosed in a function to keep the lock scoped to it and to prevent deadlocking
 		sync.RepositoryMutex.Lock()
 		defer sync.RepositoryMutex.Unlock()
+
 		updatedRepo, err = r.si.RepositoryClient.UpdateRepository(
 			ctx,
 			&repository.RepoUpdateRequest{Repo: repo},
