@@ -158,7 +158,8 @@ func TestAccArgoCDRepositoryCertificatesSSH_Invalid(t *testing.T) {
 					certSubType,
 					"",
 				),
-				ExpectError: regexp.MustCompile("Invalid hostname in request"),
+				// prior to Argo CD v3.1 this error message started with capitalized I
+				ExpectError: regexp.MustCompile("(i|I)nvalid hostname in request"),
 			},
 			{
 				Config: testAccArgoCDRepositoryCertificatesSSH(
@@ -247,7 +248,7 @@ func TestAccArgoCDRepositoryCertificatesSSH_CannotUpdateExisting(t *testing.T) {
 					// github's
 					"AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==",
 				),
-				ExpectError: regexp.MustCompile("already exist and upsert was not specified"),
+				ExpectError: regexp.MustCompile("already (exist|exists,) and upsert was not specified"),
 			},
 		},
 	})
@@ -265,7 +266,7 @@ func TestAccArgoCDRepositoryCertificatesSSH_CannotUpdateExisting_MultipleAtOnce(
 					// github's
 					"AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==",
 				),
-				ExpectError: regexp.MustCompile("already exist and upsert was not specified"),
+				ExpectError: regexp.MustCompile("already (exist|exists,) and upsert was not specified"),
 			},
 		},
 	})

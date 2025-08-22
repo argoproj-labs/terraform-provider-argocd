@@ -11,7 +11,7 @@
       <env name="ARGOCD_AUTH_PASSWORD" value="acceptancetesting" />
       <env name="ARGOCD_CONTEXT" value="kind-argocd" />
       <env name="USE_TESTCONTAINERS" value="true" />
-      <env name="K3S_VERSION" value="v1.31.6-k3s1" />
+      <env name="K3S_VERSION" value="v1.31.9-k3s1" />
       <env name="TF_ACC" value="1" />
     </envs>
     <framework value="gotest" />

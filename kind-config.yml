@@ -4,8 +4,8 @@ kind: Cluster
 name: argocd
 nodes:
   - role: control-plane
-    # It seems that the latest .7 patch release is not available, use latest available one instead
-    image: kindest/node:v1.31.6
+    # It seems that the latest .11 patch release is not available, use latest available one instead
+    image: kindest/node:v1.31.9
     extraPortMappings:
       - containerPort: 30123
         hostPort: 8080

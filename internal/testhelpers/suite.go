@@ -21,8 +21,8 @@ func TestMain(m *testing.M) {
 	envDefaultValue("ARGOCD_SERVER", "127.0.0.1:8080")
 	envDefaultValue("ARGOCD_INSECURE", "true")
 	envDefaultValue("USE_TESTCONTAINERS", "true")
-	envDefaultValue("K3S_VERSION", "v1.31.6-k3s1")
-	envDefaultValue("ARGOCD_VERSION", "v3.0.0")
+	envDefaultValue("K3S_VERSION", "v1.31.9-k3s1")
+	envDefaultValue("ARGOCD_VERSION", "v3.1.0")
 
 	if os.Getenv("USE_TESTCONTAINERS") == "true" {
 		os.Exit(runTestSuite(m))
