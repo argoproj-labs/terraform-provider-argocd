@@ -225,6 +225,56 @@ func TestAccArgoCDRepository_GitHubAppConsistency(t *testing.T) {
 	})
 }
 
+// TestAccArgoCDRepository_BearerTokenConsistency tests consistency of bearer token field
+// Note: This test uses a Helm repository which doesn't require authentication but allows token auth
+func TestAccArgoCDRepository_BearerTokenConsistency(t *testing.T) {
+	config := `
+resource "argocd_repository" "bearer_token" {
+  repo     = "https://helm.nginx.com/stable"
+  type     = "helm"
+	bearer_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.bearer_token",
+						"bearer_token",
+						"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.bearer_token",
+						"connection_state_status",
+						"Successful",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.bearer_token",
+						"bearer_token",
+						"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.bearer_token",
+						"connection_state_status",
+						"Successful",
+					),
+				),
+			},
+		},
+	})
+}
+
 // TestAccArgoCDRepository_UsernamePasswordConsistency tests consistency of username/password fields
 // Note: This test uses a Helm repository which doesn't require authentication but allows username/password fields
 func TestAccArgoCDRepository_UsernamePasswordConsistency(t *testing.T) {
