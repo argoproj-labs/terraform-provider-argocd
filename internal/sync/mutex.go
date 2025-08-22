@@ -14,3 +14,10 @@ var CertificateMutex = &sync.RWMutex{}
 
 // RepositoryCredentialsMutex is used to handle concurrent access to ArgoCD repository credentials
 var RepositoryCredentialsMutex = &sync.RWMutex{}
+
+// AccountTokensMutex is used to handle concurrent access to ArgoCD account token operations
+var AccountTokensMutex = &sync.RWMutex{}
+
+// AccountsMutex is used to handle concurrent access to ArgoCD account operations
+// (password updates, account modifications)
+var AccountsMutex = &sync.RWMutex{}
