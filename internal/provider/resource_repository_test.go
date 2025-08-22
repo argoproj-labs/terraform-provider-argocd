@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -476,6 +477,43 @@ resource "argocd_repository" "boolean_fields" {
 						"true",
 					),
 				),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDRepository_ProviderUpgradeStateMigration(t *testing.T) {
+	config := `
+resource "argocd_repository" "private" {
+  count = 1
+  repo  = "https://github.com/kubernetes-sigs/kustomize"
+  name  = "gitlab-private"
+  type  = "git"
+}
+`
+	resource.Test(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"argocd": {
+						VersionConstraint: "7.8.0",
+						Source:            "argoproj-labs/argocd",
+					},
+				},
+				Config: config,
+			},
+			{
+				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				Config:                   config,
+			},
+			{
+				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				Config:                   config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})
