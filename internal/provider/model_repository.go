@@ -34,6 +34,7 @@ type repositoryModel struct {
 	GitHubAppInstallationID    types.String `tfsdk:"githubapp_installation_id"`
 	GitHubAppEnterpriseBaseURL types.String `tfsdk:"githubapp_enterprise_base_url"`
 	GitHubAppPrivateKey        types.String `tfsdk:"githubapp_private_key"`
+	BearerToken                types.String `tfsdk:"bearer_token"`
 }
 
 func repositorySchemaAttributes() map[string]schema.Attribute {
@@ -72,6 +73,11 @@ func repositorySchemaAttributes() map[string]schema.Attribute {
 		},
 		"password": schema.StringAttribute{
 			MarkdownDescription: "Password or PAT used for authenticating at the remote repository.",
+			Optional:            true,
+			Sensitive:           true,
+		},
+		"bearer_token": schema.StringAttribute{
+			MarkdownDescription: "BearerToken contains the bearer token used for Git BitBucket Data Center auth at the repo server",
 			Optional:            true,
 			Sensitive:           true,
 		},
@@ -143,6 +149,7 @@ func (m *repositoryModel) toAPIModel() (*v1alpha1.Repository, error) {
 		Project:                    m.Project.ValueString(),
 		Username:                   m.Username.ValueString(),
 		Password:                   m.Password.ValueString(),
+		BearerToken:                m.BearerToken.ValueString(),
 		SSHPrivateKey:              m.SSHPrivateKey.ValueString(),
 		TLSClientCertData:          m.TLSClientCertData.ValueString(),
 		TLSClientCertKey:           m.TLSClientCertKey.ValueString(),

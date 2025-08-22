@@ -43,6 +43,7 @@ resource "argocd_repository" "private" {
 
 ### Optional
 
+- `bearer_token` (String, Sensitive) BearerToken contains the bearer token used for Git BitBucket Data Center auth at the repo server
 - `enable_lfs` (Boolean) Whether `git-lfs` support should be enabled for this repository.
 - `enable_oci` (Boolean) Whether `helm-oci` support should be enabled for this repository.
 - `githubapp_enterprise_base_url` (String) GitHub API URL for GitHub app authentication.
