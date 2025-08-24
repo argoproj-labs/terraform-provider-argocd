@@ -409,6 +409,11 @@ func applicationSetGitGeneratorSchemaV0() *schema.Schema {
 					Description: "Revision of the source repository to use.",
 					Optional:    true,
 				},
+				"resque_after_seconds": {
+					Type:        schema.TypeInt,
+					Description: "Interval in second for the ApplicationSet to poll the Git repository.",
+					Optional:    true,
+				},
 				"path_param_prefix": {
 					Type:        schema.TypeString,
 					Description: "Prefix for all path-related parameter names.",
