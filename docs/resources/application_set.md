@@ -1237,6 +1237,7 @@ Optional:
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--git--file))
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
+- `requeue_after_seconds` (Number) Interval in second for the ApplicationSet to poll the Git repository.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--git--template))
 - `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
@@ -2458,6 +2459,7 @@ Optional:
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--file))
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
+- `requeue_after_seconds` (Number) Interval in second for the ApplicationSet to poll the Git repository.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template))
 - `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
@@ -3677,6 +3679,7 @@ Optional:
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--file))
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
+- `requeue_after_seconds` (Number) Interval in second for the ApplicationSet to poll the Git repository.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template))
 - `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
@@ -4654,14 +4657,25 @@ Required:
 
 Required:
 
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `project` (String) GitLab project to scan.
 
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--gitlab--ca_ref))
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.pull_request.gitlab.token_ref`
@@ -6328,6 +6342,7 @@ Optional:
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--file))
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
+- `requeue_after_seconds` (Number) Interval in second for the ApplicationSet to poll the Git repository.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template))
 - `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
@@ -7305,14 +7320,25 @@ Required:
 
 Required:
 
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `project` (String) GitLab project to scan.
 
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--gitlab--ca_ref))
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.pull_request.gitlab.token_ref`
@@ -8736,14 +8762,25 @@ Required:
 
 Required:
 
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `project` (String) GitLab project to scan.
 
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--gitlab--ca_ref))
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--matrix--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.matrix.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--matrix--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.matrix.generator.pull_request.gitlab.token_ref`
@@ -10412,6 +10449,7 @@ Optional:
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--file))
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
+- `requeue_after_seconds` (Number) Interval in second for the ApplicationSet to poll the Git repository.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template))
 - `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
@@ -11631,6 +11669,7 @@ Optional:
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--file))
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
+- `requeue_after_seconds` (Number) Interval in second for the ApplicationSet to poll the Git repository.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template))
 - `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
@@ -12608,14 +12647,25 @@ Required:
 
 Required:
 
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `project` (String) GitLab project to scan.
 
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--gitlab--ca_ref))
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.pull_request.gitlab.token_ref`
@@ -14282,6 +14332,7 @@ Optional:
 - `directory` (Block List) List of directories in the source repository to use when template the Application.. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--directory))
 - `file` (Block List) List of files in the source repository to use when template the Application. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--file))
 - `path_param_prefix` (String) Prefix for all path-related parameter names.
+- `requeue_after_seconds` (Number) Interval in second for the ApplicationSet to poll the Git repository.
 - `revision` (String) Revision of the source repository to use.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template))
 - `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the git generator.
@@ -15259,14 +15310,25 @@ Required:
 
 Required:
 
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `project` (String) GitLab project to scan.
 
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--gitlab--ca_ref))
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.pull_request.gitlab.token_ref`
@@ -16690,14 +16752,25 @@ Required:
 
 Required:
 
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `project` (String) GitLab project to scan.
 
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--gitlab--ca_ref))
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--merge--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.merge.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--merge--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.merge.generator.pull_request.gitlab.token_ref`
@@ -18121,14 +18194,25 @@ Required:
 
 Required:
 
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `project` (String) GitLab project to scan.
 
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--pull_request--gitlab--ca_ref))
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.pull_request.gitlab.token_ref`
