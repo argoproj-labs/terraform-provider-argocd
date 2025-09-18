@@ -7,7 +7,6 @@ import (
 
 	application "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
@@ -34,19 +33,6 @@ func expandIntOrString(s string) (*intstr.IntOrString, error) {
 	}, nil
 }
 
-func expandK8SGroupKind(groupKinds *schema.Set) (result []meta.GroupKind) {
-	for _, _gk := range groupKinds.List() {
-		gk := _gk.(map[string]interface{})
-
-		result = append(result, meta.GroupKind{
-			Group: gk["group"].(string),
-			Kind:  gk["kind"].(string),
-		})
-	}
-
-	return
-}
-
 func expandSecretRef(sr map[string]interface{}) *application.SecretRef {
 	return &application.SecretRef{
 		Key:        sr["key"].(string),
@@ -67,17 +53,6 @@ func flattenIntOrString(ios *intstr.IntOrString) string {
 	}
 }
 
-func flattenK8SGroupKinds(gks []meta.GroupKind) (result []map[string]string) {
-	for _, gk := range gks {
-		result = append(result, map[string]string{
-			"group": gk.Group,
-			"kind":  gk.Kind,
-		})
-	}
-
-	return
-}
-
 func flattenSecretRef(sr application.SecretRef) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
@@ -85,23 +60,6 @@ func flattenSecretRef(sr application.SecretRef) []map[string]interface{} {
 			"secret_name": sr.SecretName,
 		},
 	}
-}
-
-func flattenSyncWindows(sws application.SyncWindows) (result []map[string]interface{}) {
-	for _, sw := range sws {
-		result = append(result, map[string]interface{}{
-			"applications": sw.Applications,
-			"clusters":     sw.Clusters,
-			"duration":     sw.Duration,
-			"kind":         sw.Kind,
-			"manual_sync":  sw.ManualSync,
-			"namespaces":   sw.Namespaces,
-			"schedule":     sw.Schedule,
-			"timezone":     sw.TimeZone,
-		})
-	}
-
-	return
 }
 
 func newStringSet(f schema.SchemaSetFunc, in []string) *schema.Set {
