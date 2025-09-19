@@ -971,10 +971,18 @@ func flattenApplicationConditions(aacs []application.ApplicationCondition) []map
 	return acs
 }
 
-func flattenApplicationHealthStatus(hs application.HealthStatus) []map[string]interface{} {
+func flattenHealthStatus(hs application.HealthStatus) []map[string]interface{} {
 	h := map[string]interface{}{
 		"message": hs.Message,
 		"status":  hs.Status,
+	}
+
+	return []map[string]interface{}{h}
+}
+
+func flattenApplicationHealthStatus(hs application.AppHealthStatus) []map[string]interface{} {
+	h := map[string]interface{}{
+		"status": hs.Status,
 	}
 
 	return []map[string]interface{}{h}
@@ -1007,7 +1015,7 @@ func flattenApplicationResourceStatuses(arss []application.ResourceStatus) []map
 		}
 
 		if v.Health != nil {
-			rss[i]["health"] = flattenApplicationHealthStatus(*v.Health)
+			rss[i]["health"] = flattenHealthStatus(*v.Health)
 		}
 	}
 
