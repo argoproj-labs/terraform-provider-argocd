@@ -9,25 +9,13 @@
       "disableIp6tables": true // experienced issues with missing chains in ip6tables when creating kind clusters
     },
     // https://github.com/devcontainers/features/tree/main/src/terraform
-    "ghcr.io/devcontainers/features/terraform:1": {
-      "version": "1.9.7" // omit for latest
-    },
+    "ghcr.io/devcontainers/features/terraform:1": {},
     // https://github.com/mpriscella/features/tree/main/src/kind
-    "ghcr.io/mpriscella/features/kind:1": {
-      "version": "v0.20.0" // omit for latest
-    },
+    "ghcr.io/mpriscella/features/kind:1": {},
     // https://github.com/devcontainers/features/tree/main/src/kubectl-helm-minikube
-    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
-      "version": "1.31.9"
-    },
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
     // https://github.com/rio/features/tree/main/src/kustomize
-    "ghcr.io/rio/features/kustomize:1": {},
-    // https://github.com/guiyomh/features/blob/main/src/goreleaser
-    "ghcr.io/guiyomh/features/goreleaser:0": {},
-    // https://github.com/audacioustux/devcontainers/tree/main/src/argo
-    "ghcr.io/audacioustux/devcontainers/argo:1": {
-      "argocd": "2.8.13" // omit if empty
-    }
+    "ghcr.io/rio/features/kustomize:1": {}
   },
   "forwardPorts": [
     8080 // the "hard-coded" port for forwarded argo-cd"

@@ -3,6 +3,7 @@ name: "\U0001F41B Bug Report"
 about: "If something isn't working as expected \U0001F914."
 title: ''
 labels: bug
+type: bug
 
 ---
 
@@ -30,8 +31,8 @@ If this issue appears to affect multiple resources, it may be an issue with Terr
 ### Terraform Configuration Files
 ```hcl
 # Copy-paste your Terraform configurations here - for large Terraform configs,
-# please use a service like Dropbox and share a link to the ZIP file. For
-# security, you can also encrypt the files using our GPG public key.
+# please use an online file storage service and share a link to the ZIP file. For
+# security, you can also encrypt the files using our GPG public release key.
 ```
 
 ### Debug Output
