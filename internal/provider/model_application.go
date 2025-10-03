@@ -1116,7 +1116,7 @@ func applicationHealthStatusSchemaAttributes() map[string]schema.Attribute {
 	}
 }
 
-func newApplicationHealthStatus(hs *v1alpha1.HealthStatus) *applicationHealthStatus {
+func newHealthStatus(hs *v1alpha1.HealthStatus) *applicationHealthStatus {
 	if hs == nil {
 		return nil
 	}
@@ -1124,6 +1124,16 @@ func newApplicationHealthStatus(hs *v1alpha1.HealthStatus) *applicationHealthSta
 	return &applicationHealthStatus{
 		Message: types.StringValue(hs.Message),
 		Status:  types.StringValue(string(hs.Status)),
+	}
+}
+
+func newApplicationHealthStatus(hs *v1alpha1.AppHealthStatus) *applicationHealthStatus {
+	if hs == nil {
+		return nil
+	}
+
+	return &applicationHealthStatus{
+		Status: types.StringValue(string(hs.Status)),
 	}
 }
 
@@ -1253,7 +1263,7 @@ func newApplicationResourceStatuses(rss []v1alpha1.ResourceStatus) []application
 	for i, v := range rss {
 		rs[i] = applicationResourceStatus{
 			Group:           types.StringValue(v.Group),
-			Health:          newApplicationHealthStatus(v.Health),
+			Health:          newHealthStatus(v.Health),
 			Hook:            types.BoolValue(v.Hook),
 			Kind:            types.StringValue(v.Kind),
 			Name:            types.StringValue(v.Name),
