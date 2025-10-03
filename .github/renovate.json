@@ -1,7 +1,8 @@
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
 	"extends": [
-		"config:recommended"
+		"config:recommended",
+		"schedule:weekly"
 	],
 	"ignoreDeps": [
 		"k8s.io/api",
@@ -38,12 +39,27 @@
 		"k8s.io/sample-controller"
 	],
 	"postUpdateOptions": [
-		"goModTidy"
+		"gomodTidy"
 	],
-    "packageRules": [
-        {
-        "matchPackageNames": ["*"],
-        "extends": ["schedule:weekly"]
-        }
-  ]
+	"labels": [
+		"dependencies"
+	],
+	"packageRules": [
+		{
+			"matchPackageNames": [
+				"/go/"
+			],
+			"labels": [
+				"go"
+			]
+		},
+		{
+			"matchDepTypes": [
+				"/github/"
+			],
+			"addLabels": [
+				"github_actions"
+			]
+		}
+	]
 }
