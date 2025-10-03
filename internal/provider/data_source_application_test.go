@@ -345,9 +345,9 @@ resource "argocd_application" "helm" {
 		}
 
 		source {
-			repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-			chart           = "redis"
-			target_revision = "16.9.11"
+			repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+			chart           = "descheduler"
+			target_revision = "0.33.0"
 			
 			helm {
 				ignore_missing_value_files = true
@@ -381,9 +381,9 @@ EOT
 					resource.TestCheckResourceAttr("argocd_application.helm", "metadata.0.namespace", "argocd"),
 					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.destination.0.server", "https://kubernetes.default.svc"),
 					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.destination.0.namespace", "helm"),
-					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.repo_url", "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"),
-					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.chart", "redis"),
-					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.target_revision", "16.9.11"),
+					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.repo_url", "https://kubernetes-sigs.github.io/descheduler"),
+					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.chart", "descheduler"),
+					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.target_revision", "0.33.0"),
 					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.helm.0.ignore_missing_value_files", "true"),
 					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.helm.0.parameter.0.force_string", "true"),
 					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.helm.0.parameter.0.name", "image.tag"),
@@ -410,9 +410,9 @@ data "argocd_application" "helm" {
 					resource.TestCheckResourceAttr("data.argocd_application.helm", "metadata.namespace", "argocd"),
 					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.destination.server", "https://kubernetes.default.svc"),
 					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.destination.namespace", "helm"),
-					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.repo_url", "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"),
-					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.chart", "redis"),
-					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.target_revision", "16.9.11"),
+					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.repo_url", "https://kubernetes-sigs.github.io/descheduler"),
+					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.chart", "descheduler"),
+					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.target_revision", "0.33.0"),
 					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.helm.ignore_missing_value_files", "true"),
 					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.helm.parameters.0.force_string", "true"),
 					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.helm.parameters.0.name", "image.tag"),

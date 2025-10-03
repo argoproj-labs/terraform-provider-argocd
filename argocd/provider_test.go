@@ -83,7 +83,7 @@ func TestProvider_headers(t *testing.T) {
                     headers = [
                         "Hello: HiThere",
                     ]
-                }`, testAccArgoCDApplicationSimple(acctest.RandomWithPrefix("test-acc"), "9.4.1", false),
+                }`, testAccArgoCDApplicationSimple(acctest.RandomWithPrefix("test-acc"), "0.33.0", false),
 				),
 			},
 		},

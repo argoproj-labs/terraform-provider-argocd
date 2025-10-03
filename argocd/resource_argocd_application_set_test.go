@@ -3322,9 +3322,9 @@ resource "argocd_application_set" "custom_namespace" {
       spec {
 		project = argocd_project.custom_namespace.metadata[0].name
 		source {
-		  repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-		  chart           = "redis"
-		  target_revision = "16.9.11"
+		  repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+		  chart           = "descheduler"
+		  target_revision = "0.33.0"
 		  helm {
 		    parameter {
 		      name  = "image.tag"
