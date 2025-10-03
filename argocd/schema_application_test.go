@@ -13,9 +13,9 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds(t *testing.T) {
 		"spec": []interface{}{
 			map[string]interface{}{
 				"source": []interface{}{map[string]interface{}{
-					"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-					"chart":           "redis",
-					"target_revision": "16.9.11",
+					"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+					"chart":           "descheduler",
+					"target_revision": "0.33.0",
 
 					"helm": []interface{}{map[string]interface{}{
 						"release_name": "testing",
@@ -33,9 +33,9 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds(t *testing.T) {
 		"spec": []interface{}{
 			map[string]interface{}{
 				"source": []interface{}{map[string]interface{}{
-					"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-					"chart":           "redis",
-					"target_revision": "16.9.11",
+					"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+					"chart":           "descheduler",
+					"target_revision": "0.33.0",
 
 					"helm": []interface{}{map[string]interface{}{
 						"release_name": "testing",
@@ -64,9 +64,9 @@ func TestUpgradeSchemaApplication_V0V1_Default_SkipCrds_NoChange(t *testing.T) {
 		"spec": []interface{}{
 			map[string]interface{}{
 				"source": []interface{}{map[string]interface{}{
-					"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-					"chart":           "redis",
-					"target_revision": "16.9.11",
+					"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+					"chart":           "descheduler",
+					"target_revision": "0.33.0",
 				}},
 				"destination": []interface{}{map[string]interface{}{
 					"server":    "https://kubernetes.default.svc",
@@ -90,9 +90,9 @@ func TestUpgradeSchemaApplication_V1V2_Default_NoChange(t *testing.T) {
 		"spec": []interface{}{
 			map[string]interface{}{
 				"source": []interface{}{map[string]interface{}{
-					"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-					"chart":           "redis",
-					"target_revision": "16.9.11",
+					"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+					"chart":           "descheduler",
+					"target_revision": "0.33.0",
 
 					"helm": []interface{}{map[string]interface{}{
 						"release_name": "testing",
@@ -121,9 +121,9 @@ func TestUpgradeSchemaApplication_V1V2_WithKsonnet(t *testing.T) {
 		"spec": []interface{}{
 			map[string]interface{}{
 				"source": []interface{}{map[string]interface{}{
-					"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-					"chart":           "redis",
-					"target_revision": "16.9.11",
+					"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+					"chart":           "descheduler",
+					"target_revision": "0.33.0",
 
 					"ksonnet": []interface{}{map[string]interface{}{
 						"destination": []interface{}{map[string]interface{}{
@@ -159,9 +159,9 @@ func TestUpgradeSchemaApplication_V2V3_Default_NoChange(t *testing.T) {
 		"spec": []interface{}{
 			map[string]interface{}{
 				"source": []interface{}{map[string]interface{}{
-					"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-					"chart":           "redis",
-					"target_revision": "16.9.11",
+					"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+					"chart":           "descheduler",
+					"target_revision": "0.33.0",
 
 					"helm": []interface{}{map[string]interface{}{
 						"release_name": "testing",
@@ -204,9 +204,9 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 				"spec": []interface{}{
 					map[string]interface{}{
 						"source": []interface{}{map[string]interface{}{
-							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-							"chart":           "redis",
-							"target_revision": "16.9.11",
+							"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+							"chart":           "descheduler",
+							"target_revision": "0.33.0",
 						}},
 						"destination": []interface{}{map[string]interface{}{
 							"server":    "https://kubernetes.default.svc",
@@ -225,9 +225,9 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 				"spec": []interface{}{
 					map[string]interface{}{
 						"source": []interface{}{map[string]interface{}{
-							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-							"chart":           "redis",
-							"target_revision": "16.9.11",
+							"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+							"chart":           "descheduler",
+							"target_revision": "0.33.0",
 						}},
 						"destination": []interface{}{map[string]interface{}{
 							"server":    "https://kubernetes.default.svc",
@@ -249,9 +249,9 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 				"spec": []interface{}{
 					map[string]interface{}{
 						"source": []interface{}{map[string]interface{}{
-							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-							"chart":           "redis",
-							"target_revision": "16.9.11",
+							"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+							"chart":           "descheduler",
+							"target_revision": "0.33.0",
 						}},
 						"destination": []interface{}{map[string]interface{}{
 							"server":    "https://kubernetes.default.svc",
@@ -288,9 +288,9 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 				"spec": []interface{}{
 					map[string]interface{}{
 						"source": []interface{}{map[string]interface{}{
-							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-							"chart":           "redis",
-							"target_revision": "16.9.11",
+							"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+							"chart":           "descheduler",
+							"target_revision": "0.33.0",
 						}},
 						"destination": []interface{}{map[string]interface{}{
 							"server":    "https://kubernetes.default.svc",
@@ -334,9 +334,9 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 				"spec": []interface{}{
 					map[string]interface{}{
 						"source": []interface{}{map[string]interface{}{
-							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-							"chart":           "redis",
-							"target_revision": "16.9.11",
+							"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+							"chart":           "descheduler",
+							"target_revision": "0.33.0",
 						}},
 						"destination": []interface{}{map[string]interface{}{
 							"server":    "https://kubernetes.default.svc",
@@ -368,9 +368,9 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 				"spec": []interface{}{
 					map[string]interface{}{
 						"source": []interface{}{map[string]interface{}{
-							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-							"chart":           "redis",
-							"target_revision": "16.9.11",
+							"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+							"chart":           "descheduler",
+							"target_revision": "0.33.0",
 						}},
 						"destination": []interface{}{map[string]interface{}{
 							"server":    "https://kubernetes.default.svc",
@@ -407,9 +407,9 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 				"spec": []interface{}{
 					map[string]interface{}{
 						"source": []interface{}{map[string]interface{}{
-							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-							"chart":           "redis",
-							"target_revision": "16.9.11",
+							"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+							"chart":           "descheduler",
+							"target_revision": "0.33.0",
 						}},
 						"destination": []interface{}{map[string]interface{}{
 							"server":    "https://kubernetes.default.svc",
@@ -442,9 +442,9 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 				"spec": []interface{}{
 					map[string]interface{}{
 						"source": []interface{}{map[string]interface{}{
-							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-							"chart":           "redis",
-							"target_revision": "16.9.11",
+							"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+							"chart":           "descheduler",
+							"target_revision": "0.33.0",
 						}},
 						"destination": []interface{}{map[string]interface{}{
 							"server":    "https://kubernetes.default.svc",
@@ -482,9 +482,9 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 				"spec": []interface{}{
 					map[string]interface{}{
 						"source": []interface{}{map[string]interface{}{
-							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-							"chart":           "redis",
-							"target_revision": "16.9.11",
+							"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+							"chart":           "descheduler",
+							"target_revision": "0.33.0",
 						}},
 						"destination": []interface{}{map[string]interface{}{
 							"server":    "https://kubernetes.default.svc",
@@ -516,9 +516,9 @@ func TestUpgradeSchemaApplication_V3V4(t *testing.T) {
 				"spec": []interface{}{
 					map[string]interface{}{
 						"source": []interface{}{map[string]interface{}{
-							"repo_url":        "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami",
-							"chart":           "redis",
-							"target_revision": "16.9.11",
+							"repo_url":        "https://kubernetes-sigs.github.io/descheduler",
+							"chart":           "descheduler",
+							"target_revision": "0.33.0",
 						}},
 						"destination": []interface{}{map[string]interface{}{
 							"server":    "https://kubernetes.default.svc",

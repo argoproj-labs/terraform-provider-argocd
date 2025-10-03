@@ -19,7 +19,7 @@ func TestAccArgoCDApplication(t *testing.T) {
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDApplicationSimple(name, "8.0.0", false),
+				Config: testAccArgoCDApplicationSimple(name, "0.31.0", false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"argocd_application."+name,
@@ -28,7 +28,7 @@ func TestAccArgoCDApplication(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_application."+name,
 						"spec.0.source.0.target_revision",
-						"8.0.0",
+						"0.31.0",
 					),
 					resource.TestCheckResourceAttrSet(
 						"argocd_application."+name,
@@ -44,7 +44,7 @@ func TestAccArgoCDApplication(t *testing.T) {
 			},
 			{
 				// Update
-				Config: testAccArgoCDApplicationSimple(name, "9.0.0", false),
+				Config: testAccArgoCDApplicationSimple(name, "0.32.0", false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"argocd_application."+name,
@@ -53,13 +53,13 @@ func TestAccArgoCDApplication(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_application."+name,
 						"spec.0.source.0.target_revision",
-						"9.0.0",
+						"0.32.0",
 					),
 				),
 			},
 			{
 				// Update with wait = true
-				Config: testAccArgoCDApplicationSimple(name, "9.4.1", true),
+				Config: testAccArgoCDApplicationSimple(name, "0.33.0", true),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"argocd_application."+name,
@@ -69,7 +69,7 @@ func TestAccArgoCDApplication(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_application."+name,
 						"spec.0.source.0.target_revision",
-						"9.4.1",
+						"0.33.0",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application."+name,
@@ -168,7 +168,7 @@ func TestAccArgoCDApplication_Helm_FileParameters(t *testing.T) {
 			{
 				Config: testAccArgoCDApplicationHelm_FileParameters(acctest.RandomWithPrefix("test-acc")),
 				// Setting up tests for this is non-trivial so it is easier to test for an expected failure (since file does not exist) than to test for success
-				ExpectError: regexp.MustCompile(`(?s)Error: failed parsing.*--set-file data`),
+				ExpectError: regexp.MustCompile(`(?s)Error:\s+failed\s+parsing.*--set-file data`),
 			},
 		},
 	})
@@ -1187,7 +1187,7 @@ func TestAccArgoCDApplication_ManagedNamespaceMetadata(t *testing.T) {
 }
 
 func TestAccArgoCDApplication_Wait(t *testing.T) {
-	chartRevision := "9.4.1"
+	chartRevision := "0.33.0"
 	name := acctest.RandomWithPrefix("test-acc")
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -1265,8 +1265,8 @@ resource "argocd_application" "%[1]s" {
 
   spec {
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "apache"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
       target_revision = "%[2]s"
       helm {
         parameter {
@@ -1309,9 +1309,9 @@ resource "argocd_application" "helm" {
 
   spec {
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
+      target_revision = "0.33.0"
       helm {
         release_name = "testing"
         
@@ -1359,9 +1359,9 @@ resource "argocd_application" "helm_file_parameters" {
 
 	spec {
 		source {
-			repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-			chart           = "redis"
-			target_revision = "16.9.11"
+			repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+			chart           = "descheduler"
+			target_revision = "0.33.0"
 
 			helm {
 				release_name = "testing"
@@ -1748,9 +1748,9 @@ resource "argocd_application" "sync_policy" {
 
   spec {
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
+      target_revision = "0.33.0"
     }
 
     destination {
@@ -1791,9 +1791,9 @@ resource "argocd_application" "ignore_differences" {
 
   spec {
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
+      target_revision = "0.33.0"
     }
 
     destination {
@@ -1834,9 +1834,9 @@ resource "argocd_application" "ignore_differences_jqpe" {
 
   spec {
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
+      target_revision = "0.33.0"
     }
 
     destination {
@@ -1877,9 +1877,9 @@ resource "argocd_application" "ignore_differences_managed_fields_managers" {
 
   spec {
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
+      target_revision = "0.33.0"
     }
 
     destination {
@@ -1918,9 +1918,9 @@ resource "argocd_application" "no_namespace" {
   }
   spec {
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
+      target_revision = "0.33.0"
       helm {
         release_name = "testing"
       }
@@ -1942,9 +1942,9 @@ resource "argocd_application" "no_sync_policy" {
   }
   spec {
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
+      target_revision = "0.33.0"
       helm {
         release_name = "testing"
       }
@@ -1967,9 +1967,9 @@ resource "argocd_application" "empty_sync_policy" {
   }
   spec {
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
+      target_revision = "0.33.0"
       helm {
         release_name = "testing"
       }
@@ -1994,9 +1994,9 @@ resource "argocd_application" "no_automated" {
   }
   spec {
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
+      target_revision = "0.33.0"
       helm {
         release_name = "testing"
       }
@@ -2029,9 +2029,9 @@ resource "argocd_application" "empty_automated" {
   }
   spec {
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
+      target_revision = "0.33.0"
       helm {
         release_name = "testing"
       }
@@ -2065,9 +2065,9 @@ resource "argocd_application" "revision_history_limit" {
   spec {
     revision_history_limit = %d
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
+      target_revision = "0.33.0"
       helm {
         parameter {
           name  = "image.tag"
@@ -2250,9 +2250,9 @@ resource "argocd_application" "crds" {
 
   spec {
     source {
-		repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-		chart           = "redis"
-		target_revision = "16.9.11"
+		repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+		chart           = "descheduler"
+		target_revision = "0.33.0"
 		helm {
 		  parameter {
 			name  = "image.tag"
@@ -2288,9 +2288,9 @@ resource "argocd_application" "crds" {
 
   spec {
     source {
-		repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-		chart           = "redis"
-		target_revision = "16.9.11"
+		repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+		chart           = "descheduler"
+		target_revision = "0.33.0"
 		helm {
 		  parameter {
 			name  = "image.tag"
@@ -2341,9 +2341,9 @@ resource "argocd_application" "custom_namespace" {
   spec {
     project = argocd_project.custom_namespace.metadata[0].name
     source {
-      repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-      chart           = "redis"
-      target_revision = "16.9.11"
+      repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+      chart           = "descheduler"
+      target_revision = "0.33.0"
       helm {
         parameter {
           name  = "image.tag"
@@ -2432,9 +2432,9 @@ resource "argocd_application" "namespace_metadata" {
 		project = "default" 
 
 		source {
-			repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-			chart           = "apache"
-			target_revision = "9.4.1"
+			repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+			chart           = "descheduler"
+			target_revision = "0.33.0"
 		}
 
 		destination {

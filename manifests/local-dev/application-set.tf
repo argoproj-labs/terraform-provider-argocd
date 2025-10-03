@@ -236,9 +236,9 @@ resource "argocd_application_set" "matrix" {
         project = "default"
 
         source {
-          repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
-          chart           = "redis"
-          target_revision = "16.9.11"
+          repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+          chart           = "descheduler"
+          target_revision = "0.33.0"
 
           helm {
             release_name = "testing"
