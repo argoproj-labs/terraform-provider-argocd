@@ -35,6 +35,18 @@ If you don't want to install tools locally you can use Github Codespaces to cont
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new/argoproj-labs/terraform-provider-argocd)
 
+## Contributing checklist
+
+Please keep in mind the following guidelines and practices when contributing to the Provider:
+
+1. Your commit must be signed (`git commit --signoff`). We use the [DCO application](https://github.com/apps/dco)
+   that enforces the Developer Certificate of Origin (DCO) on commits.
+1. Use `make fmt` to format the repository code. 
+1. Use `make lint` to lint the project.
+1. Use `make generate` to generate documentation on schema changes
+1. Add unit tests for any new code you write.
+1. Add an example, or extend an existing example in the [examples](./examples), with any new features you may add. Use `make generate` to add examples to the docs
+
 ## Building 
 
 1. `git clone` this repository and `cd` into its directory
