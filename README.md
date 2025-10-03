@@ -169,13 +169,6 @@ HashiCorps [replace-provider] docs. In summary, you can do the following:
 
 5. You have successfully migrated
 
-## Requirements
-
-* [Terraform](https://www.terraform.io/downloads) (>= 1.0)
-* [Go](https://go.dev/doc/install) (1.24)
-* [GNU Make](https://www.gnu.org/software/make/)
-* [golangci-lint](https://golangci-lint.run/usage/install/#local-installation) (optional)
-
 ## Credits
 
 * We would like to thank [Olivier Boukili] for creating this awesome Terraform provider and moving the project over to

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Provider Slack Channel
+    url: https://cloud-native.slack.com/archives/C07PQF40SF8
+    about: Slack Channel to discuss on the CNCF Workspace

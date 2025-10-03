@@ -3,11 +3,11 @@ version: 2
 builds:
   - env:
       - CGO_ENABLED=0
-    mod_timestamp: '{{ .CommitTimestamp }}'
+    mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
       - -trimpath
     ldflags:
-      - '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}}'
+      - "-s -w -X main.version={{.Version}} -X main.commit={{.Commit}}"
     targets:
       - darwin_arm64
       - darwin_amd64
@@ -19,12 +19,12 @@ builds:
       - windows_386
       - freebsd_amd64
       - freebsd_arm
-    binary: '{{ .ProjectName }}_v{{ .Version }}'
+    binary: "{{ .ProjectName }}_v{{ .Version }}"
 archives:
-  - formats: [ 'zip' ]
-    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+  - formats: ["zip"]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 checksum:
-  name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
+  name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
   algorithm: sha256
 signs:
   - artifacts: checksum
@@ -37,7 +37,7 @@ signs:
       - "--detach-sign"
       - "${artifact}"
 release:
-  draft: true
+  draft: false
   disable: false
   github:
     owner: argoproj-labs
@@ -45,5 +45,5 @@ release:
 changelog:
   filters:
     exclude:
-      - '^docs:'
-      - '^chore'
+      - "^docs:"
+      - "^chore"
