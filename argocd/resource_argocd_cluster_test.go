@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
@@ -366,6 +367,58 @@ func TestAccArgoCDCluster_outsideDeletion(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDCluster_urlUpdate(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDClusterBearerToken_urlChange("https://kubernetes.default.svc.cluster.local"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.check_url_change",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_cluster.check_url_change",
+						"info.0.server_version",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.check_url_change",
+						"config.0.tls_client_config.0.insecure",
+						strconv.FormatBool(isInsecure()),
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDClusterBearerToken_urlChange("https://kubernetes.default"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("argocd_cluster.check_url_change", plancheck.ResourceActionReplace),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.check_url_change",
+						"info.0.connection_state.0.status",
+						"Successful",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_cluster.check_url_change",
+						"info.0.server_version",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_cluster.check_url_change",
+						"config.0.tls_client_config.0.insecure",
+						strconv.FormatBool(isInsecure()),
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccArgoCDCluster_namespacesErrorWhenEmpty(t *testing.T) {
 	name := acctest.RandString(10)
 
@@ -521,6 +574,17 @@ resource "argocd_cluster" "cluster_with_no_trailing_slash" {
 %s
   }
 }`, getConfig(), getConfig())
+}
+
+func testAccArgoCDClusterBearerToken_urlChange(url string) string {
+	return fmt.Sprintf(`
+resource "argocd_cluster" "check_url_change" {
+  server = "%s"
+  config {
+%s
+  }
+}
+`, url, getConfig())
 }
 
 func testAccArgoCDClusterMetadata_addLabels(clusterName string) string {

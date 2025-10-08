@@ -28,6 +28,7 @@ func clusterSchema() map[string]*schema.Schema {
 			Type:        schema.TypeString,
 			Description: "Server is the API server URL of the Kubernetes cluster.",
 			Optional:    true,
+			ForceNew:    true,
 			DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 				return oldValue == strings.TrimRight(newValue, "/")
 			},
