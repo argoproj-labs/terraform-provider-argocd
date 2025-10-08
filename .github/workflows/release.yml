@@ -16,7 +16,7 @@ jobs:
     steps:
     - name: Free up disk space
       run: |
-        Remove Java (JDKs)
+        # Remove Java (JDKs)
         sudo rm -rf /usr/lib/jvm
 
         # Remove .NET SDKs
