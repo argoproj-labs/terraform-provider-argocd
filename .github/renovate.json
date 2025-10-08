@@ -47,9 +47,19 @@
 	"packageRules": [
 		{
 			"matchPackageNames": [
+				"/terraform-plugin-framework/",
+				"/terraform-plugin-mux/",
+				"/terraform-plugin-go/",
+				"/terraform-plugin-testing/",
+				"/terraform-plugin-sdk/"
+			],
+			"groupName": "terraform-plugin-framework"
+		},
+		{
+			"matchPackageNames": [
 				"/go/"
 			],
-			"labels": [
+			"addLabels": [
 				"go"
 			]
 		},
