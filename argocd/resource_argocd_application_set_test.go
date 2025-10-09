@@ -376,6 +376,47 @@ func TestAccArgoCDApplicationSet_matrixNested(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplicationSet_matrixNestedGitRequeueAfterSeconds(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSet_matrixNestedGitRequeueAfterSeconds(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix_nested_git_requeue",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix_nested_git_requeue",
+						"spec.0.generator.0.matrix.0.generator.0.clusters.0.selector.0.match_labels.%",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix_nested_git_requeue",
+						"spec.0.generator.0.matrix.0.generator.1.matrix.0.generator.0.git.0.repo_url",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.matrix_nested_git_requeue",
+						"spec.0.generator.0.matrix.0.generator.1.matrix.0.generator.0.git.0.requeue_after_seconds",
+						"600",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.matrix_nested_git_requeue",
+						"spec.0.generator.0.matrix.0.generator.1.matrix.0.generator.1.list.0.elements.0.cluster",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.matrix_nested_git_requeue",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplicationSet_matrixInvalid(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
@@ -1623,6 +1664,79 @@ resource "argocd_application_set" "matrix_nested" {
 							git {
 								repo_url = "https://github.com/argoproj/argo-cd.git"
 								revision = "HEAD"
+
+								directory {
+									path = "applicationset/examples/matrix/cluster-addons/*"
+								}
+							}
+						}
+
+						generator {
+							list {
+								elements = [
+									{
+										cluster = "engineering-dev"
+										url     = "https://kubernetes.default.svc"
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		}
+
+		template {
+			metadata {
+				name = "nested-{{path.basename}}-{{name}}"
+			}
+
+			spec {
+				project = "default"
+
+				source {
+					repo_url        = "https://github.com/argoproj/argo-cd.git"
+					target_revision = "HEAD"
+					path            = "{{path}}"
+				}
+
+				destination {
+					server    = "{{server}}"
+					namespace = "{{path.basename}}"
+				}
+			}
+		}
+	}
+}`
+}
+
+func testAccArgoCDApplicationSet_matrixNestedGitRequeueAfterSeconds() string {
+	return `
+resource "argocd_application_set" "matrix_nested_git_requeue" {
+	metadata {
+		name = "matrix-nested-git-requeue"
+	}
+
+	spec {
+		generator {
+			matrix {
+				generator {
+					clusters{
+						selector {
+							match_labels = {
+								argocd.argoproj.io/secret-type = "cluster"
+							}
+						}
+					}
+				}
+
+				generator {
+					matrix {
+						generator {
+							git {
+								repo_url = "https://github.com/argoproj/argo-cd.git"
+								revision = "HEAD"
+								requeue_after_seconds = 600
 
 								directory {
 									path = "applicationset/examples/matrix/cluster-addons/*"
