@@ -950,6 +950,31 @@ func TestAccArgoCDApplicationSet_syncPolicy(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplicationSet_finalizers(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSet_finalizers(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.finalizers",
+						"metadata.0.finalizers.0",
+						"argocd.argoproj.io/applicationset",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.finalizers",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplicationSet_syncPolicyWithApplicationsSyncPolicy(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -3071,6 +3096,41 @@ resource "argocd_application_set" "sync_policy" {
 					repo_url        = "https://github.com/argoproj/argo-cd/"
 					target_revision = "HEAD"
 					path            = "test/e2e/testdata/guestbook"
+				}
+
+				destination {
+					server    = "{{server}}"
+					namespace = "default"
+				}
+			}
+		}
+	}
+}`
+}
+
+func testAccArgoCDApplicationSet_finalizers() string {
+	return `
+resource "argocd_application_set" "finalizers" {
+	metadata {
+		name = "finalizers"
+		finalizers = ["argocd.argoproj.io/applicationset"]
+	}
+
+	spec {
+		generator {
+			clusters {} # Automatically use all clusters defined within Argo CD
+		}
+
+		template {
+			metadata {
+				name = "appset-finalizers-{{name}}"
+			}
+
+			spec {
+				source {
+					repo_url        = "https://github.com/argoproj/argocd-example-apps/"
+					target_revision = "HEAD"
+					path            = "guestbook"
 				}
 
 				destination {
