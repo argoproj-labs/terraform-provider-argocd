@@ -215,9 +215,21 @@ func flattenClusterConfigTLSClientConfig(tcc application.TLSClientConfig, d *sch
 
 	// ArgoCD API does not return sensitive data. Thus, we can't track
 	// the state of this attribute and load it from state instead.
-	// See https://github.com/argoproj/argo-cd/blob/8840929187f4dd7b9d9fd908ea5085a006895507/server/cluster/cluster.go#L448-L466
+	// See https://github.com/argoproj/argo-cd/commit/60c62a944b155702e6d89cbef4c04ff0f525692f#diff-47255bee56d3ad7830d9721f65c73fac53009229cb98c63c67745527d598835bL473-L486
 	if kd, ok := d.GetOk("config.0.tls_client_config.0.key_data"); ok {
 		c["key_data"] = kd
+	}
+
+	if dd, ok := d.GetOk("config.0.tls_client_config.0.cert_data"); ok {
+		c["cert_data"] = dd
+	}
+
+	if cd, ok := d.GetOk("config.0.tls_client_config.0.ca_data"); ok {
+		c["ca_data"] = cd
+	}
+
+	if sn, ok := d.GetOk("config.0.tls_client_config.0.server_name"); ok {
+		c["server_name"] = sn
 	}
 
 	return []map[string]interface{}{c}
