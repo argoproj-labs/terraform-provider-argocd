@@ -22,7 +22,7 @@ We also encourage contributions in the form of:
 ### Setting up
 
 To contribute to this Provider you need the following tools installed locally:
-* [Go](https://go.dev/doc/install) (1.24)
+* [Go](https://go.dev/doc/install) (1.25)
 * [GNU Make](https://www.gnu.org/software/make/)
 * [Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/)
 * [Container runtime](https://java.testcontainers.org/supported_docker_environment/)
