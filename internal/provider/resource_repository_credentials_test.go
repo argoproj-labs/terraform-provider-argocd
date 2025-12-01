@@ -336,7 +336,7 @@ func TestAccArgoCDRepositoryCredentials_GitHubAppWithRepositoryInheritance(t *te
 	})
 }
 
-func testAccArgoCDRepositoryCredentialsGitHubAppWithRepository(credsUrl, repoUrl, id, installID, enterpriseBaseURL, appKey string) string {
+func testAccArgoCDRepositoryCredentialsGitHubAppWithRepository(credsUrl, repoUrl, id, installID, enterpriseBaseURL, _ string) string {
 	return fmt.Sprintf(`
 resource "argocd_repository_credentials" "githubapp" {
   url                           = "%s"
