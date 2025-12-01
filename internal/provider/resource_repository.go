@@ -130,7 +130,7 @@ func (r *repositoryResource) Create(ctx context.Context, req resource.CreateRequ
 	tflog.Trace(ctx, fmt.Sprintf("created repository %s", createdRepo.Repo))
 
 	// Save data into Terraform state
-	resp.Diagnostics.Append(resp.State.Set(ctx, data.updateFromAPI(repo))...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, data.updateFromAPI(createdRepo))...)
 
 	// Perform a read to get the latest state with connection status
 	if !resp.Diagnostics.HasError() {
@@ -156,7 +156,7 @@ func (r *repositoryResource) Read(ctx context.Context, req resource.ReadRequest,
 	}
 
 	// Read repository from API
-	repo, diags := r.readRepository(ctx, data.ID.ValueString(), data.Project.ValueString())
+	repo, diags := r.readRepository(ctx, data.Repo.ValueString(), data.Project.ValueString())
 	resp.Diagnostics.Append(diags...)
 
 	if resp.Diagnostics.HasError() {
@@ -261,23 +261,39 @@ func (r *repositoryResource) Delete(ctx context.Context, req resource.DeleteRequ
 	_, err := r.si.RepositoryClient.DeleteRepository(
 		ctx,
 		&repository.RepoQuery{
-			Repo:       data.ID.ValueString(),
+			Repo:       data.Repo.ValueString(),
 			AppProject: data.Project.ValueString(),
 		},
 	)
 
 	if err != nil {
 		if !strings.Contains(err.Error(), "NotFound") {
-			resp.Diagnostics.Append(diagnostics.ArgoCDAPIError("delete", "repository", data.ID.ValueString(), err)...)
+			resp.Diagnostics.Append(diagnostics.ArgoCDAPIError("delete", "repository", data.Repo.ValueString(), err)...)
 			return
 		}
 	}
 
-	tflog.Trace(ctx, fmt.Sprintf("deleted repository %s", data.ID.ValueString()))
+	tflog.Trace(ctx, fmt.Sprintf("deleted repository %s", data.Repo.ValueString()))
 }
 
 func (r *repositoryResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Import ID format can be:
+	// - "repo_url" for global repositories
+	// - "repo_url:project_name" for project-scoped repositories
+	idParts := strings.SplitN(req.ID, ":", 2)
+
+	if len(idParts) == 1 {
+		// Global repository (no project)
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("repo"), idParts[0])...)
+	} else if len(idParts) == 2 {
+		// Project-scoped repository
+		repoURL := idParts[0]
+		project := idParts[1]
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("repo"), repoURL)...)
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("project"), project)...)
+	}
 }
 
 func (r *repositoryResource) readRepository(ctx context.Context, repoURL, project string) (*v1alpha1.Repository, diag.Diagnostics) {
@@ -294,8 +310,11 @@ func (r *repositoryResource) readRepository(ctx context.Context, repoURL, projec
 
 	if repos != nil {
 		for _, repo := range repos.Items {
-			if repo.Repo == repoURL {
+			// Match both URL and project to handle cases where the same repo URL
+			// exists in multiple projects
+			if repo.Repo == repoURL && repo.Project == project {
 				finalRepo = repo
+				break
 			}
 		}
 	}

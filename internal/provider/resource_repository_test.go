@@ -723,3 +723,395 @@ EOT
 }
 `, repoUrl, id, installID, baseURL, appKey)
 }
+
+// TestAccArgoCDRepository_MultiProject tests the fix for issue #719
+// This test verifies that the same repository can be added to multiple projects
+// and that Terraform correctly identifies them as separate resources
+func TestAccArgoCDRepository_MultiProject(t *testing.T) {
+	projectA := acctest.RandString(10)
+	projectB := acctest.RandString(10)
+	repoURL := "https://helm.nginx.com/stable"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				// Create the repository in project A
+				Config: testAccArgoCDRepositoryMultiProjectStepOne(projectA, repoURL),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.helm_project_a",
+						"project",
+						projectA,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.helm_project_a",
+						"repo",
+						repoURL,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.helm_project_a",
+						"connection_state_status",
+						"Successful",
+					),
+				),
+			},
+			{
+				// Create the same repository in project B
+				// This should create a separate resource, not try to update project A's repository
+				Config: testAccArgoCDRepositoryMultiProjectStepTwo(projectA, projectB, repoURL),
+				Check: resource.ComposeTestCheckFunc(
+					// Verify project A repository still exists with correct project
+					resource.TestCheckResourceAttr(
+						"argocd_repository.helm_project_a",
+						"project",
+						projectA,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.helm_project_a",
+						"repo",
+						repoURL,
+					),
+					// Verify project B repository exists with correct project
+					resource.TestCheckResourceAttr(
+						"argocd_repository.helm_project_b",
+						"project",
+						projectB,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.helm_project_b",
+						"repo",
+						repoURL,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.helm_project_b",
+						"connection_state_status",
+						"Successful",
+					),
+				),
+			},
+		},
+	})
+}
+
+func testAccArgoCDRepositoryMultiProjectStepOne(projectA, repoURL string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "project_a" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
+  spec {
+    description  = "Project A"
+    source_repos = ["*"]
+    destination {
+      name      = "in-cluster"
+      namespace = "default"
+    }
+  }
+}
+
+resource "argocd_repository" "helm_project_a" {
+  repo    = "%[2]s"
+  name    = "nginx-stable-project-a"
+  type    = "helm"
+  project = argocd_project.project_a.metadata[0].name
+}
+`, projectA, repoURL)
+}
+
+func testAccArgoCDRepositoryMultiProjectStepTwo(projectA, projectB, repoURL string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "project_a" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
+  spec {
+    description  = "Project A"
+    source_repos = ["*"]
+    destination {
+      name      = "in-cluster"
+      namespace = "default"
+    }
+  }
+}
+
+resource "argocd_repository" "helm_project_a" {
+  repo    = "%[3]s"
+  name    = "nginx-stable-project-a"
+  type    = "helm"
+  project = argocd_project.project_a.metadata[0].name
+}
+
+resource "argocd_project" "project_b" {
+  metadata {
+    name      = "%[2]s"
+    namespace = "argocd"
+  }
+  spec {
+    description  = "Project B"
+    source_repos = ["*"]
+    destination {
+      name      = "in-cluster"
+      namespace = "default"
+    }
+  }
+}
+
+resource "argocd_repository" "helm_project_b" {
+  repo    = "%[3]s"
+  name    = "nginx-stable-project-b"
+  type    = "helm"
+  project = argocd_project.project_b.metadata[0].name
+}
+`, projectA, projectB, repoURL)
+}
+
+// TestAccArgoCDRepository_ProjectChange tests that changing the project field requires replacement
+func TestAccArgoCDRepository_ProjectChange(t *testing.T) {
+	projectA := acctest.RandString(10)
+	projectB := acctest.RandString(10)
+	repoURL := "https://helm.nginx.com/stable"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				// Create repository in project A
+				Config: testAccArgoCDRepositoryProjectChange(projectA, projectB, repoURL, projectA),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.changing_project",
+						"project",
+						projectA,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.changing_project",
+						"repo",
+						repoURL,
+					),
+				),
+			},
+			{
+				// Change to project B - should require replacement
+				Config: testAccArgoCDRepositoryProjectChange(projectA, projectB, repoURL, projectB),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.changing_project",
+						"project",
+						projectB,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.changing_project",
+						"repo",
+						repoURL,
+					),
+				),
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_ProjectToGlobal tests changing from project-scoped to global
+func TestAccArgoCDRepository_ProjectToGlobal(t *testing.T) {
+	projectName := acctest.RandString(10)
+	repoURL := "https://helm.nginx.com/stable"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				// Create project-scoped repository
+				Config: testAccArgoCDRepositoryProjectToGlobalStep1(projectName, repoURL),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.project_to_global",
+						"project",
+						projectName,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.project_to_global",
+						"repo",
+						repoURL,
+					),
+				),
+			},
+			{
+				// Change to global (remove project) - should require replacement
+				Config: testAccArgoCDRepositoryProjectToGlobalStep2(repoURL),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(
+						"argocd_repository.project_to_global",
+						"project",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.project_to_global",
+						"repo",
+						repoURL,
+					),
+				),
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_GlobalToProject tests changing from global to project-scoped
+func TestAccArgoCDRepository_GlobalToProject(t *testing.T) {
+	projectName := acctest.RandString(10)
+	repoURL := "https://helm.nginx.com/stable"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				// Create global repository
+				Config: testAccArgoCDRepositoryGlobalToProjectStep1(repoURL),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(
+						"argocd_repository.global_to_project",
+						"project",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.global_to_project",
+						"repo",
+						repoURL,
+					),
+				),
+			},
+			{
+				// Change to project-scoped - should require replacement
+				Config: testAccArgoCDRepositoryGlobalToProjectStep2(projectName, repoURL),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.global_to_project",
+						"project",
+						projectName,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.global_to_project",
+						"repo",
+						repoURL,
+					),
+				),
+			},
+		},
+	})
+}
+
+func testAccArgoCDRepositoryProjectChange(projectA, projectB, repoURL, currentProject string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "project_a" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
+  spec {
+    description  = "Project A"
+    source_repos = ["*"]
+    destination {
+      name      = "in-cluster"
+      namespace = "default"
+    }
+  }
+}
+
+resource "argocd_project" "project_b" {
+  metadata {
+    name      = "%[2]s"
+    namespace = "argocd"
+  }
+  spec {
+    description  = "Project B"
+    source_repos = ["*"]
+    destination {
+      name      = "in-cluster"
+      namespace = "default"
+    }
+  }
+}
+
+resource "argocd_repository" "changing_project" {
+  repo    = "%[3]s"
+  name    = "nginx-stable-changing"
+  type    = "helm"
+  project = "%[4]s"
+}
+`, projectA, projectB, repoURL, currentProject)
+}
+
+func testAccArgoCDRepositoryProjectToGlobalStep1(projectName, repoURL string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "test" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
+  spec {
+    description  = "Test Project"
+    source_repos = ["*"]
+    destination {
+      name      = "in-cluster"
+      namespace = "default"
+    }
+  }
+}
+
+resource "argocd_repository" "project_to_global" {
+  repo    = "%[2]s"
+  name    = "nginx-stable-p2g"
+  type    = "helm"
+  project = argocd_project.test.metadata[0].name
+}
+`, projectName, repoURL)
+}
+
+func testAccArgoCDRepositoryProjectToGlobalStep2(repoURL string) string {
+	return fmt.Sprintf(`
+resource "argocd_repository" "project_to_global" {
+  repo = "%[1]s"
+  name = "nginx-stable-p2g"
+  type = "helm"
+}
+`, repoURL)
+}
+
+func testAccArgoCDRepositoryGlobalToProjectStep1(repoURL string) string {
+	return fmt.Sprintf(`
+resource "argocd_repository" "global_to_project" {
+  repo = "%[1]s"
+  name = "nginx-stable-g2p"
+  type = "helm"
+}
+`, repoURL)
+}
+
+func testAccArgoCDRepositoryGlobalToProjectStep2(projectName, repoURL string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "test" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+  }
+  spec {
+    description  = "Test Project"
+    source_repos = ["*"]
+    destination {
+      name      = "in-cluster"
+      namespace = "default"
+    }
+  }
+}
+
+resource "argocd_repository" "global_to_project" {
+  repo    = "%[2]s"
+  name    = "nginx-stable-g2p"
+  type    = "helm"
+  project = argocd_project.test.metadata[0].name
+}
+`, projectName, repoURL)
+}
