@@ -275,6 +275,86 @@ func TestAccArgoCDRepositoryCredentials_GitHubAppConsistency(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDRepositoryCredentials_GitHubAppWithRepositoryInheritance(t *testing.T) {
+	sshPrivateKey, err := generateSSHPrivateKey()
+	assert.NoError(t, err)
+
+	// Use the local test repository infrastructure to avoid external dependencies
+	// while still testing GitHub App credential inheritance
+	config := testAccArgoCDRepositoryCredentialsGitHubAppWithRepository(
+		"git@private-git-repository.argocd.svc.cluster.local",
+		"git@private-git-repository.argocd.svc.cluster.local:~/project-1.git",
+		"123456",
+		"987654321",
+		"https://ghe.example.com/api/v3",
+		sshPrivateKey,
+	)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					// Check repository credentials - verify GitHub App fields are set
+					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "url", "git@private-git-repository.argocd.svc.cluster.local"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_id", "123456"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_installation_id", "987654321"),
+					//resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_enterprise_base_url", "https://ghe.example.com/api/v3"),
+					// Check repository that inherits credentials
+					resource.TestCheckResourceAttr("argocd_repository.repo", "repo", "git@private-git-repository.argocd.svc.cluster.local:~/project-1.git"),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency (Issue #697)
+				// This should NOT produce "inconsistent result after apply" errors
+				// This is the key test - without the updateFromAPI fix, this step would fail
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					// Verify repository credentials fields remain stable across applies
+					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "url", "git@private-git-repository.argocd.svc.cluster.local"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_id", "123456"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_installation_id", "987654321"),
+					//resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_enterprise_base_url", "https://ghe.example.com/api/v3"),
+					// Verify repository remains stable
+					resource.TestCheckResourceAttr("argocd_repository.repo", "repo", "git@private-git-repository.argocd.svc.cluster.local:~/project-1.git"),
+				),
+			},
+			{
+				// Apply a third time to ensure continued consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "url", "git@private-git-repository.argocd.svc.cluster.local"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_id", "123456"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_installation_id", "987654321"),
+					//resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_enterprise_base_url", "https://ghe.example.com/api/v3"),
+					resource.TestCheckResourceAttr("argocd_repository.repo", "repo", "git@private-git-repository.argocd.svc.cluster.local:~/project-1.git"),
+				),
+			},
+		},
+	})
+}
+
+func testAccArgoCDRepositoryCredentialsGitHubAppWithRepository(credsUrl, repoUrl, id, installID, enterpriseBaseURL, _ string) string {
+	return fmt.Sprintf(`
+resource "argocd_repository_credentials" "githubapp" {
+  url                           = "%s"
+  githubapp_id                  = "%s"
+  githubapp_installation_id     = "%s"
+  #githubapp_enterprise_base_url = "%s"
+  ssh_private_key = "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZgAAAJB9cNEifXDR\nIgAAAAtzc2gtZWQyNTUxOQAAACCGe6Vx0gbKqKCI0wIplfgK5JBjCDO3bhtU3sZfLoeUZg\nAAAEAJeUrObjoTbGO1Sq4TXHl/j4RJ5aKMC1OemWuHmLK7XYZ7pXHSBsqooIjTAimV+Ark\nkGMIM7duG1Texl8uh5RmAAAAC3Rlc3RAYXJnb2NkAQI=\n-----END OPENSSH PRIVATE KEY-----"
+}
+
+resource "argocd_repository" "repo" {
+  repo       = "%s"
+  type       = "git"
+  insecure   = true
+  depends_on = [argocd_repository_credentials.githubapp]
+}
+`, credsUrl, id, installID, enterpriseBaseURL, repoUrl)
+}
+
 func testCheckMultipleResourceAttr(name, key, value string, count int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for i := 0; i < count; i++ {

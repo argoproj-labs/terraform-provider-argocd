@@ -124,14 +124,17 @@ func repositorySchemaAttributes() map[string]schema.Attribute {
 		"githubapp_id": schema.StringAttribute{
 			MarkdownDescription: "ID of the GitHub app used to access the repo.",
 			Optional:            true,
+			Computed:            true,
 		},
 		"githubapp_installation_id": schema.StringAttribute{
 			MarkdownDescription: "The installation ID of the GitHub App used to access the repo.",
 			Optional:            true,
+			Computed:            true,
 		},
 		"githubapp_enterprise_base_url": schema.StringAttribute{
 			MarkdownDescription: "GitHub API URL for GitHub app authentication.",
 			Optional:            true,
+			Computed:            true,
 		},
 		"githubapp_private_key": schema.StringAttribute{
 			MarkdownDescription: "Private key data (PEM) for authentication via GitHub app.",
@@ -215,16 +218,24 @@ func (m *repositoryModel) updateFromAPI(repo *v1alpha1.Repository) *repositoryMo
 
 	if repo.GitHubAppEnterpriseBaseURL != "" {
 		m.GitHubAppEnterpriseBaseURL = types.StringValue(repo.GitHubAppEnterpriseBaseURL)
+	} else if m.GitHubAppEnterpriseBaseURL.IsUnknown() {
+		// If unknown and API didn't return a value, set to null
+		m.GitHubAppEnterpriseBaseURL = types.StringNull()
 	}
 
-	// Handle GitHub App ID conversion
 	if repo.GithubAppId > 0 {
 		m.GitHubAppID = types.StringValue(strconv.FormatInt(repo.GithubAppId, 10))
+	} else if m.GitHubAppID.IsUnknown() {
+		// If unknown and API didn't return a value, set to null
+		m.GitHubAppID = types.StringNull()
 	}
 
 	// Handle GitHub App Installation ID conversion
 	if repo.GithubAppInstallationId > 0 {
 		m.GitHubAppInstallationID = types.StringValue(strconv.FormatInt(repo.GithubAppInstallationId, 10))
+	} else if m.GitHubAppInstallationID.IsUnknown() {
+		// If unknown and API didn't return a value, set to null
+		m.GitHubAppInstallationID = types.StringNull()
 	}
 
 	return m
