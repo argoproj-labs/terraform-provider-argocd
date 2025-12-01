@@ -290,6 +290,7 @@ func (r *repositoryResource) ImportState(ctx context.Context, req resource.Impor
 		// Project-scoped repository
 		repoURL := idParts[0]
 		project := idParts[1]
+
 		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("repo"), repoURL)...)
 		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("project"), project)...)
