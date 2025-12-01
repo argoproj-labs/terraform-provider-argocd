@@ -279,21 +279,17 @@ func (r *repositoryResource) Delete(ctx context.Context, req resource.DeleteRequ
 func (r *repositoryResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Import ID format can be:
 	// - "repo_url" for global repositories
-	// - "repo_url:project_name" for project-scoped repositories
-	idParts := strings.SplitN(req.ID, ":", 2)
+	// - "repo_url|project_name" for project-scoped repositories
+	idParts := strings.SplitN(req.ID, "|", 2)
 
-	if len(idParts) == 1 {
-		// Global repository (no project)
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("repo"), idParts[0])...)
-	} else if len(idParts) == 2 {
-		// Project-scoped repository
-		repoURL := idParts[0]
-		project := idParts[1]
+	repoURL := idParts[0]
 
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("repo"), repoURL)...)
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("project"), project)...)
+	// Set repo attribute
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("repo"), repoURL)...)
+
+	// Only set project if it was provided in the import ID
+	if len(idParts) == 2 && idParts[1] != "" {
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("project"), idParts[1])...)
 	}
 }
 

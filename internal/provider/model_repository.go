@@ -188,8 +188,9 @@ func (m *repositoryModel) toAPIModel() (*v1alpha1.Repository, error) {
 }
 
 func (m *repositoryModel) updateFromAPI(repo *v1alpha1.Repository) *repositoryModel {
+	// Generate ID using "|" separator for project-scoped repos
 	if repo.Project != "" {
-		m.ID = types.StringValue(repo.Repo + ":" + repo.Project)
+		m.ID = types.StringValue(repo.Repo + "|" + repo.Project)
 	} else {
 		m.ID = types.StringValue(repo.Repo)
 	}
