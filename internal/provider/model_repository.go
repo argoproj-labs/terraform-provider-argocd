@@ -66,6 +66,9 @@ func repositorySchemaAttributes() map[string]schema.Attribute {
 		"project": schema.StringAttribute{
 			MarkdownDescription: "The project name, in case the repository is project scoped.",
 			Optional:            true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
 		},
 		"username": schema.StringAttribute{
 			MarkdownDescription: "Username used for authenticating at the remote repository.",
@@ -188,7 +191,13 @@ func (m *repositoryModel) toAPIModel() (*v1alpha1.Repository, error) {
 }
 
 func (m *repositoryModel) updateFromAPI(repo *v1alpha1.Repository) *repositoryModel {
-	m.ID = types.StringValue(repo.Repo)
+	// Generate ID using "|" separator for project-scoped repos
+	if repo.Project != "" {
+		m.ID = types.StringValue(repo.Repo + "|" + repo.Project)
+	} else {
+		m.ID = types.StringValue(repo.Repo)
+	}
+
 	m.Repo = types.StringValue(repo.Repo)
 	m.Type = types.StringValue(repo.Type)
 	m.EnableLFS = types.BoolValue(repo.EnableLFS)
