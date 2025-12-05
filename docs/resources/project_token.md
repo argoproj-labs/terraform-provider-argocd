@@ -43,6 +43,6 @@ resource "argocd_project_token" "secret" {
 ### Read-Only
 
 - `expires_at` (String) If `expires_in` is set, Unix timestamp upon which the token will expire.
-- `id` (String) The ID of this resource.
+- `id` (String) Token identifier
 - `issued_at` (String) Unix timestamp at which the token was issued.
 - `jwt` (String, Sensitive) The raw JWT.
