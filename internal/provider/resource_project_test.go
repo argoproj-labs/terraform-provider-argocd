@@ -8,6 +8,7 @@ import (
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 )
 
 func TestAccArgoCDProject(t *testing.T) {
@@ -1340,5 +1341,133 @@ func testAccArgoCDProjectWithFineGrainedPolicy(name string) string {
       }
     }
   }
+	`, name)
+}
+
+// TestAccArgoCDProject_ProviderUpgradeStateMigration tests that resources created with the
+// old SDK-based provider (v7.12.0) can be successfully read and managed by the new
+// framework-based provider. This ensures backward compatibility when upgrading the provider.
+func TestAccArgoCDProject_ProviderUpgradeStateMigration(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-migrate")
+	config := testAccArgoCDProjectForStateMigration(name)
+
+	resource.Test(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				// Step 1: Create project using old SDK-based provider (v7.12.0)
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"argocd": {
+						VersionConstraint: "7.12.0",
+						Source:            "argoproj-labs/argocd",
+					},
+				},
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_project.migration", "metadata.0.name", name),
+					resource.TestCheckResourceAttrSet("argocd_project.migration", "metadata.0.uid"),
+				),
+			},
+			{
+				// Step 2: Upgrade to new framework-based provider - verify it can read existing state
+				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				Config:                   config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_project.migration", "metadata.0.name", name),
+					resource.TestCheckResourceAttr("argocd_project.migration", "spec.0.description", "project for state migration testing"),
+					resource.TestCheckResourceAttr("argocd_project.migration", "spec.0.source_repos.#", "2"),
+					resource.TestCheckResourceAttr("argocd_project.migration", "spec.0.destination.#", "2"),
+					resource.TestCheckResourceAttr("argocd_project.migration", "spec.0.role.#", "2"),
+				),
+			},
+			{
+				// Step 3: Verify no unexpected plan changes after migration
+				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				Config:                   config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccArgoCDProjectForStateMigration(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "migration" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+    labels = {
+      test = "migration"
+      env  = "acceptance"
+    }
+    annotations = {
+      "description" = "testing provider upgrade"
+    }
+  }
+
+  spec {
+    description  = "project for state migration testing"
+    source_repos = ["https://github.com/example/repo1", "https://github.com/example/repo2"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "production"
+    }
+
+    cluster_resource_whitelist {
+      group = "rbac.authorization.k8s.io"
+      kind  = "ClusterRole"
+    }
+
+    namespace_resource_blacklist {
+      group = "v1"
+      kind  = "ConfigMap"
+    }
+
+    orphaned_resources {
+      warn = true
+      ignore {
+        group = "apps/v1"
+        kind  = "Deployment"
+        name  = "legacy-app"
+      }
+    }
+
+    role {
+      name = "admin"
+      description = "Admin role"
+      policies = [
+        "p, proj:%[1]s:admin, applications, *, %[1]s/*, allow",
+      ]
+      groups = ["platform-team"]
+    }
+
+    role {
+      name = "readonly"
+      description = "Read-only role"
+      policies = [
+        "p, proj:%[1]s:readonly, applications, get, %[1]s/*, allow",
+      ]
+      groups = ["developers"]
+    }
+
+    sync_window {
+      kind         = "allow"
+      applications = ["*"]
+      clusters     = ["*"]
+      namespaces   = ["*"]
+      duration     = "1h"
+      schedule     = "0 22 * * *"
+      manual_sync  = true
+    }
+  }
+}
 	`, name)
 }

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/assert"
 )
@@ -575,4 +576,72 @@ resource "argocd_project_token" "renew_after_consistency" {
 func convertStringToInt64(s string) (i int64, err error) {
 	i, err = strconv.ParseInt(s, 10, 64)
 	return
+}
+
+// TestAccArgoCDProjectToken_ProviderUpgradeStateMigration tests that tokens created with the
+// old SDK-based provider (v7.12.0) can be successfully read and managed by the new
+// framework-based provider. This ensures backward compatibility when upgrading the provider.
+func TestAccArgoCDProjectToken_ProviderUpgradeStateMigration(t *testing.T) {
+	config := testAccArgoCDProjectTokenForStateMigration()
+
+	resource.Test(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				// Step 1: Create tokens using old SDK-based provider (v7.12.0)
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"argocd": {
+						VersionConstraint: "7.12.0",
+						Source:            "argoproj-labs/argocd",
+					},
+				},
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("argocd_project_token.migration_simple", "issued_at"),
+					resource.TestCheckResourceAttrSet("argocd_project_token.migration_simple", "id"),
+					resource.TestCheckResourceAttr("argocd_project_token.migration_simple", "project", "myproject1"),
+					resource.TestCheckResourceAttr("argocd_project_token.migration_simple", "role", "test-role1234"),
+				),
+			},
+			{
+				// Step 2: Upgrade to new framework-based provider - verify it can read existing state
+				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				Config:                   config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("argocd_project_token.migration_simple", "issued_at"),
+					resource.TestCheckResourceAttr("argocd_project_token.migration_simple", "project", "myproject1"),
+					resource.TestCheckResourceAttr("argocd_project_token.migration_simple", "role", "test-role1234"),
+
+					resource.TestCheckResourceAttrSet("argocd_project_token.migration_with_expiry", "issued_at"),
+					resource.TestCheckResourceAttrSet("argocd_project_token.migration_with_expiry", "expires_at"),
+					resource.TestCheckResourceAttr("argocd_project_token.migration_with_expiry", "description", "token with expiration"),
+				),
+			},
+			{
+				// Step 3: Verify no unexpected plan changes after migration
+				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				Config:                   config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccArgoCDProjectTokenForStateMigration() string {
+	return `
+resource "argocd_project_token" "migration_simple" {
+  project = "myproject1"
+  role    = "test-role1234"
+}
+
+resource "argocd_project_token" "migration_with_expiry" {
+  project     = "myproject1"
+  role        = "test-role1234"
+  description = "token with expiration"
+  expires_in  = "7200s"
+}
+`
 }
