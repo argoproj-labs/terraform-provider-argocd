@@ -30,8 +30,9 @@ jobs:
       - name: Build provider
         run: make build
       - name: Run linters
-        uses: golangci/golangci-lint-action@0a35821d5c230e903fcfe077583637dea1b27b47 # v9.0.0
+        uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20 # v9.2.0
         with:
+          # renovate: datasource=github-tags depName=golangci/golangci-lint
           version: v2.6.2
 
   generate:
