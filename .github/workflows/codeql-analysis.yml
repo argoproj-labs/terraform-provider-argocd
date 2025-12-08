@@ -35,7 +35,7 @@ jobs:
           go-version-file: "go.mod"
           cache: true
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8 # v3.31.5
+        uses: github/codeql-action/init@497990dfed22177a82ba1bbab381bc8f6d27058f # v3.31.6
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
@@ -47,6 +47,6 @@ jobs:
         if: matrix.language == 'go'
         run: TF_ACC=1 go test -c ./...
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8 # v3.31.5
+        uses: github/codeql-action/analyze@497990dfed22177a82ba1bbab381bc8f6d27058f # v3.31.6
         with:
           category: "/language:${{matrix.language}}"
