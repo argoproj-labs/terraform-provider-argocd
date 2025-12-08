@@ -32,7 +32,6 @@ linters:
     - unused
     - usetesting
     - whitespace
-    - wsl
   settings:
     depguard:
       rules:
@@ -132,7 +131,7 @@ linters:
           - staticcheck
         text: "ST1003:"
       - linters:
-        - staticcheck
+          - staticcheck
         text: "SA1019:"
         path: internal/types/pgp_public_key.go
     paths:
