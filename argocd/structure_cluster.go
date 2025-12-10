@@ -177,7 +177,7 @@ func flattenClusterInfo(info application.ClusterInfo) []map[string]interface{} {
 func flattenClusterConfig(config application.ClusterConfig, d *schema.ResourceData) []map[string]interface{} {
 	r := map[string]interface{}{
 		"username":             config.Username,
-		"exec_provider_config": flattenClusterConfigExecProviderConfig(config.ExecProviderConfig, d),
+		"exec_provider_config": flattenClusterConfigExecProviderConfig(d),
 		"tls_client_config":    flattenClusterConfigTLSClientConfig(config.TLSClientConfig, d),
 	}
 
@@ -235,29 +235,31 @@ func flattenClusterConfigTLSClientConfig(tcc application.TLSClientConfig, d *sch
 	return []map[string]interface{}{c}
 }
 
-func flattenClusterConfigExecProviderConfig(epc *application.ExecProviderConfig, d *schema.ResourceData) []map[string]interface{} {
-	if epc == nil {
-		return nil
-	}
-
-	c := map[string]interface{}{
-		"api_version":  epc.APIVersion,
-		"command":      epc.Command,
-		"install_hint": epc.InstallHint,
-	}
-
-	// ArgoCD API does not return these fields as they may contain
-	// sensitive data. Thus, we can't track the state of these
-	// attributes and load them from state instead.
-	// See https://github.com/argoproj/argo-cd/blob/8840929187f4dd7b9d9fd908ea5085a006895507/server/cluster/cluster.go#L454-L461
+func flattenClusterConfigExecProviderConfig(d *schema.ResourceData) []map[string]interface{} {
+	// ArgoCD API does not return the execProvider block as it may contain
+	// sensitive data. Thus, we can't track the state of it
+	// and load it from state instead.
+	// See https://github.com/argoproj/argo-cd/commit/60c62a944b155702e6d89cbef4c04ff0f525692f#diff-47255bee56d3ad7830d9721f65c73fac53009229cb98c63c67745527d598835bL473-L486
+	c := map[string]interface{}{}
 	if args, ok := d.GetOk("config.0.exec_provider_config.0.args"); ok {
 		c["args"] = args
 	}
-
 	if env, ok := d.GetOk("config.0.exec_provider_config.0.env"); ok {
 		c["env"] = env
 	}
+	if command, ok := d.GetOk("config.0.exec_provider_config.0.command"); ok {
+		c["command"] = command
+	}
+	if apiVersion, ok := d.GetOk("config.0.exec_provider_config.0.api_version"); ok {
+		c["api_version"] = apiVersion
+	}
+	if installHint, ok := d.GetOk("config.0.exec_provider_config.0.install_hint"); ok {
+		c["install_hint"] = installHint
+	}
 
+	if len(c) == 0 {
+		return nil
+	}
 	return []map[string]interface{}{c}
 }
 
