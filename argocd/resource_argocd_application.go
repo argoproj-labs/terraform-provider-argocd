@@ -36,6 +36,12 @@ func resourceArgoCDApplication() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"sync": {
+				Type:        schema.TypeBool,
+				Description: "Trigger sync immediately on create/update. Helps in case when a Sync window is defined. It is required that the sync window is defined with `manual_sync = true`.",
+				Optional:    true,
+				Default:     false,
+			},
 			"cascade": {
 				Type:        schema.TypeBool,
 				Description: "Whether to applying cascading deletion when application is removed.",
@@ -162,6 +168,18 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	d.SetId(fmt.Sprintf("%s:%s", app.Name, objectMeta.Namespace))
+
+	sync := d.Get("sync").(bool)
+	if sync {
+		_, err := si.ApplicationClient.Sync(ctx, &applicationClient.ApplicationSyncRequest{
+			Name:         &app.Name,
+			AppNamespace: &app.Namespace,
+			Prune:        &spec.SyncPolicy.Automated.Prune,
+		})
+		if err != nil {
+			return errorToDiagnostics(fmt.Sprintf("error while triggering sync of application %s", app.Name), err)
+		}
+	}
 
 	if wait, ok := d.GetOk("wait"); ok && wait.(bool) {
 		if err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *retry.RetryError {
@@ -317,6 +335,18 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		Validate: &validate,
 	}); err != nil {
 		return argoCDAPIError("update", "application", objectMeta.Name, err)
+	}
+
+	sync := d.Get("sync").(bool)
+	if sync {
+		_, err = si.ApplicationClient.Sync(ctx, &applicationClient.ApplicationSyncRequest{
+			Name:         &objectMeta.Name,
+			AppNamespace: &objectMeta.Namespace,
+			Prune:        &spec.SyncPolicy.Automated.Prune,
+		})
+		if err != nil {
+			return errorToDiagnostics(fmt.Sprintf("error while triggering sync of application %s", *appQuery.Name), err)
+		}
 	}
 
 	if wait, _ok := d.GetOk("wait"); _ok && wait.(bool) {
