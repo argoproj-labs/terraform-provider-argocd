@@ -1049,8 +1049,8 @@ func TestAccArgoCDApplicationSet_CustomNamespace(t *testing.T) {
 	name := acctest.RandomWithPrefix("appset-ns")
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
-		ProviderFactories: testAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDApplicationSetCustomNamespace(name),

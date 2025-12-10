@@ -577,14 +577,6 @@ func expandApplicationInfo(infos *schema.Set) (result []application.Info, err er
 	return
 }
 
-func expandApplicationDestinations(ds *schema.Set) (result []application.ApplicationDestination) {
-	for _, dest := range ds.List() {
-		result = append(result, expandApplicationDestination(dest))
-	}
-
-	return
-}
-
 func expandApplicationDestination(dest interface{}) (result application.ApplicationDestination) {
 	d, ok := dest.(map[string]interface{})
 	if !ok {
@@ -596,25 +588,6 @@ func expandApplicationDestination(dest interface{}) (result application.Applicat
 		Namespace: d["namespace"].(string),
 		Name:      d["name"].(string),
 	}
-}
-
-func expandSyncWindows(sws []interface{}) (result []*application.SyncWindow) {
-	for _, _sw := range sws {
-		sw := _sw.(map[string]interface{})
-
-		result = append(result, &application.SyncWindow{
-			Applications: expandStringList(sw["applications"].([]interface{})),
-			Clusters:     expandStringList(sw["clusters"].([]interface{})),
-			Duration:     sw["duration"].(string),
-			Kind:         sw["kind"].(string),
-			ManualSync:   sw["manual_sync"].(bool),
-			Namespaces:   expandStringList(sw["namespaces"].([]interface{})),
-			Schedule:     sw["schedule"].(string),
-			TimeZone:     sw["timezone"].(string),
-		})
-	}
-
-	return
 }
 
 // Flatten
