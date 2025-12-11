@@ -148,19 +148,19 @@ resource "argocd_project" "myproject" {
 
 Required:
 
-- `name` (String) Name of the appproject, must be unique. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names
+- `name` (String) Name of the appproject, must be unique. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 
 Optional:
 
-- `annotations` (Map of String) An unstructured key value map stored with the cluster secret that may be used to store arbitrary metadata. More info: http://kubernetes.io/docs/user-guide/annotations
-- `labels` (Map of String) Map of string keys and values that can be used to organize and categorize (scope and select) the cluster secret. May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels
+- `annotations` (Map of String) An unstructured key value map stored with the appproject that may be used to store arbitrary metadata. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+- `labels` (Map of String) Map of string keys and values that can be used to organize and categorize (scope and select) the appproject. May match selectors of replication controllers and services. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
 - `namespace` (String) Namespace of the appproject, must be unique. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
 
 Read-Only:
 
 - `generation` (Number) A sequence number representing a specific generation of the desired state.
-- `resource_version` (String) An opaque value that represents the internal version of this appproject that can be used by clients to determine when appproject has changed. Read more: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-- `uid` (String) The unique in time and space value for this appproject. More info: http://kubernetes.io/docs/user-guide/identifiers#uids
+- `resource_version` (String) An opaque value that represents the internal version of this appproject that can be used by clients to determine when the appproject has changed. Read more: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+- `uid` (String) The unique in time and space value for this appproject. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
 
 
 <a id="nestedblock--spec"></a>

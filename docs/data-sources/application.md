@@ -39,7 +39,7 @@ data "argocd_application" "foo" {
 
 Required:
 
-- `name` (String) Name of the applications.argoproj.io, must be unique. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names
+- `name` (String) Name of the applications.argoproj.io, must be unique. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 
 Optional:
 
@@ -47,11 +47,11 @@ Optional:
 
 Read-Only:
 
-- `annotations` (Map of String) An unstructured key value map stored with the cluster secret that may be used to store arbitrary metadata. More info: http://kubernetes.io/docs/user-guide/annotations
+- `annotations` (Map of String) An unstructured key value map stored with the applications.argoproj.io that may be used to store arbitrary metadata. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 - `generation` (Number) A sequence number representing a specific generation of the desired state.
-- `labels` (Map of String) Map of string keys and values that can be used to organize and categorize (scope and select) the cluster secret. May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels
-- `resource_version` (String) An opaque value that represents the internal version of this applications.argoproj.io that can be used by clients to determine when applications.argoproj.io has changed. Read more: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-- `uid` (String) The unique in time and space value for this applications.argoproj.io. More info: http://kubernetes.io/docs/user-guide/identifiers#uids
+- `labels` (Map of String) Map of string keys and values that can be used to organize and categorize (scope and select) the applications.argoproj.io. May match selectors of replication controllers and services. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
+- `resource_version` (String) An opaque value that represents the internal version of this applications.argoproj.io that can be used by clients to determine when the applications.argoproj.io has changed. Read more: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+- `uid` (String) The unique in time and space value for this applications.argoproj.io. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
 
 
 <a id="nestedatt--spec"></a>
