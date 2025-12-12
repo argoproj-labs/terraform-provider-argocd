@@ -1471,3 +1471,81 @@ resource "argocd_project" "migration" {
 }
 	`, name)
 }
+
+// TestAccArgoCDProject_ProviderUpgradeStateMigration_WithoutNamespace tests the specific
+// case reported in issue #783 where projects created without an explicit namespace field
+// in v7.12.1 cause forced replacement when upgrading to v7.12.3+.
+// The namespace should be computed from the API response without causing drift.
+func TestAccArgoCDProject_ProviderUpgradeStateMigration_WithoutNamespace(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-migrate-no-ns")
+	config := testAccArgoCDProjectForStateMigrationWithoutNamespace(name)
+
+	resource.Test(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				// Step 1: Create project using old SDK-based provider (v7.12.1)
+				// without specifying namespace in metadata (this is the key scenario)
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"argocd": {
+						VersionConstraint: "7.12.1",
+						Source:            "argoproj-labs/argocd",
+					},
+				},
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_project.tech", "metadata.0.name", name),
+					resource.TestCheckResourceAttrSet("argocd_project.tech", "metadata.0.uid"),
+				),
+			},
+			{
+				// Step 2: Upgrade to new framework-based provider
+				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				Config:                   config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_project.tech", "metadata.0.name", name),
+					resource.TestCheckResourceAttr("argocd_project.tech", "spec.0.source_repos.#", "1"),
+					resource.TestCheckResourceAttr("argocd_project.tech", "spec.0.destination.#", "1"),
+					resource.TestCheckResourceAttr("argocd_project.tech", "spec.0.cluster_resource_whitelist.#", "1"),
+					// Namespace should be computed from API, not forcing replacement
+					resource.TestCheckResourceAttr("argocd_project.tech", "metadata.0.namespace", "argocd"),
+				),
+			},
+			{
+				// Step 3: Verify no unexpected plan changes after migration (issue #783)
+				// This should NOT show a forced replacement due to namespace changing
+				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				Config:                   config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccArgoCDProjectForStateMigrationWithoutNamespace(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "tech" {
+  metadata {
+    name = "%s"
+    # NOTE: namespace is intentionally NOT specified here to test issue #783
+  }
+
+  spec {
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "*"
+    }
+
+    cluster_resource_whitelist {
+      group = "*"
+      kind  = "*"
+    }
+  }
+}
+	`, name)
+}

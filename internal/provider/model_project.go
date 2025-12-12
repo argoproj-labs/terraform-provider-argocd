@@ -87,7 +87,7 @@ type syncWindowModel struct {
 
 func projectSchemaBlocks() map[string]schema.Block {
 	return map[string]schema.Block{
-		"metadata": objectMetaSchemaListBlock("appproject", false),
+		"metadata": objectMetaSchemaListBlock("appproject"),
 		"spec": schema.ListNestedBlock{
 			Description: "ArgoCD AppProject spec.",
 			Validators: []validator.List{
@@ -390,6 +390,12 @@ func newProject(project *v1alpha1.AppProject) *projectModel {
 func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 	ps := projectSpecModel{
 		Description: types.StringValue(spec.Description),
+	}
+
+	if spec.Description != "" {
+		ps.Description = types.StringValue(spec.Description)
+	} else {
+		ps.Description = types.StringNull()
 	}
 
 	// Convert source repos
