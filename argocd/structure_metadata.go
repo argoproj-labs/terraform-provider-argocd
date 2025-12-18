@@ -35,41 +35,65 @@ func expandMetadata(d *schema.ResourceData) (meta meta.ObjectMeta) {
 	return meta
 }
 
-// expandMetadataForUpdate safely expands metadata for updates, merging user-configured
-// finalizers with existing system finalizers to prevent accidental removal
+// expandMetadataForUpdate safely expands metadata for updates, using Terraform's
+// state tracking to distinguish between user-managed and system-managed finalizers.
+// This allows users to remove finalizers they previously set while preserving
+// finalizers added by controllers or other systems.
 func expandMetadataForUpdate(d *schema.ResourceData, existingMeta meta.ObjectMeta) (meta meta.ObjectMeta) {
 	meta = expandMetadata(d)
 
-	// Merge finalizers: keep existing system finalizers, add/update user finalizers
-	if len(existingMeta.Finalizers) > 0 {
-		userFinalizers := make(map[string]bool)
-		for _, f := range meta.Finalizers {
-			userFinalizers[f] = true
+	// Use GetChange to determine what Terraform previously managed vs what user wants now
+	oldRaw, newRaw := d.GetChange("metadata.0.finalizers")
+	oldFinalizers := toStringSet(oldRaw)
+	newFinalizers := toStringSet(newRaw)
+
+	merged := make([]string, 0, len(existingMeta.Finalizers)+len(newFinalizers))
+
+	// Process existing finalizers from the API
+	for _, existing := range existingMeta.Finalizers {
+		if oldFinalizers[existing] && !newFinalizers[existing] {
+			// This finalizer was previously managed by Terraform but user removed it
+			// from config - don't preserve it (allow removal)
+			continue
 		}
 
-		// Start with existing finalizers
-		merged := make([]string, 0, len(existingMeta.Finalizers)+len(meta.Finalizers))
-
-		for _, existing := range existingMeta.Finalizers {
-			if userFinalizers[existing] {
-				// User explicitly configured this finalizer, keep it
-				merged = append(merged, existing)
-				delete(userFinalizers, existing)
-			} else {
-				// System finalizer not configured by user, preserve it
-				merged = append(merged, existing)
-			}
+		if !newFinalizers[existing] {
+			// This finalizer exists on API but was never in Terraform state
+			// It's a system-managed finalizer - preserve it
+			merged = append(merged, existing)
+		} else {
+			// User wants this finalizer and it exists - keep it
+			merged = append(merged, existing)
+			delete(newFinalizers, existing)
 		}
-
-		// Add any new user finalizers
-		for finalizer := range userFinalizers {
-			merged = append(merged, finalizer)
-		}
-
-		meta.Finalizers = merged
 	}
 
+	// Add any new finalizers the user configured that don't exist yet
+	for finalizer := range newFinalizers {
+		merged = append(merged, finalizer)
+	}
+
+	meta.Finalizers = merged
+
 	return meta
+}
+
+// toStringSet converts an interface{} (expected to be []interface{}) to a map[string]bool set
+func toStringSet(v interface{}) map[string]bool {
+	result := make(map[string]bool)
+	if v == nil {
+		return result
+	}
+
+	if list, ok := v.([]interface{}); ok {
+		for _, item := range list {
+			if s, ok := item.(string); ok {
+				result[s] = true
+			}
+		}
+	}
+
+	return result
 }
 
 func flattenMetadata(meta meta.ObjectMeta, d *schema.ResourceData) []interface{} {

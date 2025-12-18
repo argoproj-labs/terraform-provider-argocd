@@ -765,8 +765,9 @@ func TestAccArgoCDApplication_Finalizers(t *testing.T) {
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		Steps: []resource.TestStep{
+			// Step 1: Create with one finalizer
 			{
-				Config: testAccArgoCDApplication_finalizers(),
+				Config: testAccArgoCDApplication_finalizersConfig([]string{"resources-finalizer.argocd.argoproj.io"}),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"argocd_application.finalizers",
@@ -774,8 +775,51 @@ func TestAccArgoCDApplication_Finalizers(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_application.finalizers",
+						"metadata.0.finalizers.#",
+						"1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.finalizers",
 						"metadata.0.finalizers.0",
-						"finalizer.argocd.argoproj.io",
+						"resources-finalizer.argocd.argoproj.io",
+					),
+				),
+			},
+			// Step 2: Add a second finalizer
+			{
+				Config: testAccArgoCDApplication_finalizersConfig([]string{"resources-finalizer.argocd.argoproj.io", "custom-finalizer.example.com"}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.finalizers",
+						"metadata.0.finalizers.#",
+						"2",
+					),
+				),
+			},
+			// Step 3: Remove the first finalizer (verify user can remove finalizers they set)
+			{
+				Config: testAccArgoCDApplication_finalizersConfig([]string{"custom-finalizer.example.com"}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.finalizers",
+						"metadata.0.finalizers.#",
+						"1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.finalizers",
+						"metadata.0.finalizers.0",
+						"custom-finalizer.example.com",
+					),
+				),
+			},
+			// Step 4: Remove all finalizers
+			{
+				Config: testAccArgoCDApplication_finalizersConfig([]string{}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.finalizers",
+						"metadata.0.finalizers.#",
+						"0",
 					),
 				),
 			},
@@ -2442,17 +2486,22 @@ resource "argocd_application" "multiple_sources" {
   }
 }`
 }
-func testAccArgoCDApplication_finalizers() string {
-	return `
+func testAccArgoCDApplication_finalizersConfig(finalizers []string) string {
+	finalizersHCL := "[]"
+	if len(finalizers) > 0 {
+		finalizersHCL = fmt.Sprintf(`["%s"]`, joinStrings(finalizers, `", "`))
+	}
+
+	return fmt.Sprintf(`
 resource "argocd_application" "finalizers" {
 	metadata {
 		name      = "finalizers"
 		namespace = "argocd"
-		finalizers = ["finalizer.argocd.argoproj.io"]
+		finalizers = %s
 	}
 
 	spec {
-		project = "default" 
+		project = "default"
 
 		source {
 			repo_url        = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
@@ -2469,7 +2518,18 @@ resource "argocd_application" "finalizers" {
 			sync_options = ["CreateNamespace=true"]
 		}
 	}
-}`
+}`, finalizersHCL)
+}
+
+func joinStrings(strs []string, sep string) string {
+	if len(strs) == 0 {
+		return ""
+	}
+	result := strs[0]
+	for i := 1; i < len(strs); i++ {
+		result += sep + strs[i]
+	}
+	return result
 }
 
 func testAccArgoCDApplication_ManagedNamespaceMetadata() string {

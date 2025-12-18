@@ -94,3 +94,53 @@ func TestMetadataFilterFinalizers(t *testing.T) {
 		})
 	}
 }
+
+func TestToStringSet(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name     string
+		input    interface{}
+		expected map[string]bool
+	}{
+		{
+			name:     "nil input",
+			input:    nil,
+			expected: map[string]bool{},
+		},
+		{
+			name:     "empty list",
+			input:    []interface{}{},
+			expected: map[string]bool{},
+		},
+		{
+			name:     "list with strings",
+			input:    []interface{}{"foo", "bar", "baz"},
+			expected: map[string]bool{"foo": true, "bar": true, "baz": true},
+		},
+		{
+			name:     "list with duplicates",
+			input:    []interface{}{"foo", "foo", "bar"},
+			expected: map[string]bool{"foo": true, "bar": true},
+		},
+		{
+			name:     "list with non-strings ignored",
+			input:    []interface{}{"foo", 123, nil, "bar"},
+			expected: map[string]bool{"foo": true, "bar": true},
+		},
+		{
+			name:     "non-list input returns empty",
+			input:    "not a list",
+			expected: map[string]bool{},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := toStringSet(tc.input)
+			require.Equal(t, tc.expected, result)
+		})
+	}
+}
