@@ -111,8 +111,17 @@ func flattenMetadata(meta meta.ObjectMeta, d *schema.ResourceData) []interface{}
 	labels := d.Get("metadata.0.labels").(map[string]interface{})
 	m["labels"] = metadataRemoveInternalKeys(meta.Labels, labels)
 
+	// Check if this is an import operation (no resource_version in state)
+	isImport := d.Get("metadata.0.resource_version") == "" || d.Get("metadata.0.resource_version") == nil
+
 	finalizers := d.Get("metadata.0.finalizers").([]interface{})
-	m["finalizers"] = metadataFilterFinalizers(meta.Finalizers, finalizers)
+	if isImport {
+		// During import, return all finalizers from API so user can see what exists
+		m["finalizers"] = meta.Finalizers
+	} else {
+		// During normal read, filter to only show configured finalizers
+		m["finalizers"] = metadataFilterFinalizers(meta.Finalizers, finalizers)
+	}
 
 	return []interface{}{m}
 }
