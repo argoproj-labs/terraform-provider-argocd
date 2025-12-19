@@ -203,15 +203,17 @@ func newObjectMetaWithConfiguredFinalizers(om metav1.ObjectMeta, configuredFinal
 
 	// Filter finalizers to only include those that were configured
 	if len(configuredFinalizers) > 0 {
-		configuredSet := make(map[string]bool)
-		for _, f := range configuredFinalizers {
-			configuredSet[f.ValueString()] = true
+		// Build a set of API finalizers for quick lookup
+		apiSet := make(map[string]bool)
+		for _, f := range om.Finalizers {
+			apiSet[f] = true
 		}
 
-		filtered := make([]types.String, 0)
-		for _, f := range om.Finalizers {
-			if configuredSet[f] {
-				filtered = append(filtered, types.StringValue(f))
+		// Preserve the user's configured order by iterating through configured finalizers
+		filtered := make([]types.String, 0, len(configuredFinalizers))
+		for _, f := range configuredFinalizers {
+			if apiSet[f.ValueString()] {
+				filtered = append(filtered, f)
 			}
 		}
 
