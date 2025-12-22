@@ -100,10 +100,10 @@ github.com/apparentlymart/go-textseg/v12 v12.0.0/go.mod h1:S/4uRK2UtaQttw1GenVJE
 github.com/apparentlymart/go-textseg/v15 v15.0.0 h1:uYvfpb3DyLSCGWnctWKGj857c6ew1u1fNQOlOtuGxQY=
 github.com/apparentlymart/go-textseg/v15 v15.0.0/go.mod h1:K8XmNZdhEBkdlyDdvbmmsvpAG721bKi0joRfFdHIWJ4=
 github.com/appscode/go v0.0.0-20191119085241-0887d8ec2ecc/go.mod h1:OawnOmAL4ZX3YaPdN+8HTNwBveT1jMsqP74moa9XUbE=
-github.com/argoproj/argo-cd/v3 v3.2.1 h1:rvrkW/JdH4V+xJgNDZI9wa/Ygd+fWoGbd1rAhvno22c=
-github.com/argoproj/argo-cd/v3 v3.2.1/go.mod h1:xDj7UVJxzRjiECiZ1qRGdIrDpqwWXZE+C12Xjbq7RQ8=
-github.com/argoproj/gitops-engine v0.7.1-0.20251108235403-13d5172d3ee2 h1:g9XclEd+1mYQtpLL3rMgYbMUdB3kEppw3+Jd1/H54VM=
-github.com/argoproj/gitops-engine v0.7.1-0.20251108235403-13d5172d3ee2/go.mod h1:2nqYZBhj8CfVZb3ATakZpi1KNb/yc7mpadIHslicTFI=
+github.com/argoproj/argo-cd/v3 v3.2.2 h1:B3iYpde7gK99GKAeMPAr89FHFVJ/KaxvLH2mxVoS8xM=
+github.com/argoproj/argo-cd/v3 v3.2.2/go.mod h1:yBOyjF3211AWgDm+gOfU30YbgebZ7JYkVBtxpQ8oAmA=
+github.com/argoproj/gitops-engine v0.7.1-0.20251217140045-5baed5604d2d h1:iUJYrbSvpV9n8vyl1sBt1GceM60HhHfnHxuzcm5apDg=
+github.com/argoproj/gitops-engine v0.7.1-0.20251217140045-5baed5604d2d/go.mod h1:PauXVUVcfiTgC+34lDdWzPS101g4NpsUtDAjFBnWf94=
 github.com/argoproj/notifications-engine v0.4.1-0.20250908182349-da04400446ff h1:pGGAeHIktPuYCRl1Z540XdxPFnedqyUhJK4VgpyJZfY=
 github.com/argoproj/notifications-engine v0.4.1-0.20250908182349-da04400446ff/go.mod h1:d1RazGXWvKRFv9//rg4MRRR7rbvbE7XLgTSMT5fITTE=
 github.com/argoproj/pkg v0.13.7-0.20250305113207-cbc37dc61de5 h1:YBoLSjpoaJXaXAldVvBRKJuOPvIXz9UOv6S96gMJM/Q=
@@ -1416,8 +1416,8 @@ k8s.io/kube-openapi v0.0.0-20250710124328-f3f2b991d03b h1:MloQ9/bdJyIu9lb1PzujOP
 k8s.io/kube-openapi v0.0.0-20250710124328-f3f2b991d03b/go.mod h1:UZ2yyWbFTpuhSbFhv24aGNOdoRdJZgsIObGBUaYVsts=
 k8s.io/kubectl v0.34.0 h1:NcXz4TPTaUwhiX4LU+6r6udrlm0NsVnSkP3R9t0dmxs=
 k8s.io/kubectl v0.34.0/go.mod h1:bmd0W5i+HuG7/p5sqicr0Li0rR2iIhXL0oUyLF3OjR4=
-k8s.io/kubernetes v1.34.0 h1:NvUrwPAVB4W3mSOpJ/RtNGHWWYyUP/xPaX5rUSpzA0w=
-k8s.io/kubernetes v1.34.0/go.mod h1:iu+FhII+Oc/1gGWLJcer6wpyih441aNFHl7Pvm8yPto=
+k8s.io/kubernetes v1.34.2 h1:WQdDvYJazkmkwSncgNwGvVtaCt4TYXIU3wSMRgvp3MI=
+k8s.io/kubernetes v1.34.2/go.mod h1:m6pZk6a179pRo2wsTiCPORJ86iOEQmfIzUvtyEF8BwA=
 k8s.io/utils v0.0.0-20250604170112-4c0f3b243397 h1:hwvWFiBzdWw1FhfY1FooPn3kzWuJ8tmbZBHi4zVsl1Y=
 k8s.io/utils v0.0.0-20250604170112-4c0f3b243397/go.mod h1:OLgZIPagt7ERELqWJFomSt595RzquPNLL48iOWgYOg0=
 layeh.com/gopher-json v0.0.0-20190114024228-97fed8db8427 h1:RZkKxMR3jbQxdCEcglq3j7wY3PRJIopAwBlx1RE71X0=
