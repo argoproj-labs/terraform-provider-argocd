@@ -16,6 +16,7 @@ import (
 type repositoryCredentialsModel struct {
 	ID                         types.String `tfsdk:"id"`
 	URL                        types.String `tfsdk:"url"`
+	UseAzureWorkloadIdentity   types.Bool   `tfsdk:"use_azure_workload_identity"`
 	Username                   types.String `tfsdk:"username"`
 	Password                   types.String `tfsdk:"password"`
 	SSHPrivateKey              types.String `tfsdk:"ssh_private_key"`
@@ -40,6 +41,12 @@ func repositoryCredentialsSchemaAttributes() map[string]schema.Attribute {
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
 			},
+		},
+		"use_azure_workload_identity": schema.BoolAttribute{
+			MarkdownDescription: "Whether `Azure-Workload-identity` should be enabled for this repository.",
+			Optional:            true,
+			Computed:            true,
+			Default:             booldefault.StaticBool(false),
 		},
 		"username": schema.StringAttribute{
 			MarkdownDescription: "Username for authenticating at the repo server",
@@ -105,6 +112,7 @@ func repositoryCredentialsSchemaAttributes() map[string]schema.Attribute {
 func (m *repositoryCredentialsModel) toAPIModel() (*v1alpha1.RepoCreds, error) {
 	creds := &v1alpha1.RepoCreds{
 		URL:                        m.URL.ValueString(),
+		UseAzureWorkloadIdentity:   m.UseAzureWorkloadIdentity.ValueBool(),
 		Username:                   m.Username.ValueString(),
 		Password:                   m.Password.ValueString(),
 		SSHPrivateKey:              m.SSHPrivateKey.ValueString(),

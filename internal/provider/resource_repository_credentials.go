@@ -114,6 +114,7 @@ func (r *repositoryCredentialsResource) Create(ctx context.Context, req resource
 		result.Username = types.StringValue(createdCreds.Username)
 	}
 
+    result.UseAzureWorkloadIdentity =  types.BoolValue(createdCreds.UseAzureWorkloadIdentity)
 	result.EnableOCI = types.BoolValue(createdCreds.EnableOCI)
 
 	// Update computed fields if available
@@ -179,6 +180,7 @@ func (r *repositoryCredentialsResource) Read(ctx context.Context, req resource.R
 		result.Username = types.StringValue(creds.Username)
 	}
 
+    result.UseAzureWorkloadIdentity =  types.BoolValue(creds.UseAzureWorkloadIdentity)
 	result.EnableOCI = types.BoolValue(creds.EnableOCI)
 
 	// Update computed fields if available
@@ -251,6 +253,7 @@ func (r *repositoryCredentialsResource) Update(ctx context.Context, req resource
 		result.Username = types.StringValue(updatedCreds.Username)
 	}
 
+    result.UseAzureWorkloadIdentity =  types.BoolValue(updatedCreds.UseAzureWorkloadIdentity)
 	result.EnableOCI = types.BoolValue(updatedCreds.EnableOCI)
 
 	// Update computed fields if available

@@ -479,6 +479,7 @@ resource "argocd_repository" "boolean_fields" {
   repo       = "https://github.com/kubernetes-sigs/kustomize"
   enable_lfs = true
   enable_oci = true
+  use_azure_workload_identity = true
   insecure   = true
 }
 `
@@ -502,6 +503,11 @@ resource "argocd_repository" "boolean_fields" {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_repository.boolean_fields",
+                        "use_azure_workload_identity",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.boolean_fields",
 						"insecure",
 						"true",
 					),
@@ -519,6 +525,11 @@ resource "argocd_repository" "boolean_fields" {
 					resource.TestCheckResourceAttr(
 						"argocd_repository.boolean_fields",
 						"enable_oci",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.boolean_fields",
+                        "use_azure_workload_identity",
 						"true",
 					),
 					resource.TestCheckResourceAttr(
