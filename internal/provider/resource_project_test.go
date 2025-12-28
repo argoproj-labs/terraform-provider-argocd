@@ -1549,3 +1549,55 @@ resource "argocd_project" "tech" {
 }
 	`, name)
 }
+
+// TestAccArgoCDProject_EmptySourceRepos tests the issue #788 where an empty source_repos list
+// causes "Provider produced inconsistent result after apply" error.
+// The provider should maintain an empty list as empty list, not convert it to null.
+func TestAccArgoCDProject_EmptySourceRepos(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-empty-repos")
+	config := testAccArgoCDProjectWithEmptySourceRepos(name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_project.empty_repos", "metadata.0.name", name),
+					resource.TestCheckResourceAttr("argocd_project.empty_repos", "spec.0.source_repos.#", "0"),
+				),
+			},
+			{
+				// Apply the same configuration again to verify no drift
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccArgoCDProjectWithEmptySourceRepos(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "empty_repos" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "project with empty source_repos"
+    source_repos = []
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
+}

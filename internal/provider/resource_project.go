@@ -161,6 +161,19 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 	// Parse response and store state
 	projectData := newProject(p)
 	projectData.ID = types.StringValue(projectName)
+
+	// Preserve empty lists from plan that ArgoCD might have normalized to null (issue #788)
+	// This ensures source_repos = [] stays as [] and doesn't become null
+	if data.Spec[0].SourceRepos != nil && len(data.Spec[0].SourceRepos) == 0 && projectData.Spec[0].SourceRepos == nil {
+		projectData.Spec[0].SourceRepos = make([]types.String, 0)
+	}
+	if data.Spec[0].SignatureKeys != nil && len(data.Spec[0].SignatureKeys) == 0 && projectData.Spec[0].SignatureKeys == nil {
+		projectData.Spec[0].SignatureKeys = make([]types.String, 0)
+	}
+	if data.Spec[0].SourceNamespaces != nil && len(data.Spec[0].SourceNamespaces) == 0 && projectData.Spec[0].SourceNamespaces == nil {
+		projectData.Spec[0].SourceNamespaces = make([]types.String, 0)
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, projectData)...)
 }
 
@@ -222,6 +235,21 @@ func (r *projectResource) readUnsafe(ctx context.Context, data projectModel, pro
 	// Save updated data into Terraform state
 	projectData := newProject(p)
 	projectData.ID = types.StringValue(projectName)
+
+	// Preserve empty lists from prior state that ArgoCD might have normalized to null (issue #788)
+	// This ensures source_repos = [] in state stays as [] during reads and doesn't flip to null
+	if len(data.Spec) > 0 {
+		if data.Spec[0].SourceRepos != nil && len(data.Spec[0].SourceRepos) == 0 && projectData.Spec[0].SourceRepos == nil {
+			projectData.Spec[0].SourceRepos = make([]types.String, 0)
+		}
+		if data.Spec[0].SignatureKeys != nil && len(data.Spec[0].SignatureKeys) == 0 && projectData.Spec[0].SignatureKeys == nil {
+			projectData.Spec[0].SignatureKeys = make([]types.String, 0)
+		}
+		if data.Spec[0].SourceNamespaces != nil && len(data.Spec[0].SourceNamespaces) == 0 && projectData.Spec[0].SourceNamespaces == nil {
+			projectData.Spec[0].SourceNamespaces = make([]types.String, 0)
+		}
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, projectData)...)
 }
 
@@ -337,6 +365,26 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 	resp.Diagnostics.Append(readReq.State.Get(ctx, &updatedData)...)
 
 	r.readUnsafe(ctx, updatedData, projectName, &readResp)
+
+	// Preserve empty lists from plan that ArgoCD might have normalized to null (issue #788)
+	// This ensures source_repos = [] stays as [] and doesn't become null after update
+	if !readResp.Diagnostics.HasError() {
+		var stateData projectModel
+		readResp.Diagnostics.Append(readResp.State.Get(ctx, &stateData)...)
+		if !readResp.Diagnostics.HasError() {
+			if data.Spec[0].SourceRepos != nil && len(data.Spec[0].SourceRepos) == 0 && stateData.Spec[0].SourceRepos == nil {
+				stateData.Spec[0].SourceRepos = make([]types.String, 0)
+			}
+			if data.Spec[0].SignatureKeys != nil && len(data.Spec[0].SignatureKeys) == 0 && stateData.Spec[0].SignatureKeys == nil {
+				stateData.Spec[0].SignatureKeys = make([]types.String, 0)
+			}
+			if data.Spec[0].SourceNamespaces != nil && len(data.Spec[0].SourceNamespaces) == 0 && stateData.Spec[0].SourceNamespaces == nil {
+				stateData.Spec[0].SourceNamespaces = make([]types.String, 0)
+			}
+			readResp.Diagnostics.Append(readResp.State.Set(ctx, stateData)...)
+		}
+	}
+
 	resp.State = readResp.State
 	resp.Diagnostics = readResp.Diagnostics
 }
@@ -469,18 +517,31 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 	}
 
 	// Convert source repos
-	for _, repo := range data.Spec[0].SourceRepos {
-		spec.SourceRepos = append(spec.SourceRepos, repo.ValueString())
+	// Initialize to empty slice if set (even if empty) to maintain empty list vs null distinction
+	// This fixes issue #788 where empty lists were incorrectly converted to null
+	if data.Spec[0].SourceRepos != nil {
+		spec.SourceRepos = make([]string, 0, len(data.Spec[0].SourceRepos))
+		for _, repo := range data.Spec[0].SourceRepos {
+			spec.SourceRepos = append(spec.SourceRepos, repo.ValueString())
+		}
 	}
 
 	// Convert signature keys
-	for _, key := range data.Spec[0].SignatureKeys {
-		spec.SignatureKeys = append(spec.SignatureKeys, v1alpha1.SignatureKey{KeyID: key.ValueString()})
+	// Initialize to empty slice if set (even if empty) to maintain empty list vs null distinction
+	if data.Spec[0].SignatureKeys != nil {
+		spec.SignatureKeys = make([]v1alpha1.SignatureKey, 0, len(data.Spec[0].SignatureKeys))
+		for _, key := range data.Spec[0].SignatureKeys {
+			spec.SignatureKeys = append(spec.SignatureKeys, v1alpha1.SignatureKey{KeyID: key.ValueString()})
+		}
 	}
 
 	// Convert source namespaces
-	for _, ns := range data.Spec[0].SourceNamespaces {
-		spec.SourceNamespaces = append(spec.SourceNamespaces, ns.ValueString())
+	// Initialize to empty slice if set (even if empty) to maintain empty list vs null distinction
+	if data.Spec[0].SourceNamespaces != nil {
+		spec.SourceNamespaces = make([]string, 0, len(data.Spec[0].SourceNamespaces))
+		for _, ns := range data.Spec[0].SourceNamespaces {
+			spec.SourceNamespaces = append(spec.SourceNamespaces, ns.ValueString())
+		}
 	}
 
 	// Convert destinations

@@ -399,7 +399,9 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 	}
 
 	// Convert source repos
-	if len(spec.SourceRepos) > 0 {
+	// Check for non-nil to distinguish between unset (nil) and explicitly empty ([])
+	// This fixes issue #788 where empty lists were incorrectly converted to null
+	if spec.SourceRepos != nil {
 		ps.SourceRepos = make([]types.String, len(spec.SourceRepos))
 		for i, repo := range spec.SourceRepos {
 			ps.SourceRepos[i] = types.StringValue(repo)
@@ -407,7 +409,8 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 	}
 
 	// Convert signature keys
-	if len(spec.SignatureKeys) > 0 {
+	// Check for non-nil to distinguish between unset (nil) and explicitly empty ([])
+	if spec.SignatureKeys != nil {
 		ps.SignatureKeys = make([]types.String, len(spec.SignatureKeys))
 		for i, key := range spec.SignatureKeys {
 			ps.SignatureKeys[i] = types.StringValue(key.KeyID)
@@ -415,7 +418,8 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 	}
 
 	// Convert source namespaces
-	if len(spec.SourceNamespaces) > 0 {
+	// Check for non-nil to distinguish between unset (nil) and explicitly empty ([])
+	if spec.SourceNamespaces != nil {
 		ps.SourceNamespaces = make([]types.String, len(spec.SourceNamespaces))
 		for i, ns := range spec.SourceNamespaces {
 			ps.SourceNamespaces[i] = types.StringValue(ns)
