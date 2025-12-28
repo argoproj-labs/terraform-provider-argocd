@@ -550,7 +550,7 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 			}
 
 			// Handle groups
-			if len(role.Groups) > 0 {
+			if role.Groups != nil {
 				pr.Groups = make([]types.String, len(role.Groups))
 				for j, group := range role.Groups {
 					pr.Groups[j] = types.StringValue(group)
@@ -582,21 +582,21 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 				swm.Timezone = types.StringValue(sw.TimeZone)
 			}
 
-			if len(sw.Applications) > 0 {
+			if sw.Applications != nil {
 				swm.Applications = make([]types.String, len(sw.Applications))
 				for j, app := range sw.Applications {
 					swm.Applications[j] = types.StringValue(app)
 				}
 			}
 
-			if len(sw.Clusters) > 0 {
+			if sw.Clusters != nil {
 				swm.Clusters = make([]types.String, len(sw.Clusters))
 				for j, cluster := range sw.Clusters {
 					swm.Clusters[j] = types.StringValue(cluster)
 				}
 			}
 
-			if len(sw.Namespaces) > 0 {
+			if sw.Namespaces != nil {
 				swm.Namespaces = make([]types.String, len(sw.Namespaces))
 				for j, ns := range sw.Namespaces {
 					swm.Namespaces[j] = types.StringValue(ns)
