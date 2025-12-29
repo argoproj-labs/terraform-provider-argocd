@@ -503,7 +503,7 @@ resource "argocd_repository" "boolean_fields" {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_repository.boolean_fields",
-                        "use_azure_workload_identity",
+						"use_azure_workload_identity",
 						"true",
 					),
 					resource.TestCheckResourceAttr(
@@ -529,7 +529,7 @@ resource "argocd_repository" "boolean_fields" {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_repository.boolean_fields",
-                        "use_azure_workload_identity",
+						"use_azure_workload_identity",
 						"true",
 					),
 					resource.TestCheckResourceAttr(

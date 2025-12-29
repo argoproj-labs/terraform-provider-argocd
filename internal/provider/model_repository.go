@@ -76,7 +76,7 @@ func repositorySchemaAttributes() map[string]schema.Attribute {
 			Optional:            true,
 			Computed:            true,
 			Default:             booldefault.StaticBool(false),
-		},	
+		},
 		"username": schema.StringAttribute{
 			MarkdownDescription: "Username used for authenticating at the remote repository.",
 			Optional:            true,
