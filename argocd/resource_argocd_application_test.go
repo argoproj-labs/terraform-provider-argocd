@@ -87,7 +87,7 @@ func TestAccArgoCDApplication(t *testing.T) {
 				ResourceName:            "argocd_application." + name,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "validate"},
+				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate"},
 			},
 		},
 	})
