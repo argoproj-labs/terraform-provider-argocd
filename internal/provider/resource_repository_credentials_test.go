@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -391,6 +392,28 @@ func TestAccArgoCDRepositoryCredentials_TypeWithEnableOCI(t *testing.T) {
 					resource.TestCheckResourceAttr("argocd_repository_credentials.oci", "enable_oci", "true"),
 					resource.TestCheckResourceAttr("argocd_repository_credentials.oci", "type", "helm"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDRepositoryCredentials_EnableOCIValidation(t *testing.T) {
+	// Test that enable_oci=true with type="git" fails validation
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+resource "argocd_repository_credentials" "invalid" {
+  url        = "https://git.example.com"
+  username   = "testuser"
+  password   = "testpass"
+  enable_oci = true
+  type       = "git"
+}
+`,
+				ExpectError: regexp.MustCompile("enable_oci can only be set to true when type is 'helm'"),
 			},
 		},
 	})

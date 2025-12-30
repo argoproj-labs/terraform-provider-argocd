@@ -45,12 +45,12 @@ func repositoryCredentialsSchemaAttributes() map[string]schema.Attribute {
 			},
 		},
 		"type": schema.StringAttribute{
-			MarkdownDescription: "Type of the repository credentials. Can be either `git` or `helm`. `git` is assumed if empty or absent.",
+			MarkdownDescription: "Type of the repository credentials. Can be either `git`, `oci` or `helm`. `git` is assumed if empty or absent.",
 			Optional:            true,
 			Computed:            true,
 			Default:             stringdefault.StaticString("git"),
 			Validators: []validator.String{
-				stringvalidator.OneOf("git", "helm"),
+				stringvalidator.OneOf("git", "helm", "oci"),
 			},
 		},
 		"username": schema.StringAttribute{
@@ -80,10 +80,13 @@ func repositoryCredentialsSchemaAttributes() map[string]schema.Attribute {
 			Sensitive:           true,
 		},
 		"enable_oci": schema.BoolAttribute{
-			MarkdownDescription: "Whether `helm-oci` support should be enabled for this repo",
+			MarkdownDescription: "Whether `helm-oci` support should be enabled for this repo. Can only be set to `true` when `type` is `helm`.",
 			Optional:            true,
 			Computed:            true,
 			Default:             booldefault.StaticBool(false),
+			Validators: []validator.Bool{
+				validators.EnableOCIRequiresHelmType(),
+			},
 		},
 		"githubapp_id": schema.StringAttribute{
 			MarkdownDescription: "GitHub App ID of the app used to access the repo for GitHub app authentication",
