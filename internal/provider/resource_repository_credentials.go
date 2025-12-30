@@ -208,6 +208,9 @@ func (r *repositoryCredentialsResource) Read(ctx context.Context, req resource.R
 	// Only overwrite if API explicitly returns true
 	if creds.EnableOCI {
 		result.EnableOCI = types.BoolValue(true)
+	} else if result.EnableOCI.IsNull() || result.EnableOCI.IsUnknown() {
+		// For import or initial read, set to default value if API returns false
+		result.EnableOCI = types.BoolValue(false)
 	}
 	// Otherwise keep the prior state value (API accepted it without error)
 
