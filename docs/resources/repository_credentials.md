@@ -41,6 +41,7 @@ resource "argocd_repository_credentials" "private" {
 - `ssh_private_key` (String, Sensitive) Private key data for authenticating at the repo server using SSH (only Git repos)
 - `tls_client_cert_data` (String) TLS client cert data for authenticating at the repo server
 - `tls_client_cert_key` (String, Sensitive) TLS client cert key for authenticating at the repo server
+- `type` (String) Type of the repository credentials. Can be either `git` or `helm`. `git` is assumed if empty or absent.
 - `username` (String) Username for authenticating at the repo server
 
 ### Read-Only
