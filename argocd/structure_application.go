@@ -392,6 +392,10 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 			result.SkipCrds = v.(bool)
 		}
 
+		if v, ok := a["skip_schema_validation"]; ok {
+			result.SkipSchemaValidation = v.(bool)
+		}
+
 		if v, ok := a["version"]; ok {
 			result.Version = v.(string)
 		}
@@ -883,6 +887,7 @@ func flattenApplicationSourceHelm(as []*application.ApplicationSourceHelm) (resu
 				"file_parameter":             fileParameters,
 				"release_name":               a.ReleaseName,
 				"skip_crds":                  a.SkipCrds,
+				"skip_schema_validation":     a.SkipSchemaValidation,
 				"value_files":                a.ValueFiles,
 				"values":                     a.Values,
 				"pass_credentials":           a.PassCredentials,

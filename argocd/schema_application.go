@@ -487,6 +487,11 @@ func applicationSpecSchemaV1() *schema.Schema {
 											Description: "Helm installs custom resource definitions in the crds folder by default if they are not existing. If needed, it is possible to skip the CRD installation step with this flag",
 											Optional:    true,
 										},
+										"skip_schema_validation": {
+											Type:        schema.TypeBool,
+											Description: "Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).",
+											Optional:    true,
+										},
 									},
 								},
 							},
@@ -910,6 +915,11 @@ func applicationSpecSchemaV2() *schema.Schema {
 										"skip_crds": {
 											Type:        schema.TypeBool,
 											Description: "Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).",
+											Optional:    true,
+										},
+										"skip_schema_validation": {
+											Type:        schema.TypeBool,
+											Description: "Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).",
 											Optional:    true,
 										},
 									},
@@ -1386,6 +1396,11 @@ func applicationSpecSchemaV4(allOptional, isAppSet bool) *schema.Schema {
 										"skip_crds": {
 											Type:        schema.TypeBool,
 											Description: "Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).",
+											Optional:    true,
+										},
+										"skip_schema_validation": {
+											Type:        schema.TypeBool,
+											Description: "Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).",
 											Optional:    true,
 										},
 										"pass_credentials": {
