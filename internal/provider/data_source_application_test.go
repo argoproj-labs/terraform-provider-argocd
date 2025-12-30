@@ -363,11 +363,10 @@ resource "argocd_application" "helm" {
 					value        = "6.2.5"
 				}
 
-				pass_credentials         = true
-				release_name             = "testing"
-				skip_crds                = true
-				skip_schema_validation   = true
-				value_files              = ["values.yaml"]
+				pass_credentials = true
+				release_name     = "testing"
+				skip_crds        = true
+				value_files      = ["values.yaml"]
 				values = <<EOT
 %s
 EOT
@@ -392,7 +391,6 @@ EOT
 					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.helm.0.pass_credentials", "true"),
 					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.helm.0.release_name", "testing"),
 					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.helm.0.skip_crds", "true"),
-					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.helm.0.skip_schema_validation", "true"),
 					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.helm.0.value_files.0", "values.yaml"),
 					resource.TestCheckResourceAttr("argocd_application.helm", "spec.0.source.0.helm.0.values", helmValues+"\n"),
 				),
@@ -422,7 +420,6 @@ data "argocd_application" "helm" {
 					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.helm.pass_credentials", "true"),
 					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.helm.release_name", "testing"),
 					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.helm.skip_crds", "true"),
-					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.helm.skip_schema_validation", "true"),
 					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.helm.value_files.0", "values.yaml"),
 					resource.TestCheckResourceAttr("data.argocd_application.helm", "spec.sources.0.helm.values", helmValues+"\n"),
 				),
