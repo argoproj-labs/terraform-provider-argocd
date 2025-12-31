@@ -109,12 +109,27 @@ func (r *repositoryCredentialsResource) Create(ctx context.Context, req resource
 	result.ID = types.StringValue(createdCreds.URL)
 	result.URL = types.StringValue(createdCreds.URL)
 
+	// Handle Type - preserve planned value if API doesn't return it
+	// ArgoCD API doesn't reliably return type field, so we trust the planned value
+	if createdCreds.Type != "" {
+		result.Type = types.StringValue(createdCreds.Type)
+	} else if result.Type.IsUnknown() || result.Type.IsNull() {
+		result.Type = types.StringValue("git")
+	}
+	// Otherwise keep the planned value (API accepted it without error)
+
 	// Only update fields that are returned by the API
 	if createdCreds.Username != "" {
 		result.Username = types.StringValue(createdCreds.Username)
 	}
 
-	result.EnableOCI = types.BoolValue(createdCreds.EnableOCI)
+	// Handle EnableOCI - preserve planned value if API doesn't return it
+	// ArgoCD API doesn't reliably return enableOCI field, so we trust the planned value
+	// Only overwrite if API explicitly returns true
+	if createdCreds.EnableOCI {
+		result.EnableOCI = types.BoolValue(true)
+	}
+	// Otherwise keep the planned value (API accepted it without error)
 
 	// Update computed fields if available
 	if createdCreds.TLSClientCertData != "" {
@@ -174,12 +189,30 @@ func (r *repositoryCredentialsResource) Read(ctx context.Context, req resource.R
 	result.ID = types.StringValue(creds.URL)
 	result.URL = types.StringValue(creds.URL)
 
+	// Handle Type - preserve prior state value if API doesn't return it
+	// ArgoCD API doesn't reliably return type field, so we trust the prior state value
+	if creds.Type != "" {
+		result.Type = types.StringValue(creds.Type)
+	} else if result.Type.IsUnknown() || result.Type.IsNull() {
+		result.Type = types.StringValue("git")
+	}
+	// Otherwise keep the existing value (API accepted it without error)
+
 	// Only update fields that are returned by the API
 	if creds.Username != "" {
 		result.Username = types.StringValue(creds.Username)
 	}
 
-	result.EnableOCI = types.BoolValue(creds.EnableOCI)
+	// Handle EnableOCI - preserve prior state value if API doesn't return it
+	// ArgoCD API doesn't reliably return enableOCI field, so we trust the prior state value
+	// Only overwrite if API explicitly returns true
+	if creds.EnableOCI {
+		result.EnableOCI = types.BoolValue(true)
+	} else if result.EnableOCI.IsNull() || result.EnableOCI.IsUnknown() {
+		// For import or initial read, set to default value if API returns false
+		result.EnableOCI = types.BoolValue(false)
+	}
+	// Otherwise keep the prior state value (API accepted it without error)
 
 	// Update computed fields if available
 	if creds.TLSClientCertData != "" {
@@ -246,12 +279,27 @@ func (r *repositoryCredentialsResource) Update(ctx context.Context, req resource
 	result.ID = types.StringValue(updatedCreds.URL)
 	result.URL = types.StringValue(updatedCreds.URL)
 
+	// Handle Type - preserve planned value if API doesn't return it
+	// ArgoCD API doesn't reliably return type field, so we trust the planned value
+	if updatedCreds.Type != "" {
+		result.Type = types.StringValue(updatedCreds.Type)
+	} else if result.Type.IsUnknown() || result.Type.IsNull() {
+		result.Type = types.StringValue("git")
+	}
+	// Otherwise keep the planned value (API accepted it without error)
+
 	// Only update fields that are returned by the API
 	if updatedCreds.Username != "" {
 		result.Username = types.StringValue(updatedCreds.Username)
 	}
 
-	result.EnableOCI = types.BoolValue(updatedCreds.EnableOCI)
+	// Handle EnableOCI - preserve planned value if API doesn't return it
+	// ArgoCD API doesn't reliably return enableOCI field, so we trust the planned value
+	// Only overwrite if API explicitly returns true
+	if updatedCreds.EnableOCI {
+		result.EnableOCI = types.BoolValue(true)
+	}
+	// Otherwise keep the planned value (API accepted it without error)
 
 	// Update computed fields if available
 	if updatedCreds.TLSClientCertData != "" {

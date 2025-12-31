@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -353,6 +354,81 @@ resource "argocd_repository" "repo" {
   depends_on = [argocd_repository_credentials.githubapp]
 }
 `, credsUrl, id, installID, enterpriseBaseURL, repoUrl)
+}
+
+func TestAccArgoCDRepositoryCredentials_TypeWithEnableOCI(t *testing.T) {
+	// This test reproduces issue #791: https://github.com/argoproj-labs/terraform-provider-argocd/issues/791
+	// When enable_oci = true, the type should be "helm", but without a type parameter,
+	// the provider can't handle this correctly and causes "inconsistent result after apply" errors.
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDRepositoryCredentialsWithOCI(
+					"oci://ghcr.io/example/charts",
+					"testuser",
+					"testpassword",
+				),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_repository_credentials.oci", "url", "oci://ghcr.io/example/charts"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.oci", "username", "testuser"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.oci", "enable_oci", "true"),
+					// This should be "helm" when enable_oci is true
+					resource.TestCheckResourceAttr("argocd_repository_credentials.oci", "type", "helm"),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				// This would fail without the type field, causing "inconsistent result after apply"
+				Config: testAccArgoCDRepositoryCredentialsWithOCI(
+					"oci://ghcr.io/example/charts",
+					"testuser",
+					"testpassword",
+				),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_repository_credentials.oci", "url", "oci://ghcr.io/example/charts"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.oci", "username", "testuser"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.oci", "enable_oci", "true"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.oci", "type", "helm"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDRepositoryCredentials_EnableOCIValidation(t *testing.T) {
+	// Test that enable_oci=true with type="git" fails validation
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+resource "argocd_repository_credentials" "invalid" {
+  url        = "https://git.example.com"
+  username   = "testuser"
+  password   = "testpass"
+  enable_oci = true
+  type       = "git"
+}
+`,
+				ExpectError: regexp.MustCompile("enable_oci can only be set to true when type is 'helm'"),
+			},
+		},
+	})
+}
+
+func testAccArgoCDRepositoryCredentialsWithOCI(repoUrl, username, password string) string {
+	return fmt.Sprintf(`
+resource "argocd_repository_credentials" "oci" {
+  url        = "%s"
+  username   = "%s"
+  password   = "%s"
+  enable_oci = true
+  type       = "helm"
+}
+`, repoUrl, username, password)
 }
 
 func testCheckMultipleResourceAttr(name, key, value string, count int) resource.TestCheckFunc {
