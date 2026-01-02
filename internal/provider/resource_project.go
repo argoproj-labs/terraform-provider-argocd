@@ -101,13 +101,15 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 
 	projectName := objectMeta.Name
 
+	model := data.Spec[0]
+
 	// Check feature support
-	if !r.si.IsFeatureSupported(features.ProjectSourceNamespaces) && len(data.Spec[0].SourceNamespaces) > 0 {
+	if !r.si.IsFeatureSupported(features.ProjectSourceNamespaces) && len(model.SourceNamespaces) > 0 {
 		resp.Diagnostics.Append(diagnostics.FeatureNotSupported(features.ProjectSourceNamespaces)...)
 		return
 	}
 
-	if !r.si.IsFeatureSupported(features.ProjectDestinationServiceAccounts) && len(data.Spec[0].DestinationServiceAccount) > 0 {
+	if !r.si.IsFeatureSupported(features.ProjectDestinationServiceAccounts) && len(model.DestinationServiceAccount) > 0 {
 		resp.Diagnostics.Append(diagnostics.FeatureNotSupported(features.ProjectDestinationServiceAccounts)...)
 		return
 	}
@@ -161,7 +163,68 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 	// Parse response and store state
 	projectData := newProject(p)
 	projectData.ID = types.StringValue(projectName)
+
+	// Preserve empty lists from plan that ArgoCD might have normalized to null (issue #788)
+	preserveEmptyLists(&data.Spec[0], &projectData.Spec[0])
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, projectData)...)
+}
+
+// preserveEmptyLists applies preservation logic to ensure empty lists and null values from the source
+// are not lost when the ArgoCD API normalizes them.
+func preserveEmptyLists(sourceModel, apiModel *projectSpecModel) {
+	// Preserve top-level empty lists
+	if sourceModel.SourceRepos != nil && len(sourceModel.SourceRepos) == 0 && apiModel.SourceRepos == nil {
+		apiModel.SourceRepos = make([]types.String, 0)
+	}
+	if sourceModel.SignatureKeys != nil && len(sourceModel.SignatureKeys) == 0 && apiModel.SignatureKeys == nil {
+		apiModel.SignatureKeys = make([]types.String, 0)
+	}
+	if sourceModel.SourceNamespaces != nil && len(sourceModel.SourceNamespaces) == 0 && apiModel.SourceNamespaces == nil {
+		apiModel.SourceNamespaces = make([]types.String, 0)
+	}
+
+	// Preserve empty groups lists in roles
+	for i := range apiModel.Role {
+		apiRole := &apiModel.Role[i]
+		for j := range sourceModel.Role {
+			sourceRole := &sourceModel.Role[j]
+			if apiRole.Name.Equal(sourceRole.Name) {
+				if sourceRole.Groups != nil && len(sourceRole.Groups) == 0 && apiRole.Groups == nil {
+					apiRole.Groups = make([]types.String, 0)
+				}
+				break
+			}
+		}
+	}
+
+	// Preserve empty lists and null values in sync windows (match by identifying fields since sync_window is a Set)
+	for i := range apiModel.SyncWindow {
+		apiSync := &apiModel.SyncWindow[i]
+		for j := range sourceModel.SyncWindow {
+			sourceSync := &sourceModel.SyncWindow[j]
+			// Match sync windows by their identifying fields
+			if apiSync.Kind.Equal(sourceSync.Kind) &&
+				apiSync.Schedule.Equal(sourceSync.Schedule) &&
+				apiSync.Duration.Equal(sourceSync.Duration) {
+				if sourceSync.Applications != nil && len(sourceSync.Applications) == 0 && apiSync.Applications == nil {
+					apiSync.Applications = make([]types.String, 0)
+				}
+				if sourceSync.Clusters != nil && len(sourceSync.Clusters) == 0 && apiSync.Clusters == nil {
+					apiSync.Clusters = make([]types.String, 0)
+				}
+				if sourceSync.Namespaces != nil && len(sourceSync.Namespaces) == 0 && apiSync.Namespaces == nil {
+					apiSync.Namespaces = make([]types.String, 0)
+				}
+				// Preserve null for manual_sync if it wasn't specified in source (issue #788)
+				// API returns false (zero value) but source has null when not specified
+				if sourceSync.ManualSync.IsNull() && apiSync.ManualSync.Equal(types.BoolValue(false)) {
+					apiSync.ManualSync = types.BoolNull()
+				}
+				break
+			}
+		}
+	}
 }
 
 func (r *projectResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -182,10 +245,10 @@ func (r *projectResource) Read(ctx context.Context, req resource.ReadRequest, re
 	projectMutex.RLock()
 	defer projectMutex.RUnlock()
 
-	r.readUnsafe(ctx, data, projectName, resp)
+	r.readUnsafe(ctx, data, nil, projectName, resp)
 }
 
-func (r *projectResource) readUnsafe(ctx context.Context, data projectModel, projectName string, resp *resource.ReadResponse) {
+func (r *projectResource) readUnsafe(ctx context.Context, data projectModel, plan *projectModel, projectName string, resp *resource.ReadResponse) {
 	// Initialize API clients
 	resp.Diagnostics.Append(r.si.InitClients(ctx)...)
 
@@ -220,9 +283,20 @@ func (r *projectResource) readUnsafe(ctx context.Context, data projectModel, pro
 	}
 
 	// Save updated data into Terraform state
-	projectData := newProject(p)
-	projectData.ID = types.StringValue(projectName)
-	resp.Diagnostics.Append(resp.State.Set(ctx, projectData)...)
+	apiData := newProject(p)
+	apiData.ID = types.StringValue(projectName)
+
+	// Preserve empty lists from prior state/plan that ArgoCD might have normalized to null (issue #788)
+	// Use plan if provided (during Update), otherwise use prior state (during Read)
+	if len(data.Spec) > 0 {
+		sourceModel := &data.Spec[0]
+		if plan != nil && len(plan.Spec) > 0 {
+			sourceModel = &plan.Spec[0]
+		}
+		preserveEmptyLists(sourceModel, &apiData.Spec[0])
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, apiData)...)
 }
 
 func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -327,7 +401,7 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	tflog.Trace(ctx, fmt.Sprintf("updated project %s", projectName))
 
-	// Read updated resource
+	// Read updated resource with plan context for proper empty list preservation
 	readReq := resource.ReadRequest{State: req.State}
 	readResp := resource.ReadResponse{State: resp.State, Diagnostics: resp.Diagnostics}
 
@@ -336,7 +410,9 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 	// Read Terraform state data into the model
 	resp.Diagnostics.Append(readReq.State.Get(ctx, &updatedData)...)
 
-	r.readUnsafe(ctx, updatedData, projectName, &readResp)
+	// Pass plan to readUnsafe so it uses the plan (not old state) for preservation
+	r.readUnsafe(ctx, updatedData, &data, projectName, &readResp)
+
 	resp.State = readResp.State
 	resp.Diagnostics = readResp.Diagnostics
 }
@@ -469,18 +545,31 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 	}
 
 	// Convert source repos
-	for _, repo := range data.Spec[0].SourceRepos {
-		spec.SourceRepos = append(spec.SourceRepos, repo.ValueString())
+	// Initialize to empty slice if set (even if empty) to maintain empty list vs null distinction
+	// This fixes issue #788 where empty lists were incorrectly converted to null
+	if data.Spec[0].SourceRepos != nil {
+		spec.SourceRepos = make([]string, 0, len(data.Spec[0].SourceRepos))
+		for _, repo := range data.Spec[0].SourceRepos {
+			spec.SourceRepos = append(spec.SourceRepos, repo.ValueString())
+		}
 	}
 
 	// Convert signature keys
-	for _, key := range data.Spec[0].SignatureKeys {
-		spec.SignatureKeys = append(spec.SignatureKeys, v1alpha1.SignatureKey{KeyID: key.ValueString()})
+	// Initialize to empty slice if set (even if empty) to maintain empty list vs null distinction
+	if data.Spec[0].SignatureKeys != nil {
+		spec.SignatureKeys = make([]v1alpha1.SignatureKey, 0, len(data.Spec[0].SignatureKeys))
+		for _, key := range data.Spec[0].SignatureKeys {
+			spec.SignatureKeys = append(spec.SignatureKeys, v1alpha1.SignatureKey{KeyID: key.ValueString()})
+		}
 	}
 
 	// Convert source namespaces
-	for _, ns := range data.Spec[0].SourceNamespaces {
-		spec.SourceNamespaces = append(spec.SourceNamespaces, ns.ValueString())
+	// Initialize to empty slice if set (even if empty) to maintain empty list vs null distinction
+	if data.Spec[0].SourceNamespaces != nil {
+		spec.SourceNamespaces = make([]string, 0, len(data.Spec[0].SourceNamespaces))
+		for _, ns := range data.Spec[0].SourceNamespaces {
+			spec.SourceNamespaces = append(spec.SourceNamespaces, ns.ValueString())
+		}
 	}
 
 	// Convert destinations
@@ -592,16 +681,27 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 			window.TimeZone = sw.Timezone.ValueString()
 		}
 
-		for _, app := range sw.Applications {
-			window.Applications = append(window.Applications, app.ValueString())
+		// Initialize to empty slice if set (even if empty) to maintain empty list vs null distinction
+		// This fixes issue #788 where empty lists were incorrectly converted to null
+		if sw.Applications != nil {
+			window.Applications = make([]string, 0, len(sw.Applications))
+			for _, app := range sw.Applications {
+				window.Applications = append(window.Applications, app.ValueString())
+			}
 		}
 
-		for _, cluster := range sw.Clusters {
-			window.Clusters = append(window.Clusters, cluster.ValueString())
+		if sw.Clusters != nil {
+			window.Clusters = make([]string, 0, len(sw.Clusters))
+			for _, cluster := range sw.Clusters {
+				window.Clusters = append(window.Clusters, cluster.ValueString())
+			}
 		}
 
-		for _, ns := range sw.Namespaces {
-			window.Namespaces = append(window.Namespaces, ns.ValueString())
+		if sw.Namespaces != nil {
+			window.Namespaces = make([]string, 0, len(sw.Namespaces))
+			for _, ns := range sw.Namespaces {
+				window.Namespaces = append(window.Namespaces, ns.ValueString())
+			}
 		}
 
 		spec.SyncWindows = append(spec.SyncWindows, &window)
@@ -627,8 +727,13 @@ func expandProjectRoles(_ context.Context, roles []projectRoleModel) []v1alpha1.
 			pr.Policies = append(pr.Policies, policy.ValueString())
 		}
 
-		for _, group := range role.Groups {
-			pr.Groups = append(pr.Groups, group.ValueString())
+		// Groups is optional - initialize to empty slice if set to maintain empty list vs null distinction
+		// This fixes issue #788 where empty lists were incorrectly converted to null
+		if role.Groups != nil {
+			pr.Groups = make([]string, 0, len(role.Groups))
+			for _, group := range role.Groups {
+				pr.Groups = append(pr.Groups, group.ValueString())
+			}
 		}
 
 		result = append(result, pr)

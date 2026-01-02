@@ -399,7 +399,9 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 	}
 
 	// Convert source repos
-	if len(spec.SourceRepos) > 0 {
+	// Check for non-nil to distinguish between unset (nil) and explicitly empty ([])
+	// This fixes issue #788 where empty lists were incorrectly converted to null
+	if spec.SourceRepos != nil {
 		ps.SourceRepos = make([]types.String, len(spec.SourceRepos))
 		for i, repo := range spec.SourceRepos {
 			ps.SourceRepos[i] = types.StringValue(repo)
@@ -407,7 +409,8 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 	}
 
 	// Convert signature keys
-	if len(spec.SignatureKeys) > 0 {
+	// Check for non-nil to distinguish between unset (nil) and explicitly empty ([])
+	if spec.SignatureKeys != nil {
 		ps.SignatureKeys = make([]types.String, len(spec.SignatureKeys))
 		for i, key := range spec.SignatureKeys {
 			ps.SignatureKeys[i] = types.StringValue(key.KeyID)
@@ -415,7 +418,8 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 	}
 
 	// Convert source namespaces
-	if len(spec.SourceNamespaces) > 0 {
+	// Check for non-nil to distinguish between unset (nil) and explicitly empty ([])
+	if spec.SourceNamespaces != nil {
 		ps.SourceNamespaces = make([]types.String, len(spec.SourceNamespaces))
 		for i, ns := range spec.SourceNamespaces {
 			ps.SourceNamespaces[i] = types.StringValue(ns)
@@ -546,7 +550,7 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 			}
 
 			// Handle groups
-			if len(role.Groups) > 0 {
+			if role.Groups != nil {
 				pr.Groups = make([]types.String, len(role.Groups))
 				for j, group := range role.Groups {
 					pr.Groups[j] = types.StringValue(group)
@@ -578,21 +582,21 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 				swm.Timezone = types.StringValue(sw.TimeZone)
 			}
 
-			if len(sw.Applications) > 0 {
+			if sw.Applications != nil {
 				swm.Applications = make([]types.String, len(sw.Applications))
 				for j, app := range sw.Applications {
 					swm.Applications[j] = types.StringValue(app)
 				}
 			}
 
-			if len(sw.Clusters) > 0 {
+			if sw.Clusters != nil {
 				swm.Clusters = make([]types.String, len(sw.Clusters))
 				for j, cluster := range sw.Clusters {
 					swm.Clusters[j] = types.StringValue(cluster)
 				}
 			}
 
-			if len(sw.Namespaces) > 0 {
+			if sw.Namespaces != nil {
 				swm.Namespaces = make([]types.String, len(sw.Namespaces))
 				for j, ns := range sw.Namespaces {
 					swm.Namespaces[j] = types.StringValue(ns)
