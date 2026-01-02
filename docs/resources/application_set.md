@@ -788,6 +788,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -1088,6 +1089,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -1395,6 +1397,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -1677,6 +1680,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -2009,6 +2013,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -2309,6 +2314,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -2616,6 +2622,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -2898,6 +2905,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -3228,6 +3236,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -3528,6 +3537,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -3835,6 +3845,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -4117,6 +4128,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -4410,6 +4422,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -4807,6 +4820,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -5257,6 +5271,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -5548,6 +5563,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -5879,6 +5895,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -6179,6 +6196,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -6486,6 +6504,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -6768,6 +6787,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -7061,6 +7081,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -7458,6 +7479,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -7908,6 +7930,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -8199,6 +8222,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -8492,6 +8516,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -8889,6 +8914,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -9339,6 +9365,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -9630,6 +9657,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -9963,6 +9991,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -10263,6 +10292,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -10570,6 +10600,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -10852,6 +10883,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -11182,6 +11214,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -11482,6 +11515,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -11789,6 +11823,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -12071,6 +12106,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -12364,6 +12400,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -12761,6 +12798,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -13211,6 +13249,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -13502,6 +13541,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -13833,6 +13873,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -14133,6 +14174,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -14440,6 +14482,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -14722,6 +14765,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -15015,6 +15059,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -15412,6 +15457,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -15862,6 +15908,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -16153,6 +16200,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -16446,6 +16494,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -16843,6 +16892,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -17293,6 +17343,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -17584,6 +17635,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -17877,6 +17929,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -18274,6 +18327,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -18724,6 +18778,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`
@@ -19001,6 +19056,7 @@ Optional:
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
+- `skip_schema_validation` (Boolean) Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).
 - `value_files` (List of String) List of Helm value files to use when generating a template.
 - `values` (String) Helm values to be passed to 'helm template', typically defined as a block.
 - `version` (String) The Helm version to use for templating. Accepts either `v2` or `v3`

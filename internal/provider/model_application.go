@@ -467,6 +467,7 @@ type applicationSourceHelm struct {
 	PassCredentials         types.Bool                     `tfsdk:"pass_credentials"`
 	ReleaseName             types.String                   `tfsdk:"release_name"`
 	SkipCRDs                types.Bool                     `tfsdk:"skip_crds"`
+	SkipSchemaValidation    types.Bool                     `tfsdk:"skip_schema_validation"`
 	ValueFiles              []types.String                 `tfsdk:"value_files"`
 	Values                  types.String                   `tfsdk:"values"`
 }
@@ -491,6 +492,11 @@ func applicationSourceHelmSchemaAttribute(computed bool) schema.Attribute {
 			},
 			"skip_crds": schema.BoolAttribute{
 				MarkdownDescription: "Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).",
+				Computed:            computed,
+				Optional:            !computed,
+			},
+			"skip_schema_validation": schema.BoolAttribute{
+				MarkdownDescription: "Whether to skip the schema validation step (Helm's [--skip-schema-validation](https://helm.sh/docs/helm/helm_template/)).",
 				Computed:            computed,
 				Optional:            !computed,
 			},
@@ -526,6 +532,7 @@ func newApplicationSourceHelm(ash *v1alpha1.ApplicationSourceHelm) *applicationS
 		PassCredentials:         types.BoolValue(ash.PassCredentials),
 		ReleaseName:             types.StringValue(ash.ReleaseName),
 		SkipCRDs:                types.BoolValue(ash.SkipCrds),
+		SkipSchemaValidation:    types.BoolValue(ash.SkipSchemaValidation),
 		ValueFiles:              pie.Map(ash.ValueFiles, types.StringValue),
 		Values:                  types.StringValue(ash.Values),
 	}
