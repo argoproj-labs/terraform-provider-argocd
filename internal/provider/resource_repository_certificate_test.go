@@ -6,13 +6,11 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"strings"
 	"testing"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/testhelpers"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -212,8 +210,9 @@ func TestAccArgoCDRepositoryCertificatesSSH_WithApplication(t *testing.T) {
 
 	appName := acctest.RandomWithPrefix("testacc")
 
-	subtypesKeys, err := getSshKeysForHost("private-git-repository")
-	assert.NoError(t, err)
+	subtypesKeys, err := getSshKeysForHost(t.Context(), "private-git-repository")
+	require.NoError(t, err)
+	require.NotEmpty(t, subtypesKeys, "ssh-keyscan should return at least one key")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -448,7 +447,7 @@ resource "argocd_application" "simple" {
 // [2] = ecdsa-sha2-nistp256
 // [3] = AAAAB3NzaC1y...
 // etc
-func getSshKeysForHost(host string) ([]string, error) {
+func getSshKeysForHost(ctx context.Context, host string) ([]string, error) {
 	app := "kubectl"
 	args := []string{
 		"exec",
@@ -461,23 +460,19 @@ func getSshKeysForHost(host string) ([]string, error) {
 	}
 
 	var err error
-
 	var output []byte
 
 	if testhelpers.GlobalTestEnv != nil {
 		args = append([]string{app}, args...)
-
-		output, err = testhelpers.GlobalTestEnv.ExecInK3s(context.Background(), args...)
+		output, err = testhelpers.GlobalTestEnv.ExecInK3s(ctx, args...)
 		if err != nil {
-			fmt.Println(err.Error())
-			return nil, err
+			// Print the actual command output to see what ssh-keyscan is saying
+			fmt.Printf("ERROR: Command failed: %v\n", err)
+			fmt.Printf("ERROR: Command output:\n%s\n", string(output))
+			return nil, fmt.Errorf("ssh-keyscan failed for host %s: %w (output: %s)", host, err, string(output))
 		}
-
-		n := strings.Split(string(output), "`")
-		output = []byte(n[1])
 	} else {
 		cmd := exec.Command(app, args...)
-
 		output, err = cmd.Output()
 		if err != nil {
 			fmt.Println(err.Error())
