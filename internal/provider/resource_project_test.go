@@ -1549,3 +1549,188 @@ resource "argocd_project" "tech" {
 }
 	`, name)
 }
+
+// TestAccArgoCDProject_EmptySourceRepos tests the issue #788 where an empty source_repos list
+// causes "Provider produced inconsistent result after apply" error.
+// The provider should maintain an empty list as empty list, not convert it to null.
+func TestAccArgoCDProject_EmptySourceRepos(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-empty-repos")
+	config := testAccArgoCDProjectWithEmptySourceRepos(name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_project.empty_repos", "metadata.0.name", name),
+					resource.TestCheckResourceAttr("argocd_project.empty_repos", "spec.0.source_repos.#", "0"),
+				),
+			},
+			{
+				// Apply the same configuration again to verify no drift
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccArgoCDProjectWithEmptySourceRepos(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "empty_repos" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "project with empty source_repos"
+    source_repos = []
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
+}
+
+// TestAccArgoCDProject_EmptyRoleGroups tests that empty groups list in roles
+// doesn't cause "Provider produced inconsistent result after apply" error.
+func TestAccArgoCDProject_EmptyRoleGroups(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-empty-groups")
+	config := testAccArgoCDProjectWithEmptyRoleGroups(name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_project.empty_groups", "metadata.0.name", name),
+					resource.TestCheckResourceAttr("argocd_project.empty_groups", "spec.0.role.0.groups.#", "0"),
+				),
+			},
+			{
+				// Apply the same configuration again to verify no drift
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccArgoCDProjectWithEmptyRoleGroups(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "empty_groups" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "project with role having empty groups"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+
+    role {
+      name     = "test-role"
+      groups   = []
+      policies = ["p, proj:%s:test-role, applications, get, %s/*, allow"]
+    }
+  }
+}
+	`, name, name, name)
+}
+
+// TestAccArgoCDProject_EmptyListsComprehensive tests multiple empty list fields
+// in a single project to ensure they all work correctly together (issue #788)
+func TestAccArgoCDProject_EmptyListsComprehensive(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-comprehensive")
+	config := testAccArgoCDProjectWithMultipleEmptyLists(name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_project.comprehensive", "metadata.0.name", name),
+					// Verify empty source_repos
+					resource.TestCheckResourceAttr("argocd_project.comprehensive", "spec.0.source_repos.#", "0"),
+					// Verify empty signature_keys
+					resource.TestCheckResourceAttr("argocd_project.comprehensive", "spec.0.signature_keys.#", "0"),
+					// Verify empty groups in role
+					resource.TestCheckResourceAttr("argocd_project.comprehensive", "spec.0.role.0.groups.#", "0"),
+					// Verify sync window with mixed empty/non-empty lists
+					resource.TestCheckResourceAttr("argocd_project.comprehensive", "spec.0.sync_window.0.applications.#", "1"),
+					resource.TestCheckResourceAttr("argocd_project.comprehensive", "spec.0.sync_window.0.clusters.#", "0"),
+					resource.TestCheckResourceAttr("argocd_project.comprehensive", "spec.0.sync_window.0.namespaces.#", "0"),
+				),
+			},
+			{
+				// Apply the same configuration again to verify no drift
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccArgoCDProjectWithMultipleEmptyLists(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "comprehensive" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description     = "project testing multiple empty list fields"
+    source_repos    = []
+    signature_keys  = []
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+
+    role {
+      name     = "test-role"
+      groups   = []
+      policies = ["p, proj:%s:test-role, applications, get, %s/*, allow"]
+    }
+
+    sync_window {
+      kind         = "allow"
+      schedule     = "0 0 * * *"
+      duration     = "1h"
+      applications = ["test-app"]
+      clusters     = []
+      namespaces   = []
+    }
+  }
+}
+	`, name, name, name)
+}
