@@ -1034,6 +1034,59 @@ func TestAccArgoCDApplication_SkipCrds(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplication_SkipSchemaValidation(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-schema-validation")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSkipSchemaValidation_NoSkip(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.schema_validation",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.schema_validation",
+						"spec.0.source.0.helm.0.skip_schema_validation",
+						"false",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationSkipSchemaValidation(name, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.schema_validation",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.schema_validation",
+						"spec.0.source.0.helm.0.skip_schema_validation",
+						"true",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationSkipSchemaValidation(name, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application.schema_validation",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application.schema_validation",
+						"spec.0.source.0.helm.0.skip_schema_validation",
+						"false",
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplication_CustomNamespace(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
@@ -2278,6 +2331,81 @@ resource "argocd_application" "crds" {
 func testAccArgoCDApplicationSkipCrds_NoSkip(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_application" "crds" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+		repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+		chart           = "descheduler"
+		target_revision = "0.33.0"
+		helm {
+		  parameter {
+			name  = "image.tag"
+			value = "6.2.5"
+		  }
+		  parameter {
+			name  = "architecture"
+			value = "standalone"
+		  }
+		  release_name = "testing"
+		}
+	}
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name)
+}
+
+func testAccArgoCDApplicationSkipSchemaValidation(name string, skipSchemaValidation bool) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "schema_validation" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+
+  spec {
+    source {
+		repo_url        = "https://kubernetes-sigs.github.io/descheduler"
+		chart           = "descheduler"
+		target_revision = "0.33.0"
+		helm {
+		  parameter {
+			name  = "image.tag"
+			value = "6.2.5"
+		  }
+		  parameter {
+			name  = "architecture"
+			value = "standalone"
+		  }
+		  release_name = "testing"
+		  skip_schema_validation = %t
+		}
+	}
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, name, skipSchemaValidation)
+}
+
+func testAccArgoCDApplicationSkipSchemaValidation_NoSkip(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "schema_validation" {
   metadata {
     name      = "%s"
     namespace = "argocd"
