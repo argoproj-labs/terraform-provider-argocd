@@ -208,7 +208,7 @@ func (env *K3sTestEnvironment) waitForArgoCD(ctx context.Context) error {
 	}
 
 	// Wait for deployments to be ready
-	deployments := []string{"argocd-server", "argocd-repo-server", "argocd-redis"}
+	deployments := []string{"argocd-server", "argocd-repo-server", "argocd-redis", "private-git-repository"}
 
 	timeout := "60s"
 	for _, deployment := range deployments {
