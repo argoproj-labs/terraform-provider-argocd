@@ -50,6 +50,7 @@ func repositoryCredentialsSchemaAttributes() map[string]schema.Attribute {
 			Optional:            true,
 			Computed:            true,
 			Default:             booldefault.StaticBool(false),
+		},
 		"type": schema.StringAttribute{
 			MarkdownDescription: "Type of the repository credentials. Can be either `git`, `oci` or `helm`. `git` is assumed if empty or absent.",
 			Optional:            true,
