@@ -5,14 +5,13 @@ import (
 	"flag"
 	"log"
 
+	"terraform-provider-argocd/internal/provider"
+
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6/tf6server"
 	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
 	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
-
-	"github.com/vogtph/terraform-provider-argocd/argocd"
-	"github.com/vogtph/terraform-provider-argocd/internal/provider"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website
@@ -44,7 +43,7 @@ func main() {
 
 	upgradedSdkServer, err := tf5to6server.UpgradeServer(
 		ctx,
-		argocd.Provider().GRPCProvider,
+		provider.Provider().GRPCProvider,
 	)
 
 	if err != nil {
@@ -73,8 +72,7 @@ func main() {
 	err = tf6server.Serve(
 		"registry.terraform.io/vogtph/argocd",
 		muxServer.ProviderServer,
-		serveOpts...,
-	)
+		serveOpts...)
 
 	if err != nil {
 		log.Fatal(err)
