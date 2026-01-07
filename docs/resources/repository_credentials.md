@@ -32,7 +32,7 @@ resource "argocd_repository_credentials" "private" {
 
 ### Optional
 
-- `enable_oci` (Boolean) Whether `helm-oci` support should be enabled for this repo
+- `enable_oci` (Boolean) Whether `helm-oci` support should be enabled for this repo. Can only be set to `true` when `type` is `helm`.
 - `githubapp_enterprise_base_url` (String) GitHub API URL for GitHub app authentication
 - `githubapp_id` (String) GitHub App ID of the app used to access the repo for GitHub app authentication
 - `githubapp_installation_id` (String) ID of the installed GitHub App for GitHub app authentication
@@ -41,6 +41,7 @@ resource "argocd_repository_credentials" "private" {
 - `ssh_private_key` (String, Sensitive) Private key data for authenticating at the repo server using SSH (only Git repos)
 - `tls_client_cert_data` (String) TLS client cert data for authenticating at the repo server
 - `tls_client_cert_key` (String, Sensitive) TLS client cert key for authenticating at the repo server
+- `type` (String) Type of the repository credentials. Can be either `git`, `oci` or `helm`. `git` is assumed if empty or absent.
 - `username` (String) Username for authenticating at the repo server
 
 ### Read-Only

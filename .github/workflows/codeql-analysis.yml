@@ -30,12 +30,12 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Set up Go
         if: matrix.language == 'go'
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version-file: "go.mod"
           cache: true
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@f47c8e6a9bd05ef3ee422fc8d8663be7fe4bdc61 # v3.31.8
+        uses: github/codeql-action/init@45c373516f557556c15d420e3f5e0aa3d64366bc # v3.31.9
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
@@ -47,6 +47,6 @@ jobs:
         if: matrix.language == 'go'
         run: TF_ACC=1 go test -c ./...
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@f47c8e6a9bd05ef3ee422fc8d8663be7fe4bdc61 # v3.31.8
+        uses: github/codeql-action/analyze@45c373516f557556c15d420e3f5e0aa3d64366bc # v3.31.9
         with:
           category: "/language:${{matrix.language}}"
