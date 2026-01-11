@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
@@ -2617,7 +2618,7 @@ resource "argocd_application" "multiple_sources" {
 func testAccArgoCDApplication_finalizersConfig(finalizers []string) string {
 	finalizersHCL := "[]"
 	if len(finalizers) > 0 {
-		finalizersHCL = fmt.Sprintf(`["%s"]`, joinStrings(finalizers, `", "`))
+		finalizersHCL = fmt.Sprintf(`["%s"]`, strings.Join(finalizers, `", "`))
 	}
 
 	return fmt.Sprintf(`
@@ -2647,17 +2648,6 @@ resource "argocd_application" "finalizers" {
 		}
 	}
 }`, finalizersHCL)
-}
-
-func joinStrings(strs []string, sep string) string {
-	if len(strs) == 0 {
-		return ""
-	}
-	result := strs[0]
-	for i := 1; i < len(strs); i++ {
-		result += sep + strs[i]
-	}
-	return result
 }
 
 func testAccArgoCDApplication_ManagedNamespaceMetadata() string {

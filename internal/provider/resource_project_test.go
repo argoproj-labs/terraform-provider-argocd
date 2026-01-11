@@ -3,6 +3,7 @@ package provider
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
@@ -1854,7 +1855,7 @@ func TestAccArgoCDProject_Finalizers(t *testing.T) {
 func testAccArgoCDProjectFinalizersConfig(name string, finalizers []string) string {
 	finalizersHCL := "[]"
 	if len(finalizers) > 0 {
-		finalizersHCL = fmt.Sprintf(`["%s"]`, joinStringsForHCL(finalizers, `", "`))
+		finalizersHCL = fmt.Sprintf(`["%s"]`, strings.Join(finalizers, `", "`))
 	}
 
 	return fmt.Sprintf(`
@@ -1878,15 +1879,3 @@ resource "argocd_project" "finalizers_test" {
 `, name, finalizersHCL)
 }
 
-func joinStringsForHCL(strs []string, sep string) string {
-	if len(strs) == 0 {
-		return ""
-	}
-
-	result := strs[0]
-	for i := 1; i < len(strs); i++ {
-		result += sep + strs[i]
-	}
-
-	return result
-}
