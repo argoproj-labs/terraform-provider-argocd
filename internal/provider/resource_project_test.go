@@ -1878,4 +1878,3 @@ resource "argocd_project" "finalizers_test" {
 }
 `, name, finalizersHCL)
 }
-
