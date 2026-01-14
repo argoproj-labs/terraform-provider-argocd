@@ -102,7 +102,7 @@ func resourceArgoCDAccountToken() *schema.Resource {
 			},
 			"expires_in": {
 				Type:         schema.TypeString,
-				Description:  "Duration before the token will expire. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. E.g. `12h`, `7d`. Default: No expiration.",
+				Description:  "Duration before the token will expire. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. E.g. `30m`, `12h`. Default: No expiration.",
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateDuration,
