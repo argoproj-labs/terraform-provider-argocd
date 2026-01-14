@@ -12,3 +12,5 @@ __debug_bin*
 
 # local reproduction folders
 reproduce/
+
+.DS_Store
