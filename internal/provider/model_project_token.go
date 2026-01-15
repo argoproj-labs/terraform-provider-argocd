@@ -46,7 +46,7 @@ func projectTokenSchemaAttributes() map[string]schema.Attribute {
 			},
 		},
 		"expires_in": schema.StringAttribute{
-			Description: "Duration before the token will expire. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. E.g. `12h`, `7d`. Default: No expiration.",
+			Description: "Duration before the token will expire. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. E.g. `30m`, `12h`. Default: No expiration.",
 			Optional:    true,
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
