@@ -1,11 +1,11 @@
 module github.com/argoproj-labs/terraform-provider-argocd
 
-go 1.25.0
+go 1.25.5
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/ProtonMail/gopenpgp/v3 v3.3.0
-	github.com/argoproj/argo-cd/v3 v3.2.3
+	github.com/argoproj/argo-cd/v3 v3.2.5
 	// make sure this matches with version used in Argo CD's go.mod
 	github.com/argoproj/gitops-engine v0.7.1-0.20251217140045-5baed5604d2d
 	github.com/argoproj/pkg v0.13.7-0.20250305113207-cbc37dc61de5
@@ -52,7 +52,7 @@ require (
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/alicebob/miniredis/v2 v2.35.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
-	github.com/argoproj/notifications-engine v0.4.1-0.20250908182349-da04400446ff // indirect
+	github.com/argoproj/notifications-engine v0.5.1-0.20251223091026-8c0c96d8d530 // indirect
 	github.com/argoproj/pkg/v2 v2.0.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go v1.55.7 // indirect
@@ -104,7 +104,7 @@ require (
 	github.com/evanphx/json-patch v5.9.11+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
-	github.com/expr-lang/expr v1.17.6 // indirect
+	github.com/expr-lang/expr v1.17.7 // indirect
 	github.com/fatih/camelcase v1.0.0 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
