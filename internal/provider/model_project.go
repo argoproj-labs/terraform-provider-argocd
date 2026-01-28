@@ -387,6 +387,18 @@ func newProject(project *v1alpha1.AppProject) *projectModel {
 	return p
 }
 
+// newProjectWithConfiguredFinalizers creates a projectModel from the API response,
+// but only includes finalizers that were configured by the user. This prevents
+// system-managed finalizers from appearing in state and causing drift.
+func newProjectWithConfiguredFinalizers(project *v1alpha1.AppProject, configuredFinalizers []types.String) *projectModel {
+	p := &projectModel{
+		Metadata: []objectMeta{newObjectMetaWithConfiguredFinalizers(project.ObjectMeta, configuredFinalizers)},
+		Spec:     []projectSpecModel{newProjectSpec(&project.Spec)},
+	}
+
+	return p
+}
+
 func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 	ps := projectSpecModel{
 		Description: types.StringValue(spec.Description),

@@ -43,6 +43,7 @@ Required:
 
 Optional:
 
+- `finalizers` (List of String) List of finalizers attached to the applications.argoproj.io. Finalizers are used to ensure proper resource cleanup. Must be empty before the object is deleted from the registry.
 - `namespace` (String) Namespace of the applications.argoproj.io, must be unique. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
 
 Read-Only:
