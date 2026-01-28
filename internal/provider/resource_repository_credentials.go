@@ -6,8 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/diagnostics"
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/sync"
+	"terraform-provider-argocd/internal/diagnostics"
+	"terraform-provider-argocd/internal/sync"
+
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/repocreds"
 	"github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-framework/diag"

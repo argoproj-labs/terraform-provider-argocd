@@ -1,7 +1,8 @@
 package provider
 
 import (
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/validators"
+	"terraform-provider-argocd/internal/validators"
+
 	"github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"

@@ -7,7 +7,6 @@ import (
 
 	"terraform-provider-argocd/internal/provider"
 
-	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6/tf6server"
 	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
@@ -43,7 +42,7 @@ func main() {
 
 	upgradedSdkServer, err := tf5to6server.UpgradeServer(
 		ctx,
-		provider.Provider().GRPCProvider,
+		argocd.Provider().GRPCProvider,
 	)
 
 	if err != nil {
@@ -51,7 +50,7 @@ func main() {
 	}
 
 	providers := []func() tfprotov6.ProviderServer{
-		providerserver.NewProtocol6(provider.New(version)),
+		provider.NewProtocol6(provider.New(version)),
 		func() tfprotov6.ProviderServer {
 			return upgradedSdkServer
 		},

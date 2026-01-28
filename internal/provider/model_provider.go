@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/diagnostics"
+	"terraform-provider-argocd/internal/diagnostics"
+
 	"github.com/argoproj/argo-cd/v3/cmd/argocd/commands/headless"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/session"

@@ -2,17 +2,17 @@
 
 Contributions are welcome! 
 
-[![Contributors](https://img.shields.io/github/contributors/argoproj-labs/terraform-provider-argocd)](https://github.com/argoproj-labs/terraform-provider-argocd)
-[![Last commit](https://img.shields.io/github/last-commit/argoproj-labs/terraform-provider-argocd)](https://github.com/argoproj-labs/terraform-provider-argocd)
-[![Stars](https://img.shields.io/github/stars/argoproj-labs/terraform-provider-argocd)](https://github.com/argoproj-labs/hera/terraofrm-provider-argocd)
+[![Contributors](https://img.shields.io/github/contributors/vogtph/terraform-provider-argocd)](https://terraform-provider-argocd)
+[![Last commit](https://img.shields.io/github/last-commit/vogtph/terraform-provider-argocd)](https://terraform-provider-argocd)
+[![Stars](https://img.shields.io/github/stars/vogtph/terraform-provider-argocd)](https://github.com/vogtph/hera/terraofrm-provider-argocd)
 
 ## New Contributor Guide
 
 If you are a new contributor this section aims to show you everything you need to get started.
 
-We especially welcome contributions to issues that are labeled with ["good-first-issue"](https://github.com/argoproj-labs/terraform-provider-argocd/issues?q=is%3Aopen%20is%3Aissue%20label%3A%22good%20first%20issue%22)
+We especially welcome contributions to issues that are labeled with ["good-first-issue"](https://terraform-provider-argocd/issues?q=is%3Aopen%20is%3Aissue%20label%3A%22good%20first%20issue%22)
 or
-["help-wanted"](https://github.com/argoproj-labs/terraform-provider-argocd/issues?q=is%3Aopen%20is%3Aissue%20label%3A%22help%20wanted%22).
+["help-wanted"](https://terraform-provider-argocd/issues?q=is%3Aopen%20is%3Aissue%20label%3A%22help%20wanted%22).
 
 We also encourage contributions in the form of:
 - bug/crash reports
@@ -33,7 +33,7 @@ To contribute to this Provider you need the following tools installed locally:
 
 If you don't want to install tools locally you can use Github Codespaces to contribute to this project. We have a pre-configured codespace that should have all tools installed already:
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new/argoproj-labs/terraform-provider-argocd)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new/vogtph/terraform-provider-argocd)
 
 ## Contributing checklist
 
@@ -90,7 +90,7 @@ Open a terminal session and export the `TF_REATTACH_PROVIDERS` variable in this 
 Example of such a command:
 
 ```console
-export TF_REATTACH_PROVIDERS='{"registry.terraform.io/argoproj-labs/argocd":{"Protocol":"grpc","ProtocolVersion":6,"Pid":2065,"Test":true,"Addr":{"Network":"unix","String":"/var/folders/rj/_02y2jmn3k1bxx45wlzt2dkc0000gn/T/plugin193859953"}}}' 
+export TF_REATTACH_PROVIDERS='{"registry.terraform.io/vogtph/argocd":{"Protocol":"grpc","ProtocolVersion":6,"Pid":2065,"Test":true,"Addr":{"Network":"unix","String":"/var/folders/rj/_02y2jmn3k1bxx45wlzt2dkc0000gn/T/plugin193859953"}}}' 
 terraform apply -auto-approve # will use the provider running in debug-mode
 ```
 
@@ -122,7 +122,7 @@ Then write this config to a file:
 ```hcl filename="../reproduce/.terraformrc"
 provider_installation {
   dev_overrides {
-    "argoproj-labs/argocd" = "/Users/username/go/bin" # path must be absolute and point to the directoy containing the binary
+    "vogtph/argocd" = "/Users/username/go/bin" # path must be absolute and point to the directoy containing the binary
   }
 
   direct {}

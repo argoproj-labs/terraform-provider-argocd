@@ -591,7 +591,7 @@ func TestAccArgoCDProjectToken_ProviderUpgradeStateMigration(t *testing.T) {
 				ExternalProviders: map[string]resource.ExternalProvider{
 					"argocd": {
 						VersionConstraint: "7.12.0",
-						Source:            "argoproj-labs/argocd",
+						Source:            "vogtph/argocd",
 					},
 				},
 				Config: config,

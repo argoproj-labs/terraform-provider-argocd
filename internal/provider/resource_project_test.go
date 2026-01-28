@@ -5,7 +5,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	"terraform-provider-argocd/internal/features"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
@@ -1358,7 +1359,7 @@ func TestAccArgoCDProject_ProviderUpgradeStateMigration(t *testing.T) {
 				ExternalProviders: map[string]resource.ExternalProvider{
 					"argocd": {
 						VersionConstraint: "7.12.0",
-						Source:            "argoproj-labs/argocd",
+						Source:            "vogtph/argocd",
 					},
 				},
 				Config: config,
@@ -1488,7 +1489,7 @@ func TestAccArgoCDProject_ProviderUpgradeStateMigration_WithoutNamespace(t *test
 				ExternalProviders: map[string]resource.ExternalProvider{
 					"argocd": {
 						VersionConstraint: "7.12.1",
-						Source:            "argoproj-labs/argocd",
+						Source:            "vogtph/argocd",
 					},
 				},
 				Config: config,

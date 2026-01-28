@@ -24,7 +24,7 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArgoCDRepositoryCredentialsSimple(
-					"https://github.com/argoproj-labs/terraform-provider-argocd",
+					"https://terraform-provider-argocd",
 				),
 			},
 			{
@@ -178,7 +178,7 @@ func generateSSHPrivateKey() (privateKey string, err error) {
 
 func TestAccArgoCDRepositoryCredentials_UsernamePasswordConsistency(t *testing.T) {
 	config := testAccArgoCDRepositoryCredentialsSimple(
-		"https://github.com/argoproj-labs/terraform-provider-argocd",
+		"https://terraform-provider-argocd",
 	)
 
 	resource.Test(t, resource.TestCase{
@@ -188,14 +188,14 @@ func TestAccArgoCDRepositoryCredentials_UsernamePasswordConsistency(t *testing.T
 			{
 				Config: config,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("argocd_repository_credentials.simple", "url", "https://github.com/argoproj-labs/terraform-provider-argocd"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.simple", "url", "https://terraform-provider-argocd"),
 				),
 			},
 			{
 				// Apply the same configuration again to test for consistency
 				Config: config,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("argocd_repository_credentials.simple", "url", "https://github.com/argoproj-labs/terraform-provider-argocd"),
+					resource.TestCheckResourceAttr("argocd_repository_credentials.simple", "url", "https://terraform-provider-argocd"),
 				),
 			},
 		},
@@ -357,7 +357,7 @@ resource "argocd_repository" "repo" {
 }
 
 func TestAccArgoCDRepositoryCredentials_TypeWithEnableOCI(t *testing.T) {
-	// This test reproduces issue #791: https://github.com/argoproj-labs/terraform-provider-argocd/issues/791
+	// This test reproduces issue #791: https://terraform-provider-argocd/issues/791
 	// When enable_oci = true, the type should be "helm", but without a type parameter,
 	// the provider can't handle this correctly and causes "inconsistent result after apply" errors.
 	resource.Test(t, resource.TestCase{

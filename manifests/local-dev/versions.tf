@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     argocd = {
-      source  = "argoproj-labs/argocd"
+      source  = "vogtph/argocd"
       version = ">= 6.2.0"
     }
     kind = {

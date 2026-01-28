@@ -558,7 +558,7 @@ resource "argocd_repository" "private" {
 				ExternalProviders: map[string]resource.ExternalProvider{
 					"argocd": {
 						VersionConstraint: "7.8.0",
-						Source:            "argoproj-labs/argocd",
+						Source:            "vogtph/argocd",
 					},
 				},
 				Config: config,

@@ -3,8 +3,9 @@ package provider
 import (
 	"fmt"
 
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/utils"
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/validators"
+	"terraform-provider-argocd/internal/utils"
+	"terraform-provider-argocd/internal/validators"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"

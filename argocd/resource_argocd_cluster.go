@@ -43,7 +43,7 @@ func resourceArgoCDClusterCreate(ctx context.Context, d *schema.ResourceData, me
 	// Cluster are unique by "server address" so we should check there is no existing cluster with this address before
 	existingClusters, err := si.ClusterClient.List(ctx, &clusterClient.ClusterQuery{
 		// Starting argo-cd server v2.8.0 filtering on list api endpoint is fixed, else it is ignored, see:
-		// - https://github.com/oboukili/terraform-provider-argocd/issues/266#issuecomment-1739122022
+		// - https://terraform-provider-argocd/issues/266#issuecomment-1739122022
 		// - https://github.com/argoproj/argo-cd/pull/13363
 		Id: &clusterClient.ClusterID{
 			Type:  "server",
@@ -106,7 +106,7 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 			return nil
 		}
 
-		// Fix for https://github.com/oboukili/terraform-provider-argocd/issues/266
+		// Fix for https://terraform-provider-argocd/issues/266
 		// This fix is added here as a workaround to ensure backward compatibility, as
 		//   it is triggered only on the specific usecase where the issue happens.
 		// Additional remarks about this code:
@@ -126,7 +126,7 @@ func resourceArgoCDClusterRead(ctx context.Context, d *schema.ResourceData, meta
 			// Cluster are unique by "server address" so we should check there is no existing cluster with this address before
 			existingClusters, err := si.ClusterClient.List(ctx, &clusterClient.ClusterQuery{
 				// Starting argo-cd server v2.8.0 filtering on list api endpoint is fixed, else it is ignored, see:
-				// - https://github.com/oboukili/terraform-provider-argocd/issues/266#issuecomment-1739122022
+				// - https://terraform-provider-argocd/issues/266#issuecomment-1739122022
 				// - https://github.com/argoproj/argo-cd/pull/13363
 				Id: &clusterClient.ClusterID{
 					Type:  "server",

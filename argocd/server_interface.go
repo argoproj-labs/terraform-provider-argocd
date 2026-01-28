@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"sync"
 
+	"terraform-provider-argocd/internal/diagnostics"
+	"terraform-provider-argocd/internal/features"
+
 	"github.com/Masterminds/semver/v3"
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/diagnostics"
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/account"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/application"

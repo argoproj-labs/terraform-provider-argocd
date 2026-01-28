@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	"terraform-provider-argocd/internal/features"
 
 	"github.com/argoproj/argo-cd/v3/util/rbac"
 

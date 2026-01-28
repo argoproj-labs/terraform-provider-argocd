@@ -8,10 +8,10 @@
 
 # Terraform Provider for ArgoCD
 
-[![Tests](https://github.com/argoproj-labs/terraform-provider-argocd/actions/workflows/tests.yml/badge.svg)](https://github.com/argoproj-labs/terraform-provider-argocd/actions/workflows/tests.yml)
+[![Tests](https://terraform-provider-argocd/actions/workflows/tests.yml/badge.svg)](https://terraform-provider-argocd/actions/workflows/tests.yml)
 
 The [ArgoCD Terraform
-Provider](https://registry.terraform.io/providers/argoproj-labs/argocd/latest/docs)
+Provider](https://registry.terraform.io/providers/vogtph/argocd/latest/docs)
 provides lifecycle management of
 [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) resources.
 
@@ -27,7 +27,7 @@ from where you are running Terraform.
 
 Official documentation on how to use this provider can be found on the
 [Terraform
-Registry](https://registry.terraform.io/providers/argoproj-labs/argocd/latest/docs).
+Registry](https://registry.terraform.io/providers/vogtph/argocd/latest/docs).
 
 ## Version Compatibility 
 
@@ -80,10 +80,10 @@ in the process.
 
 ## Upgrading
 
-### Migrate provider source `oboukili` -> `argoproj-labs`
+### Migrate provider source `oboukili` -> `vogtph`
 
 As announced in the releases [v6.2.0] and [v7.0.0], we moved the provider from "github.com/**oboukili**/terraform-provider-argocd/" 
-to "github.com/**argoproj-labs**/terraform-provider-argocd". Users need to migrate their Terraform state according to
+to "github.com/**vogtph**/terraform-provider-argocd". Users need to migrate their Terraform state according to
 HashiCorps [replace-provider] docs. In summary, you can do the following:
 
 1. List currently used providers
@@ -115,7 +115,7 @@ HashiCorps [replace-provider] docs. In summary, you can do the following:
         }
         argocd = {
     -      source  = "oboukili/argocd"
-    +      source  = "argoproj-labs/argocd"
+    +      source  = "vogtph/argocd"
         version = "6.1.1"
         }
         helm = {
@@ -129,12 +129,12 @@ HashiCorps [replace-provider] docs. In summary, you can do the following:
     Initializing provider plugins...
     - Finding (..)
     - Finding oboukili/argocd versions matching "6.1.1"...
-    - Finding latest version of argoproj-labs/argocd...
+    - Finding latest version of vogtph/argocd...
     - (..)
     - Installing oboukili/argocd v6.1.1...
     - Installed oboukili/argocd v6.1.1 (self-signed, key ID 09A6EABF546E8638)
-    - Installing argoproj-labs/argocd v7.0.0...
-    - Installed argoproj-labs/argocd v7.0.0 (self-signed, key ID 6421DA8DFD8F48D0)
+    - Installing vogtph/argocd v7.0.0...
+    - Installed vogtph/argocd v7.0.0 (self-signed, key ID 6421DA8DFD8F48D0)
     (..)
 
     HCP Terraform has been successfully initialized!
@@ -145,12 +145,12 @@ HashiCorps [replace-provider] docs. In summary, you can do the following:
 4. Then, execute the migration via `terraform state replace-provider`:
 
     ```bash
-    $ terraform state replace-provider registry.terraform.io/oboukili/argocd registry.terraform.io/argoproj-labs/argocd
+    $ terraform state replace-provider registry.terraform.io/oboukili/argocd registry.terraform.io/vogtph/argocd
     Terraform will perform the following actions:
 
     ~ Updating provider:
         - registry.terraform.io/oboukili/argocd
-        + registry.terraform.io/argoproj-labs/argocd
+        + registry.terraform.io/vogtph/argocd
 
     Changing 5 resources:
 
@@ -173,10 +173,10 @@ HashiCorps [replace-provider] docs. In summary, you can do the following:
 ## Credits
 
 * We would like to thank [Olivier Boukili] for creating this awesome Terraform provider and moving the project over to
-  [argoproj-labs] on Apr 5th 2024.
+  [vogtph] on Apr 5th 2024.
 
-[argoproj-labs]: https://github.com/argoproj-labs
+[vogtph]: https://github.com/vogtph
 [Olivier Boukili]: https://github.com/oboukili
-[v6.2.0]: https://github.com/argoproj-labs/terraform-provider-argocd/releases/tag/v6.2.0
-[v7.0.0]: https://github.com/argoproj-labs/terraform-provider-argocd/releases/tag/v7.0.0
+[v6.2.0]: https://terraform-provider-argocd/releases/tag/v6.2.0
+[v7.0.0]: https://terraform-provider-argocd/releases/tag/v7.0.0
 [replace-provider]: https://developer.hashicorp.com/terraform/cli/commands/state/replace-provider

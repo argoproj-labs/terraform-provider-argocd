@@ -1,4 +1,4 @@
-module github.com/vogtph/terraform-provider-argocd
+module terraform-provider-argocd
 
 go 1.25.0
 

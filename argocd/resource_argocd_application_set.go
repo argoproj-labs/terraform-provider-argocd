@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	"terraform-provider-argocd/internal/features"
+
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/applicationset"
 	application "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"

@@ -16,7 +16,7 @@
     </envs>
     <framework value="gotest" />
     <kind value="DIRECTORY" />
-    <package value="github.com/argoproj-labs/terraform-provider-argocd" />
+    <package value="terraform-provider-argocd" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$" />
     <method v="2" />
