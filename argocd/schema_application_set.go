@@ -414,6 +414,11 @@ func applicationSetGitGeneratorSchemaV0() *schema.Schema {
 					Description: "Prefix for all path-related parameter names.",
 					Optional:    true,
 				},
+				"requeue_after_seconds": {
+					Type:        schema.TypeString,
+					Description: "How often to check for changes (in seconds). Default: 3min.",
+					Optional:    true,
+				},
 				"template": {
 					Type:        schema.TypeList,
 					Description: "Generator template. Used to override the values of the spec-level template.",
