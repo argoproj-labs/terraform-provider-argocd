@@ -1265,6 +1265,7 @@ resource "argocd_application_set" "git_directories" {
 					path = "applicationset/examples/git-generator-directory/excludes/cluster-addons/exclude-helm-guestbook"
 					exclude = true
 				}
+				requeue_after_seconds = "30"
 			}
 		}
 
@@ -1441,6 +1442,7 @@ resource "argocd_application_set" "matrix" {
 						directory {
 							path = "applicationset/examples/matrix/cluster-addons/*"
 						}
+						requeue_after_seconds = "30"
 					}
 				}
 
@@ -1493,13 +1495,13 @@ resource "argocd_application_set" "matrix-plugin_generator" {
 				generator {
 					plugin {
 						config_map_ref = "plugin"
-		
+
 						input {
 							parameters = {
 								key1 = "value1"
 							}
 						}
-		
+
 						requeue_after_seconds = 30
 					}
 				}
