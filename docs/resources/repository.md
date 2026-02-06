@@ -58,6 +58,7 @@ resource "argocd_repository" "private" {
 - `tls_client_cert_data` (String) TLS client certificate in PEM format for authenticating at the repo server.
 - `tls_client_cert_key` (String, Sensitive) TLS client certificate private key in PEM format for authenticating at the repo server.
 - `type` (String) Type of the repo. Can be either `git` or `helm`. `git` is assumed if empty or absent.
+- `use_azure_workload_identity` (Boolean) Whether `Azure-Workload-identity` should be enabled for this repository.
 - `username` (String) Username used for authenticating at the remote repository.
 
 ### Read-Only

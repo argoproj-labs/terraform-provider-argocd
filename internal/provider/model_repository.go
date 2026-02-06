@@ -20,6 +20,7 @@ type repositoryModel struct {
 	Name                       types.String `tfsdk:"name"`
 	Type                       types.String `tfsdk:"type"`
 	Project                    types.String `tfsdk:"project"`
+	UseAzureWorkloadIdentity   types.Bool   `tfsdk:"use_azure_workload_identity"`
 	Username                   types.String `tfsdk:"username"`
 	Password                   types.String `tfsdk:"password"`
 	SSHPrivateKey              types.String `tfsdk:"ssh_private_key"`
@@ -69,6 +70,12 @@ func repositorySchemaAttributes() map[string]schema.Attribute {
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
 			},
+		},
+		"use_azure_workload_identity": schema.BoolAttribute{
+			MarkdownDescription: "Whether `Azure-Workload-identity` should be enabled for this repository.",
+			Optional:            true,
+			Computed:            true,
+			Default:             booldefault.StaticBool(false),
 		},
 		"username": schema.StringAttribute{
 			MarkdownDescription: "Username used for authenticating at the remote repository.",
@@ -153,6 +160,7 @@ func (m *repositoryModel) toAPIModel() (*v1alpha1.Repository, error) {
 		Name:                       m.Name.ValueString(),
 		Type:                       m.Type.ValueString(),
 		Project:                    m.Project.ValueString(),
+		UseAzureWorkloadIdentity:   m.UseAzureWorkloadIdentity.ValueBool(),
 		Username:                   m.Username.ValueString(),
 		Password:                   m.Password.ValueString(),
 		BearerToken:                m.BearerToken.ValueString(),
@@ -200,6 +208,7 @@ func (m *repositoryModel) updateFromAPI(repo *v1alpha1.Repository) *repositoryMo
 
 	m.Repo = types.StringValue(repo.Repo)
 	m.Type = types.StringValue(repo.Type)
+	m.UseAzureWorkloadIdentity = types.BoolValue(repo.UseAzureWorkloadIdentity)
 	m.EnableLFS = types.BoolValue(repo.EnableLFS)
 	m.EnableOCI = types.BoolValue(repo.EnableOCI)
 	m.Insecure = types.BoolValue(repo.Insecure)
