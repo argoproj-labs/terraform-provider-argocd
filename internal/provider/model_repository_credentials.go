@@ -18,6 +18,7 @@ import (
 type repositoryCredentialsModel struct {
 	ID                         types.String `tfsdk:"id"`
 	URL                        types.String `tfsdk:"url"`
+	UseAzureWorkloadIdentity   types.Bool   `tfsdk:"use_azure_workload_identity"`
 	Type                       types.String `tfsdk:"type"`
 	Username                   types.String `tfsdk:"username"`
 	Password                   types.String `tfsdk:"password"`
@@ -88,6 +89,12 @@ func repositoryCredentialsSchemaAttributes() map[string]schema.Attribute {
 				validators.EnableOCIRequiresHelmType(),
 			},
 		},
+		"use_azure_workload_identity": schema.BoolAttribute{
+			MarkdownDescription: "Whether `Azure-Workload-identity` should be enabled for this repository.",
+			Optional:            true,
+			Computed:            true,
+			Default:             booldefault.StaticBool(false),
+		},
 		"githubapp_id": schema.StringAttribute{
 			MarkdownDescription: "GitHub App ID of the app used to access the repo for GitHub app authentication",
 			Optional:            true,
@@ -120,6 +127,7 @@ func repositoryCredentialsSchemaAttributes() map[string]schema.Attribute {
 func (m *repositoryCredentialsModel) toAPIModel() (*v1alpha1.RepoCreds, error) {
 	creds := &v1alpha1.RepoCreds{
 		URL:                        m.URL.ValueString(),
+		UseAzureWorkloadIdentity:   m.UseAzureWorkloadIdentity.ValueBool(),
 		Type:                       m.Type.ValueString(),
 		Username:                   m.Username.ValueString(),
 		Password:                   m.Password.ValueString(),

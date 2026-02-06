@@ -39,6 +39,36 @@ func TestAccArgoCDRepository_Simple(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDRepository_UseAzureWorkloadIdentity(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDRepositoryUseAzureWorkloadIdentity(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_repository.azurewi", "use_azure_workload_identity", "true"),
+				),
+			},
+			{
+				Config: testAccArgoCDRepositoryUseAzureWorkloadIdentity(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_repository.azurewi", "use_azure_workload_identity", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccArgoCDRepositoryUseAzureWorkloadIdentity() string {
+	return `
+resource "argocd_repository" "azurewi" {
+  repo                        = "https://github.com/argoproj-labs/terraform-provider-argocd"
+  use_azure_workload_identity = true
+}
+`
+}
+
 func TestAccArgoCDRepository_Helm(t *testing.T) {
 	projectName := acctest.RandString(10)
 

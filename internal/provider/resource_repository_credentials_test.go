@@ -66,6 +66,36 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDRepositoryCredentials_UseAzureWorkloadIdentity(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDRepositoryCredentialsUseAzureWorkloadIdentity("https://github.com/argoproj-labs/terraform-provider-argocd"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_repository_credentials.azurewi", "use_azure_workload_identity", "true"),
+				),
+			},
+			{
+				Config: testAccArgoCDRepositoryCredentialsUseAzureWorkloadIdentity("https://github.com/argoproj-labs/terraform-provider-argocd"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_repository_credentials.azurewi", "use_azure_workload_identity", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccArgoCDRepositoryCredentialsUseAzureWorkloadIdentity(repoUrl string) string {
+	return fmt.Sprintf(`
+resource "argocd_repository_credentials" "azurewi" {
+  url                          = "%s"
+  use_azure_workload_identity  = true
+}
+`, repoUrl)
+}
+
 func TestAccArgoCDRepositoryCredentials_GitHubApp(t *testing.T) {
 	sshPrivateKey, err := generateSSHPrivateKey()
 	assert.NoError(t, err)
