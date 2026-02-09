@@ -160,8 +160,14 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 
 	tflog.Trace(ctx, fmt.Sprintf("created project %s", projectName))
 
-	// Parse response and store state
-	projectData := newProject(p)
+	// Get configured finalizers for filtering
+	var configuredFinalizers []types.String
+	if len(data.Metadata) > 0 {
+		configuredFinalizers = data.Metadata[0].Finalizers
+	}
+
+	// Parse response and store state with filtered finalizers
+	projectData := newProjectWithConfiguredFinalizers(p, configuredFinalizers)
 	projectData.ID = types.StringValue(projectName)
 
 	// Preserve empty lists from plan that ArgoCD might have normalized to null (issue #788)
@@ -282,8 +288,14 @@ func (r *projectResource) readUnsafe(ctx context.Context, data projectModel, pla
 		return
 	}
 
-	// Save updated data into Terraform state
-	apiData := newProject(p)
+	// Get configured finalizers for filtering
+	var configuredFinalizers []types.String
+	if len(data.Metadata) > 0 {
+		configuredFinalizers = data.Metadata[0].Finalizers
+	}
+
+	// Save updated data into Terraform state with filtered finalizers
+	apiData := newProjectWithConfiguredFinalizers(p, configuredFinalizers)
 	apiData.ID = types.StringValue(projectName)
 
 	// Preserve empty lists from prior state/plan that ArgoCD might have normalized to null (issue #788)
@@ -301,9 +313,13 @@ func (r *projectResource) readUnsafe(ctx context.Context, data projectModel, pla
 
 func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data projectModel
+	var stateData projectModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+
+	// Read Terraform state data for comparison (needed for finalizer merging)
+	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
 
 	// Initialize API clients
 	resp.Diagnostics.Append(r.si.InitClients(ctx)...)
@@ -358,6 +374,19 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	// Merge finalizers: preserve system finalizers while allowing user to manage their own
+	var oldFinalizers []types.String
+	if len(stateData.Metadata) > 0 {
+		oldFinalizers = stateData.Metadata[0].Finalizers
+	}
+
+	var newFinalizers []types.String
+	if len(data.Metadata) > 0 {
+		newFinalizers = data.Metadata[0].Finalizers
+	}
+
+	objectMeta.Finalizers = mergeFinalizersForUpdate(p.Finalizers, oldFinalizers, newFinalizers)
+
 	// Preserve preexisting JWTs for managed roles
 	roles := expandProjectRoles(ctx, data.Spec[0].Role)
 	for _, r := range roles {
@@ -401,20 +430,31 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	tflog.Trace(ctx, fmt.Sprintf("updated project %s", projectName))
 
-	// Read updated resource with plan context for proper empty list preservation
-	readReq := resource.ReadRequest{State: req.State}
-	readResp := resource.ReadResponse{State: resp.State, Diagnostics: resp.Diagnostics}
+	// Read updated project back from ArgoCD
+	p, err = r.si.ProjectClient.Get(ctx, &project.ProjectQuery{
+		Name: projectName,
+	})
+	if err != nil {
+		resp.Diagnostics.Append(diagnostics.ArgoCDAPIError("read", "project", projectName, err)...)
+		return
+	}
 
-	var updatedData projectModel
+	// Get configured finalizers for filtering
+	var configuredFinalizers []types.String
+	if len(data.Metadata) > 0 {
+		configuredFinalizers = data.Metadata[0].Finalizers
+	}
 
-	// Read Terraform state data into the model
-	resp.Diagnostics.Append(readReq.State.Get(ctx, &updatedData)...)
+	// Parse response and store state with filtered finalizers
+	projectData := newProjectWithConfiguredFinalizers(p, configuredFinalizers)
+	projectData.ID = types.StringValue(projectName)
 
-	// Pass plan to readUnsafe so it uses the plan (not old state) for preservation
-	r.readUnsafe(ctx, updatedData, &data, projectName, &readResp)
+	// Preserve empty lists from plan that ArgoCD might have normalized to null (issue #788)
+	if len(data.Spec) > 0 {
+		preserveEmptyLists(&data.Spec[0], &projectData.Spec[0])
+	}
 
-	resp.State = readResp.State
-	resp.Diagnostics = readResp.Diagnostics
+	resp.Diagnostics.Append(resp.State.Set(ctx, projectData)...)
 }
 
 func (r *projectResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -536,6 +576,15 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 		}
 
 		objectMeta.Annotations = annotations
+	}
+
+	if len(data.Metadata[0].Finalizers) > 0 {
+		finalizers := make([]string, len(data.Metadata[0].Finalizers))
+		for i, f := range data.Metadata[0].Finalizers {
+			finalizers[i] = f.ValueString()
+		}
+
+		objectMeta.Finalizers = finalizers
 	}
 
 	spec := v1alpha1.AppProjectSpec{}

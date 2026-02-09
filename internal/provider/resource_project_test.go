@@ -3,6 +3,7 @@ package provider
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
@@ -94,6 +95,25 @@ func TestAccArgoCDProject(t *testing.T) {
 						"argocd_project.simple",
 						"metadata.0.uid",
 						// TODO: check all possible attributes
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDProjectSimpleWithFinalizers(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.simple",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.simple",
+						"metadata.0.finalizers.0",
+						"finalizer1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.simple",
+						"metadata.0.finalizers.1",
+						"finalizer2",
 					),
 				),
 			},
@@ -425,6 +445,34 @@ func testAccArgoCDProjectSimpleWithoutOrphaned(name string) string {
       annotations = {
         "this.is.a.really.long.nested.key" = "yes, really!"
       }
+    }
+  
+    spec {
+      description  = "simple project"
+      source_repos = ["*"]
+  
+      destination {
+        name      = "anothercluster"
+        namespace = "bar"
+      }
+    }
+  }
+	`, name)
+}
+
+func testAccArgoCDProjectSimpleWithFinalizers(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "simple" {
+    metadata {
+      name      = "%s"
+      namespace = "argocd"
+      labels = {
+        acceptance = "true"
+      }
+      annotations = {
+        "this.is.a.really.long.nested.key" = "yes, really!"
+      }
+      finalizers = ["finalizer1", "finalizer2"]
     }
   
     spec {
@@ -1733,4 +1781,100 @@ resource "argocd_project" "comprehensive" {
   }
 }
 	`, name, name, name)
+}
+
+func TestAccArgoCDProject_Finalizers(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-finalizers")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Step 1: Create with one finalizer
+			{
+				Config: testAccArgoCDProjectFinalizersConfig(name, []string{"resources-finalizer.argocd.argoproj.io"}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.finalizers_test",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.finalizers_test",
+						"metadata.0.finalizers.#",
+						"1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.finalizers_test",
+						"metadata.0.finalizers.0",
+						"resources-finalizer.argocd.argoproj.io",
+					),
+				),
+			},
+			// Step 2: Add a second finalizer
+			{
+				Config: testAccArgoCDProjectFinalizersConfig(name, []string{"resources-finalizer.argocd.argoproj.io", "custom-finalizer.example.com"}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.finalizers_test",
+						"metadata.0.finalizers.#",
+						"2",
+					),
+				),
+			},
+			// Step 3: Remove the first finalizer (verify user can remove finalizers they set)
+			{
+				Config: testAccArgoCDProjectFinalizersConfig(name, []string{"custom-finalizer.example.com"}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.finalizers_test",
+						"metadata.0.finalizers.#",
+						"1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.finalizers_test",
+						"metadata.0.finalizers.0",
+						"custom-finalizer.example.com",
+					),
+				),
+			},
+			// Step 4: Remove all finalizers
+			{
+				Config: testAccArgoCDProjectFinalizersConfig(name, []string{}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.finalizers_test",
+						"metadata.0.finalizers.#",
+						"0",
+					),
+				),
+			},
+		},
+	})
+}
+
+func testAccArgoCDProjectFinalizersConfig(name string, finalizers []string) string {
+	finalizersHCL := "[]"
+	if len(finalizers) > 0 {
+		finalizersHCL = fmt.Sprintf(`["%s"]`, strings.Join(finalizers, `", "`))
+	}
+
+	return fmt.Sprintf(`
+resource "argocd_project" "finalizers_test" {
+  metadata {
+    name       = "%s"
+    namespace  = "argocd"
+    finalizers = %s
+  }
+
+  spec {
+    description  = "finalizers test project"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "*"
+    }
+  }
+}
+`, name, finalizersHCL)
 }
