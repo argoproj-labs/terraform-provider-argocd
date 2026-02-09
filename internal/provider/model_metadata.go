@@ -72,14 +72,23 @@ func objectMetaSchemaAttribute(objectName string, computed bool) schema.Attribut
 			"generation": schema.Int64Attribute{
 				MarkdownDescription: "A sequence number representing a specific generation of the desired state.",
 				Computed:            true,
+				PlanModifiers: []planmodifier.Int64{
+					UseUnknownOnUpdateInt64(),
+				},
 			},
 			"resource_version": schema.StringAttribute{
 				MarkdownDescription: fmt.Sprintf("An opaque value that represents the internal version of this %s that can be used by clients to determine when the %s has changed. Read more: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency", objectName, objectName),
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					UseUnknownOnUpdateString(),
+				},
 			},
 			"uid": schema.StringAttribute{
 				MarkdownDescription: fmt.Sprintf("The unique in time and space value for this %s. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids", objectName),
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 	}
@@ -135,14 +144,23 @@ func objectMetaSchemaListBlock(objectName string) schema.Block {
 				"generation": schema.Int64Attribute{
 					MarkdownDescription: "A sequence number representing a specific generation of the desired state.",
 					Computed:            true,
+					PlanModifiers: []planmodifier.Int64{
+						UseUnknownOnUpdateInt64(),
+					},
 				},
 				"resource_version": schema.StringAttribute{
 					MarkdownDescription: fmt.Sprintf("An opaque value that represents the internal version of this %s that can be used by clients to determine when the %s has changed. Read more: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency", objectName, objectName),
 					Computed:            true,
+					PlanModifiers: []planmodifier.String{
+						UseUnknownOnUpdateString(),
+					},
 				},
 				"uid": schema.StringAttribute{
 					MarkdownDescription: fmt.Sprintf("The unique in time and space value for this %s. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids", objectName),
 					Computed:            true,
+					PlanModifiers: []planmodifier.String{
+						stringplanmodifier.UseStateForUnknown(),
+					},
 				},
 			},
 		},
