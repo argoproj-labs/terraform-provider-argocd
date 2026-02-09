@@ -1734,3 +1734,261 @@ resource "argocd_project" "comprehensive" {
 }
 	`, name, name, name)
 }
+
+// TestAccArgoCDProject_MetadataComputedFieldsOnUpdate tests that computed metadata fields
+// (resource_version, generation, uid) don't cause "inconsistent state after apply" errors
+// when the spec is updated with lifecycle { ignore_changes = [metadata] }.
+// This is a regression test for issue #807.
+// See: https://github.com/argoproj-labs/terraform-provider-argocd/issues/807
+func TestAccArgoCDProject_MetadataComputedFieldsOnUpdate(t *testing.T) {
+	name := acctest.RandString(10)
+
+	// Initial configuration with lifecycle ignore_changes on metadata
+	// This replicates the exact scenario from issue #807
+	configInitial := fmt.Sprintf(`
+resource "argocd_project" "metadata_computed" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      "test" = "initial"
+    }
+  }
+
+  spec {
+    description  = "initial description"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [metadata]
+  }
+}
+`, name)
+
+	// Updated configuration - changes the spec but keeps metadata the same
+	// With ignore_changes = [metadata], this should trigger resource_version
+	// and generation changes without causing "inconsistent state after apply" errors
+	configUpdated := fmt.Sprintf(`
+resource "argocd_project" "metadata_computed" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    labels = {
+      "test" = "initial"
+    }
+  }
+
+  spec {
+    description  = "updated description"
+    source_repos = ["*", "https://github.com/example/repo"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "test"
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [metadata]
+  }
+}
+`, name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: configInitial,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.metadata_computed",
+						"metadata.0.name",
+						name,
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.metadata_computed",
+						"metadata.0.resource_version",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.metadata_computed",
+						"metadata.0.generation",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.metadata_computed",
+						"metadata.0.uid",
+					),
+				),
+			},
+			{
+				// Update the spec - this should not cause inconsistent state errors
+				// even though resource_version and generation will change
+				Config: configUpdated,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.metadata_computed",
+						"spec.0.description",
+						"updated description",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.metadata_computed",
+						"metadata.0.resource_version",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.metadata_computed",
+						"metadata.0.generation",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to ensure no drift
+				Config: configUpdated,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+// TestAccArgoCDProject_MultipleSpecUpdates tests that multiple sequential spec updates
+// don't cause inconsistent state errors due to rapidly changing resource_version/generation.
+// This is a stress test for issue #807.
+func TestAccArgoCDProject_MultipleSpecUpdates(t *testing.T) {
+	name := acctest.RandString(10)
+
+	configs := []string{
+		// Config 1: Initial
+		fmt.Sprintf(`
+resource "argocd_project" "multi_update" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "version 1"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+`, name),
+		// Config 2: Update description
+		fmt.Sprintf(`
+resource "argocd_project" "multi_update" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "version 2"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+`, name),
+		// Config 3: Add destination
+		fmt.Sprintf(`
+resource "argocd_project" "multi_update" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "version 3"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "kube-system"
+    }
+  }
+}
+`, name),
+		// Config 4: Add role
+		fmt.Sprintf(`
+resource "argocd_project" "multi_update" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "version 4"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "kube-system"
+    }
+
+    role {
+      name     = "test-role"
+      policies = ["p, proj:%[1]s:test-role, applications, get, %[1]s/*, allow"]
+    }
+  }
+}
+`, name),
+	}
+
+	steps := make([]resource.TestStep, len(configs))
+	for i, config := range configs {
+		steps[i] = resource.TestStep{
+			Config: config,
+			Check: resource.ComposeAggregateTestCheckFunc(
+				resource.TestCheckResourceAttr(
+					"argocd_project.multi_update",
+					"spec.0.description",
+					fmt.Sprintf("version %d", i+1),
+				),
+				resource.TestCheckResourceAttrSet(
+					"argocd_project.multi_update",
+					"metadata.0.resource_version",
+				),
+				resource.TestCheckResourceAttrSet(
+					"argocd_project.multi_update",
+					"metadata.0.generation",
+				),
+			),
+		}
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps:                    steps,
+	})
+}
