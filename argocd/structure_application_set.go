@@ -220,6 +220,15 @@ func expandApplicationSetGitGenerator(gg interface{}, featureMultipleApplication
 		}
 	}
 
+	if v, ok := g["requeue_after_seconds"].(string); ok && len(v) > 0 {
+		ras, err := convertStringToInt64Pointer(v)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert requeue_after_seconds to *int64: %w", err)
+		}
+
+		asg.Git.RequeueAfterSeconds = ras
+	}
+
 	if v, ok := g["template"].([]interface{}); ok && len(v) > 0 {
 		temp, err := expandApplicationSetTemplate(v[0], featureMultipleApplicationSourcesSupported, featureApplicationSourceNameSupported)
 		if err != nil {
@@ -1163,6 +1172,10 @@ func flattenApplicationSetGitGenerator(gg *application.GitGenerator) []map[strin
 		}
 
 		g["file"] = files
+	}
+
+	if gg.RequeueAfterSeconds != nil {
+		g["requeue_after_seconds"] = convertInt64PointerToString(gg.RequeueAfterSeconds)
 	}
 
 	return []map[string]interface{}{g}
