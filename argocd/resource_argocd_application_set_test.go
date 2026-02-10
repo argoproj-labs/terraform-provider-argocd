@@ -1498,7 +1498,6 @@ resource "argocd_application_set" "list_elements_yaml" {
 		}
 	}
 }`
-
 }
 
 func testAccArgoCDApplicationSet_matrix() string {
