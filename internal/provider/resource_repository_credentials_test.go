@@ -66,6 +66,36 @@ func TestAccArgoCDRepositoryCredentials(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDRepositoryCredentials_UseAzureWorkloadIdentity(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDRepositoryCredentialsUseAzureWorkloadIdentity("https://github.com/argoproj-labs/terraform-provider-argocd"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_repository_credentials.azurewi", "use_azure_workload_identity", "true"),
+				),
+			},
+			{
+				Config: testAccArgoCDRepositoryCredentialsUseAzureWorkloadIdentity("https://github.com/argoproj-labs/terraform-provider-argocd"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_repository_credentials.azurewi", "use_azure_workload_identity", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccArgoCDRepositoryCredentialsUseAzureWorkloadIdentity(repoUrl string) string {
+	return fmt.Sprintf(`
+resource "argocd_repository_credentials" "azurewi" {
+  url                          = "%s"
+  use_azure_workload_identity  = true
+}
+`, repoUrl)
+}
+
 func TestAccArgoCDRepositoryCredentials_GitHubApp(t *testing.T) {
 	sshPrivateKey, err := generateSSHPrivateKey()
 	assert.NoError(t, err)
@@ -302,7 +332,7 @@ func TestAccArgoCDRepositoryCredentials_GitHubAppWithRepositoryInheritance(t *te
 					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "url", "git@private-git-repository.argocd.svc.cluster.local"),
 					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_id", "123456"),
 					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_installation_id", "987654321"),
-					//resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_enterprise_base_url", "https://ghe.example.com/api/v3"),
+					// resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_enterprise_base_url", "https://ghe.example.com/api/v3"),
 					// Check repository that inherits credentials
 					resource.TestCheckResourceAttr("argocd_repository.repo", "repo", "git@private-git-repository.argocd.svc.cluster.local:~/project-1.git"),
 				),
@@ -317,7 +347,7 @@ func TestAccArgoCDRepositoryCredentials_GitHubAppWithRepositoryInheritance(t *te
 					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "url", "git@private-git-repository.argocd.svc.cluster.local"),
 					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_id", "123456"),
 					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_installation_id", "987654321"),
-					//resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_enterprise_base_url", "https://ghe.example.com/api/v3"),
+					// resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_enterprise_base_url", "https://ghe.example.com/api/v3"),
 					// Verify repository remains stable
 					resource.TestCheckResourceAttr("argocd_repository.repo", "repo", "git@private-git-repository.argocd.svc.cluster.local:~/project-1.git"),
 				),
@@ -329,7 +359,7 @@ func TestAccArgoCDRepositoryCredentials_GitHubAppWithRepositoryInheritance(t *te
 					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "url", "git@private-git-repository.argocd.svc.cluster.local"),
 					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_id", "123456"),
 					resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_installation_id", "987654321"),
-					//resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_enterprise_base_url", "https://ghe.example.com/api/v3"),
+					// resource.TestCheckResourceAttr("argocd_repository_credentials.githubapp", "githubapp_enterprise_base_url", "https://ghe.example.com/api/v3"),
 					resource.TestCheckResourceAttr("argocd_repository.repo", "repo", "git@private-git-repository.argocd.svc.cluster.local:~/project-1.git"),
 				),
 			},

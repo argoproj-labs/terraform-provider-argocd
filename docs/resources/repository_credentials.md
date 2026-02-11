@@ -42,6 +42,7 @@ resource "argocd_repository_credentials" "private" {
 - `tls_client_cert_data` (String) TLS client cert data for authenticating at the repo server
 - `tls_client_cert_key` (String, Sensitive) TLS client cert key for authenticating at the repo server
 - `type` (String) Type of the repository credentials. Can be either `git`, `oci` or `helm`. `git` is assumed if empty or absent.
+- `use_azure_workload_identity` (Boolean) Whether `Azure-Workload-identity` should be enabled for this repository.
 - `username` (String) Username for authenticating at the repo server
 
 ### Read-Only

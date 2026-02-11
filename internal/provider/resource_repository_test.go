@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -37,6 +38,28 @@ func TestAccArgoCDRepository_Simple(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccArgoCDRepository_UseAzureWorkloadIdentity(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccArgoCDRepositoryUseAzureWorkloadIdentity(),
+				ExpectError: regexp.MustCompile("failed to acquire a token"),
+			},
+		},
+	})
+}
+
+func testAccArgoCDRepositoryUseAzureWorkloadIdentity() string {
+	return `
+resource "argocd_repository" "azurewi" {
+  repo                        = "https://github.com/argoproj-labs/terraform-provider-argocd"
+  use_azure_workload_identity = true
+}
+`
 }
 
 func TestAccArgoCDRepository_Helm(t *testing.T) {
