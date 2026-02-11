@@ -46,7 +46,7 @@ testacc_prepare_env:
 	kubectl get services --all-namespaces -o wide
 
 	echo "\n--- Install ArgoCD ${ARGOCD_VERSION}\n"
-	kustomize build manifests/overlays/${ARGOCD_VERSION} | kubectl apply -f -
+	kustomize build manifests/overlays/${ARGOCD_VERSION} | kubectl apply --server-side --force-conflicts -f -
 
 	echo "\n--- Wait until CRDs are established\n"
 	kubectl wait --for=condition=Established crd/applications.argoproj.io --timeout=60s
