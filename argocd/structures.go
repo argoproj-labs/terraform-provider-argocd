@@ -40,6 +40,13 @@ func expandSecretRef(sr map[string]interface{}) *application.SecretRef {
 	}
 }
 
+func expandConfigMapKeyRef(cmr map[string]interface{}) *application.ConfigMapKeyRef {
+	return &application.ConfigMapKeyRef{
+		Key:           cmr["key"].(string),
+		ConfigMapName: cmr["config_map_name"].(string),
+	}
+}
+
 func flattenIntOrString(ios *intstr.IntOrString) string {
 	if ios == nil {
 		return ""
@@ -60,6 +67,32 @@ func flattenSecretRef(sr application.SecretRef) []map[string]interface{} {
 			"secret_name": sr.SecretName,
 		},
 	}
+}
+
+func flattenConfigMapKeyRef(cmr application.ConfigMapKeyRef) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"key":             cmr.Key,
+			"config_map_name": cmr.ConfigMapName,
+		},
+	}
+}
+
+func flattenSyncWindows(sws application.SyncWindows) (result []map[string]interface{}) {
+	for _, sw := range sws {
+		result = append(result, map[string]interface{}{
+			"applications": sw.Applications,
+			"clusters":     sw.Clusters,
+			"duration":     sw.Duration,
+			"kind":         sw.Kind,
+			"manual_sync":  sw.ManualSync,
+			"namespaces":   sw.Namespaces,
+			"schedule":     sw.Schedule,
+			"timezone":     sw.TimeZone,
+		})
+	}
+
+	return
 }
 
 func newStringSet(f schema.SchemaSetFunc, in []string) *schema.Set {
