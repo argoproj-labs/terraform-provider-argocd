@@ -252,17 +252,23 @@ func expandApplicationSetListGenerator(lg interface{}, featureMultipleApplicatio
 
 	l := lg.(map[string]interface{})
 
-	e := l["elements"].([]interface{})
+	// Handle elements field
+	if e, ok := l["elements"].([]interface{}); ok && len(e) > 0 {
+		for _, v := range e {
+			data, err := json.Marshal(v)
+			if err != nil {
+				return asg, fmt.Errorf("failed to marshal list generator value: %w", err)
+			}
 
-	for _, v := range e {
-		data, err := json.Marshal(v)
-		if err != nil {
-			return asg, fmt.Errorf("failed to marshal list generator value: %w", err)
+			asg.List.Elements = append(asg.List.Elements, apiextensionsv1.JSON{
+				Raw: data,
+			})
 		}
+	}
 
-		asg.List.Elements = append(asg.List.Elements, apiextensionsv1.JSON{
-			Raw: data,
-		})
+	// Handle elements_yaml field
+	if yamlStr, ok := l["elements_yaml"].(string); ok && yamlStr != "" {
+		asg.List.ElementsYaml = yamlStr
 	}
 
 	if v, ok := l["template"].([]interface{}); ok && len(v) > 0 {
@@ -1198,6 +1204,11 @@ func flattenApplicationSetListGenerator(lg *application.ListGenerator) ([]map[st
 	g := map[string]interface{}{
 		"elements": elements,
 		"template": flattenApplicationSetTemplate(lg.Template),
+	}
+
+	// Add elements_yaml field if it's set
+	if lg.ElementsYaml != "" {
+		g["elements_yaml"] = lg.ElementsYaml
 	}
 
 	return []map[string]interface{}{g}, nil
