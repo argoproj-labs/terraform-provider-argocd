@@ -234,6 +234,35 @@ func TestAccArgoCDApplicationSet_list(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDApplicationSet_listElementsYaml(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSet_listElementsYaml(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.list_elements_yaml",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.list_elements_yaml",
+						"spec.0.generator.0.list.0.elements_yaml",
+						"- cluster: engineering-dev\n  url: https://kubernetes.default.svc\n  environment: development\n- cluster: engineering-prod\n  url: https://kubernetes.default.svc\n  environment: production\n  foo: bar\n",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.list_elements_yaml",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplicationSet_matrix(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
@@ -1397,6 +1426,53 @@ resource "argocd_application_set" "list" {
 						url     = "https://kubernetes.default.svc"
 					}
 				]
+			}
+		}
+
+		template {
+			metadata {
+				name = "{{cluster}}-guestbook"
+			}
+
+			spec {
+				project = "default"
+
+				source {
+					repo_url        = "https://github.com/argoproj/argo-cd.git"
+					target_revision = "HEAD"
+					path            = "applicationset/examples/list-generator/guestbook/{{cluster}}"
+				}
+
+				destination {
+					server    = "{{url}}"
+					namespace = "guestbook"
+				}
+			}
+		}
+	}
+}`
+}
+
+func testAccArgoCDApplicationSet_listElementsYaml() string {
+	return `
+resource "argocd_application_set" "list_elements_yaml" {
+	metadata {
+		name = "list-elements-yaml"
+	}
+
+	spec {
+		generator {
+			list {
+				elements = []
+				elements_yaml = <<-EOT
+					- cluster: engineering-dev
+					  url: https://kubernetes.default.svc
+					  environment: development
+					- cluster: engineering-prod
+					  url: https://kubernetes.default.svc
+					  environment: production
+					  foo: bar
+				EOT
 			}
 		}
 

@@ -447,11 +447,16 @@ func applicationSetListGeneratorSchemaV0() *schema.Schema {
 				"elements": {
 					Type:        schema.TypeList,
 					Description: "List of key/value pairs to pass as parameters into the template",
-					Required:    true,
+					Optional:    true,
 					Elem: &schema.Schema{
 						Type: schema.TypeMap,
 						Elem: &schema.Schema{Type: schema.TypeString},
 					},
+				},
+				"elements_yaml": {
+					Type:        schema.TypeString,
+					Description: "YAML string containing list of key/value pairs to pass as parameters into the template",
+					Optional:    true,
 				},
 				"template": {
 					Type:        schema.TypeList,

@@ -216,6 +216,50 @@ resource "argocd_application_set" "list" {
   }
 }
 
+# List Generator with elements_yaml
+resource "argocd_application_set" "list_elements_yaml" {
+  metadata {
+    name = "list-elements-yaml"
+  }
+
+  spec {
+    generator {
+      list {
+        elements_yaml = <<-EOT
+          - cluster: engineering-dev
+            url: https://kubernetes.default.svc
+            environment: development
+          - cluster: engineering-prod
+            url: https://kubernetes.default.svc
+            environment: production
+            foo: bar
+        EOT
+      }
+    }
+
+    template {
+      metadata {
+        name = "{{cluster}}-guestbook"
+      }
+
+      spec {
+        project = "my-project"
+
+        source {
+          repo_url        = "https://github.com/argoproj/argo-cd.git"
+          target_revision = "HEAD"
+          path            = "applicationset/examples/list-generator/guestbook/{{cluster}}"
+        }
+
+        destination {
+          server    = "{{url}}"
+          namespace = "guestbook"
+        }
+      }
+    }
+  }
+}
+
 # Matrix Generator
 resource "argocd_application_set" "matrix" {
   metadata {
@@ -1539,12 +1583,10 @@ Optional:
 <a id="nestedblock--spec--generator--list"></a>
 ### Nested Schema for `spec.generator.list`
 
-Required:
-
-- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
-
 Optional:
 
+- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
+- `elements_yaml` (String) YAML string containing list of key/value pairs to pass as parameters into the template
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--list--template))
 
 <a id="nestedblock--spec--generator--list--template"></a>
@@ -2765,12 +2807,10 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--list"></a>
 ### Nested Schema for `spec.generator.matrix.generator.list`
 
-Required:
-
-- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
-
 Optional:
 
+- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
+- `elements_yaml` (String) YAML string containing list of key/value pairs to pass as parameters into the template
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template))
 
 <a id="nestedblock--spec--generator--matrix--generator--list--template"></a>
@@ -3989,12 +4029,10 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--list"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.list`
 
-Required:
-
-- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
-
 Optional:
 
+- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
+- `elements_yaml` (String) YAML string containing list of key/value pairs to pass as parameters into the template
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template))
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--list--template"></a>
@@ -6649,12 +6687,10 @@ Optional:
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--list"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.list`
 
-Required:
-
-- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
-
 Optional:
 
+- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
+- `elements_yaml` (String) YAML string containing list of key/value pairs to pass as parameters into the template
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template))
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--list--template"></a>
@@ -10746,12 +10782,10 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--list"></a>
 ### Nested Schema for `spec.generator.merge.generator.list`
 
-Required:
-
-- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
-
 Optional:
 
+- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
+- `elements_yaml` (String) YAML string containing list of key/value pairs to pass as parameters into the template
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template))
 
 <a id="nestedblock--spec--generator--merge--generator--list--template"></a>
@@ -11970,12 +12004,10 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--list"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.list`
 
-Required:
-
-- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
-
 Optional:
 
+- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
+- `elements_yaml` (String) YAML string containing list of key/value pairs to pass as parameters into the template
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template))
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--list--template"></a>
@@ -14630,12 +14662,10 @@ Optional:
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--list"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.list`
 
-Required:
-
-- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
-
 Optional:
 
+- `elements` (List of Map of String) List of key/value pairs to pass as parameters into the template
+- `elements_yaml` (String) YAML string containing list of key/value pairs to pass as parameters into the template
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template))
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--list--template"></a>
