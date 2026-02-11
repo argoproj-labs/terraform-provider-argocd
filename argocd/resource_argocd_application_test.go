@@ -1155,10 +1155,12 @@ func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 				ResourceName:      "argocd_application.multiple_sources",
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate",
+				ImportStateVerifyIgnore: []string{
+					"wait", "cascade", "metadata.0.generation", "metadata.0.resource_version", "status", "validate",
 					"spec.0.source.0.helm.0.parameter.0.force_string",
 					"spec.0.source.0.helm.0.parameter.1.force_string",
-					"spec.0.source.0.helm.0.parameter.2.force_string"},
+					"spec.0.source.0.helm.0.parameter.2.force_string",
+				},
 			},
 		},
 	})
@@ -1300,6 +1302,72 @@ func TestAccArgoCDApplication_Validate(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccArgoCDApplication_Sync(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSync(
+					name, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.sync",
+						"sync",
+						"true",
+					),
+				),
+			},
+			{
+				Config: testAccArgoCDApplicationSync(
+					name, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_application.sync",
+						"sync",
+						"true",
+					),
+				),
+			},
+		},
+	})
+}
+
+func testAccArgoCDApplicationSync(name string, sync bool) string {
+	return fmt.Sprintf(`
+resource "argocd_application" "sync" {
+  metadata {
+    name      = "%[1]s"
+    namespace = "argocd"
+    labels = {
+      acceptance = "true"
+    }
+  }
+	
+	sync = %[2]t
+
+  spec {
+    source {
+      repo_url        = "https://github.com/argoproj/argo-cd"
+      path            = "test/e2e/testdata/guestbook"
+      target_revision = "HEAD"
+    }
+
+    sync_policy {
+      sync_options = ["CreateNamespace=true"]
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "%[1]s"
+    }
+  }
+}
+	`, name, sync)
 }
 
 func testAccArgoCDApplicationSimple(name, targetRevision string, wait bool) string {
