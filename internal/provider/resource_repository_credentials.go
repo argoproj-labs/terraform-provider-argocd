@@ -130,7 +130,9 @@ func (r *repositoryCredentialsResource) Create(ctx context.Context, req resource
 		result.EnableOCI = types.BoolValue(true)
 	}
 	// Otherwise keep the planned value (API accepted it without error)
-
+	if createdCreds.UseAzureWorkloadIdentity {
+		result.UseAzureWorkloadIdentity = types.BoolValue(true)
+	}
 	// Update computed fields if available
 	if createdCreds.TLSClientCertData != "" {
 		result.TLSClientCertData = types.StringValue(createdCreds.TLSClientCertData)
@@ -213,7 +215,12 @@ func (r *repositoryCredentialsResource) Read(ctx context.Context, req resource.R
 		result.EnableOCI = types.BoolValue(false)
 	}
 	// Otherwise keep the prior state value (API accepted it without error)
-
+	if creds.UseAzureWorkloadIdentity {
+		result.UseAzureWorkloadIdentity = types.BoolValue(true)
+	} else if result.UseAzureWorkloadIdentity.IsNull() || result.UseAzureWorkloadIdentity.IsUnknown() {
+		// For import or initial read, set to default value if API returns false
+		result.UseAzureWorkloadIdentity = types.BoolValue(false)
+	}
 	// Update computed fields if available
 	if creds.TLSClientCertData != "" {
 		result.TLSClientCertData = types.StringValue(creds.TLSClientCertData)
@@ -300,7 +307,9 @@ func (r *repositoryCredentialsResource) Update(ctx context.Context, req resource
 		result.EnableOCI = types.BoolValue(true)
 	}
 	// Otherwise keep the planned value (API accepted it without error)
-
+	if updatedCreds.UseAzureWorkloadIdentity {
+		result.UseAzureWorkloadIdentity = types.BoolValue(true)
+	}
 	// Update computed fields if available
 	if updatedCreds.TLSClientCertData != "" {
 		result.TLSClientCertData = types.StringValue(updatedCreds.TLSClientCertData)
