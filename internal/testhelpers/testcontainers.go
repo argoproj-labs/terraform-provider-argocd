@@ -136,7 +136,7 @@ func (env *K3sTestEnvironment) applyManifestsToContainer(ctx context.Context, ma
 	}
 
 	// Apply manifests
-	if _, err := env.ExecInK3s(ctx, "kubectl", "apply", "-f", containerFilePath); err != nil {
+	if _, err := env.ExecInK3s(ctx, "kubectl", "apply", "-f", containerFilePath, "--server-side", "--force-conflicts"); err != nil {
 		return err
 	}
 
@@ -175,7 +175,6 @@ func (env *K3sTestEnvironment) runKustomizeBuild(dir string) ([]byte, error) {
 func (env *K3sTestEnvironment) ExecInK3s(ctx context.Context, args ...string) ([]byte, error) {
 	concat := strings.Join(args, " ")
 	exitCode, reader, err := env.K3sContainer.Exec(ctx, args)
-
 	if err != nil {
 		return []byte{}, fmt.Errorf("failed to exec '%s': %w", concat, err)
 	}
