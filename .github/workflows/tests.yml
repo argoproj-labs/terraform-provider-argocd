@@ -68,7 +68,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        argocd_version: ['v3.0.0', 'v3.1.0', 'v3.2.0']
+        argocd_version: ['v3.1.12', 'v3.2.6', 'v3.3.0']
         terraform_version: ['1.13.*']
     steps:
       - name: Check out code
