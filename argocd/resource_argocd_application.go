@@ -38,7 +38,7 @@ func resourceArgoCDApplication() *schema.Resource {
 			},
 			"sync": {
 				Type:        schema.TypeBool,
-				Description: "Trigger sync immediately on create/update. Helps in case when a Sync window is defined. It is required that the sync window is defined with `manual_sync = true`.",
+				Description: "Trigger sync immediately after create/update. Helps in case when a Sync window is defined. It is required that the sync window is defined with `manual_sync = true`.",
 				Optional:    true,
 			},
 			"cascade": {
@@ -168,8 +168,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 
 	d.SetId(fmt.Sprintf("%s:%s", app.Name, objectMeta.Namespace))
 
-	sync := d.Get("sync").(bool)
-	if sync {
+	if sync, ok := d.GetOk("sync"); ok && sync.(bool) {
 		_, err := si.ApplicationClient.Sync(ctx, &applicationClient.ApplicationSyncRequest{
 			Name:         &app.Name,
 			AppNamespace: &app.Namespace,
@@ -336,8 +335,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		return argoCDAPIError("update", "application", objectMeta.Name, err)
 	}
 
-	sync := d.Get("sync").(bool)
-	if sync {
+	if sync, ok := d.GetOk("sync"); ok && sync.(bool) {
 		_, err = si.ApplicationClient.Sync(ctx, &applicationClient.ApplicationSyncRequest{
 			Name:         &objectMeta.Name,
 			AppNamespace: &objectMeta.Namespace,
