@@ -270,7 +270,6 @@ func (r *projectResource) readUnsafe(ctx context.Context, data projectModel, pla
 	p, err := r.si.ProjectClient.Get(ctx, &project.ProjectQuery{
 		Name: projectName,
 	})
-
 	if err != nil {
 		if strings.Contains(err.Error(), "NotFound") {
 			resp.State.RemoveResource(ctx)
@@ -603,7 +602,7 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 
 	// Convert cluster resource blacklist
 	for _, gk := range data.Spec[0].ClusterResourceBlacklist {
-		spec.ClusterResourceBlacklist = append(spec.ClusterResourceBlacklist, metav1.GroupKind{
+		spec.ClusterResourceBlacklist = append(spec.ClusterResourceBlacklist, v1alpha1.ClusterResourceRestrictionItem{
 			Group: gk.Group.ValueString(),
 			Kind:  gk.Kind.ValueString(),
 		})
@@ -611,7 +610,7 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 
 	// Convert cluster resource whitelist
 	for _, gk := range data.Spec[0].ClusterResourceWhitelist {
-		spec.ClusterResourceWhitelist = append(spec.ClusterResourceWhitelist, metav1.GroupKind{
+		spec.ClusterResourceWhitelist = append(spec.ClusterResourceWhitelist, v1alpha1.ClusterResourceRestrictionItem{
 			Group: gk.Group.ValueString(),
 			Kind:  gk.Kind.ValueString(),
 		})
