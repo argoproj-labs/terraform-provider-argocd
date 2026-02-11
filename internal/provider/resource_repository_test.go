@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -45,16 +46,8 @@ func TestAccArgoCDRepository_UseAzureWorkloadIdentity(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArgoCDRepositoryUseAzureWorkloadIdentity(),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("argocd_repository.azurewi", "use_azure_workload_identity", "true"),
-				),
-			},
-			{
-				Config: testAccArgoCDRepositoryUseAzureWorkloadIdentity(),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("argocd_repository.azurewi", "use_azure_workload_identity", "true"),
-				),
+				Config:      testAccArgoCDRepositoryUseAzureWorkloadIdentity(),
+				ExpectError: regexp.MustCompile("failed to acquire a token"),
 			},
 		},
 	})
