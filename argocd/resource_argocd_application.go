@@ -40,7 +40,6 @@ func resourceArgoCDApplication() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "Trigger sync immediately on create/update. Helps in case when a Sync window is defined. It is required that the sync window is defined with `manual_sync = true`.",
 				Optional:    true,
-				Default:     false,
 			},
 			"cascade": {
 				Type:        schema.TypeBool,
