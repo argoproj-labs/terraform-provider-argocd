@@ -169,10 +169,15 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 	d.SetId(fmt.Sprintf("%s:%s", app.Name, objectMeta.Namespace))
 
 	if sync, ok := d.GetOk("sync"); ok && sync.(bool) {
+		prune := false
+		if spec.SyncPolicy.Automated != nil && spec.SyncPolicy.Automated.Prune {
+			prune = true
+		}
+
 		_, err := si.ApplicationClient.Sync(ctx, &applicationClient.ApplicationSyncRequest{
 			Name:         &app.Name,
 			AppNamespace: &app.Namespace,
-			Prune:        &spec.SyncPolicy.Automated.Prune,
+			Prune:        &prune,
 		})
 		if err != nil {
 			return errorToDiagnostics(fmt.Sprintf("error while triggering sync of application %s", app.Name), err)
@@ -336,10 +341,15 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if sync, ok := d.GetOk("sync"); ok && sync.(bool) {
+		prune := false
+		if spec.SyncPolicy.Automated != nil && spec.SyncPolicy.Automated.Prune {
+			prune = true
+		}
+
 		_, err = si.ApplicationClient.Sync(ctx, &applicationClient.ApplicationSyncRequest{
 			Name:         &objectMeta.Name,
 			AppNamespace: &objectMeta.Namespace,
-			Prune:        &spec.SyncPolicy.Automated.Prune,
+			Prune:        &prune,
 		})
 		if err != nil {
 			return errorToDiagnostics(fmt.Sprintf("error while triggering sync of application %s", *appQuery.Name), err)
