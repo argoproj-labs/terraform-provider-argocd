@@ -1155,8 +1155,9 @@ resource "argocd_project" "sync_windows_consistency" {
       manual_sync = true
     }
     sync_window {
+      use_and_operator = true
       kind = "deny"
-      applications = ["foo"]
+      applications = ["foo", "bar"]
       clusters = ["in-cluster"]
       namespaces = ["default"]
       duration = "12h"
@@ -1192,6 +1193,11 @@ resource "argocd_project" "sync_windows_consistency" {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_project.sync_windows_consistency",
+						"spec.0.sync_window.1.use_and_operator",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.sync_windows_consistency",
 						"spec.0.sync_window.1.timezone",
 						"Europe/London",
 					),
@@ -1214,6 +1220,11 @@ resource "argocd_project" "sync_windows_consistency" {
 					resource.TestCheckResourceAttr(
 						"argocd_project.sync_windows_consistency",
 						"spec.0.sync_window.0.manual_sync",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.sync_windows_consistency",
+						"spec.0.sync_window.1.use_and_operator",
 						"true",
 					),
 					resource.TestCheckResourceAttr(

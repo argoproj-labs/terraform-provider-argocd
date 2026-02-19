@@ -304,6 +304,7 @@ Optional:
 - `namespaces` (List of String) List of namespaces that the window will apply to.
 - `schedule` (String) Time the window will begin, specified in cron format.
 - `timezone` (String) Timezone that the schedule will be evaluated in.
+- `use_and_operator` (Boolean) Defines if the AND operator should be used among the various conditions for the sync window.
 
 ## Import
 

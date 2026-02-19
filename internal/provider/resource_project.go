@@ -221,6 +221,10 @@ func preserveEmptyLists(sourceModel, apiModel *projectSpecModel) {
 				if sourceSync.ManualSync.IsNull() && apiSync.ManualSync.Equal(types.BoolValue(false)) {
 					apiSync.ManualSync = types.BoolNull()
 				}
+
+				if sourceSync.UseAndOperator.IsNull() && apiSync.UseAndOperator.Equal(types.BoolValue(false)) {
+					apiSync.UseAndOperator = types.BoolNull()
+				}
 				break
 			}
 		}
@@ -660,6 +664,10 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 	// Convert sync windows
 	for _, sw := range data.Spec[0].SyncWindow {
 		window := v1alpha1.SyncWindow{}
+		if !sw.UseAndOperator.IsNull() {
+			window.UseAndOperator = sw.UseAndOperator.ValueBool()
+		}
+
 		if !sw.Duration.IsNull() {
 			window.Duration = sw.Duration.ValueString()
 		}
