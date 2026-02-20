@@ -113,14 +113,15 @@ resource "argocd_project" "myproject" {
       manual_sync  = true
     }
     sync_window {
-      kind         = "deny"
-      applications = ["foo"]
-      clusters     = ["in-cluster"]
-      namespaces   = ["default"]
-      duration     = "12h"
-      schedule     = "22 1 5 * *"
-      manual_sync  = false
-      timezone     = "Europe/London"
+      use_and_operator = true
+      kind             = "deny"
+      applications     = ["foo", "bar"]
+      clusters         = ["in-cluster"]
+      namespaces       = ["default"]
+      duration         = "12h"
+      schedule         = "22 1 5 * *"
+      manual_sync      = false
+      timezone         = "Europe/London"
     }
 
     signature_keys = [
