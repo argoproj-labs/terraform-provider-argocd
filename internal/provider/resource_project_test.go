@@ -393,6 +393,7 @@ resource "argocd_project" "simple" {
       duration = "3600s"
       schedule = "10 1 * * *"
       manual_sync = true
+	  use_and_operator = false
     }
     sync_window {
       kind = "deny"
@@ -403,6 +404,7 @@ resource "argocd_project" "simple" {
       schedule = "22 1 5 * *"
       manual_sync = false
       timezone = "Europe/London"
+	  use_and_operator = false
     }
     signature_keys = [
       "4AEE18F83AFDEB23",
