@@ -316,7 +316,7 @@ resource "argocd_application_set" "list_elements_yaml_dynamic" {
   }
 
   spec {
-    go_template        = true
+    go_template         = true
     go_template_options = ["missingkey=error"]
 
     generator {
@@ -358,8 +358,8 @@ resource "argocd_application_set" "list_elements_yaml_dynamic" {
         }
 
         source {
-          chart         = "{{.chart}}"
-          repo_url      = "{{.repoUrl}}"
+          chart           = "{{.chart}}"
+          repo_url        = "{{.repoUrl}}"
           target_revision = "{{.version}}"
           helm {
             release_name = "{{.releaseName}}"

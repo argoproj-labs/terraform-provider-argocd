@@ -113,14 +113,15 @@ resource "argocd_project" "myproject" {
       manual_sync  = true
     }
     sync_window {
-      kind         = "deny"
-      applications = ["foo"]
-      clusters     = ["in-cluster"]
-      namespaces   = ["default"]
-      duration     = "12h"
-      schedule     = "22 1 5 * *"
-      manual_sync  = false
-      timezone     = "Europe/London"
+      use_and_operator = true
+      kind             = "deny"
+      applications     = ["foo", "bar"]
+      clusters         = ["in-cluster"]
+      namespaces       = ["default"]
+      duration         = "12h"
+      schedule         = "22 1 5 * *"
+      manual_sync      = false
+      timezone         = "Europe/London"
     }
 
     signature_keys = [
@@ -304,6 +305,7 @@ Optional:
 - `namespaces` (List of String) List of namespaces that the window will apply to.
 - `schedule` (String) Time the window will begin, specified in cron format.
 - `timezone` (String) Timezone that the schedule will be evaluated in.
+- `use_and_operator` (Boolean) Defines if the AND operator should be used among the various conditions for the sync window.
 
 ## Import
 

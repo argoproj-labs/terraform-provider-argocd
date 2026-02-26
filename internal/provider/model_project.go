@@ -75,14 +75,15 @@ type jwtTokenModel struct {
 }
 
 type syncWindowModel struct {
-	Applications []types.String `tfsdk:"applications"`
-	Clusters     []types.String `tfsdk:"clusters"`
-	Duration     types.String   `tfsdk:"duration"`
-	Kind         types.String   `tfsdk:"kind"`
-	ManualSync   types.Bool     `tfsdk:"manual_sync"`
-	Namespaces   []types.String `tfsdk:"namespaces"`
-	Schedule     types.String   `tfsdk:"schedule"`
-	Timezone     types.String   `tfsdk:"timezone"`
+	Applications   []types.String `tfsdk:"applications"`
+	Clusters       []types.String `tfsdk:"clusters"`
+	Duration       types.String   `tfsdk:"duration"`
+	Kind           types.String   `tfsdk:"kind"`
+	ManualSync     types.Bool     `tfsdk:"manual_sync"`
+	Namespaces     []types.String `tfsdk:"namespaces"`
+	Schedule       types.String   `tfsdk:"schedule"`
+	Timezone       types.String   `tfsdk:"timezone"`
+	UseAndOperator types.Bool     `tfsdk:"use_and_operator"`
 }
 
 func projectSchemaBlocks() map[string]schema.Block {
@@ -299,6 +300,10 @@ func projectSpecSchemaBlocks() map[string]schema.Block {
 			Description: "Controls when sync operations are allowed for the project.",
 			NestedObject: schema.NestedBlockObject{
 				Attributes: map[string]schema.Attribute{
+					"use_and_operator": schema.BoolAttribute{
+						Description: "Defines if the AND operator should be used among the various conditions for the sync window.",
+						Optional:    true,
+					},
 					"kind": schema.StringAttribute{
 						Description: "Defines if the window allows or blocks syncs, allowed values are `allow` or `deny`.",
 						Optional:    true,
@@ -571,11 +576,12 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 
 		for i, sw := range spec.SyncWindows {
 			swm := syncWindowModel{
-				Duration:   types.StringValue(sw.Duration),
-				Kind:       types.StringValue(sw.Kind),
-				ManualSync: types.BoolValue(sw.ManualSync),
-				Schedule:   types.StringValue(sw.Schedule),
-				Timezone:   types.StringValue("UTC"), // Default
+				Duration:       types.StringValue(sw.Duration),
+				Kind:           types.StringValue(sw.Kind),
+				ManualSync:     types.BoolValue(sw.ManualSync),
+				Schedule:       types.StringValue(sw.Schedule),
+				Timezone:       types.StringValue("UTC"), // Default
+				UseAndOperator: types.BoolValue(sw.UseAndOperator),
 			}
 
 			if sw.TimeZone != "" {
