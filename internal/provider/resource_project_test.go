@@ -393,6 +393,7 @@ resource "argocd_project" "simple" {
       duration = "3600s"
       schedule = "10 1 * * *"
       manual_sync = true
+	  use_and_operator = false
     }
     sync_window {
       kind = "deny"
@@ -403,6 +404,7 @@ resource "argocd_project" "simple" {
       schedule = "22 1 5 * *"
       manual_sync = false
       timezone = "Europe/London"
+	  use_and_operator = false
     }
     signature_keys = [
       "4AEE18F83AFDEB23",
@@ -1155,8 +1157,9 @@ resource "argocd_project" "sync_windows_consistency" {
       manual_sync = true
     }
     sync_window {
+      use_and_operator = true
       kind = "deny"
-      applications = ["foo"]
+      applications = ["foo", "bar"]
       clusters = ["in-cluster"]
       namespaces = ["default"]
       duration = "12h"
@@ -1192,6 +1195,11 @@ resource "argocd_project" "sync_windows_consistency" {
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_project.sync_windows_consistency",
+						"spec.0.sync_window.1.use_and_operator",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.sync_windows_consistency",
 						"spec.0.sync_window.1.timezone",
 						"Europe/London",
 					),
@@ -1214,6 +1222,11 @@ resource "argocd_project" "sync_windows_consistency" {
 					resource.TestCheckResourceAttr(
 						"argocd_project.sync_windows_consistency",
 						"spec.0.sync_window.0.manual_sync",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.sync_windows_consistency",
+						"spec.0.sync_window.1.use_and_operator",
 						"true",
 					),
 					resource.TestCheckResourceAttr(
