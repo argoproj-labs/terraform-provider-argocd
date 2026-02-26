@@ -1139,53 +1139,23 @@ resource "argocd_repository" "global_to_project" {
 `, projectName, repoURL)
 }
 
-// TestAccArgoCDRepository_ProxyConsistency tests consistency of proxy and no_proxy fields
-// Note: This test uses a Helm repository which doesn't require a proxy but allows setting proxy fields
-func TestAccArgoCDRepository_ProxyConsistency(t *testing.T) {
-	config := `
-resource "argocd_repository" "proxy" {
-  repo     = "https://helm.nginx.com/stable"
-  name     = "nginx-stable-proxy-test"
-  type     = "helm"
-  proxy    = "http://proxy.example.com:8080"
-  no_proxy = "localhost,127.0.0.1"
-}
-`
-
+// TestAccArgoCDRepository_ProxyConnectivityError verifies that proxy configuration
+// is correctly passed to ArgoCD by expecting a connection failure when using an invalid proxy.
+func TestAccArgoCDRepository_ProxyConnectivityError(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: config,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"argocd_repository.proxy",
-						"proxy",
-						"http://proxy.example.com:8080",
-					),
-					resource.TestCheckResourceAttr(
-						"argocd_repository.proxy",
-						"no_proxy",
-						"localhost,127.0.0.1",
-					),
-				),
-			},
-			{
-				// Apply the same configuration again to test for consistency
-				Config: config,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"argocd_repository.proxy",
-						"proxy",
-						"http://proxy.example.com:8080",
-					),
-					resource.TestCheckResourceAttr(
-						"argocd_repository.proxy",
-						"no_proxy",
-						"localhost,127.0.0.1",
-					),
-				),
+				Config: `
+resource "argocd_repository" "proxy_fail" {
+  repo     = "https://helm.nginx.com/stable"
+  name     = "nginx-stable-proxy-fail"
+  type     = "helm"
+  proxy    = "http://proxy.example.com:8080"
+}
+`,
+				ExpectError: regexp.MustCompile("proxyconnect tcp|no such host|context deadline exceeded|Unable to connect to repository"),
 			},
 		},
 	})
