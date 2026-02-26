@@ -1138,3 +1138,55 @@ resource "argocd_repository" "global_to_project" {
 }
 `, projectName, repoURL)
 }
+
+// TestAccArgoCDRepository_ProxyConsistency tests consistency of proxy and no_proxy fields
+// Note: This test uses a Helm repository which doesn't require a proxy but allows setting proxy fields
+func TestAccArgoCDRepository_ProxyConsistency(t *testing.T) {
+	config := `
+resource "argocd_repository" "proxy" {
+  repo     = "https://helm.nginx.com/stable"
+  name     = "nginx-stable-proxy-test"
+  type     = "helm"
+  proxy    = "http://proxy.example.com:8080"
+  no_proxy = "localhost,127.0.0.1"
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.proxy",
+						"proxy",
+						"http://proxy.example.com:8080",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.proxy",
+						"no_proxy",
+						"localhost,127.0.0.1",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.proxy",
+						"proxy",
+						"http://proxy.example.com:8080",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.proxy",
+						"no_proxy",
+						"localhost,127.0.0.1",
+					),
+				),
+			},
+		},
+	})
+}
