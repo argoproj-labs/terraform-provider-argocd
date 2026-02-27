@@ -1138,3 +1138,25 @@ resource "argocd_repository" "global_to_project" {
 }
 `, projectName, repoURL)
 }
+
+// TestAccArgoCDRepository_ProxyConnectivityError verifies that proxy configuration
+// is correctly passed to ArgoCD by expecting a connection failure when using an invalid proxy.
+func TestAccArgoCDRepository_ProxyConnectivityError(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+resource "argocd_repository" "proxy_fail" {
+  repo     = "https://helm.nginx.com/stable"
+  name     = "nginx-stable-proxy-fail"
+  type     = "helm"
+  proxy    = "http://proxy.example.com:8080"
+}
+`,
+				ExpectError: regexp.MustCompile("proxyconnect tcp|no such host|context deadline exceeded|Unable to connect to repository"),
+			},
+		},
+	})
+}

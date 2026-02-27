@@ -36,6 +36,8 @@ type repositoryModel struct {
 	GitHubAppEnterpriseBaseURL types.String `tfsdk:"githubapp_enterprise_base_url"`
 	GitHubAppPrivateKey        types.String `tfsdk:"githubapp_private_key"`
 	BearerToken                types.String `tfsdk:"bearer_token"`
+	Proxy                      types.String `tfsdk:"proxy"`
+	NoProxy                    types.String `tfsdk:"no_proxy"`
 }
 
 func repositorySchemaAttributes() map[string]schema.Attribute {
@@ -151,6 +153,14 @@ func repositorySchemaAttributes() map[string]schema.Attribute {
 			Optional:            true,
 			Sensitive:           true,
 		},
+		"proxy": schema.StringAttribute{
+			MarkdownDescription: "HTTP/HTTPS proxy to access the repository.",
+			Optional:            true,
+		},
+		"no_proxy": schema.StringAttribute{
+			MarkdownDescription: "Comma-separated list of hostnames that should be excluded from proxying.",
+			Optional:            true,
+		},
 	}
 }
 
@@ -173,6 +183,8 @@ func (m *repositoryModel) toAPIModel() (*v1alpha1.Repository, error) {
 		InheritedCreds:             m.InheritedCreds.ValueBool(),
 		GitHubAppEnterpriseBaseURL: m.GitHubAppEnterpriseBaseURL.ValueString(),
 		GithubAppPrivateKey:        m.GitHubAppPrivateKey.ValueString(),
+		Proxy:                      m.Proxy.ValueString(),
+		NoProxy:                    m.NoProxy.ValueString(),
 	}
 
 	// Handle GitHub App ID conversion
@@ -254,6 +266,19 @@ func (m *repositoryModel) updateFromAPI(repo *v1alpha1.Repository) *repositoryMo
 	} else if m.GitHubAppInstallationID.IsUnknown() {
 		// If unknown and API didn't return a value, set to null
 		m.GitHubAppInstallationID = types.StringNull()
+	}
+
+	// Handle proxy settings
+	if repo.Proxy != "" {
+		m.Proxy = types.StringValue(repo.Proxy)
+	} else if m.Proxy.IsUnknown() {
+		m.Proxy = types.StringNull()
+	}
+
+	if repo.NoProxy != "" {
+		m.NoProxy = types.StringValue(repo.NoProxy)
+	} else if m.NoProxy.IsUnknown() {
+		m.NoProxy = types.StringNull()
 	}
 
 	return m
