@@ -78,25 +78,8 @@ func flattenConfigMapKeyRef(cmr application.ConfigMapKeyRef) []map[string]interf
 	}
 }
 
-func flattenSyncWindows(sws application.SyncWindows) (result []map[string]interface{}) {
-	for _, sw := range sws {
-		result = append(result, map[string]interface{}{
-			"applications": sw.Applications,
-			"clusters":     sw.Clusters,
-			"duration":     sw.Duration,
-			"kind":         sw.Kind,
-			"manual_sync":  sw.ManualSync,
-			"namespaces":   sw.Namespaces,
-			"schedule":     sw.Schedule,
-			"timezone":     sw.TimeZone,
-		})
-	}
-
-	return
-}
-
 func newStringSet(f schema.SchemaSetFunc, in []string) *schema.Set {
-	var out = make([]interface{}, len(in))
+	out := make([]interface{}, len(in))
 
 	for i, v := range in {
 		out[i] = v
