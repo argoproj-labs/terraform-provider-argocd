@@ -905,6 +905,35 @@ func TestAccArgoCDApplicationSet_pullRequestGitlabInsecureAndCARef(t *testing.T)
 	})
 }
 
+func TestAccArgoCDApplicationSet_pullRequestAzureDevOps(t *testing.T) {
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSet_pullRequestAzureDevOps(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.pr_azure_devops",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.pr_azure_devops",
+						"spec.0.generator.0.pull_request.0.azure_devops.0.organization",
+						"myorg",
+					),
+				),
+			},
+			{
+				ResourceName:            "argocd_application_set.pr_azure_devops",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "spec.0.template.0.spec.0.source.0.helm.0.parameter.0.force_string"},
+			},
+		},
+	})
+}
+
 func TestAccArgoCDApplicationSet_mergeInvalid(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ApplicationSet) },
@@ -3099,6 +3128,62 @@ resource "argocd_application_set" "pr_gitlab_insecure" {
 					labels = [
 						"preview"
 					]
+				}
+			}
+		}
+
+		template {
+			metadata {
+				name = "myapp-{{branch}}-{{number}}"
+			}
+
+			spec {
+				project = "default"
+
+				source {
+					repo_url        = "https://github.com/myorg/myrepo.git"
+					path            = "kubernetes/"
+					target_revision = "{{head_sha}}"
+
+					helm {
+						parameter {
+							name  = "image.tag"
+							value = "pull-{{head_sha}}"
+						}
+					}
+				}
+
+				destination {
+					server    = "https://kubernetes.default.svc"
+					namespace = "default"
+				}
+			}
+		}
+	}
+}`
+}
+
+func testAccArgoCDApplicationSet_pullRequestAzureDevOps() string {
+	return `
+resource "argocd_application_set" "pr_azure_devops" {
+	metadata {
+		name = "pr-azure-devops"
+	}
+
+	spec {
+		generator {
+			pull_request {
+				azure_devops {
+					api          = "https://dev.azure.com"
+					organization = "myorg"
+					project      = "myproject"
+					repo         = "myrepository"
+					labels       = ["preview"]
+
+					token_ref {
+						secret_name = "azure-devops-token"
+						key         = "token"
+					}
 				}
 			}
 		}

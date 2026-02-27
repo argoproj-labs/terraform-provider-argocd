@@ -875,6 +875,49 @@ func applicationSetPullRequestGeneratorSchemaV0() *schema.Schema {
 						},
 					},
 				},
+				"azure_devops": {
+					Type:        schema.TypeList,
+					Description: "Fetch pull requests from an Azure DevOps repository.",
+					Optional:    true,
+					MaxItems:    1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"api": {
+								Type:        schema.TypeString,
+								Description: "The Azure DevOps API URL to talk to. If blank, uses https://dev.azure.com/.",
+								Optional:    true,
+							},
+							"labels": {
+								Type:        schema.TypeList,
+								Description: "Labels is used to filter the PRs that you want to target.",
+								Optional:    true,
+								Elem:        &schema.Schema{Type: schema.TypeString},
+							},
+							"organization": {
+								Type:        schema.TypeString,
+								Description: "Azure DevOps org to scan. Required.",
+								Required:    true,
+							},
+							"project": {
+								Type:        schema.TypeString,
+								Description: "Azure DevOps project name to scan. Required.",
+								Required:    true,
+							},
+							"repo": {
+								Type:        schema.TypeString,
+								Description: "Azure DevOps repo name to scan. Required.",
+								Required:    true,
+							},
+							"token_ref": {
+								Type:        schema.TypeList,
+								Description: "Authentication token reference.",
+								Optional:    true,
+								MaxItems:    1,
+								Elem:        secretRefResource(),
+							},
+						},
+					},
+				},
 				"filter": {
 					Type:        schema.TypeList,
 					Description: "Filters allow selecting which pull requests to generate for.",
