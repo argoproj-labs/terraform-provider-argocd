@@ -461,9 +461,9 @@ resource "argocd_application_set" "merge" {
   }
 }
 
-resource "argocd_application_set" "pull_request" {
+resource "argocd_application_set" "pull_request_github" {
   metadata {
-    name = "pull-request"
+    name = "pull-request-github"
   }
 
   spec {
@@ -516,6 +516,65 @@ resource "argocd_application_set" "pull_request" {
     }
   }
 }
+
+
+resource "argocd_application_set" "pull_request_azure_devops" {
+  metadata {
+    name = "pull-request-azure-devops"
+  }
+
+  spec {
+    generator {
+      pull_request {
+        azure_devops {
+          organization = "myorg"
+          project      = "myproject"
+          repo         = "myrepo"
+          api          = "https://dev.azure.com/"
+
+          token_ref {
+            secret_name = "pat-token"
+            key         = "token"
+          }
+
+          labels = [
+            "preview"
+          ]
+        }
+      }
+    }
+
+    template {
+      metadata {
+        name = "appset-opull-request-{{branch}}-{{number}}"
+      }
+
+      spec {
+        project = "default"
+
+        source {
+          repo_url        = "https://github.com/myorg/myrepo.git"
+          path            = "kubernetes/"
+          target_revision = "{{head_sha}}"
+
+          helm {
+            parameter {
+              name  = "image.tag"
+              value = "pull-{{head_sha}}"
+            }
+          }
+        }
+
+        destination {
+          server    = "https://kubernetes.default.svc"
+          namespace = "default"
+        }
+      }
+    }
+  }
+}
+
+
 
 resource "argocd_application_set" "scm_provider" {
   metadata {
