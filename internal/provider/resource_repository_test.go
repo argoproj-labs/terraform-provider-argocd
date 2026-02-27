@@ -1160,3 +1160,27 @@ resource "argocd_repository" "proxy_fail" {
 		},
 	})
 }
+
+// TestAccArgoCDRepository_OCI verifies that OCI repository type is correctly handled.
+// We use the public Docker Hub OCI registry for Bitnami charts which allows anonymous access.
+func TestAccArgoCDRepository_OCI(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		// PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+resource "argocd_repository" "oci_test" {
+  repo = "oci://registry-1.docker.io/bitnamicharts"
+  name = "bitnami-oci"
+  type = "oci"
+}
+`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_repository.oci_test", "repo", "oci://registry-1.docker.io/bitnamicharts"),
+					resource.TestCheckResourceAttr("argocd_repository.oci_test", "type", "oci"),
+				),
+			},
+		},
+	})
+}

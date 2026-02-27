@@ -26,3 +26,10 @@ resource "argocd_repository" "with_proxy" {
   proxy    = "http://proxy.example.com:8080"
   no_proxy = "*.internal.example.com,localhost"
 }
+
+# OCI repository (e.g., for Helm charts stored in OCI registries)
+resource "argocd_repository" "oci_registry" {
+  repo     = "oci://registry-1.docker.io/bitnamicharts"
+  name     = "bitnami-oci"
+  type     = "oci"
+}
