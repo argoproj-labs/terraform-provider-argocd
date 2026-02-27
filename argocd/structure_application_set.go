@@ -594,6 +594,14 @@ func expandApplicationSetPullRequestGeneratorGitlab(g map[string]interface{}) *a
 		spgg.TokenRef = expandSecretRef(v[0].(map[string]interface{}))
 	}
 
+	if v, ok := g["insecure"].(bool); ok {
+		spgg.Insecure = v
+	}
+
+	if v, ok := g["ca_ref"].([]interface{}); ok && len(v) > 0 {
+		spgg.CARef = expandConfigMapKeyRef(v[0].(map[string]interface{}))
+	}
+
 	return spgg
 }
 
@@ -1380,6 +1388,7 @@ func flattenApplicationSetPullRequestGeneratorGitlab(prgg *application.PullReque
 		"api":                prgg.API,
 		"project":            prgg.Project,
 		"pull_request_state": prgg.PullRequestState,
+		"insecure":           prgg.Insecure,
 	}
 
 	if len(prgg.Labels) > 0 {
@@ -1388,6 +1397,10 @@ func flattenApplicationSetPullRequestGeneratorGitlab(prgg *application.PullReque
 
 	if prgg.TokenRef != nil {
 		g["token_ref"] = flattenSecretRef(*prgg.TokenRef)
+	}
+
+	if prgg.CARef != nil {
+		g["ca_ref"] = flattenConfigMapKeyRef(*prgg.CARef)
 	}
 
 	return []map[string]interface{}{g}

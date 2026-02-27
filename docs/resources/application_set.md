@@ -4713,9 +4713,20 @@ Required:
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List, Max: 1) Reference to a ConfigMap key containing trusted CA certificates for verifying the SCM server's TLS certificate. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--gitlab--ca_ref))
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.pull_request.gitlab.token_ref`
@@ -7371,9 +7382,20 @@ Required:
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List, Max: 1) Reference to a ConfigMap key containing trusted CA certificates for verifying the SCM server's TLS certificate. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--gitlab--ca_ref))
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.pull_request.gitlab.token_ref`
@@ -8806,9 +8828,20 @@ Required:
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List, Max: 1) Reference to a ConfigMap key containing trusted CA certificates for verifying the SCM server's TLS certificate. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--gitlab--ca_ref))
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--matrix--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.matrix.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--matrix--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.matrix.generator.pull_request.gitlab.token_ref`
@@ -12688,9 +12721,20 @@ Required:
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List, Max: 1) Reference to a ConfigMap key containing trusted CA certificates for verifying the SCM server's TLS certificate. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--gitlab--ca_ref))
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.pull_request.gitlab.token_ref`
@@ -15346,9 +15390,20 @@ Required:
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List, Max: 1) Reference to a ConfigMap key containing trusted CA certificates for verifying the SCM server's TLS certificate. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--gitlab--ca_ref))
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.pull_request.gitlab.token_ref`
@@ -16781,9 +16836,20 @@ Required:
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List, Max: 1) Reference to a ConfigMap key containing trusted CA certificates for verifying the SCM server's TLS certificate. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--gitlab--ca_ref))
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--merge--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.merge.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--merge--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.merge.generator.pull_request.gitlab.token_ref`
@@ -18216,9 +18282,20 @@ Required:
 Optional:
 
 - `api` (String) The GitLab API URL to talk to. If blank, uses https://gitlab.com/.
+- `ca_ref` (Block List, Max: 1) Reference to a ConfigMap key containing trusted CA certificates for verifying the SCM server's TLS certificate. (see [below for nested schema](#nestedblock--spec--generator--pull_request--gitlab--ca_ref))
+- `insecure` (Boolean) A flag for checking the validity of the SCM's certificates.
 - `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `pull_request_state` (String) additional MRs filter to get only those with a certain state. Default:  "" (all states).
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--pull_request--gitlab--token_ref))
+
+<a id="nestedblock--spec--generator--pull_request--gitlab--ca_ref"></a>
+### Nested Schema for `spec.generator.pull_request.gitlab.ca_ref`
+
+Required:
+
+- `config_map_name` (String) Name of the ConfigMap.
+- `key` (String) Key containing information in trusted CA certs.
+
 
 <a id="nestedblock--spec--generator--pull_request--gitlab--token_ref"></a>
 ### Nested Schema for `spec.generator.pull_request.gitlab.token_ref`

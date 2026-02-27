@@ -1004,6 +1004,18 @@ func applicationSetPullRequestGeneratorSchemaV0() *schema.Schema {
 								MaxItems:    1,
 								Elem:        secretRefResource(),
 							},
+							"insecure": {
+								Type:        schema.TypeBool,
+								Description: "A flag for checking the validity of the SCM's certificates.",
+								Optional:    true,
+							},
+							"ca_ref": {
+								Type:        schema.TypeList,
+								Description: "Reference to a ConfigMap key containing trusted CA certificates for verifying the SCM server's TLS certificate.",
+								Optional:    true,
+								MaxItems:    1,
+								Elem:        configMapRefResource(),
+							},
 						},
 					},
 				},
@@ -1083,6 +1095,23 @@ func secretRefResource() *schema.Resource {
 			"secret_name": {
 				Type:        schema.TypeString,
 				Description: "Name of Kubernetes `Secret`.",
+				Required:    true,
+			},
+		},
+	}
+}
+
+func configMapRefResource() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"key": {
+				Type:        schema.TypeString,
+				Description: "Key containing information in trusted CA certs.",
+				Required:    true,
+			},
+			"config_map_name": {
+				Type:        schema.TypeString,
+				Description: "Name of the ConfigMap.",
 				Required:    true,
 			},
 		},
