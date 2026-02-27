@@ -44,9 +44,11 @@ resource "argocd_repository" "with_proxy" {
 
 # OCI repository (e.g., for Helm charts stored in OCI registries)
 resource "argocd_repository" "oci_registry" {
-  repo     = "oci://registry-1.docker.io/bitnamicharts"
-  name     = "bitnami-oci"
+  repo     = "oci://ghcr.io/argoproj/argo-helm/argo-cd"
+  name     = "argocd-oci"
   type     = "oci"
+  username = "my-username"
+  password = "my-token"
 }
 ```
 
