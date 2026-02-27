@@ -40,6 +40,13 @@ func expandSecretRef(sr map[string]interface{}) *application.SecretRef {
 	}
 }
 
+func expandConfigMapKeyRef(cmr map[string]interface{}) *application.ConfigMapKeyRef {
+	return &application.ConfigMapKeyRef{
+		Key:           cmr["key"].(string),
+		ConfigMapName: cmr["config_map_name"].(string),
+	}
+}
+
 func flattenIntOrString(ios *intstr.IntOrString) string {
 	if ios == nil {
 		return ""
@@ -62,8 +69,17 @@ func flattenSecretRef(sr application.SecretRef) []map[string]interface{} {
 	}
 }
 
+func flattenConfigMapKeyRef(cmr application.ConfigMapKeyRef) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"key":             cmr.Key,
+			"config_map_name": cmr.ConfigMapName,
+		},
+	}
+}
+
 func newStringSet(f schema.SchemaSetFunc, in []string) *schema.Set {
-	var out = make([]interface{}, len(in))
+	out := make([]interface{}, len(in))
 
 	for i, v := range in {
 		out[i] = v
