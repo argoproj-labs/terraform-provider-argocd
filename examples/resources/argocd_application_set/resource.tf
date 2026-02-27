@@ -441,6 +441,60 @@ resource "argocd_application_set" "pr_github" {
   }
 }
 
+# Pull Request Generator - Azure DevOps
+resource "argocd_application_set" "pr_azure_devops" {
+  metadata {
+    name = "pr-azure-devops"
+  }
+
+  spec {
+    generator {
+      pull_request {
+        azure_devops {
+          api          = "https://dev.azure.com"
+          organization = "myorg"
+          project      = "myproject"
+          repo         = "myrepository"
+          labels       = ["preview"]
+
+          token_ref {
+            secret_name = "azure-devops-token"
+            key         = "token"
+          }
+        }
+      }
+    }
+
+    template {
+      metadata {
+        name = "myapp-{{branch}}-{{number}}"
+      }
+
+      spec {
+        project = "default"
+
+        source {
+          repo_url        = "https://github.com/myorg/myrepo.git"
+          path            = "kubernetes/"
+          target_revision = "{{head_sha}}"
+
+          helm {
+            parameter {
+              name  = "image.tag"
+              value = "pull-{{head_sha}}"
+            }
+          }
+        }
+
+        destination {
+          server    = "https://kubernetes.default.svc"
+          namespace = "default"
+        }
+      }
+    }
+  }
+}
+
 # SCM Provider Generator - GitHub
 resource "argocd_application_set" "scm_github" {
   metadata {

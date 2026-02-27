@@ -484,7 +484,9 @@ func expandApplicationSetPullRequestGeneratorGenerator(mg interface{}, featureMu
 
 	m := mg.(map[string]interface{})
 
-	if v, ok := m["bitbucket_server"].([]interface{}); ok && len(v) > 0 {
+	if v, ok := m["azure_devops"].([]interface{}); ok && len(v) > 0 {
+		asg.PullRequest.AzureDevOps = expandApplicationSetPullRequestGeneratorAzureDevOps(v[0].(map[string]interface{}))
+	} else if v, ok := m["bitbucket_server"].([]interface{}); ok && len(v) > 0 {
 		asg.PullRequest.BitbucketServer = expandApplicationSetPullRequestGeneratorBitbucketServer(v[0].(map[string]interface{}))
 	} else if v, ok := m["gitea"].([]interface{}); ok && len(v) > 0 {
 		asg.PullRequest.Gitea = expandApplicationSetPullRequestGeneratorGitea(v[0].(map[string]interface{}))
@@ -575,6 +577,27 @@ func expandApplicationSetPullRequestGeneratorGithub(g map[string]interface{}) *a
 	}
 
 	return spgg
+}
+
+func expandApplicationSetPullRequestGeneratorAzureDevOps(ado map[string]interface{}) *application.PullRequestGeneratorAzureDevOps {
+	prgado := &application.PullRequestGeneratorAzureDevOps{
+		API:          ado["api"].(string),
+		Organization: ado["organization"].(string),
+		Project:      ado["project"].(string),
+		Repo:         ado["repo"].(string),
+	}
+
+	if v, ok := ado["labels"].([]interface{}); ok && len(v) > 0 {
+		for _, l := range v {
+			prgado.Labels = append(prgado.Labels, l.(string))
+		}
+	}
+
+	if v, ok := ado["token_ref"].([]interface{}); ok && len(v) > 0 {
+		prgado.TokenRef = expandSecretRef(v[0].(map[string]interface{}))
+	}
+
+	return prgado
 }
 
 func expandApplicationSetPullRequestGeneratorGitlab(g map[string]interface{}) *application.PullRequestGeneratorGitLab {
@@ -1304,7 +1327,9 @@ func flattenApplicationSetPluginGenerator(plg *application.PluginGenerator) ([]m
 func flattenApplicationSetPullRequestGenerator(prg *application.PullRequestGenerator) []map[string]interface{} {
 	g := map[string]interface{}{}
 
-	if prg.BitbucketServer != nil {
+	if prg.AzureDevOps != nil {
+		g["azure_devops"] = flattenApplicationSetPullRequestGeneratorAzureDevOps(prg.AzureDevOps)
+	} else if prg.BitbucketServer != nil {
 		g["bitbucket_server"] = flattenApplicationSetPullRequestGeneratorBitbucketServer(prg.BitbucketServer)
 	} else if prg.Gitea != nil {
 		g["gitea"] = flattenApplicationSetPullRequestGeneratorGitea(prg.Gitea)
@@ -1404,6 +1429,25 @@ func flattenApplicationSetPullRequestGeneratorGitlab(prgg *application.PullReque
 	}
 
 	return []map[string]interface{}{g}
+}
+
+func flattenApplicationSetPullRequestGeneratorAzureDevOps(prgado *application.PullRequestGeneratorAzureDevOps) []map[string]interface{} {
+	a := map[string]interface{}{
+		"api":          prgado.API,
+		"organization": prgado.Organization,
+		"project":      prgado.Project,
+		"repo":         prgado.Repo,
+	}
+
+	if len(prgado.Labels) > 0 {
+		a["labels"] = prgado.Labels
+	}
+
+	if prgado.TokenRef != nil {
+		a["token_ref"] = flattenSecretRef(*prgado.TokenRef)
+	}
+
+	return []map[string]interface{}{a}
 }
 
 func flattenApplicationSetPullRequestGeneratorFilter(spgfs []application.PullRequestGeneratorFilter) []map[string]interface{} {
