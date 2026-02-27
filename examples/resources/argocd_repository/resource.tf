@@ -17,3 +17,12 @@ resource "argocd_repository" "private" {
   ssh_private_key = "-----BEGIN OPENSSH PRIVATE KEY-----\nfoo\nbar\n-----END OPENSSH PRIVATE KEY-----"
   insecure        = true
 }
+
+# Repository with proxy configuration
+resource "argocd_repository" "with_proxy" {
+  repo     = "https://github.com/example/repo.git"
+  username = "git"
+  password = "my-token"
+  proxy    = "http://proxy.example.com:8080"
+  no_proxy = "*.internal.example.com,localhost"
+}
