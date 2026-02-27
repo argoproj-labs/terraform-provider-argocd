@@ -1165,7 +1165,7 @@ resource "argocd_repository" "proxy_fail" {
 // We use the public Docker Hub OCI registry for Bitnami charts which allows anonymous access.
 func TestAccArgoCDRepository_OCI(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		// PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
