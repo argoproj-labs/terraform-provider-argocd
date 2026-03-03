@@ -26,3 +26,12 @@ resource "argocd_repository" "with_proxy" {
   proxy    = "http://proxy.example.com:8080"
   no_proxy = "*.internal.example.com,localhost"
 }
+
+# OCI repository (e.g., for Helm charts stored in OCI registries)
+resource "argocd_repository" "oci_registry" {
+  repo     = "oci://ghcr.io/argoproj/argo-helm/argo-cd"
+  name     = "argocd-oci"
+  type     = "oci"
+  username = "my-username"
+  password = "my-token"
+}
