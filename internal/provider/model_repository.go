@@ -58,12 +58,12 @@ func repositorySchemaAttributes() map[string]schema.Attribute {
 			Optional:            true,
 		},
 		"type": schema.StringAttribute{
-			MarkdownDescription: "Type of the repo. Can be either `git` or `helm`. `git` is assumed if empty or absent.",
+			MarkdownDescription: "Type of the repo. Can be either `git`, `helm` or `oci`. `git` is assumed if empty or absent.",
 			Optional:            true,
 			Computed:            true,
 			Default:             stringdefault.StaticString("git"),
 			Validators: []validator.String{
-				stringvalidator.OneOf("git", "helm"),
+				stringvalidator.OneOf("git", "helm", "oci"),
 			},
 		},
 		"project": schema.StringAttribute{
