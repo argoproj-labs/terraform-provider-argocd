@@ -318,6 +318,31 @@ func TestAccArgoCDProjectWithFineGrainedPolicy(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDProjectWithAppsInAnyNSPolicy(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t); testAccPreCheckFeatureSupported(t, features.ProjectFineGrainedPolicy) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDProjectWithAppsInAnyNSPolicy(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.app_in_any_ns_policy",
+						"metadata.0.uid",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.app_in_any_ns_policy",
+						"spec.0.role.0.policies.#",
+						"2",
+					),
+				),
+			},
+		},
+	})
+}
+
 func testAccArgoCDProjectSimple(name string) string {
 	return fmt.Sprintf(`
 resource "argocd_project" "simple" {
@@ -1350,6 +1375,38 @@ func testAccArgoCDProjectWithFineGrainedPolicy(name string) string {
         policies = [
           "p, proj:%[1]s:fine-grained, applications, update/*, %[1]s/*, allow",
           "p, proj:%[1]s:fine-grained, applications, delete/*/Pod/*/*, %[1]s/*, allow",
+        ]
+      }
+    }
+  }
+	`, name)
+}
+
+func testAccArgoCDProjectWithAppsInAnyNSPolicy(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "app_in_any_ns_policy" {
+    metadata {
+      name      = "%[1]s"
+      namespace = "argocd"
+      labels = {
+        acceptance = "true"
+      }
+    }
+
+    spec {
+      description  = "simple project with multi-ns policy"
+      source_repos = ["*"]
+
+      destination {
+        server    = "https://kubernetes.default.svc"
+        namespace = "default"
+      }
+
+      role {
+        name = "multi-ns"
+        policies = [
+          "p, proj:%[1]s:multi-ns, applications, update/*, %[1]s/*/multi-ns, allow",
+          "p, proj:%[1]s:multi-ns, applications, delete/*/Pod/default/*, %[1]s/*, allow",
         ]
       }
     }
