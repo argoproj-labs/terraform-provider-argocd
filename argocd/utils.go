@@ -36,6 +36,7 @@ func convertStringToInt64Pointer(s string) (*int64, error) {
 
 	return &i, nil
 }
+
 func isKeyInMap(key string, d map[string]interface{}) bool {
 	if d == nil {
 		return false
@@ -157,9 +158,9 @@ func validatePolicy(project string, role string, policy string) error {
 	// object
 	object := strings.Trim(policyComponents[4], " ")
 
-	objectRegexp, err := regexp.Compile(fmt.Sprintf(`^%s/[*\w-.]+$`, project))
+	objectRegexp, err := regexp.Compile(fmt.Sprintf(`^%s(/[*\w-.]+){1,2}$`, project))
 	if err != nil || !objectRegexp.MatchString(object) {
-		return fmt.Errorf("invalid policy rule '%s': object must be of form '%s/*' or '%s/<APPNAME>', not '%s'", policy, project, project, object)
+		return fmt.Errorf("invalid policy rule '%s': object must be of form '%s/*' or '%s/<APPNAME>' or '%s/<NS>/<APPNAME>', not '%s'", policy, project, project, project, object)
 	}
 
 	// effect

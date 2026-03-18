@@ -61,6 +61,17 @@ func TestValidatePolicy(t *testing.T) {
 			expectError: false,
 		},
 		{
+			name:        "Object with valid ns/app combo",
+			policy:      "p, proj:myproject:admin, applications, get, myproject/default/app-01, allow",
+			expectError: false,
+		},
+		{
+			name:        "Object with valid ns wildcard",
+			policy:      "p, proj:myproject:admin, applications, get, myproject/default/*, allow",
+			expectError: false,
+		},
+
+		{
 			name:        "Object with dash and dot in name",
 			policy:      "p, proj:myproject:admin, applications, get, myproject/app-1.2, allow",
 			expectError: false,
