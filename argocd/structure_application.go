@@ -405,7 +405,7 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 }
 
 func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, error) {
-	var syncPolicy = &application.SyncPolicy{}
+	syncPolicy := &application.SyncPolicy{}
 
 	if sp == nil {
 		return syncPolicy, nil
@@ -414,7 +414,7 @@ func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, error
 	p := sp.(map[string]interface{})
 
 	if _a, ok := p["automated"].(*schema.Set); ok {
-		var automated = &application.SyncPolicyAutomated{}
+		automated := &application.SyncPolicyAutomated{}
 
 		list := _a.List()
 
@@ -447,7 +447,7 @@ func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, error
 	}
 
 	if _retry, ok := p["retry"].([]interface{}); ok && len(_retry) > 0 {
-		var retry = &application.RetryStrategy{}
+		retry := &application.RetryStrategy{}
 
 		r := (_retry[0]).(map[string]interface{})
 
@@ -510,7 +510,7 @@ func expandApplicationIgnoreDifferences(ids []interface{}) (result []application
 	for _, _id := range ids {
 		id := _id.(map[string]interface{})
 
-		var elem = application.ResourceIgnoreDifferences{}
+		elem := application.ResourceIgnoreDifferences{}
 
 		if v, ok := id["group"]; ok {
 			elem.Group = v.(string)
@@ -646,7 +646,6 @@ func flattenApplicationSyncPolicy(sp *application.SyncPolicy) []map[string]inter
 	}
 
 	result := make(map[string]interface{}, 0)
-	backoff := make(map[string]interface{}, 0)
 
 	if sp.Automated != nil {
 		result["automated"] = []map[string]interface{}{
@@ -673,20 +672,26 @@ func flattenApplicationSyncPolicy(sp *application.SyncPolicy) []map[string]inter
 		limit := convertInt64ToString(sp.Retry.Limit)
 
 		if sp.Retry.Backoff != nil {
-			backoff = map[string]interface{}{
+			backoff := map[string]interface{}{
 				"duration":     sp.Retry.Backoff.Duration,
 				"max_duration": sp.Retry.Backoff.MaxDuration,
 			}
 			if sp.Retry.Backoff.Factor != nil {
 				backoff["factor"] = convertInt64PointerToString(sp.Retry.Backoff.Factor)
 			}
-		}
 
-		result["retry"] = []map[string]interface{}{
-			{
-				"limit":   limit,
-				"backoff": []map[string]interface{}{backoff},
-			},
+			result["retry"] = []map[string]interface{}{
+				{
+					"limit":   limit,
+					"backoff": []map[string]interface{}{backoff},
+				},
+			}
+		} else {
+			result["retry"] = []map[string]interface{}{
+				{
+					"limit": limit,
+				},
+			}
 		}
 	}
 
