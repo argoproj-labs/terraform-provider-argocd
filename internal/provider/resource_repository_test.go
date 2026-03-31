@@ -592,6 +592,66 @@ resource "argocd_repository" "private" {
 	})
 }
 
+// TestAccArgoCDRepository_DepthConsistency tests the depth field for shallow clones
+func TestAccArgoCDRepository_DepthConsistency(t *testing.T) {
+	config := `
+resource "argocd_repository" "shallow" {
+  repo  = "https://github.com/kubernetes-sigs/kustomize"
+  depth = 1
+}
+`
+	configUpdated := `
+resource "argocd_repository" "shallow" {
+  repo  = "https://github.com/kubernetes-sigs/kustomize"
+  depth = 5
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.shallow",
+						"depth",
+						"1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.shallow",
+						"connection_state_status",
+						"Successful",
+					),
+				),
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.shallow",
+						"depth",
+						"1",
+					),
+				),
+			},
+			{
+				// Update depth value
+				Config: configUpdated,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.shallow",
+						"depth",
+						"5",
+					),
+				),
+			},
+		},
+	})
+}
+
 // TestAccArgoCDRepository_EmptyStringFieldsConsistency tests handling of empty string fields
 func TestAccArgoCDRepository_EmptyStringFieldsConsistency(t *testing.T) {
 	config := `

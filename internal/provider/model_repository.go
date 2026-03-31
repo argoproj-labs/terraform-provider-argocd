@@ -38,6 +38,7 @@ type repositoryModel struct {
 	BearerToken                types.String `tfsdk:"bearer_token"`
 	Proxy                      types.String `tfsdk:"proxy"`
 	NoProxy                    types.String `tfsdk:"no_proxy"`
+	Depth                      types.Int64  `tfsdk:"depth"`
 }
 
 func repositorySchemaAttributes() map[string]schema.Attribute {
@@ -161,6 +162,11 @@ func repositorySchemaAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Comma-separated list of hostnames that should be excluded from proxying.",
 			Optional:            true,
 		},
+		"depth": schema.Int64Attribute{
+			MarkdownDescription: "Depth specifies the depth for [shallow clones](https://argo-cd.readthedocs.io/en/stable/operator-manual/high_availability/#shallow-clone). A value of `0` means a full clone (the default).",
+			Optional:            true,
+			Computed:            true,
+		},
 	}
 }
 
@@ -185,6 +191,7 @@ func (m *repositoryModel) toAPIModel() (*v1alpha1.Repository, error) {
 		GithubAppPrivateKey:        m.GitHubAppPrivateKey.ValueString(),
 		Proxy:                      m.Proxy.ValueString(),
 		NoProxy:                    m.NoProxy.ValueString(),
+		Depth:                      m.Depth.ValueInt64(),
 	}
 
 	// Handle GitHub App ID conversion
@@ -225,6 +232,12 @@ func (m *repositoryModel) updateFromAPI(repo *v1alpha1.Repository) *repositoryMo
 	m.EnableOCI = types.BoolValue(repo.EnableOCI)
 	m.Insecure = types.BoolValue(repo.Insecure)
 	m.InheritedCreds = types.BoolValue(repo.InheritedCreds)
+
+	if repo.Depth > 0 {
+		m.Depth = types.Int64Value(repo.Depth)
+	} else if m.Depth.IsUnknown() {
+		m.Depth = types.Int64Value(0)
+	}
 
 	if repo.Name != "" {
 		m.Name = types.StringValue(repo.Name)
