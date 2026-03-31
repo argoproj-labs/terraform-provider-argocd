@@ -33,15 +33,9 @@ func (v metadataAnnotationsValidator) ValidateMap(ctx context.Context, req valid
 		return
 	}
 
-	var m map[string]string
-
-	resp.Diagnostics.Append(req.ConfigValue.ElementsAs(ctx, &m, false)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	for k := range m {
+	// Only keys need validation for annotations, so iterate over Elements()
+	// directly to avoid converting unknown element values to Go strings.
+	for k := range req.ConfigValue.Elements() {
 		errors := validation.IsQualifiedName(strings.ToLower(k))
 		for _, err := range errors {
 			resp.Diagnostics.AddAttributeError(
