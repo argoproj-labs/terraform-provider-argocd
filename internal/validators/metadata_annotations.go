@@ -2,7 +2,6 @@ package validators
 
 import (
 	"context"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"k8s.io/apimachinery/pkg/util/validation"
@@ -36,7 +35,7 @@ func (v metadataAnnotationsValidator) ValidateMap(ctx context.Context, req valid
 	// Only keys need validation for annotations, so iterate over Elements()
 	// directly to avoid converting unknown element values to Go strings.
 	for k := range req.ConfigValue.Elements() {
-		errors := validation.IsQualifiedName(strings.ToLower(k))
+		errors := validation.IsQualifiedName(k)
 		for _, err := range errors {
 			resp.Diagnostics.AddAttributeError(
 				req.Path,
