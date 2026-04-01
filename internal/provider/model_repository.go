@@ -165,7 +165,7 @@ func repositorySchemaAttributes() map[string]schema.Attribute {
 			Optional:            true,
 		},
 		"depth": schema.Int64Attribute{
-			MarkdownDescription: "Depth specifies the depth for [shallow clones](https://argo-cd.readthedocs.io/en/stable/operator-manual/high_availability/#shallow-clone). A value of `0` means a full clone (the default). Only supported from ArgoCD 3.3.0 onwards.",
+			MarkdownDescription: "Depth specifies the depth for [shallow clones](https://argo-cd.readthedocs.io/en/stable/operator-manual/high_availability/#shallow-clone). A value of `0` means a full clone (the default). Shallow clone depths (`> 0`) are only supported from ArgoCD 3.3.0 onwards.",
 			Optional:            true,
 			Computed:            true,
 			Default:             int64default.StaticInt64(0),
