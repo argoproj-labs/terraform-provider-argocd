@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
@@ -608,7 +609,10 @@ resource "argocd_repository" "shallow" {
 `
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureSupported(t, features.RepositoryDepth)
+		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -661,7 +665,10 @@ resource "argocd_repository" "no_depth" {
 `
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureSupported(t, features.RepositoryDepth)
+		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -680,6 +687,30 @@ resource "argocd_repository" "no_depth" {
 						plancheck.ExpectEmptyPlan(),
 					},
 				},
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_DepthUnsupportedVersion tests that depth is rejected on older ArgoCD versions
+func TestAccArgoCDRepository_DepthUnsupportedVersion(t *testing.T) {
+	config := `
+resource "argocd_repository" "depth_unsupported" {
+  repo  = "https://github.com/kubernetes-sigs/kustomize"
+  depth = 1
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureNotSupported(t, features.RepositoryDepth)
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      config,
+				ExpectError: regexp.MustCompile("only supported from ArgoCD"),
 			},
 		},
 	})

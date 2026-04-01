@@ -20,6 +20,7 @@ const (
 	ProjectDestinationServiceAccounts
 	ProjectFineGrainedPolicy
 	ApplicationSourceName
+	RepositoryDepth
 )
 
 type FeatureConstraint struct {
@@ -35,7 +36,7 @@ var ConstraintsMap = map[Feature]FeatureConstraint{
 	MultipleApplicationSources:                 {"multiple application sources", semver.MustParse("2.6.3")}, // Whilst the feature was introduced in 2.6.0 there was a bug that affects refresh of applications (and hence `wait` within this provider) that was only fixed in https://github.com/argoproj/argo-cd/pull/12576
 	ApplicationSet:                             {"application sets", semver.MustParse("2.5.0")},
 	ApplicationSetProgressiveSync:              {"progressive sync (`strategy`)", semver.MustParse("2.6.0")},
-	ManagedNamespaceMetadata:                   {"managed namespace metadsata", semver.MustParse("2.6.0")},
+	ManagedNamespaceMetadata:                   {"managed namespace metadata", semver.MustParse("2.6.0")},
 	ApplicationSetApplicationsSyncPolicy:       {"application set level application sync policy", semver.MustParse("2.8.0")},
 	ApplicationSetIgnoreApplicationDifferences: {"application set ignore application differences", semver.MustParse("2.9.0")},
 	ApplicationSetTemplatePatch:                {"application set template patch", semver.MustParse("2.10.0")},
@@ -43,4 +44,5 @@ var ConstraintsMap = map[Feature]FeatureConstraint{
 	ProjectFineGrainedPolicy:                   {"fine-grained policy in project", semver.MustParse("2.12.0")},
 	ApplicationSourceName:                      {"named application sources", semver.MustParse("2.14.0")},
 	ProjectDestinationServiceAccounts:          {"project destination service accounts", semver.MustParse("2.13.0")},
+	RepositoryDepth:                            {"repository shallow clone depth", semver.MustParse("3.3.0")},
 }
