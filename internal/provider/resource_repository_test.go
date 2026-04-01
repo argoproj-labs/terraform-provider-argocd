@@ -631,6 +631,15 @@ resource "argocd_repository" "shallow" {
 				),
 			},
 			{
+				// Re-apply to verify no plan diff from the default
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+			{
 				// Apply the same configuration again to test for consistency
 				Config: config,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -642,6 +651,15 @@ resource "argocd_repository" "shallow" {
 				),
 			},
 			{
+				// Re-apply to verify no plan diff from the default
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+			{
 				// Update depth value
 				Config: configUpdated,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -651,6 +669,15 @@ resource "argocd_repository" "shallow" {
 						"5",
 					),
 				),
+			},
+			{
+				// Re-apply to verify no plan diff from the default
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})
