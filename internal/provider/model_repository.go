@@ -239,10 +239,10 @@ func (m *repositoryModel) updateFromAPI(repo *v1alpha1.Repository) *repositoryMo
 	m.Insecure = types.BoolValue(repo.Insecure)
 	m.InheritedCreds = types.BoolValue(repo.InheritedCreds)
 
-	if m.Depth.IsUnknown() || m.Depth.IsNull() {
-		m.Depth = types.Int64Value(0)
-	} else {
+	if repo.Depth > 0 {
 		m.Depth = types.Int64Value(repo.Depth)
+	} else if m.Depth.IsUnknown() || m.Depth.IsNull() {
+		m.Depth = types.Int64Value(0)
 	}
 
 	if repo.Name != "" {
