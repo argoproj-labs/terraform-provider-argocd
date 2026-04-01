@@ -4,7 +4,7 @@ go 1.25.8
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0
-	github.com/ProtonMail/gopenpgp/v3 v3.3.0
+	github.com/ProtonMail/gopenpgp/v3 v3.4.0
 	github.com/argoproj/argo-cd/v3 v3.3.6
 	// make sure this matches with version used in Argo CD's go.mod
 	github.com/argoproj/gitops-engine v0.7.1-0.20251217140045-5baed5604d2d
@@ -48,7 +48,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/OvyFlash/telegram-bot-api v0.0.0-20241219171906-3f2ca0c14ada // indirect
 	github.com/PagerDuty/go-pagerduty v1.8.0 // indirect
-	github.com/ProtonMail/go-crypto v1.3.0 // indirect
+	github.com/ProtonMail/go-crypto v1.4.1 // indirect
 	github.com/RocketChat/Rocket.Chat.Go.SDK v0.0.0-20240116134246-a8cbe886bab0 // indirect
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/alicebob/miniredis/v2 v2.35.0 // indirect
@@ -82,7 +82,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chai2010/gettext-go v1.0.3 // indirect
 	github.com/chainguard-dev/git-urls v1.0.2 // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
+	github.com/cloudflare/circl v1.6.2 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
