@@ -2062,3 +2062,83 @@ resource "argocd_project" "multi_update" {
 		Steps:                    steps,
 	})
 }
+
+// TestAccArgoCDProject_UnknownAnnotationValues tests that argocd_project handles unknown
+// (computed) annotation and label values at plan time without crashing.
+// This is a regression test for issue #846.
+// See: https://github.com/argoproj-labs/terraform-provider-argocd/issues/846
+func TestAccArgoCDProject_UnknownAnnotationValues(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				// First step: terraform_data.test is new so its output is unknown at plan time.
+				// The argocd_project annotation references this unknown value.
+				// Before the fix, this would crash with "Value Conversion Error".
+				Config: testAccArgoCDProjectWithUnknownAnnotation(name, "initial"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.unknown_annotation",
+						"metadata.0.annotations.computed-key",
+						"initial",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.unknown_annotation",
+						"metadata.0.labels.computed-label",
+						"initial",
+					),
+				),
+			},
+			{
+				// Second step: changing the input makes the output unknown again at plan time.
+				Config: testAccArgoCDProjectWithUnknownAnnotation(name, "updated"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.unknown_annotation",
+						"metadata.0.annotations.computed-key",
+						"updated",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.unknown_annotation",
+						"metadata.0.labels.computed-label",
+						"updated",
+					),
+				),
+			},
+		},
+	})
+}
+
+func testAccArgoCDProjectWithUnknownAnnotation(name, value string) string {
+	return fmt.Sprintf(`
+resource "terraform_data" "test" {
+  input = "%s"
+}
+
+resource "argocd_project" "unknown_annotation" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+    annotations = {
+      "computed-key" = terraform_data.test.output
+    }
+    labels = {
+      "computed-label" = terraform_data.test.output
+    }
+  }
+
+  spec {
+    description  = "test unknown annotation values"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+  }
+}
+	`, value, name)
+}
