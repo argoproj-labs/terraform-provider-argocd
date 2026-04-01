@@ -428,7 +428,6 @@ func applicationSpecSchemaV1() *schema.Schema {
 								Type:     schema.TypeString,
 								Optional: true,
 								// TODO: add validator to test path is not absolute
-								Default: ".",
 							},
 							"target_revision": {
 								Type:     schema.TypeString,
