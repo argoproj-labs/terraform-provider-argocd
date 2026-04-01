@@ -2,9 +2,9 @@ package validators
 
 import (
 	"context"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"k8s.io/apimachinery/pkg/util/validation"
 )
 
@@ -33,23 +33,23 @@ func (v metadataLabelsValidator) ValidateMap(ctx context.Context, req validator.
 		return
 	}
 
-	var m map[string]string
-
-	resp.Diagnostics.Append(req.ConfigValue.ElementsAs(ctx, &m, false)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	for k, v := range m {
-		for _, err := range validation.IsQualifiedName(strings.ToLower(k)) {
+	// Iterate over Elements() directly to handle maps containing unknown
+	// element values (e.g. computed attributes from other resources).
+	for k, val := range req.ConfigValue.Elements() {
+		for _, err := range validation.IsQualifiedName(k) {
 			resp.Diagnostics.AddAttributeError(
 				req.Path,
 				"Invalid Label Key: not a valid qualified name",
 				err)
 		}
 
-		for _, err := range validation.IsValidLabelValue(v) {
+		// Skip value validation if the value is unknown or null.
+		sv, ok := val.(types.String)
+		if !ok || sv.IsUnknown() || sv.IsNull() {
+			continue
+		}
+
+		for _, err := range validation.IsValidLabelValue(sv.ValueString()) {
 			resp.Diagnostics.AddAttributeError(
 				req.Path,
 				"Invalid Label Value",
