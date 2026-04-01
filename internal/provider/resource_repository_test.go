@@ -671,8 +671,8 @@ resource "argocd_repository" "shallow" {
 				),
 			},
 			{
-				// Re-apply to verify no plan diff from the default
-				Config: config,
+				// Re-apply to verify no plan diff after update
+				Config: configUpdated,
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectEmptyPlan(),
