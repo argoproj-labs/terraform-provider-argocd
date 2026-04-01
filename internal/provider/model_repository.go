@@ -241,7 +241,7 @@ func (m *repositoryModel) updateFromAPI(repo *v1alpha1.Repository) *repositoryMo
 
 	if repo.Depth > 0 {
 		m.Depth = types.Int64Value(repo.Depth)
-	} else if m.Depth.IsUnknown() {
+	} else if m.Depth.IsUnknown() || m.Depth.IsNull() {
 		m.Depth = types.Int64Value(0)
 	}
 
