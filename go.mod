@@ -8,7 +8,7 @@ require (
 	github.com/argoproj/argo-cd/v3 v3.3.6
 	// make sure this matches with version used in Argo CD's go.mod
 	github.com/argoproj/gitops-engine v0.7.1-0.20251217140045-5baed5604d2d
-	github.com/argoproj/pkg v0.13.7-0.20250305113207-cbc37dc61de5
+	github.com/argoproj/pkg/v2 v2.0.1
 	github.com/cristalhq/jwt/v5 v5.4.0
 	github.com/elliotchance/pie/v2 v2.9.1
 	github.com/hashicorp/terraform-plugin-framework v1.19.0
@@ -54,7 +54,7 @@ require (
 	github.com/alicebob/miniredis/v2 v2.35.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/argoproj/notifications-engine v0.5.1-0.20260119155007-a23b5827d630 // indirect
-	github.com/argoproj/pkg/v2 v2.0.1 // indirect
+	github.com/argoproj/pkg v0.13.6 // indirect
 	github.com/aws/aws-sdk-go v1.55.7 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.36.3 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.29.9 // indirect
