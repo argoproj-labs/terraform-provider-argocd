@@ -652,6 +652,60 @@ resource "argocd_repository" "shallow" {
 	})
 }
 
+// TestAccArgoCDRepository_DepthDefault tests that depth defaults to 0 when omitted
+func TestAccArgoCDRepository_DepthDefault(t *testing.T) {
+	config := `
+resource "argocd_repository" "no_depth" {
+  repo = "https://github.com/kubernetes-sigs/kustomize"
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.TestCheckResourceAttr(
+					"argocd_repository.no_depth",
+					"depth",
+					"0",
+				),
+			},
+			{
+				// Re-apply to verify no plan diff from the default
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_DepthNegativeValidation tests that negative depth is rejected
+func TestAccArgoCDRepository_DepthNegativeValidation(t *testing.T) {
+	config := `
+resource "argocd_repository" "negative_depth" {
+  repo  = "https://github.com/kubernetes-sigs/kustomize"
+  depth = -1
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      config,
+				ExpectError: regexp.MustCompile("must be at least 0"),
+			},
+		},
+	})
+}
+
 // TestAccArgoCDRepository_EmptyStringFieldsConsistency tests handling of empty string fields
 func TestAccArgoCDRepository_EmptyStringFieldsConsistency(t *testing.T) {
 	config := `

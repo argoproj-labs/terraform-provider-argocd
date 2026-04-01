@@ -4,9 +4,11 @@ import (
 	"strconv"
 
 	"github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -166,6 +168,10 @@ func repositorySchemaAttributes() map[string]schema.Attribute {
 			MarkdownDescription: "Depth specifies the depth for [shallow clones](https://argo-cd.readthedocs.io/en/stable/operator-manual/high_availability/#shallow-clone). A value of `0` means a full clone (the default).",
 			Optional:            true,
 			Computed:            true,
+			Default:             int64default.StaticInt64(0),
+			Validators: []validator.Int64{
+				int64validator.AtLeast(0),
+			},
 		},
 	}
 }
