@@ -165,7 +165,7 @@ func repositorySchemaAttributes() map[string]schema.Attribute {
 			Optional:            true,
 		},
 		"depth": schema.Int64Attribute{
-			MarkdownDescription: "Depth specifies the depth for [shallow clones](https://argo-cd.readthedocs.io/en/stable/operator-manual/high_availability/#shallow-clone). A value of `0` means a full clone (the default).",
+			MarkdownDescription: "Depth specifies the depth for [shallow clones](https://argo-cd.readthedocs.io/en/stable/operator-manual/high_availability/#shallow-clone). A value of `0` means a full clone (the default). Only supported from ArgoCD 3.3.0 onwards.",
 			Optional:            true,
 			Computed:            true,
 			Default:             int64default.StaticInt64(0),
@@ -239,10 +239,10 @@ func (m *repositoryModel) updateFromAPI(repo *v1alpha1.Repository) *repositoryMo
 	m.Insecure = types.BoolValue(repo.Insecure)
 	m.InheritedCreds = types.BoolValue(repo.InheritedCreds)
 
-	if repo.Depth > 0 {
-		m.Depth = types.Int64Value(repo.Depth)
-	} else if m.Depth.IsUnknown() || m.Depth.IsNull() {
+	if m.Depth.IsUnknown() || m.Depth.IsNull() {
 		m.Depth = types.Int64Value(0)
+	} else {
+		m.Depth = types.Int64Value(repo.Depth)
 	}
 
 	if repo.Name != "" {

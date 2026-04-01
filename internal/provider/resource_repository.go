@@ -77,7 +77,7 @@ func (r *repositoryResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	if !r.si.IsFeatureSupported(features.RepositoryDepth) && data.Depth.ValueInt64() > 0 {
+	if !r.si.IsFeatureSupported(features.RepositoryDepth) && !data.Depth.IsUnknown() && !data.Depth.IsNull() && data.Depth.ValueInt64() > 0 {
 		resp.Diagnostics.Append(diagnostics.FeatureNotSupported(features.RepositoryDepth)...)
 		return
 	}
@@ -193,7 +193,7 @@ func (r *repositoryResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	if !r.si.IsFeatureSupported(features.RepositoryDepth) && data.Depth.ValueInt64() > 0 {
+	if !r.si.IsFeatureSupported(features.RepositoryDepth) && !data.Depth.IsUnknown() && !data.Depth.IsNull() && data.Depth.ValueInt64() > 0 {
 		resp.Diagnostics.Append(diagnostics.FeatureNotSupported(features.RepositoryDepth)...)
 		return
 	}
