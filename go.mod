@@ -11,13 +11,13 @@ require (
 	github.com/argoproj/pkg v0.13.7-0.20250305113207-cbc37dc61de5
 	github.com/cristalhq/jwt/v5 v5.4.0
 	github.com/elliotchance/pie/v2 v2.9.1
-	github.com/hashicorp/terraform-plugin-framework v1.18.0
+	github.com/hashicorp/terraform-plugin-framework v1.19.0
 	github.com/hashicorp/terraform-plugin-framework-validators v0.19.0
-	github.com/hashicorp/terraform-plugin-go v0.30.0
+	github.com/hashicorp/terraform-plugin-go v0.31.0
 	github.com/hashicorp/terraform-plugin-log v0.10.0
-	github.com/hashicorp/terraform-plugin-mux v0.22.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.39.0
-	github.com/hashicorp/terraform-plugin-testing v1.14.0
+	github.com/hashicorp/terraform-plugin-mux v0.23.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.40.0
+	github.com/hashicorp/terraform-plugin-testing v1.15.0
 	github.com/robfig/cron/v3 v3.0.2-0.20210106135023-bc59245fe10e
 	github.com/stretchr/testify v1.11.1
 	github.com/testcontainers/testcontainers-go v0.40.0
