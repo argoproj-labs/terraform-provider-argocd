@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/diagnostics"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/sync"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/repository"
 	"github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
@@ -73,6 +74,11 @@ func (r *repositoryResource) Create(ctx context.Context, req resource.CreateRequ
 
 	// Check for errors before proceeding
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !r.si.IsFeatureSupported(features.RepositoryDepth) && !data.Depth.IsUnknown() && !data.Depth.IsNull() && data.Depth.ValueInt64() > 0 {
+		resp.Diagnostics.Append(diagnostics.FeatureNotSupported(features.RepositoryDepth)...)
 		return
 	}
 
@@ -184,6 +190,11 @@ func (r *repositoryResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	// Check for errors before proceeding
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !r.si.IsFeatureSupported(features.RepositoryDepth) && !data.Depth.IsUnknown() && !data.Depth.IsNull() && data.Depth.ValueInt64() > 0 {
+		resp.Diagnostics.Append(diagnostics.FeatureNotSupported(features.RepositoryDepth)...)
 		return
 	}
 
