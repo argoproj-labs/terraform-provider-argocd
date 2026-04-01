@@ -29,8 +29,6 @@ require (
 	k8s.io/client-go v0.34.0
 )
 
-require github.com/argoproj/pkg v0.13.6
-
 require (
 	cloud.google.com/go/auth v0.15.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.7 // indirect
@@ -56,6 +54,7 @@ require (
 	github.com/alicebob/miniredis/v2 v2.35.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/argoproj/notifications-engine v0.5.1-0.20260119155007-a23b5827d630 // indirect
+	github.com/argoproj/pkg v0.13.6 // indirect
 	github.com/aws/aws-sdk-go v1.55.7 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.36.3 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.29.9 // indirect
