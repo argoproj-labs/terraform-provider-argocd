@@ -62,7 +62,7 @@ resource "argocd_repository" "oci_registry" {
 ### Optional
 
 - `bearer_token` (String, Sensitive) BearerToken contains the bearer token used for Git BitBucket Data Center auth at the repo server
-- `depth` (Number) Depth specifies the depth for [shallow clones](https://argo-cd.readthedocs.io/en/stable/operator-manual/high_availability/#shallow-clone). A value of `0` means a full clone (the default). Only supported from ArgoCD 3.3.0 onwards.
+- `depth` (Number) Depth specifies the depth for [shallow clones](https://argo-cd.readthedocs.io/en/stable/operator-manual/high_availability/#shallow-clone). A value of `0` means a full clone (the default) and is supported in all ArgoCD versions. Shallow clone depths (`> 0`) are only supported from ArgoCD 3.3.0 onwards.
 - `enable_lfs` (Boolean) Whether `git-lfs` support should be enabled for this repository.
 - `enable_oci` (Boolean) Whether `helm-oci` support should be enabled for this repository.
 - `githubapp_enterprise_base_url` (String) GitHub API URL for GitHub app authentication.
