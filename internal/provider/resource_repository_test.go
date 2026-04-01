@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
@@ -587,6 +588,177 @@ resource "argocd_repository" "private" {
 						plancheck.ExpectEmptyPlan(),
 					},
 				},
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_DepthConsistency tests the depth field for shallow clones
+func TestAccArgoCDRepository_DepthConsistency(t *testing.T) {
+	config := `
+resource "argocd_repository" "shallow" {
+  repo  = "https://github.com/kubernetes-sigs/kustomize"
+  depth = 1
+}
+`
+	configUpdated := `
+resource "argocd_repository" "shallow" {
+  repo  = "https://github.com/kubernetes-sigs/kustomize"
+  depth = 5
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureSupported(t, features.RepositoryDepth)
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.shallow",
+						"depth",
+						"1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_repository.shallow",
+						"connection_state_status",
+						"Successful",
+					),
+				),
+			},
+			{
+				// Re-apply to verify no plan diff from the default
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+			{
+				// Apply the same configuration again to test for consistency
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.shallow",
+						"depth",
+						"1",
+					),
+				),
+			},
+			{
+				// Re-apply to verify no plan diff from the default
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+			{
+				// Update depth value
+				Config: configUpdated,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_repository.shallow",
+						"depth",
+						"5",
+					),
+				),
+			},
+			{
+				// Re-apply to verify no plan diff after update
+				Config: configUpdated,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_DepthDefault tests that depth defaults to 0 when omitted
+func TestAccArgoCDRepository_DepthDefault(t *testing.T) {
+	config := `
+resource "argocd_repository" "no_depth" {
+  repo = "https://github.com/kubernetes-sigs/kustomize"
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureSupported(t, features.RepositoryDepth)
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.TestCheckResourceAttr(
+					"argocd_repository.no_depth",
+					"depth",
+					"0",
+				),
+			},
+			{
+				// Re-apply to verify no plan diff from the default
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_DepthUnsupportedVersion tests that depth is rejected on older ArgoCD versions
+func TestAccArgoCDRepository_DepthUnsupportedVersion(t *testing.T) {
+	config := `
+resource "argocd_repository" "depth_unsupported" {
+  repo  = "https://github.com/kubernetes-sigs/kustomize"
+  depth = 1
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureNotSupported(t, features.RepositoryDepth)
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      config,
+				ExpectError: regexp.MustCompile("only supported from ArgoCD"),
+			},
+		},
+	})
+}
+
+// TestAccArgoCDRepository_DepthNegativeValidation tests that negative depth is rejected
+func TestAccArgoCDRepository_DepthNegativeValidation(t *testing.T) {
+	config := `
+resource "argocd_repository" "negative_depth" {
+  repo  = "https://github.com/kubernetes-sigs/kustomize"
+  depth = -1
+}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      config,
+				ExpectError: regexp.MustCompile("must be at least 0"),
 			},
 		},
 	})
