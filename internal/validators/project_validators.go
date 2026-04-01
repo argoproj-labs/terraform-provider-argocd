@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"time"
 
-	argocdtime "github.com/argoproj/pkg/time"
+	argocdtime "github.com/argoproj/pkg/v2/time"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/robfig/cron/v3"
 )
