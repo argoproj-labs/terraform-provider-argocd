@@ -115,7 +115,7 @@ func testAccPreCheckFeatureSupported(t *testing.T, feature features.Feature) {
 func testAccPreCheckFeatureNotSupported(t *testing.T, feature features.Feature) {
 	v := os.Getenv("ARGOCD_VERSION")
 	if v == "" {
-		t.Skip("ARGOCD_VERSION must be set for feature supported acceptance tests")
+		t.Skip("ARGOCD_VERSION must be set for feature not supported acceptance tests")
 	}
 
 	serverVersion, err := semver.NewVersion(v)
