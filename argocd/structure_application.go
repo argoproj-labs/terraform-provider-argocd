@@ -370,6 +370,28 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 			}
 		}
 
+		if parametersWo, ok := a["parameter_wo"]; ok {
+			for _, _p := range parametersWo.(*schema.Set).List() {
+				p := _p.(map[string]interface{})
+
+				parameter := application.HelmParameter{}
+
+				if v, ok := p["force_string"]; ok {
+					parameter.ForceString = v.(bool)
+				}
+
+				if v, ok := p["name"]; ok {
+					parameter.Name = v.(string)
+				}
+
+				if v, ok := p["value"]; ok {
+					parameter.Value = v.(string)
+				}
+
+				result.Parameters = append(result.Parameters, parameter)
+			}
+		}
+
 		if fileParameters, ok := a["file_parameter"]; ok {
 			for _, _p := range fileParameters.(*schema.Set).List() {
 				p := _p.(map[string]interface{})

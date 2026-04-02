@@ -1359,6 +1359,31 @@ func applicationSpecSchemaV4(allOptional, isAppSet bool) *schema.Schema {
 												},
 											},
 										},
+										"parameter_wo": {
+											Type:        schema.TypeSet,
+											Description: "Helm parameters which are passed to the helm template command upon manifest generation. (write-only)",
+											Optional:    true,
+											WriteOnly:   true,
+											Elem: &schema.Resource{
+												Schema: map[string]*schema.Schema{
+													"name": {
+														Type:        schema.TypeString,
+														Description: "Name of the Helm parameter.",
+														Optional:    true,
+													},
+													"value": {
+														Type:        schema.TypeString,
+														Description: "Value of the Helm parameter.",
+														Optional:    true,
+													},
+													"force_string": {
+														Type:        schema.TypeBool,
+														Optional:    true,
+														Description: "Determines whether to tell Helm to interpret booleans and numbers as strings.",
+													},
+												},
+											},
+										},
 										"file_parameter": {
 											Type:        schema.TypeSet,
 											Description: "File parameters for the helm template.",

@@ -883,6 +883,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -902,6 +903,16 @@ Required:
 
 <a id="nestedblock--spec--generator--cluster_decision_resource--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.cluster_decision_resource.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.cluster_decision_resource.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -1184,6 +1195,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--clusters--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -1203,6 +1215,16 @@ Required:
 
 <a id="nestedblock--spec--generator--clusters--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.clusters.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--clusters--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.clusters.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -1493,6 +1515,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--git--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -1512,6 +1535,16 @@ Required:
 
 <a id="nestedblock--spec--generator--git--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.git.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--git--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.git.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -1774,6 +1807,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--list--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -1793,6 +1827,16 @@ Required:
 
 <a id="nestedblock--spec--generator--list--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.list.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--list--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.list.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -2107,6 +2151,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -2126,6 +2171,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.cluster_decision_resource.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.cluster_decision_resource.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -2408,6 +2463,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -2427,6 +2483,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.clusters.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--clusters--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.clusters.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -2717,6 +2783,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--git--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -2736,6 +2803,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--git--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.git.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--git--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.git.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -2998,6 +3075,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--list--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -3017,6 +3095,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--list--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.list.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--list--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.list.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -3329,6 +3417,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -3348,6 +3437,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.cluster_decision_resource.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.cluster_decision_resource.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -3630,6 +3729,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -3649,6 +3749,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.clusters.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--clusters--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.clusters.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -3939,6 +4049,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -3958,6 +4069,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.git.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--git--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.git.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -4220,6 +4341,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -4239,6 +4361,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.list.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--list--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.list.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -4514,6 +4646,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--plugin--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--plugin--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--plugin--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -4533,6 +4666,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--plugin--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.plugin.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--plugin--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.plugin.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -4949,6 +5092,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -4968,6 +5112,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.pull_request.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.pull_request.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -5400,6 +5554,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -5419,6 +5574,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.scm_provider.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--generator--scm_provider--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.generator.scm_provider.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -5692,6 +5857,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -5711,6 +5877,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--matrix--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.matrix.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -6024,6 +6200,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -6043,6 +6220,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.cluster_decision_resource.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.cluster_decision_resource.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -6325,6 +6512,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -6344,6 +6532,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.clusters.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--clusters--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.clusters.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -6634,6 +6832,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -6653,6 +6852,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.git.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--git--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.git.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -6915,6 +7124,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -6934,6 +7144,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.list.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--list--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.list.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -7209,6 +7429,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--plugin--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--plugin--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--plugin--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -7228,6 +7449,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--plugin--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.plugin.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--plugin--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.plugin.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -7644,6 +7875,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -7663,6 +7895,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.pull_request.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.pull_request.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -8095,6 +8337,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -8114,6 +8357,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.scm_provider.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--generator--scm_provider--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.generator.scm_provider.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -8387,6 +8640,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -8406,6 +8660,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--merge--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.merge.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -8681,6 +8945,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--plugin--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--plugin--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--plugin--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -8700,6 +8965,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--plugin--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.plugin.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--plugin--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.plugin.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -9116,6 +9391,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -9135,6 +9411,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.pull_request.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--pull_request--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.pull_request.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -9567,6 +9853,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -9586,6 +9873,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.generator.scm_provider.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--generator--scm_provider--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.generator.scm_provider.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -9859,6 +10156,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--matrix--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -9878,6 +10176,16 @@ Required:
 
 <a id="nestedblock--spec--generator--matrix--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.matrix.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--matrix--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.matrix.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -10193,6 +10501,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -10212,6 +10521,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.cluster_decision_resource.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.cluster_decision_resource.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -10494,6 +10813,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--clusters--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -10513,6 +10833,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--clusters--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.clusters.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--clusters--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.clusters.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -10803,6 +11133,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--git--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -10822,6 +11153,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--git--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.git.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--git--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.git.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -11084,6 +11425,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--list--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -11103,6 +11445,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--list--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.list.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--list--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.list.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -11415,6 +11767,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -11434,6 +11787,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.cluster_decision_resource.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.cluster_decision_resource.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -11716,6 +12079,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -11735,6 +12099,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.clusters.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--clusters--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.clusters.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -12025,6 +12399,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -12044,6 +12419,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.git.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--git--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.git.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -12306,6 +12691,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -12325,6 +12711,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.list.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--list--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.list.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -12600,6 +12996,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--plugin--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--plugin--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--plugin--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -12619,6 +13016,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--plugin--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.plugin.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--plugin--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.plugin.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -13035,6 +13442,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -13054,6 +13462,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.pull_request.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.pull_request.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -13486,6 +13904,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -13505,6 +13924,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.scm_provider.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--generator--scm_provider--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.generator.scm_provider.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -13778,6 +14207,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -13797,6 +14227,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--matrix--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.matrix.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -14110,6 +14550,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -14129,6 +14570,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.cluster_decision_resource.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--cluster_decision_resource--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.cluster_decision_resource.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -14411,6 +14862,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -14430,6 +14882,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.clusters.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--clusters--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.clusters.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -14720,6 +15182,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -14739,6 +15202,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.git.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--git--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.git.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -15001,6 +15474,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -15020,6 +15494,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.list.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--list--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.list.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -15295,6 +15779,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--plugin--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--plugin--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--plugin--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -15314,6 +15799,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--plugin--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.plugin.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--plugin--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.plugin.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -15730,6 +16225,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -15749,6 +16245,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.pull_request.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.pull_request.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -16181,6 +16687,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -16200,6 +16707,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.scm_provider.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--generator--scm_provider--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.generator.scm_provider.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -16473,6 +16990,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -16492,6 +17010,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--merge--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--merge--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.merge.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -16767,6 +17295,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--plugin--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--plugin--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--plugin--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -16786,6 +17315,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--plugin--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.plugin.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--plugin--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.plugin.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -17202,6 +17741,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -17221,6 +17761,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.pull_request.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--pull_request--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.pull_request.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -17653,6 +18203,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -17672,6 +18223,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.generator.scm_provider.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--generator--scm_provider--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.generator.scm_provider.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -17945,6 +18506,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--merge--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -17964,6 +18526,16 @@ Required:
 
 <a id="nestedblock--spec--generator--merge--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.merge.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--merge--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.merge.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -18239,6 +18811,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--plugin--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--plugin--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--plugin--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -18258,6 +18831,16 @@ Required:
 
 <a id="nestedblock--spec--generator--plugin--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.plugin.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--plugin--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.plugin.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -18674,6 +19257,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--pull_request--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -18693,6 +19277,16 @@ Required:
 
 <a id="nestedblock--spec--generator--pull_request--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.pull_request.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--pull_request--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.pull_request.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -19125,6 +19719,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--generator--scm_provider--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -19144,6 +19739,16 @@ Required:
 
 <a id="nestedblock--spec--generator--scm_provider--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.generator.scm_provider.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--generator--scm_provider--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.generator.scm_provider.template.spec.source.helm.parameter_wo`
 
 Optional:
 
@@ -19403,6 +20008,7 @@ Optional:
 - `file_parameter` (Block Set) File parameters for the helm template. (see [below for nested schema](#nestedblock--spec--template--spec--source--helm--file_parameter))
 - `ignore_missing_value_files` (Boolean) Prevents 'helm template' from failing when `value_files` do not exist locally by not appending them to 'helm template --values'.
 - `parameter` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (see [below for nested schema](#nestedblock--spec--template--spec--source--helm--parameter))
+- `parameter_wo` (Block Set) Helm parameters which are passed to the helm template command upon manifest generation. (write-only) (see [below for nested schema](#nestedblock--spec--template--spec--source--helm--parameter_wo))
 - `pass_credentials` (Boolean) If true then adds '--pass-credentials' to Helm commands to pass credentials to all domains.
 - `release_name` (String) Helm release name. If omitted it will use the application name.
 - `skip_crds` (Boolean) Whether to skip custom resource definition installation step (Helm's [--skip-crds](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/)).
@@ -19422,6 +20028,16 @@ Required:
 
 <a id="nestedblock--spec--template--spec--source--helm--parameter"></a>
 ### Nested Schema for `spec.template.spec.source.helm.parameter`
+
+Optional:
+
+- `force_string` (Boolean) Determines whether to tell Helm to interpret booleans and numbers as strings.
+- `name` (String) Name of the Helm parameter.
+- `value` (String) Value of the Helm parameter.
+
+
+<a id="nestedblock--spec--template--spec--source--helm--parameter_wo"></a>
+### Nested Schema for `spec.template.spec.source.helm.parameter_wo`
 
 Optional:
 
