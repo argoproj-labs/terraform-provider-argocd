@@ -150,7 +150,7 @@ func TestAccArgoCDApplicationSet_gitFiles(t *testing.T) {
 						"spec.0.generator.0.git.0.file.0.path",
 					),
 					resource.TestCheckResourceAttrSet(
-						"argocd_application_set.git_exclude",
+						"argocd_application_set.git_files",
 						"spec.0.generator.0.git.0.file.0.exclude",
 					),
 					resource.TestCheckResourceAttr(
