@@ -216,6 +216,10 @@ func expandApplicationSetGitGenerator(gg interface{}, featureMultipleApplication
 				Path: f["path"].(string),
 			}
 
+			if e, ok := f["exclude"].(bool); ok {
+				file.Exclude = e
+			}
+
 			asg.Git.Files = append(asg.Git.Files, file)
 		}
 	}
