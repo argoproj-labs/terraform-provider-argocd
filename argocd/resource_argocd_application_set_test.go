@@ -123,7 +123,7 @@ func TestAccArgoCDApplicationSet_gitDirectories(t *testing.T) {
 					),
 				),
 			},
-			{
+			{rce
 				ResourceName:            "argocd_application_set.git_directories",
 				ImportState:             true,
 				ImportStateVerify:       true,
