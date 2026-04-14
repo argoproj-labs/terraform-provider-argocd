@@ -1208,7 +1208,8 @@ func flattenApplicationSetGitGenerator(gg *application.GitGenerator) []map[strin
 		files := make([]map[string]interface{}, len(gg.Files))
 		for i, f := range gg.Files {
 			files[i] = map[string]interface{}{
-				"path": f.Path,
+				"path":    f.Path,
+				"exclude": f.Exclude,
 			}
 		}
 
