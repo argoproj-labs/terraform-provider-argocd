@@ -144,8 +144,12 @@ resource "argocd_application_set" "git_files" {
         revision = "HEAD"
 
         file {
-          path    = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
-          exclude = false
+          path = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
+        }
+
+        file {
+          path    = "applicationset/examples/git-generator-files-discovery/cluster-config/*/dev/config.json"
+          exclude = true
         }
       }
     }

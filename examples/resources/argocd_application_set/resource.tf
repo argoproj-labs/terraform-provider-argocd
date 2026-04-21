@@ -129,7 +129,7 @@ resource "argocd_application_set" "git_files" {
         revision = "HEAD"
 
         file {
-          path    = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
+          path = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
         }
 
         file {
