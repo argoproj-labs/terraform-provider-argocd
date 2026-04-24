@@ -32,6 +32,7 @@ func New(version string) provider.Provider {
 
 func (p *ArgoCDProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "argocd"
+	resp.Version = p.version
 }
 
 func (p *ArgoCDProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {

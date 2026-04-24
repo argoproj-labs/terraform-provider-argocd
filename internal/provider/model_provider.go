@@ -241,6 +241,7 @@ func (p ArgoCDProviderConfig) setPortForwardingOpts(ctx context.Context, opts *a
 			opts.PortForwardNamespace = "argocd"
 		}
 
+		// no need to look at the k8s block if not specified
 		if p.Kubernetes == nil {
 			break
 		}

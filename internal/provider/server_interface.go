@@ -10,6 +10,8 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/diagnostics"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/utils"
+	"github.com/argoproj/argo-cd/v3/common"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/account"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/application"
@@ -28,6 +30,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 var runtimeErrorHandlers []runtime.ErrorHandler
@@ -60,18 +63,41 @@ func NewServerInterface(c ArgoCDProviderConfig) *ServerInterface {
 }
 
 func (si *ServerInterface) InitClients(ctx context.Context) diag.Diagnostics {
-	si.Lock()
-	defer si.Unlock()
-
-	if si.initialized {
-		return nil
-	}
-
 	opts, d := si.config.getApiClientOptions(ctx)
 	if d.HasError() {
 		return d
 	}
 
+	// port-forwarding is different, thus we hook into this here to inject a retry-mechanism
+	if opts.PortForward || opts.PortForwardNamespace != "" {
+		if opts.KubeOverrides == nil {
+			opts.KubeOverrides = &clientcmd.ConfigOverrides{}
+		}
+		serverPodLabelSelector := common.LabelKeyAppName + "=" + opts.ServerName
+		port, err := utils.SetupPortForward(ctx, 8080, opts.PortForwardNamespace, opts.KubeOverrides, serverPodLabelSelector)
+		if err != nil {
+			return diagnostics.Error("failed to setup port-forward", err)
+		}
+
+		// for the rest of initClients let it appear as if port-forwarding is not used
+		// this is required for the drop-in replacement of our retry to the existing code
+		opts.ServerAddr = fmt.Sprintf("127.0.0.1:%d", port)
+		opts.Insecure = true
+		opts.PortForward = false
+		opts.PortForwardNamespace = ""
+	}
+
+	if si.initialized {
+		return nil
+	}
+
+	return si.initClients(ctx, opts)
+}
+
+// internal func to init Clients, can be run multiple times, will create new clients every time called
+// for port-forwarding cases it will reopen a new port-forwarding tunnel
+// for core mode it will restart the local argocd api server
+func (si *ServerInterface) initClients(ctx context.Context, opts *apiclient.ClientOptions) diag.Diagnostics {
 	ac, err := apiclient.NewClient(opts)
 	if err != nil {
 		return diagnostics.Error("failed to create new API client", err)
