@@ -216,6 +216,10 @@ func expandApplicationSetGitGenerator(gg interface{}, featureMultipleApplication
 				Path: f["path"].(string),
 			}
 
+			if e, ok := f["exclude"].(bool); ok {
+				file.Exclude = e
+			}
+
 			asg.Git.Files = append(asg.Git.Files, file)
 		}
 	}
@@ -1204,7 +1208,8 @@ func flattenApplicationSetGitGenerator(gg *application.GitGenerator) []map[strin
 		files := make([]map[string]interface{}, len(gg.Files))
 		for i, f := range gg.Files {
 			files[i] = map[string]interface{}{
-				"path": f.Path,
+				"path":    f.Path,
+				"exclude": f.Exclude,
 			}
 		}
 
