@@ -146,6 +146,11 @@ resource "argocd_application_set" "git_files" {
         file {
           path = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
         }
+
+        file {
+          path    = "applicationset/examples/git-generator-files-discovery/cluster-config/*/dev/config.json"
+          exclude = true
+        }
       }
     }
 
@@ -1360,6 +1365,10 @@ Optional:
 Required:
 
 - `path` (String) Path to the file in the repository.
+
+Optional:
+
+- `exclude` (Boolean) Exclude file when generating parameters.
 
 
 <a id="nestedblock--spec--generator--git--template"></a>
@@ -2585,6 +2594,10 @@ Required:
 
 - `path` (String) Path to the file in the repository.
 
+Optional:
+
+- `exclude` (Boolean) Exclude file when generating parameters.
+
 
 <a id="nestedblock--spec--generator--matrix--generator--git--template"></a>
 ### Nested Schema for `spec.generator.matrix.generator.git.template`
@@ -3806,6 +3819,10 @@ Optional:
 Required:
 
 - `path` (String) Path to the file in the repository.
+
+Optional:
+
+- `exclude` (Boolean) Exclude file when generating parameters.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--git--template"></a>
@@ -6501,6 +6518,10 @@ Optional:
 Required:
 
 - `path` (String) Path to the file in the repository.
+
+Optional:
+
+- `exclude` (Boolean) Exclude file when generating parameters.
 
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--git--template"></a>
@@ -10671,6 +10692,10 @@ Required:
 
 - `path` (String) Path to the file in the repository.
 
+Optional:
+
+- `exclude` (Boolean) Exclude file when generating parameters.
+
 
 <a id="nestedblock--spec--generator--merge--generator--git--template"></a>
 ### Nested Schema for `spec.generator.merge.generator.git.template`
@@ -11892,6 +11917,10 @@ Optional:
 Required:
 
 - `path` (String) Path to the file in the repository.
+
+Optional:
+
+- `exclude` (Boolean) Exclude file when generating parameters.
 
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--git--template"></a>
@@ -14587,6 +14616,10 @@ Optional:
 Required:
 
 - `path` (String) Path to the file in the repository.
+
+Optional:
+
+- `exclude` (Boolean) Exclude file when generating parameters.
 
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--git--template"></a>
