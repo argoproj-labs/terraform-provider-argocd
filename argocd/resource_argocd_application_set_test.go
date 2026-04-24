@@ -149,6 +149,14 @@ func TestAccArgoCDApplicationSet_gitFiles(t *testing.T) {
 						"argocd_application_set.git_files",
 						"spec.0.generator.0.git.0.file.0.path",
 					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.git_files",
+						"spec.0.generator.0.git.0.file.1.path",
+					),
+					resource.TestCheckResourceAttrSet(
+						"argocd_application_set.git_files",
+						"spec.0.generator.0.git.0.file.1.exclude",
+					),
 					resource.TestCheckResourceAttr(
 						"argocd_application_set.git_files",
 						"spec.0.generator.0.git.0.values.foo",
@@ -1408,6 +1416,10 @@ resource "argocd_application_set" "git_files" {
 
 				file {
 					path = "applicationset/examples/git-generator-files-discovery/cluster-config/**/config.json"
+				}
+				file {
+					path = "applicationset/examples/git-generator-files-discovery/cluster-config/*/dev/config.json"
+					exclude = true
 				}
 				values = {
 					foo = "bar"

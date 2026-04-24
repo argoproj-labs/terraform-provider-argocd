@@ -396,6 +396,12 @@ func applicationSetGitGeneratorSchemaV0() *schema.Schema {
 								Description: "Path to the file in the repository.",
 								Required:    true,
 							},
+							"exclude": {
+								Type:        schema.TypeBool,
+								Description: "Exclude file when generating parameters.",
+								Optional:    true,
+								Default:     false,
+							},
 						},
 					},
 				},
