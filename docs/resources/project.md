@@ -190,6 +190,7 @@ Optional:
 
 - `group` (String) The Kubernetes resource Group to match for.
 - `kind` (String) The Kubernetes resource Kind to match for.
+- `name` (String) The Kubernetes resource name to match for. Supports glob patterns (Go filepath.Match syntax). Requires ArgoCD 3.3.0+.
 
 
 <a id="nestedblock--spec--cluster_resource_whitelist"></a>
@@ -199,6 +200,7 @@ Optional:
 
 - `group` (String) The Kubernetes resource Group to match for.
 - `kind` (String) The Kubernetes resource Kind to match for.
+- `name` (String) The Kubernetes resource name to match for. Supports glob patterns (Go filepath.Match syntax). Requires ArgoCD 3.3.0+.
 
 
 <a id="nestedblock--spec--destination"></a>

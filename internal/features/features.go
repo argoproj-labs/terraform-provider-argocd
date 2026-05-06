@@ -21,6 +21,7 @@ const (
 	ProjectFineGrainedPolicy
 	ApplicationSourceName
 	RepositoryDepth
+	ProjectClusterResourceName
 )
 
 type FeatureConstraint struct {
@@ -45,4 +46,5 @@ var ConstraintsMap = map[Feature]FeatureConstraint{
 	ApplicationSourceName:                      {"named application sources", semver.MustParse("2.14.0")},
 	ProjectDestinationServiceAccounts:          {"project destination service accounts", semver.MustParse("2.13.0")},
 	RepositoryDepth:                            {"repository shallow clone depth", semver.MustParse("3.3.0")},
+	ProjectClusterResourceName:                 {"project cluster resource name restriction", semver.MustParse("3.3.0")},
 }
