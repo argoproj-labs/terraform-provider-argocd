@@ -114,6 +114,11 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	if !r.si.IsFeatureSupported(features.ProjectClusterResourceName) && hasClusterResourceName(&model) {
+		resp.Diagnostics.Append(diagnostics.FeatureNotSupported(features.ProjectClusterResourceName)...)
+		return
+	}
+
 	// Get or create project mutex safely
 	projectMutex := argocdSync.GetProjectMutex(projectName)
 	projectMutex.Lock()
@@ -168,6 +173,22 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 	preserveEmptyLists(&data.Spec[0], &projectData.Spec[0])
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, projectData)...)
+}
+
+// hasClusterResourceName reports whether any cluster resource whitelist/blacklist entry
+// sets a non-empty `name`, which requires ArgoCD 3.3.0+.
+func hasClusterResourceName(spec *projectSpecModel) bool {
+	for _, r := range spec.ClusterResourceWhitelist {
+		if !r.Name.IsNull() && r.Name.ValueString() != "" {
+			return true
+		}
+	}
+	for _, r := range spec.ClusterResourceBlacklist {
+		if !r.Name.IsNull() && r.Name.ValueString() != "" {
+			return true
+		}
+	}
+	return false
 }
 
 // preserveEmptyLists applies preservation logic to ensure empty lists and null values from the source
@@ -344,6 +365,11 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	if !r.si.IsFeatureSupported(features.ProjectDestinationServiceAccounts) && len(data.Spec[0].DestinationServiceAccount) > 0 {
 		resp.Diagnostics.Append(diagnostics.FeatureNotSupported(features.ProjectDestinationServiceAccounts)...)
+		return
+	}
+
+	if !r.si.IsFeatureSupported(features.ProjectClusterResourceName) && hasClusterResourceName(&data.Spec[0]) {
+		resp.Diagnostics.Append(diagnostics.FeatureNotSupported(features.ProjectClusterResourceName)...)
 		return
 	}
 
@@ -605,18 +631,20 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 	}
 
 	// Convert cluster resource blacklist
-	for _, gk := range data.Spec[0].ClusterResourceBlacklist {
+	for _, r := range data.Spec[0].ClusterResourceBlacklist {
 		spec.ClusterResourceBlacklist = append(spec.ClusterResourceBlacklist, v1alpha1.ClusterResourceRestrictionItem{
-			Group: gk.Group.ValueString(),
-			Kind:  gk.Kind.ValueString(),
+			Group: r.Group.ValueString(),
+			Kind:  r.Kind.ValueString(),
+			Name:  r.Name.ValueString(),
 		})
 	}
 
 	// Convert cluster resource whitelist
-	for _, gk := range data.Spec[0].ClusterResourceWhitelist {
+	for _, r := range data.Spec[0].ClusterResourceWhitelist {
 		spec.ClusterResourceWhitelist = append(spec.ClusterResourceWhitelist, v1alpha1.ClusterResourceRestrictionItem{
-			Group: gk.Group.ValueString(),
-			Kind:  gk.Kind.ValueString(),
+			Group: r.Group.ValueString(),
+			Kind:  r.Kind.ValueString(),
+			Name:  r.Name.ValueString(),
 		})
 	}
 

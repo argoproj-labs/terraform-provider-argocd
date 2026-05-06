@@ -293,6 +293,70 @@ func TestAccArgoCDProjectWithDestinationServiceAccounts(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDProjectWithClusterResourceName(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureSupported(t, features.ProjectClusterResourceName)
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDProjectWithClusterResourceName(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"argocd_project.cluster_resource_name",
+						"metadata.0.uid",
+					),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						"argocd_project.cluster_resource_name",
+						"spec.0.cluster_resource_whitelist.*",
+						map[string]string{
+							"group": "rbac.authorization.k8s.io",
+							"kind":  "ClusterRoleBinding",
+							"name":  "myresources-whitelist-*",
+						},
+					),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						"argocd_project.cluster_resource_name",
+						"spec.0.cluster_resource_blacklist.*",
+						map[string]string{
+							"group": "*",
+							"kind":  "*",
+							"name":  "myresources-blacklist-*",
+						},
+					),
+				),
+			},
+			{
+				ResourceName:      "argocd_project.cluster_resource_name",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccArgoCDProjectWithClusterResourceNameNotSupported(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureNotSupported(t, features.ProjectClusterResourceName)
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccArgoCDProjectWithClusterResourceName(name),
+				ExpectError: regexp.MustCompile("only supported from ArgoCD"),
+			},
+		},
+	})
+}
+
 func TestAccArgoCDProjectWithFineGrainedPolicy(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
@@ -924,6 +988,38 @@ resource "argocd_project" "failure" {
   }
 }
   `, name, name, name)
+}
+
+func testAccArgoCDProjectWithClusterResourceName(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "cluster_resource_name" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description  = "cluster resource name restriction"
+    source_repos = ["*"]
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+
+    cluster_resource_whitelist {
+      group = "rbac.authorization.k8s.io"
+      kind  = "ClusterRoleBinding"
+      name  = "myresources-whitelist-*"
+    }
+    cluster_resource_blacklist {
+      group = "*"
+      kind  = "*"
+      name  = "myresources-blacklist-*"
+    }
+  }
+}
+  `, name)
 }
 
 func testAccArgoCDProjectWithDestinationServiceAccounts(name string) string {

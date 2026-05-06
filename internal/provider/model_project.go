@@ -17,24 +17,30 @@ type projectModel struct {
 }
 
 type projectSpecModel struct {
-	ClusterResourceBlacklist   []groupKindModel                 `tfsdk:"cluster_resource_blacklist"`
-	ClusterResourceWhitelist   []groupKindModel                 `tfsdk:"cluster_resource_whitelist"`
-	Description                types.String                     `tfsdk:"description"`
-	Destination                []destinationModel               `tfsdk:"destination"`
-	DestinationServiceAccount  []destinationServiceAccountModel `tfsdk:"destination_service_account"`
-	NamespaceResourceBlacklist []groupKindModel                 `tfsdk:"namespace_resource_blacklist"`
-	NamespaceResourceWhitelist []groupKindModel                 `tfsdk:"namespace_resource_whitelist"`
-	OrphanedResources          []orphanedResourcesModel         `tfsdk:"orphaned_resources"`
-	Role                       []projectRoleModel               `tfsdk:"role"`
-	SourceRepos                []types.String                   `tfsdk:"source_repos"`
-	SourceNamespaces           []types.String                   `tfsdk:"source_namespaces"`
-	SignatureKeys              []types.String                   `tfsdk:"signature_keys"`
-	SyncWindow                 []syncWindowModel                `tfsdk:"sync_window"`
+	ClusterResourceBlacklist   []clusterResourceRestrictionModel `tfsdk:"cluster_resource_blacklist"`
+	ClusterResourceWhitelist   []clusterResourceRestrictionModel `tfsdk:"cluster_resource_whitelist"`
+	Description                types.String                      `tfsdk:"description"`
+	Destination                []destinationModel                `tfsdk:"destination"`
+	DestinationServiceAccount  []destinationServiceAccountModel  `tfsdk:"destination_service_account"`
+	NamespaceResourceBlacklist []groupKindModel                  `tfsdk:"namespace_resource_blacklist"`
+	NamespaceResourceWhitelist []groupKindModel                  `tfsdk:"namespace_resource_whitelist"`
+	OrphanedResources          []orphanedResourcesModel          `tfsdk:"orphaned_resources"`
+	Role                       []projectRoleModel                `tfsdk:"role"`
+	SourceRepos                []types.String                    `tfsdk:"source_repos"`
+	SourceNamespaces           []types.String                    `tfsdk:"source_namespaces"`
+	SignatureKeys              []types.String                    `tfsdk:"signature_keys"`
+	SyncWindow                 []syncWindowModel                 `tfsdk:"sync_window"`
 }
 
 type groupKindModel struct {
 	Group types.String `tfsdk:"group"`
 	Kind  types.String `tfsdk:"kind"`
+}
+
+type clusterResourceRestrictionModel struct {
+	Group types.String `tfsdk:"group"`
+	Kind  types.String `tfsdk:"kind"`
+	Name  types.String `tfsdk:"name"`
 }
 
 type destinationModel struct {
@@ -140,6 +146,10 @@ func projectSpecSchemaBlocks() map[string]schema.Block {
 						Description: "The Kubernetes resource Kind to match for.",
 						Optional:    true,
 					},
+					"name": schema.StringAttribute{
+						Description: "The Kubernetes resource name to match for. Supports glob patterns (Go filepath.Match syntax). Requires ArgoCD 3.3.0+.",
+						Optional:    true,
+					},
 				},
 			},
 		},
@@ -156,6 +166,10 @@ func projectSpecSchemaBlocks() map[string]schema.Block {
 					},
 					"kind": schema.StringAttribute{
 						Description: "The Kubernetes resource Kind to match for.",
+						Optional:    true,
+					},
+					"name": schema.StringAttribute{
+						Description: "The Kubernetes resource name to match for. Supports glob patterns (Go filepath.Match syntax). Requires ArgoCD 3.3.0+.",
 						Optional:    true,
 					},
 				},
@@ -433,22 +447,30 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 
 	// Convert cluster resource blacklist
 	if len(spec.ClusterResourceBlacklist) > 0 {
-		ps.ClusterResourceBlacklist = make([]groupKindModel, len(spec.ClusterResourceBlacklist))
-		for i, gk := range spec.ClusterResourceBlacklist {
-			ps.ClusterResourceBlacklist[i] = groupKindModel{
-				Group: types.StringValue(gk.Group),
-				Kind:  types.StringValue(gk.Kind),
+		ps.ClusterResourceBlacklist = make([]clusterResourceRestrictionModel, len(spec.ClusterResourceBlacklist))
+		for i, r := range spec.ClusterResourceBlacklist {
+			ps.ClusterResourceBlacklist[i] = clusterResourceRestrictionModel{
+				Group: types.StringValue(r.Group),
+				Kind:  types.StringValue(r.Kind),
+				Name:  types.StringNull(),
+			}
+			if r.Name != "" {
+				ps.ClusterResourceBlacklist[i].Name = types.StringValue(r.Name)
 			}
 		}
 	}
 
 	// Convert cluster resource whitelist
 	if len(spec.ClusterResourceWhitelist) > 0 {
-		ps.ClusterResourceWhitelist = make([]groupKindModel, len(spec.ClusterResourceWhitelist))
-		for i, gk := range spec.ClusterResourceWhitelist {
-			ps.ClusterResourceWhitelist[i] = groupKindModel{
-				Group: types.StringValue(gk.Group),
-				Kind:  types.StringValue(gk.Kind),
+		ps.ClusterResourceWhitelist = make([]clusterResourceRestrictionModel, len(spec.ClusterResourceWhitelist))
+		for i, r := range spec.ClusterResourceWhitelist {
+			ps.ClusterResourceWhitelist[i] = clusterResourceRestrictionModel{
+				Group: types.StringValue(r.Group),
+				Kind:  types.StringValue(r.Kind),
+				Name:  types.StringNull(),
+			}
+			if r.Name != "" {
+				ps.ClusterResourceWhitelist[i].Name = types.StringValue(r.Name)
 			}
 		}
 	}
