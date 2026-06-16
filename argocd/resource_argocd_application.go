@@ -360,7 +360,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		if err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *retry.RetryError {
 			var list *application.ApplicationList
 			if list, err = si.ApplicationClient.List(ctx, appQuery); err != nil {
-				return retry.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", list.Items[0].Name, err))
+				return retry.NonRetryableError(fmt.Errorf("error while waiting for application %s to be synced and healthy: %s", *appQuery.Name, err))
 			}
 
 			if len(list.Items) != 1 {
