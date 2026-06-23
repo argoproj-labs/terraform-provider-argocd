@@ -4,7 +4,7 @@
     <working_directory value="$PROJECT_DIR$" />
     <go_parameters value="-i" />
     <envs>
-      <env name="ARGOCD_VERSION" value="v3.3.0" />
+      <env name="ARGOCD_VERSION" value="v3.4.3" />
       <env name="ARGOCD_INSECURE" value="true" />
       <env name="ARGOCD_SERVER" value="127.0.0.1:8080" />
       <env name="ARGOCD_AUTH_USERNAME" value="admin" />
