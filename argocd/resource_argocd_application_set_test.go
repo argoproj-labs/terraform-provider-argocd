@@ -823,6 +823,11 @@ func TestAccArgoCDApplicationSet_pullRequestGithub(t *testing.T) {
 						"spec.0.generator.0.pull_request.0.github.0.labels.0",
 						"preview",
 					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.pr_github",
+						"spec.0.generator.0.pull_request.0.values.foo",
+						"bar",
+					),
 				),
 			},
 			{
@@ -3018,6 +3023,10 @@ resource "argocd_application_set" "pr_github" {
 					labels = [
 						"preview"
 					]
+				}
+
+				values = {
+					foo = "bar"
 				}
 			}
 		}

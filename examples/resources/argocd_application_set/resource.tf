@@ -413,6 +413,10 @@ resource "argocd_application_set" "pr_github" {
             "preview"
           ]
         }
+
+        values = {
+          env = "dev"
+        }
       }
     }
 
