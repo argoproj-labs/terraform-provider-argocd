@@ -170,15 +170,27 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 
 	if sync, ok := d.GetOk("sync"); ok && sync.(bool) {
 		prune := false
-		if spec.SyncPolicy.Automated != nil && spec.SyncPolicy.Automated.Prune {
+		if spec.SyncPolicy != nil && spec.SyncPolicy.Automated != nil && spec.SyncPolicy.Automated.Prune {
 			prune = true
 		}
 
-		_, err := si.ApplicationClient.Sync(ctx, &applicationClient.ApplicationSyncRequest{
+		if spec.SyncPolicy != nil && spec.SyncPolicy.SyncOptions.HasOption("Prune=true") {
+			prune = true
+		}
+
+		syncRequest := &applicationClient.ApplicationSyncRequest{
 			Name:         &app.Name,
 			AppNamespace: &app.Namespace,
 			Prune:        &prune,
-		})
+		}
+
+		if spec.SyncPolicy != nil && len(spec.SyncPolicy.SyncOptions) > 0 {
+			syncRequest.SyncOptions = &applicationClient.SyncOptions{
+				Items: []string(spec.SyncPolicy.SyncOptions),
+			}
+		}
+
+		_, err := si.ApplicationClient.Sync(ctx, syncRequest)
 		if err != nil {
 			return errorToDiagnostics(fmt.Sprintf("error while triggering sync of application %s", app.Name), err)
 		}
@@ -342,15 +354,27 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 
 	if sync, ok := d.GetOk("sync"); ok && sync.(bool) {
 		prune := false
-		if spec.SyncPolicy.Automated != nil && spec.SyncPolicy.Automated.Prune {
+		if spec.SyncPolicy != nil && spec.SyncPolicy.Automated != nil && spec.SyncPolicy.Automated.Prune {
 			prune = true
 		}
 
-		_, err = si.ApplicationClient.Sync(ctx, &applicationClient.ApplicationSyncRequest{
+		if spec.SyncPolicy != nil && spec.SyncPolicy.SyncOptions.HasOption("Prune=true") {
+			prune = true
+		}
+
+		syncRequest := &applicationClient.ApplicationSyncRequest{
 			Name:         &objectMeta.Name,
 			AppNamespace: &objectMeta.Namespace,
 			Prune:        &prune,
-		})
+		}
+
+		if spec.SyncPolicy != nil && len(spec.SyncPolicy.SyncOptions) > 0 {
+			syncRequest.SyncOptions = &applicationClient.SyncOptions{
+				Items: []string(spec.SyncPolicy.SyncOptions),
+			}
+		}
+
+		_, err = si.ApplicationClient.Sync(ctx, syncRequest)
 		if err != nil {
 			return errorToDiagnostics(fmt.Sprintf("error while triggering sync of application %s", *appQuery.Name), err)
 		}
