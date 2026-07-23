@@ -387,9 +387,7 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	// Preserve preexisting JWTs for managed roles
-	roles := expandProjectRoles(ctx, data.Spec[0].Role)
-	for specIdx, r := range roles {
+	for specIdx, r := range spec.Roles {
 		var pr *v1alpha1.ProjectRole
 
 		var i int
