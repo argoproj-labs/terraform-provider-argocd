@@ -180,6 +180,47 @@ func TestAccArgoCDProjectUpdateAddRole(t *testing.T) {
 	})
 }
 
+func TestAccArgoCDProjectRemoveLeadingRoles(t *testing.T) {
+	// Regression test: removing roles so that a retained role keeps a higher
+	// index in the existing project than its position in the new desired spec
+	// used to panic with "index out of range" while preserving JWT tokens.
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDProjectThreeRoles(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.three_roles",
+						"spec.0.role.#",
+						"3",
+					),
+				),
+			},
+			{
+				// Keep only the last role: in the existing project it sits at
+				// index 2, but the new spec has length 1.
+				Config: testAccArgoCDProjectThreeRolesKeepLast(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_project.three_roles",
+						"spec.0.role.#",
+						"1",
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_project.three_roles",
+						"spec.0.role.0.name",
+						"role-c",
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccArgoCDProjectWithClustersRepositoriesRolePolicy(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-acc")
 
@@ -828,6 +869,72 @@ func testAccArgoCDProjectSimpleWithRole(name string) string {
     }
   }
 	`, name, name, name, name, name)
+}
+
+func testAccArgoCDProjectThreeRoles(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "three_roles" {
+    metadata {
+      name      = "%[1]s"
+      namespace = "argocd"
+    }
+
+    spec {
+      description  = "three roles project"
+      source_repos = ["*"]
+
+      destination {
+        name      = "anothercluster"
+        namespace = "bar"
+      }
+      role {
+        name = "role-a"
+        policies = [
+          "p, proj:%[1]s:role-a, applications, get, %[1]s/*, allow",
+        ]
+      }
+      role {
+        name = "role-b"
+        policies = [
+          "p, proj:%[1]s:role-b, applications, get, %[1]s/*, allow",
+        ]
+      }
+      role {
+        name = "role-c"
+        policies = [
+          "p, proj:%[1]s:role-c, applications, get, %[1]s/*, allow",
+        ]
+      }
+    }
+  }
+	`, name)
+}
+
+func testAccArgoCDProjectThreeRolesKeepLast(name string) string {
+	return fmt.Sprintf(`
+  resource "argocd_project" "three_roles" {
+    metadata {
+      name      = "%[1]s"
+      namespace = "argocd"
+    }
+
+    spec {
+      description  = "three roles project"
+      source_repos = ["*"]
+
+      destination {
+        name      = "anothercluster"
+        namespace = "bar"
+      }
+      role {
+        name = "role-c"
+        policies = [
+          "p, proj:%[1]s:role-c, applications, get, %[1]s/*, allow",
+        ]
+      }
+    }
+  }
+	`, name)
 }
 
 func testAccArgoCDProjectWithClustersRepositoriesRolePolicy(name string) string {
