@@ -387,9 +387,7 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	// Preserve preexisting JWTs for managed roles
-	roles := expandProjectRoles(ctx, data.Spec[0].Role)
-	for _, r := range roles {
+	for specIdx, r := range spec.Roles {
 		var pr *v1alpha1.ProjectRole
 
 		var i int
@@ -406,8 +404,10 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 				return
 			}
 		} else {
-			// Only preserve preexisting JWTs for managed roles if we found an existing matching project
-			spec.Roles[i].JWTTokens = pr.JWTTokens
+			// Only preserve preexisting JWTs for managed roles if we found an existing matching role.
+			// Note: i indexes the existing project's roles (p), so we must write to spec.Roles using
+			// the desired-spec index (specIdx), which is aligned with the roles slice we are iterating.
+			spec.Roles[specIdx].JWTTokens = pr.JWTTokens
 		}
 	}
 
