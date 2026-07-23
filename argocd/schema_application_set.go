@@ -1080,6 +1080,12 @@ func applicationSetPullRequestGeneratorSchemaV0() *schema.Schema {
 					MaxItems:    1,
 					Elem:        applicationSetTemplateResource(true),
 				},
+				"values": {
+					Type:        schema.TypeMap,
+					Description: "Arbitrary string key-value pairs to pass to the template via the values field of the pull request generator.",
+					Optional:    true,
+					Elem:        &schema.Schema{Type: schema.TypeString},
+				},
 			},
 		},
 	}
