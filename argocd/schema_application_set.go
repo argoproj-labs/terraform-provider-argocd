@@ -955,6 +955,12 @@ func applicationSetPullRequestGeneratorSchemaV0() *schema.Schema {
 								Description: "Allow insecure tls, for self-signed certificates; default: false.",
 								Optional:    true,
 							},
+							"labels": {
+								Type:        schema.TypeList,
+								Description: "Labels is used to filter the PRs that you want to target.",
+								Optional:    true,
+								Elem:        &schema.Schema{Type: schema.TypeString},
+							},
 							"owner": {
 								Type:        schema.TypeString,
 								Description: "Gitea org or user to scan.",
