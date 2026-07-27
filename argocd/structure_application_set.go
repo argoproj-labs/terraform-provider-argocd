@@ -555,6 +555,12 @@ func expandApplicationSetPullRequestGeneratorGitea(g map[string]interface{}) *ap
 		Repo:     g["repo"].(string),
 	}
 
+	if v, ok := g["labels"].([]interface{}); ok && len(v) > 0 {
+		for _, l := range v {
+			prgg.Labels = append(prgg.Labels, l.(string))
+		}
+	}
+
 	if v, ok := g["token_ref"].([]interface{}); ok && len(v) > 0 {
 		prgg.TokenRef = expandSecretRef(v[0].(map[string]interface{}))
 	}
@@ -1385,6 +1391,10 @@ func flattenApplicationSetPullRequestGeneratorGitea(prgg *application.PullReques
 		"insecure": prgg.Insecure,
 		"owner":    prgg.Owner,
 		"repo":     prgg.Repo,
+	}
+
+	if len(prgg.Labels) > 0 {
+		g["labels"] = prgg.Labels
 	}
 
 	if prgg.TokenRef != nil {

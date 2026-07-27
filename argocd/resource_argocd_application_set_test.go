@@ -789,6 +789,11 @@ func TestAccArgoCDApplicationSet_pullRequestGitea(t *testing.T) {
 						"spec.0.generator.0.pull_request.0.gitea.0.owner",
 						"myorg",
 					),
+					resource.TestCheckResourceAttr(
+						"argocd_application_set.pr_gitea",
+						"spec.0.generator.0.pull_request.0.gitea.0.labels.0",
+						"preview",
+					),
 				),
 			},
 			{
@@ -2959,6 +2964,10 @@ resource "argocd_application_set" "pr_gitea" {
 						secret_name = "gitea-token"
 						key         = "token"
 					}
+
+					labels = [
+						"preview"
+					]
 				}
 			}
 		}

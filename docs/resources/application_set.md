@@ -4763,6 +4763,7 @@ Required:
 Optional:
 
 - `insecure` (Boolean) Allow insecure tls, for self-signed certificates; default: false.
+- `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--gitea--token_ref))
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--gitea--token_ref"></a>
@@ -7462,6 +7463,7 @@ Required:
 Optional:
 
 - `insecure` (Boolean) Allow insecure tls, for self-signed certificates; default: false.
+- `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--gitea--token_ref))
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--gitea--token_ref"></a>
@@ -8934,6 +8936,7 @@ Required:
 Optional:
 
 - `insecure` (Boolean) Allow insecure tls, for self-signed certificates; default: false.
+- `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--gitea--token_ref))
 
 <a id="nestedblock--spec--generator--matrix--generator--pull_request--gitea--token_ref"></a>
@@ -12861,6 +12864,7 @@ Required:
 Optional:
 
 - `insecure` (Boolean) Allow insecure tls, for self-signed certificates; default: false.
+- `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--gitea--token_ref))
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--gitea--token_ref"></a>
@@ -15560,6 +15564,7 @@ Required:
 Optional:
 
 - `insecure` (Boolean) Allow insecure tls, for self-signed certificates; default: false.
+- `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--gitea--token_ref))
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--pull_request--gitea--token_ref"></a>
@@ -17032,6 +17037,7 @@ Required:
 Optional:
 
 - `insecure` (Boolean) Allow insecure tls, for self-signed certificates; default: false.
+- `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--gitea--token_ref))
 
 <a id="nestedblock--spec--generator--merge--generator--pull_request--gitea--token_ref"></a>
@@ -18504,6 +18510,7 @@ Required:
 Optional:
 
 - `insecure` (Boolean) Allow insecure tls, for self-signed certificates; default: false.
+- `labels` (List of String) Labels is used to filter the PRs that you want to target.
 - `token_ref` (Block List, Max: 1) Authentication token reference. (see [below for nested schema](#nestedblock--spec--generator--pull_request--gitea--token_ref))
 
 <a id="nestedblock--spec--generator--pull_request--gitea--token_ref"></a>
