@@ -479,6 +479,10 @@ resource "argocd_application_set" "pr_github" {
             "preview"
           ]
         }
+
+        values = {
+          env = "dev"
+        }
       }
     }
 
@@ -4736,6 +4740,7 @@ Optional:
 - `gitlab` (Block List, Max: 1) Specify the project from which to fetch the GitLab merge requests. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--gitlab))
 - `requeue_after_seconds` (String) How often to check for changes (in seconds). Default: 30min.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the pull request generator.
 
 <a id="nestedblock--spec--generator--matrix--generator--matrix--generator--pull_request--azure_devops"></a>
 ### Nested Schema for `spec.generator.matrix.generator.matrix.generator.pull_request.azure_devops`
@@ -7436,6 +7441,7 @@ Optional:
 - `gitlab` (Block List, Max: 1) Specify the project from which to fetch the GitLab merge requests. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--gitlab))
 - `requeue_after_seconds` (String) How often to check for changes (in seconds). Default: 30min.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the pull request generator.
 
 <a id="nestedblock--spec--generator--matrix--generator--merge--generator--pull_request--azure_devops"></a>
 ### Nested Schema for `spec.generator.matrix.generator.merge.generator.pull_request.azure_devops`
@@ -8909,6 +8915,7 @@ Optional:
 - `gitlab` (Block List, Max: 1) Specify the project from which to fetch the GitLab merge requests. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--gitlab))
 - `requeue_after_seconds` (String) How often to check for changes (in seconds). Default: 30min.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--matrix--generator--pull_request--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the pull request generator.
 
 <a id="nestedblock--spec--generator--matrix--generator--pull_request--azure_devops"></a>
 ### Nested Schema for `spec.generator.matrix.generator.pull_request.azure_devops`
@@ -12837,6 +12844,7 @@ Optional:
 - `gitlab` (Block List, Max: 1) Specify the project from which to fetch the GitLab merge requests. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--gitlab))
 - `requeue_after_seconds` (String) How often to check for changes (in seconds). Default: 30min.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the pull request generator.
 
 <a id="nestedblock--spec--generator--merge--generator--matrix--generator--pull_request--azure_devops"></a>
 ### Nested Schema for `spec.generator.merge.generator.matrix.generator.pull_request.azure_devops`
@@ -15537,6 +15545,7 @@ Optional:
 - `gitlab` (Block List, Max: 1) Specify the project from which to fetch the GitLab merge requests. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--gitlab))
 - `requeue_after_seconds` (String) How often to check for changes (in seconds). Default: 30min.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--merge--generator--pull_request--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the pull request generator.
 
 <a id="nestedblock--spec--generator--merge--generator--merge--generator--pull_request--azure_devops"></a>
 ### Nested Schema for `spec.generator.merge.generator.merge.generator.pull_request.azure_devops`
@@ -17010,6 +17019,7 @@ Optional:
 - `gitlab` (Block List, Max: 1) Specify the project from which to fetch the GitLab merge requests. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--gitlab))
 - `requeue_after_seconds` (String) How often to check for changes (in seconds). Default: 30min.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--merge--generator--pull_request--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the pull request generator.
 
 <a id="nestedblock--spec--generator--merge--generator--pull_request--azure_devops"></a>
 ### Nested Schema for `spec.generator.merge.generator.pull_request.azure_devops`
@@ -18483,6 +18493,7 @@ Optional:
 - `gitlab` (Block List, Max: 1) Specify the project from which to fetch the GitLab merge requests. (see [below for nested schema](#nestedblock--spec--generator--pull_request--gitlab))
 - `requeue_after_seconds` (String) How often to check for changes (in seconds). Default: 30min.
 - `template` (Block List, Max: 1) Generator template. Used to override the values of the spec-level template. (see [below for nested schema](#nestedblock--spec--generator--pull_request--template))
+- `values` (Map of String) Arbitrary string key-value pairs to pass to the template via the values field of the pull request generator.
 
 <a id="nestedblock--spec--generator--pull_request--azure_devops"></a>
 ### Nested Schema for `spec.generator.pull_request.azure_devops`
