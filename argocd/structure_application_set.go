@@ -522,6 +522,10 @@ func expandApplicationSetPullRequestGeneratorGenerator(mg interface{}, featureMu
 		asg.PullRequest.Template = temp
 	}
 
+	if v, ok := m["values"].(map[string]interface{}); ok {
+		asg.PullRequest.Values = expandStringMap(v)
+	}
+
 	return asg, nil
 }
 
@@ -1359,6 +1363,8 @@ func flattenApplicationSetPullRequestGenerator(prg *application.PullRequestGener
 	}
 
 	g["template"] = flattenApplicationSetTemplate(prg.Template)
+
+	g["values"] = prg.Values
 
 	return []map[string]interface{}{g}
 }
