@@ -120,6 +120,11 @@ func Provider() *schema.Provider {
 				Description: "Namespace name which should be used for port forwarding.",
 				Optional:    true,
 			},
+			"server_name": {
+				Type:        schema.TypeString,
+				Description: "Name of the ArgoCD API server; set this when the server's name label differs from the default (`argocd-server`), for example when installed via a Helm chart that renames the component. Only relevant when `port_forward = true` or `port_forward_with_namespace` is set. Can be set through the `ARGOCD_SERVER_NAME` environment variable.",
+				Optional:    true,
+			},
 			"headers": {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -270,6 +275,7 @@ func argoCDProviderConfigFromResourceData(ctx context.Context, d *schema.Resourc
 		PortForward:              getBoolFromResourceData(d, "port_forward"),
 		PortForwardWithNamespace: getStringFromResourceData(d, "port_forward_with_namespace"),
 		ServerAddr:               getStringFromResourceData(d, "server_addr"),
+		ServerName:               getStringFromResourceData(d, "server_name"),
 		UseLocalConfig:           getBoolFromResourceData(d, "use_local_config"),
 		UserAgent:                getStringFromResourceData(d, "user_agent"),
 		Username:                 getStringFromResourceData(d, "username"),
