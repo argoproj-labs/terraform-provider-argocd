@@ -9,9 +9,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	"github.com/argoproj/argo-cd/gitops-engine/pkg/health"
 	applicationClient "github.com/argoproj/argo-cd/v3/pkg/apiclient/application"
 	application "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
-	"github.com/argoproj/gitops-engine/pkg/health"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -170,7 +170,7 @@ func resourceArgoCDApplicationCreate(ctx context.Context, d *schema.ResourceData
 
 	if sync, ok := d.GetOk("sync"); ok && sync.(bool) {
 		prune := false
-		if spec.SyncPolicy != nil && spec.SyncPolicy.Automated != nil && spec.SyncPolicy.Automated.Prune {
+		if spec.SyncPolicy != nil && spec.SyncPolicy.Automated != nil && *spec.SyncPolicy.Automated.Prune {
 			prune = true
 		}
 
@@ -354,7 +354,7 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 
 	if sync, ok := d.GetOk("sync"); ok && sync.(bool) {
 		prune := false
-		if spec.SyncPolicy != nil && spec.SyncPolicy.Automated != nil && spec.SyncPolicy.Automated.Prune {
+		if spec.SyncPolicy != nil && spec.SyncPolicy.Automated != nil && *spec.SyncPolicy.Automated.Prune {
 			prune = true
 		}
 

@@ -421,15 +421,21 @@ func expandApplicationSyncPolicy(sp interface{}) (*application.SyncPolicy, error
 		if len(list) > 0 {
 			a := list[0].(map[string]interface{})
 			if v, ok := a["prune"]; ok {
-				automated.Prune = v.(bool)
+				if vv, ok := v.(bool); ok {
+					automated.Prune = &vv
+				}
 			}
 
 			if v, ok := a["self_heal"]; ok {
-				automated.SelfHeal = v.(bool)
+				if vv, ok := v.(bool); ok {
+					automated.SelfHeal = &vv
+				}
 			}
 
 			if v, ok := a["allow_empty"]; ok {
-				automated.AllowEmpty = v.(bool)
+				if vv, ok := v.(bool); ok {
+					automated.AllowEmpty = &vv
+				}
 			}
 
 			syncPolicy.Automated = automated
