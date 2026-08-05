@@ -681,7 +681,7 @@ resource "argocd_project" "failure" {
     role {
       name = "incorrect role name"
       policies = [
-        "p, proj:%s:testrole, applications, override, %s/foo, allow",
+        "p, proj:%s:incorrect role name, applications, override, %s/foo, allow",
       ]
     }
   }
@@ -707,7 +707,7 @@ resource "argocd_project" "failure" {
     role {
       name = "incorrect-syncwindow"
       policies = [
-        "p, proj:%s:testrole, applications, override, %s/foo, allow",
+        "p, proj:%s:incorrect-syncwindow, applications, override, %s/foo, allow",
       ]
     }
 	sync_window {
@@ -742,7 +742,7 @@ resource "argocd_project" "failure" {
     role {
       name = "incorrect-syncwindow"
       policies = [
-        "p, proj:%s:testrole, applications, override, %s/foo, allow",
+        "p, proj:%s:incorrect-syncwindow, applications, override, %s/foo, allow",
       ]
     }
 	sync_window {
@@ -777,7 +777,7 @@ resource "argocd_project" "failure" {
     role {
       name = "incorrect-syncwindow"
       policies = [
-        "p, proj:%s:testrole, applications, override, %s/foo, allow",
+        "p, proj:%s:incorrect-syncwindow, applications, override, %s/foo, allow",
       ]
     }
 	sync_window {
@@ -1079,7 +1079,7 @@ resource "argocd_project" "failure" {
     role {
       name = "incorrect-syncwindow"
       policies = [
-      "p, proj:%s:testrole, applications, override, %s/foo, allow",
+      "p, proj:%s:incorrect-syncwindow, applications, override, %s/foo, allow",
       ]
     }
     sync_window {
