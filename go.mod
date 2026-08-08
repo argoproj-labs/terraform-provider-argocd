@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/ProtonMail/gopenpgp/v3 v3.4.1
 	// make sure this matches with version used in Argo CD's go.mod
-	github.com/argoproj/argo-cd/gitops-engine v0.7.1-0.20250908182407-97ad5b59a627
+	github.com/argoproj/argo-cd/gitops-engine 5e8122adab7f
 	github.com/argoproj/argo-cd/v3 v3.4.6
 	github.com/argoproj/pkg/v2 v2.0.1
 	github.com/cristalhq/jwt/v5 v5.4.0
@@ -379,4 +379,4 @@ replace (
 )
 
 // until https://github.com/argoproj/argo-cd/issues/27725 is released (milestone for v3.6)
-replace github.com/argoproj/argo-cd/gitops-engine => github.com/argoproj/argo-cd/gitops-engine v0.0.0-20260731112109-e1becb74c728
+replace github.com/argoproj/argo-cd/gitops-engine => github.com/argoproj/argo-cd/gitops-engine 5e8122adab7f
