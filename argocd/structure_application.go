@@ -633,10 +633,15 @@ func flattenApplicationSpec(s application.ApplicationSpec) []map[string]interfac
 		"sync_policy":       flattenApplicationSyncPolicy(s.SyncPolicy),
 	}
 
-	if s.Source != nil {
+	// ArgoCD ignores the singular `source` field whenever `sources` is set, see
+	// (*ApplicationSpec).HasMultipleSources() upstream. Mirror that precedence here so
+	// state reflects the sources ArgoCD actually syncs, rather than always preferring Source.
+	if len(s.Sources) > 0 {
+		spec["source"] = flattenApplicationSource(s.Sources)
+	} else if s.Source != nil {
 		spec["source"] = flattenApplicationSource([]application.ApplicationSource{*s.Source})
 	} else {
-		spec["source"] = flattenApplicationSource(s.Sources)
+		spec["source"] = flattenApplicationSource(nil)
 	}
 
 	if s.RevisionHistoryLimit != nil {
