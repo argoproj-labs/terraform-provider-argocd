@@ -29,7 +29,9 @@ func TestParseNameNamespaceID(t *testing.T) {
 		{
 			name:        "Missing namespace - as set by a bare import block id",
 			id:          "myapp",
-			expectDiags: true,
+			expectName:  "myapp",
+			expectNS:    "",
+			expectDiags: false,
 		},
 		{
 			name:        "Empty id",
