@@ -41,6 +41,13 @@ func TestParseNameNamespaceID(t *testing.T) {
 			id:          ":argocd",
 			expectDiags: true,
 		},
+		{
+			name:        "Empty namespace - as set for resources without multi-namespace support",
+			id:          "myapp:",
+			expectName:  "myapp",
+			expectNS:    "",
+			expectDiags: false,
+		},
 	}
 
 	for _, tc := range tests {

@@ -99,10 +99,12 @@ func persistToState(key string, data interface{}, d *schema.ResourceData) error 
 // argocd_application_set use this ID format, which is set as-is on import
 // (e.g. via a `terraform import` block), so an ID missing the namespace
 // segment must be reported as a diagnostic rather than causing an
-// out-of-range panic when indexed.
+// out-of-range panic when indexed. The namespace segment may be empty
+// (e.g. 'myapp:') since ArgoCD installations without applicationset/app
+// multi-namespace support leave it unset.
 func parseNameNamespaceID(resource, id string) (name string, namespace string, diags diag.Diagnostics) {
 	ids := strings.Split(id, ":")
-	if len(ids) != 2 || ids[0] == "" || ids[1] == "" {
+	if len(ids) != 2 || ids[0] == "" {
 		return "", "", diag.Diagnostics{
 			{
 				Severity: diag.Error,
