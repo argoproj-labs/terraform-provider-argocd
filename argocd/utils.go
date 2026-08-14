@@ -101,7 +101,7 @@ func persistToState(key string, data interface{}, d *schema.ResourceData) error 
 // segment must be reported as a diagnostic rather than causing an
 // out-of-range panic when indexed.
 func parseNameNamespaceID(resource, id string) (name string, namespace string, diags diag.Diagnostics) {
-	ids := strings.SplitN(id, ":", 2)
+	ids := strings.Split(id, ":")
 	if len(ids) != 2 || ids[0] == "" || ids[1] == "" {
 		return "", "", diag.Diagnostics{
 			{

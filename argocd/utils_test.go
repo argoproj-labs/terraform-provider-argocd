@@ -22,11 +22,9 @@ func TestParseNameNamespaceID(t *testing.T) {
 			expectDiags: false,
 		},
 		{
-			name:        "Namespace containing a colon",
+			name:        "Id with more than one colon",
 			id:          "myapp:my:ns",
-			expectName:  "myapp",
-			expectNS:    "my:ns",
-			expectDiags: false,
+			expectDiags: true,
 		},
 		{
 			name:        "Missing namespace - as set by a bare import block id",
