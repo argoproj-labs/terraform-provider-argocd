@@ -1,12 +1,16 @@
 package argocd
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
+	applicationClient "github.com/argoproj/argo-cd/v3/pkg/apiclient/application"
+	application "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
@@ -1161,6 +1165,87 @@ func TestAccArgoCDApplication_MultipleSources(t *testing.T) {
 					"spec.0.source.0.helm.0.parameter.1.force_string",
 					"spec.0.source.0.helm.0.parameter.2.force_string",
 				},
+			},
+		},
+	})
+}
+
+func TestAccArgoCDApplication_SourcesPrecedenceOverSource(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckFeatureSupported(t, features.MultipleApplicationSources)
+		},
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDApplicationSimple(name, "0.33.0", false),
+				Check: resource.TestCheckResourceAttr(
+					"argocd_application."+name,
+					"spec.0.source.#",
+					"1",
+				),
+			},
+			{
+				// ArgoCD gives `spec.sources` precedence over `spec.source` whenever both are
+				// populated on the live object (see (*ApplicationSpec).HasMultipleSources()
+				// upstream). Terraform itself never writes both fields, but external tools can,
+				// e.g. by adding `sources` to an app that still has a legacy `source` set.
+				// Simulate that by setting `sources` directly via the API, without clearing the
+				// existing `source`, and confirm a refresh reflects the sources ArgoCD actually
+				// syncs rather than the stale singular source.
+				PreConfig: func() {
+					si, err := getServerInterface()
+					if err != nil {
+						t.Error(fmt.Errorf("failed to get server interface: %s", err.Error()))
+						return
+					}
+
+					ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
+					defer cancel()
+
+					app, err := si.ApplicationClient.Get(ctx, &applicationClient.ApplicationQuery{Name: &name})
+					if err != nil {
+						t.Error(fmt.Errorf("failed to get application '%s': %s", name, err.Error()))
+						return
+					}
+
+					app.Spec.Sources = application.ApplicationSources{
+						{
+							RepoURL:        "https://kubernetes-sigs.github.io/descheduler",
+							Chart:          "descheduler",
+							TargetRevision: "0.33.0",
+						},
+						{
+							RepoURL:        "https://github.com/argoproj/argo-cd.git",
+							Path:           "test/e2e/testdata/guestbook",
+							TargetRevision: "HEAD",
+						},
+					}
+
+					if _, err = si.ApplicationClient.Update(ctx, &applicationClient.ApplicationUpdateRequest{Application: app}); err != nil {
+						t.Error(fmt.Errorf("failed to update application '%s' with multiple sources: %s", name, err.Error()))
+					}
+				},
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_application."+name, "spec.0.source.#", "2"),
+					resource.TestCheckResourceAttr("argocd_application."+name, "spec.0.source.0.chart", "descheduler"),
+					resource.TestCheckResourceAttr("argocd_application."+name, "spec.0.source.1.path", "test/e2e/testdata/guestbook"),
+				),
+			},
+			{
+				// Restore the resource to a state that matches its config so the framework can
+				// cleanly destroy it once the test completes.
+				Config: testAccArgoCDApplicationSimple(name, "0.33.0", false),
+				Check: resource.TestCheckResourceAttr(
+					"argocd_application."+name,
+					"spec.0.source.#",
+					"1",
+				),
 			},
 		},
 	})
