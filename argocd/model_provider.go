@@ -31,6 +31,7 @@ type ArgoCDProviderConfig struct {
 	ServerAddr               types.String `tfsdk:"server_addr"`
 	PortForward              types.Bool   `tfsdk:"port_forward"`
 	PortForwardWithNamespace types.String `tfsdk:"port_forward_with_namespace"`
+	ServerName               types.String `tfsdk:"server_name"`
 	Kubernetes               []Kubernetes `tfsdk:"kubernetes"`
 
 	// Run ArgoCD API server locally
@@ -235,7 +236,11 @@ func (p ArgoCDProviderConfig) setPortForwardingOpts(ctx context.Context, opts *a
 		}
 
 		opts.ServerAddr = "localhost" // will be overwritten by ArgoCD module when we initialize the API client but needs to be set here to ensure we
-		opts.ServerName = "argocd-server"
+
+		opts.ServerName = getDefaultString(p.ServerName, "ARGOCD_SERVER_NAME")
+		if opts.ServerName == "" {
+			opts.ServerName = "argocd-server"
+		}
 
 		if opts.PortForwardNamespace == "" {
 			opts.PortForwardNamespace = "argocd"

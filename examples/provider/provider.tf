@@ -36,6 +36,15 @@ provider "argocd" {
   }
 }
 
+# Unexposed ArgoCD API - using port-forwarding against an ArgoCD installation
+# whose server component was renamed (e.g. by the Bitnami Helm chart), which
+# requires overriding the pod selector name used to find it.
+provider "argocd" {
+  auth_token   = "1234..."
+  port_forward = true
+  server_name  = "argocd-argo-cd-server"
+}
+
 # Unexposed ArgoCD API - using `core` to run ArgoCD server locally and
 # communicate directly with the Kubernetes API.
 provider "argocd" {
