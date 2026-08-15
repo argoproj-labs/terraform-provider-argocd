@@ -328,7 +328,9 @@ func expandApplicationSourceHelm(in []interface{}) *application.ApplicationSourc
 	if a, ok := in[0].(map[string]interface{}); ok {
 		if v, ok := a["value_files"]; ok {
 			for _, vf := range v.([]interface{}) {
-				result.ValueFiles = append(result.ValueFiles, vf.(string))
+				if s, ok := vf.(string); ok {
+					result.ValueFiles = append(result.ValueFiles, s)
+				}
 			}
 		}
 
