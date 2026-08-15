@@ -64,6 +64,15 @@ provider "argocd" {
   }
 }
 
+# Unexposed ArgoCD API - using port-forwarding against an ArgoCD installation
+# whose server component was renamed (e.g. by the Bitnami Helm chart), which
+# requires overriding the pod selector name used to find it.
+provider "argocd" {
+  auth_token   = "1234..."
+  port_forward = true
+  server_name  = "argocd-argo-cd-server"
+}
+
 # Unexposed ArgoCD API - using `core` to run ArgoCD server locally and
 # communicate directly with the Kubernetes API.
 provider "argocd" {
@@ -100,6 +109,7 @@ provider "argocd" {
 - `port_forward` (Boolean) Connect to a random argocd-server port using port forwarding.
 - `port_forward_with_namespace` (String) Namespace name which should be used for port forwarding.
 - `server_addr` (String) ArgoCD server address with port. Can be set through the `ARGOCD_SERVER` environment variable.
+- `server_name` (String) Name of the ArgoCD API server; set this when the server's name label differs from the default (`argocd-server`), for example when installed via a Helm chart that renames the component. Only relevant when `port_forward = true` or `port_forward_with_namespace` is set. Can be set through the `ARGOCD_SERVER_NAME` environment variable.
 - `use_local_config` (Boolean) Use the authentication settings found in the local config file. Useful when you have previously logged in using SSO. Conflicts with `auth_token`, `username` and `password`.
 - `user_agent` (String) User-Agent request header override.
 - `username` (String) Authentication username. Can be set through the `ARGOCD_AUTH_USERNAME` environment variable.
