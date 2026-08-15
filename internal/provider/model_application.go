@@ -928,9 +928,9 @@ func newApplicationSyncPolicyAutomated(spa *v1alpha1.SyncPolicyAutomated) *appli
 	}
 
 	return &applicationSyncPolicyAutomated{
-		AllowEmpty: types.BoolValue(*spa.AllowEmpty),
-		Prune:      types.BoolValue(*spa.Prune),
-		SelfHeal:   types.BoolValue(*spa.SelfHeal),
+		AllowEmpty: types.BoolValue(spa.GetAllowEmpty()),
+		Prune:      types.BoolValue(spa.GetPrune()),
+		SelfHeal:   types.BoolValue(spa.GetSelfHeal()),
 	}
 }
 
