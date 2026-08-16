@@ -1875,6 +1875,55 @@ resource "argocd_project" "empty_repos" {
 	`, name)
 }
 
+// TestAccArgoCDProject_NoDestinationsOrSourceRepos tests that a project can be
+// created with no "destination" blocks and no "source_repos" entries at all,
+// which is how a project is set up to be used as a global project for other
+// projects to inherit settings from (see
+// https://github.com/argoproj-labs/terraform-provider-argocd/issues/623).
+func TestAccArgoCDProject_NoDestinationsOrSourceRepos(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-acc-global")
+	config := testAccArgoCDProjectWithNoDestinationsOrSourceRepos(name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("argocd_project.global", "metadata.0.name", name),
+					resource.TestCheckResourceAttr("argocd_project.global", "spec.0.destination.#", "0"),
+					resource.TestCheckResourceAttr("argocd_project.global", "spec.0.source_repos.#", "0"),
+				),
+			},
+			{
+				// Apply the same configuration again to verify no drift
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccArgoCDProjectWithNoDestinationsOrSourceRepos(name string) string {
+	return fmt.Sprintf(`
+resource "argocd_project" "global" {
+  metadata {
+    name      = "%s"
+    namespace = "argocd"
+  }
+
+  spec {
+    description = "global project with no destinations or source repos"
+  }
+}
+	`, name)
+}
+
 // TestAccArgoCDProject_EmptyRoleGroups tests that empty groups list in roles
 // doesn't cause "Provider produced inconsistent result after apply" error.
 func TestAccArgoCDProject_EmptyRoleGroups(t *testing.T) {
