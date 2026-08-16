@@ -9,6 +9,7 @@ import (
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/diagnostics"
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 	argocdSync "github.com/argoproj-labs/terraform-provider-argocd/internal/sync"
+	"github.com/argoproj-labs/terraform-provider-argocd/internal/validators"
 	"github.com/argoproj/argo-cd/v3/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -21,6 +22,7 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &projectResource{}
+var _ resource.ResourceWithConfigValidators = &projectResource{}
 
 func NewProjectResource() resource.Resource {
 	return &projectResource{}
@@ -45,6 +47,12 @@ func (r *projectResource) Schema(ctx context.Context, req resource.SchemaRequest
 			},
 		},
 		Blocks: projectSchemaBlocks(),
+	}
+}
+
+func (r *projectResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		validators.ProjectPolicy(),
 	}
 }
 
