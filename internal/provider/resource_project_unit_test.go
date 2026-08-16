@@ -1,7 +1,6 @@
 package provider
 
 import (
-	"context"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -29,7 +28,7 @@ func TestExpandProject_OptionalDestinationAndSourceRepos(t *testing.T) {
 		},
 	}
 
-	objectMeta, spec, diags := expandProject(context.Background(), data)
+	objectMeta, spec, diags := expandProject(t.Context(), data)
 
 	require.False(t, diags.HasError(), "expandProject should not error when destination and source_repos are omitted")
 	assert.Equal(t, "global", objectMeta.Name)
