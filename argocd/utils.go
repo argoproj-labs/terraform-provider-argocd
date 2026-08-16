@@ -2,13 +2,9 @@ package argocd
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
-
-	"github.com/argoproj/argo-cd/v3/util/rbac"
 
 	fwdiag "github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -87,89 +83,6 @@ func sliceOfString(slice []interface{}) []string {
 	}
 
 	return result
-}
-
-func isValidPolicyAction(action string) bool {
-	validActions := map[string]bool{
-		rbac.ActionGet:      true,
-		rbac.ActionCreate:   true,
-		rbac.ActionUpdate:   true,
-		rbac.ActionDelete:   true,
-		rbac.ActionSync:     true,
-		rbac.ActionOverride: true,
-		"*":                 true,
-	}
-	validActionPatterns := []*regexp.Regexp{
-		regexp.MustCompile("action/.*"),
-		regexp.MustCompile("update/.*"),
-		regexp.MustCompile("delete/.*"),
-	}
-
-	if validActions[action] {
-		return true
-	}
-
-	for i := range validActionPatterns {
-		if validActionPatterns[i].MatchString(action) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func validatePolicy(project string, role string, policy string) error {
-	policyComponents := strings.Split(policy, ",")
-	if len(policyComponents) != 6 || strings.Trim(policyComponents[0], " ") != "p" {
-		return fmt.Errorf("invalid policy rule '%s': must be of the form: 'p, sub, res, act, obj, eft'", policy)
-	}
-
-	// subject
-	subject := strings.Trim(policyComponents[1], " ")
-	expectedSubject := fmt.Sprintf("proj:%s:%s", project, role)
-
-	if subject != expectedSubject {
-		return fmt.Errorf("invalid policy rule '%s': policy subject must be: '%s', not '%s'", policy, expectedSubject, subject)
-	}
-
-	// resource
-	// https://github.com/argoproj/argo-cd/blob/c99669e088b5f25c8ce8faff6df25797a8beb5ba/pkg/apis/application/v1alpha1/types.go#L1554
-	validResources := map[string]bool{
-		rbac.ResourceApplications:    true,
-		rbac.ResourceRepositories:    true,
-		rbac.ResourceClusters:        true,
-		rbac.ResourceExec:            true,
-		rbac.ResourceLogs:            true,
-		rbac.ResourceApplicationSets: true,
-		rbac.ResourceProjects:        true,
-	}
-
-	resource := strings.Trim(policyComponents[2], " ")
-	if !validResources[resource] {
-		return fmt.Errorf("invalid policy rule '%s': resource '%s' not recognised", policy, resource)
-	}
-
-	// action
-	action := strings.Trim(policyComponents[3], " ")
-	if !isValidPolicyAction(action) {
-		return fmt.Errorf("invalid policy rule '%s': invalid action '%s'", policy, action)
-	}
-
-	// object
-	object := strings.Trim(policyComponents[4], " ")
-
-	objectRegexp, err := regexp.Compile(fmt.Sprintf(`^%s(/[*\w-.]+){1,2}$`, project))
-	if err != nil || !objectRegexp.MatchString(object) {
-		return fmt.Errorf("invalid policy rule '%s': object must be of form '%s/*' or '%s/<APPNAME>' or '%s/<NS>/<APPNAME>', not '%s'", policy, project, project, project, object)
-	}
-
-	// effect
-	effect := strings.Trim(policyComponents[5], " ")
-	if effect != "allow" && effect != "deny" {
-		return fmt.Errorf("invalid policy rule '%s': effect must be: 'allow' or 'deny'", policy)
-	}
-
-	return nil
 }
 
 func persistToState(key string, data interface{}, d *schema.ResourceData) error {
