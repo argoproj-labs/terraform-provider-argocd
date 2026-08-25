@@ -3,6 +3,7 @@ package argocd
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/argoproj-labs/terraform-provider-argocd/internal/features"
 
@@ -91,6 +92,44 @@ func persistToState(key string, data interface{}, d *schema.ResourceData) error 
 	}
 
 	return nil
+}
+
+// parseNameNamespaceID splits a resource ID of the form '<name>:<namespace>'
+// into its two parts. Resources such as argocd_application and
+// argocd_application_set use this ID format, which is set as-is on import
+// (e.g. via a `terraform import` block), so an ID missing the namespace
+// segment must be reported as a diagnostic rather than causing an
+// out-of-range panic when indexed. The namespace segment is optional and
+// defaults to empty (e.g. 'myapp' and 'myapp:' are equivalent) since an
+// empty namespace is treated the same as an unset one by the underlying
+// ArgoCD API.
+func parseNameNamespaceID(resource, id string) (name string, namespace string, diags diag.Diagnostics) {
+	ids := strings.Split(id, ":")
+
+	invalid := func() (string, string, diag.Diagnostics) {
+		return "", "", diag.Diagnostics{
+			{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("invalid %s id %q", resource, id),
+				Detail:   "expected an id of the form '<name>:<namespace>', e.g. 'myapp:argocd'",
+			},
+		}
+	}
+
+	switch len(ids) {
+	case 1:
+		name = ids[0]
+	case 2:
+		name, namespace = ids[0], ids[1]
+	default:
+		return invalid()
+	}
+
+	if name == "" {
+		return invalid()
+	}
+
+	return name, namespace, nil
 }
 
 func argoCDAPIError(action, resource, id string, err error) diag.Diagnostics {

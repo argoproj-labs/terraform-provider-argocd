@@ -233,9 +233,10 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 		return pluginSDKDiags(diags)
 	}
 
-	ids := strings.Split(d.Id(), ":")
-	appName := ids[0]
-	namespace := ids[1]
+	appName, namespace, diags := parseNameNamespaceID("application", d.Id())
+	if diags != nil {
+		return diags
+	}
 
 	apps, err := si.ApplicationClient.List(ctx, &applicationClient.ApplicationQuery{
 		Name:         &appName,
@@ -285,10 +286,14 @@ func resourceArgoCDApplicationUpdate(ctx context.Context, d *schema.ResourceData
 		return pluginSDKDiags(diags)
 	}
 
-	ids := strings.Split(d.Id(), ":")
+	name, namespace, diags := parseNameNamespaceID("application", d.Id())
+	if diags != nil {
+		return diags
+	}
+
 	appQuery := &applicationClient.ApplicationQuery{
-		Name:         &ids[0],
-		AppNamespace: &ids[1],
+		Name:         &name,
+		AppNamespace: &namespace,
 	}
 
 	objectMeta, spec, err := expandApplication(d, si.IsFeatureSupported(features.ApplicationSourceName))
@@ -418,9 +423,11 @@ func resourceArgoCDApplicationDelete(ctx context.Context, d *schema.ResourceData
 		return pluginSDKDiags(diags)
 	}
 
-	ids := strings.Split(d.Id(), ":")
-	appName := ids[0]
-	namespace := ids[1]
+	appName, namespace, diags := parseNameNamespaceID("application", d.Id())
+	if diags != nil {
+		return diags
+	}
+
 	cascade := d.Get("cascade").(bool)
 
 	if _, err := si.ApplicationClient.Delete(ctx, &applicationClient.ApplicationDeleteRequest{

@@ -107,9 +107,10 @@ func resourceArgoCDApplicationSetRead(ctx context.Context, d *schema.ResourceDat
 		return pluginSDKDiags(diags)
 	}
 
-	ids := strings.Split(d.Id(), ":")
-	appSetName := ids[0]
-	namespace := ids[1]
+	appSetName, namespace, diags := parseNameNamespaceID("application set", d.Id())
+	if diags != nil {
+		return diags
+	}
 
 	appSet, err := si.ApplicationSetClient.Get(ctx, &applicationset.ApplicationSetGetQuery{
 		Name:            appSetName,
@@ -194,9 +195,10 @@ func resourceArgoCDApplicationSetDelete(ctx context.Context, d *schema.ResourceD
 		return pluginSDKDiags(diags)
 	}
 
-	ids := strings.Split(d.Id(), ":")
-	appSetName := ids[0]
-	namespace := ids[1]
+	appSetName, namespace, diags := parseNameNamespaceID("application set", d.Id())
+	if diags != nil {
+		return diags
+	}
 
 	if _, err := si.ApplicationSetClient.Delete(ctx, &applicationset.ApplicationSetDeleteRequest{
 		Name:            appSetName,
