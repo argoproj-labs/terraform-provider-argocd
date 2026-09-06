@@ -37,6 +37,7 @@ The following table shows the versions of Argo CD that are tested with each vers
 
 | Provider version | Argo CD versions |
 |---|---|
+| 7.18 | v3.3, v3.4, v3.5 | 
 | 7.16 | v3.2, v3.3, v3.4 | 
 | 7.13 | v3.1, v3.2, v3.3 | 
 | 7.12 | v3.0, v3.1, v3.2 | 

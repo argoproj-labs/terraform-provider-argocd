@@ -594,10 +594,7 @@ func expandProject(ctx context.Context, data *projectModel) (metav1.ObjectMeta, 
 	// Convert signature keys
 	// Initialize to empty slice if set (even if empty) to maintain empty list vs null distinction
 	if data.Spec[0].SignatureKeys != nil {
-		spec.SignatureKeys = make([]v1alpha1.SignatureKey, 0, len(data.Spec[0].SignatureKeys))
-		for _, key := range data.Spec[0].SignatureKeys {
-			spec.SignatureKeys = append(spec.SignatureKeys, v1alpha1.SignatureKey{KeyID: key.ValueString()})
-		}
+		spec.SignatureKeys = legacySignatureKeys(data.Spec[0].SignatureKeys) //nolint:staticcheck // SignatureKeys is deprecated in Argo CD 3.5 in favour of SourceIntegrity but still honoured through EffectiveSourceIntegrity, the signature_keys attribute keeps mapping to it until the provider adds source_integrity
 	}
 
 	// Convert source namespaces
@@ -783,4 +780,18 @@ func expandProjectRoles(_ context.Context, roles []projectRoleModel) []v1alpha1.
 	}
 
 	return result
+}
+
+// legacySignatureKeys converts the signature_keys attribute into the deprecated
+// spec.signatureKeys list, which Argo CD 3.5 still honours through
+// EffectiveSourceIntegrity.
+//
+//nolint:staticcheck // SignatureKeys is deprecated in Argo CD 3.5 in favour of SourceIntegrity but still honoured through EffectiveSourceIntegrity, the signature_keys attribute keeps mapping to it until the provider adds source_integrity
+func legacySignatureKeys(keys []types.String) []v1alpha1.SignatureKey {
+	signatureKeys := make([]v1alpha1.SignatureKey, 0, len(keys))
+	for _, key := range keys {
+		signatureKeys = append(signatureKeys, v1alpha1.SignatureKey{KeyID: key.ValueString()})
+	}
+
+	return signatureKeys
 }
