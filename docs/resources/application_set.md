@@ -265,10 +265,10 @@ resource "argocd_application_set" "list_elements_yaml" {
   }
 }
 
-# List Generator with
+# List Generator with sync_policy
 resource "argocd_application_set" "list" {
   metadata {
-    name = "list"
+    name = "list-sync-policy"
   }
 
   spec {
