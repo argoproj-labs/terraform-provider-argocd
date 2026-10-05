@@ -124,7 +124,13 @@ func (p ArgoCDProviderConfig) getApiClientOptions(ctx context.Context) (*apiclie
 			runtime.ErrorHandlers = runtimeErrorHandlers
 		}
 
-		_, err := headless.MaybeStartLocalServer(ctx, opts, "", nil, nil, nil)
+		// The local server outlives the call that starts it: InitClients
+		// only runs once per provider process, so every later RPC is served
+		// by this same server. Starting it with the RPC's own context meant
+		// it was shut down as soon as that RPC returned, after which its
+		// watchers failed with "context canceled" and log.Fatal()'d the
+		// plugin mid-plan. Keep the context's values, drop its cancellation.
+		_, err := headless.MaybeStartLocalServer(context.WithoutCancel(ctx), opts, "", nil, nil, nil)
 		if err != nil {
 			diags.Append(diagnostics.Error("failed to start local server", err)...)
 			return nil, diags
