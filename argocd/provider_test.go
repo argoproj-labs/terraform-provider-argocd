@@ -24,7 +24,7 @@ var testAccProtoV6ProviderFactories map[string]func() (tfprotov6.ProviderServer,
 
 func init() {
 	testAccProviders = map[string]func() (*schema.Provider, error){
-		"argocd": func() (*schema.Provider, error) { //nolint:unparam
+		"argocd": func() (*schema.Provider, error) {
 			return Provider(), nil
 		},
 	}
