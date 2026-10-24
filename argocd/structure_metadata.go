@@ -59,11 +59,30 @@ func metadataRemoveInternalKeys(m map[string]string, d map[string]interface{}) m
 	return m
 }
 
+// argocdInternalKeys are metadata keys that Argo CD itself writes on the
+// objects it manages. They are not part of the desired state, so they must not
+// show up as drift unless they are explicitly set in the configuration.
+var argocdInternalKeys = map[string]bool{
+	// Set by the notifications controller.
+	"notified.notifications.argoproj.io": true,
+	// Set by the API server on every refresh request (UI "Refresh",
+	// `argocd app get --refresh`) and removed by the application controller.
+	"argocd.argoproj.io/refresh": true,
+	// Set together with the refresh annotation since Argo CD 3.x, but only
+	// removed by the source hydrator. It therefore stays on every Application
+	// that does not use spec.sourceHydrator (or when the hydrator is disabled).
+	"argocd.argoproj.io/hydrate": true,
+}
+
 func metadataIsInternalKey(annotationKey string) bool {
+	if argocdInternalKeys[annotationKey] {
+		return true
+	}
+
 	u, err := url.Parse("//" + annotationKey)
 	if err != nil {
 		return false
 	}
 
-	return strings.HasSuffix(u.Hostname(), "kubernetes.io") || annotationKey == "notified.notifications.argoproj.io"
+	return strings.HasSuffix(u.Hostname(), "kubernetes.io")
 }
