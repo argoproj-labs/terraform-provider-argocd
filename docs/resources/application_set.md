@@ -265,6 +265,57 @@ resource "argocd_application_set" "list_elements_yaml" {
   }
 }
 
+# List Generator with sync_policy
+resource "argocd_application_set" "list" {
+  metadata {
+    name = "list-sync-policy"
+  }
+
+  spec {
+    sync_policy {
+      applications_sync              = "create-update"
+      preserve_resources_on_deletion = true
+    }
+
+    generator {
+      list {
+        elements = [
+          {
+            cluster = "engineering-dev"
+            url     = "https://kubernetes.default.svc"
+          },
+          {
+            cluster = "engineering-prod"
+            url     = "https://kubernetes.default.svc"
+            foo     = "bar"
+          }
+        ]
+      }
+    }
+
+    template {
+      metadata {
+        name = "{{cluster}}-guestbook"
+      }
+
+      spec {
+        project = "my-project"
+
+        source {
+          repo_url        = "https://github.com/argoproj/argo-cd.git"
+          target_revision = "HEAD"
+          path            = "applicationset/examples/list-generator/guestbook/{{cluster}}"
+        }
+
+        destination {
+          server    = "{{url}}"
+          namespace = "guestbook"
+        }
+      }
+    }
+  }
+}
+
 # Matrix Generator
 resource "argocd_application_set" "matrix" {
   metadata {
