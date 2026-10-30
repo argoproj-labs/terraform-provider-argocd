@@ -4,7 +4,7 @@ Contributions are welcome!
 
 [![Contributors](https://img.shields.io/github/contributors/argoproj-labs/terraform-provider-argocd)](https://github.com/argoproj-labs/terraform-provider-argocd)
 [![Last commit](https://img.shields.io/github/last-commit/argoproj-labs/terraform-provider-argocd)](https://github.com/argoproj-labs/terraform-provider-argocd)
-[![Stars](https://img.shields.io/github/stars/argoproj-labs/terraform-provider-argocd)](https://github.com/argoproj-labs/hera/terraofrm-provider-argocd)
+[![Stars](https://img.shields.io/github/stars/argoproj-labs/terraform-provider-argocd)](https://github.com/argoproj-labs/terraform-provider-argocd)
 
 ## New Contributor Guide
 
@@ -27,7 +27,7 @@ To contribute to this Provider you need the following tools installed locally:
 * [Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/)
 * [Container runtime](https://java.testcontainers.org/supported_docker_environment/)
 * [Kind](https://kind.sigs.k8s.io) (optional)
-* [golangci-lint](https://golangci-lint.run/usage/install/#local-installation) (optional)
+* [golangci-lint](https://golangci-lint.run/docs/welcome/install/local/) (optional)
 
 #### Codespaces
 
