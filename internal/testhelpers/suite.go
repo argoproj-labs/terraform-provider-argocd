@@ -2,7 +2,7 @@ package testhelpers
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"os"
 	"sync"
 	"testing"
@@ -14,28 +14,14 @@ var (
 	testEnvOnce   sync.Once
 )
 
-// TestMain is a helper function to be used in test files' TestMain functions
+// TestMain is a helper function to be used in test files' TestMain functions. The test fixture (K3s with Argo CD) is only
+// set up for acceptance tests (TF_ACC=1); otherwise only unit tests are run, which don't need a cluster.
 func TestMain(m *testing.M) {
-	envDefaultValue("ARGOCD_AUTH_USERNAME", "admin")
-	envDefaultValue("ARGOCD_AUTH_PASSWORD", "acceptancetesting")
-	envDefaultValue("ARGOCD_SERVER", "127.0.0.1:8080")
-	envDefaultValue("ARGOCD_INSECURE", "true")
-	envDefaultValue("USE_TESTCONTAINERS", "true")
-	envDefaultValue("K3S_VERSION", "v1.34.3-k3s3")
-	envDefaultValue("ARGOCD_VERSION", "v3.5.6")
-
-	if os.Getenv("USE_TESTCONTAINERS") == "true" {
-		os.Exit(runTestSuite(m))
-	} else {
+	if os.Getenv("TF_ACC") == "" {
 		os.Exit(m.Run())
 	}
-}
 
-func envDefaultValue(envvar, defaultValue string) {
-	if v := os.Getenv(envvar); v == "" {
-		fmt.Printf("environment variable %s not set; using %s as default value\n", envvar, defaultValue)
-		_ = os.Setenv(envvar, defaultValue)
-	}
+	os.Exit(runTestSuite(m))
 }
 
 const (
@@ -51,16 +37,22 @@ func runTestSuite(m *testing.M) int {
 	var setupErr error
 
 	testEnvOnce.Do(func() {
+		// The versions are defined in the GNUmakefile (and overridden by CI), so there is deliberately no default here
 		argoCDVersion := os.Getenv("ARGOCD_VERSION")
 		k3sVersion := os.Getenv("K3S_VERSION")
+
+		if argoCDVersion == "" || k3sVersion == "" {
+			setupErr = errors.New("ARGOCD_VERSION and K3S_VERSION must be set; run the tests via 'make testacc'")
+
+			return
+		}
 
 		GlobalTestEnv, setupErr = SetupK3sWithArgoCD(ctx, argoCDVersion, k3sVersion)
 		if setupErr != nil {
 			return
 		}
 
-		// Set environment variables for tests; currently only ARGOCD_SERVER is used (since we're port-forwarding the k8s
-		// service) but can be extended with more env vars if needed
+		// Set the environment variables the provider and tests use to connect to the freshly created Argo CD installation
 		envVars := GlobalTestEnv.GetEnvironmentVariables()
 		for key, value := range envVars {
 			os.Setenv(key, value)

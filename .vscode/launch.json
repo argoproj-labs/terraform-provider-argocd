@@ -25,13 +25,10 @@
       "mode": "auto",
       "program": "${fileDirname}",
       "env": {
-        "PKG_NAME": "${relativeFileDirname}",
         "TF_ACC": "1",
         "TF_LOG": "info",
-        "ARGOCD_INSECURE": "true",
-        "ARGOCD_SERVER": "127.0.0.1:8080",
-        "ARGOCD_AUTH_USERNAME": "admin",
-        "ARGOCD_AUTH_PASSWORD": "acceptancetesting"
+        "ARGOCD_VERSION": "v3.5.6",
+        "K3S_VERSION": "v1.34.3-k3s3"
       },
       "showLog": true
     }

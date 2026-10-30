@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"runtime"
 	"strconv"
 	"testing"
 	"time"
@@ -17,9 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 )
 
 func TestAccArgoCDCluster(t *testing.T) {
@@ -52,7 +48,7 @@ func TestAccArgoCDCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.simple",
 						"config.0.tls_client_config.0.insecure",
-						strconv.FormatBool(isInsecure()),
+						"false",
 					),
 				),
 			},
@@ -60,7 +56,7 @@ func TestAccArgoCDCluster(t *testing.T) {
 				ResourceName:            "argocd_cluster.simple",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info", "config.0.tls_client_config.0.key_data"},
+				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info", "config.0.tls_client_config.0.key_data", "config.0.tls_client_config.0.cert_data", "config.0.tls_client_config.0.ca_data"},
 			},
 			{
 				Config: testAccArgoCDClusterTLSCertificate(t, acctest.RandString(10)),
@@ -101,7 +97,7 @@ func TestAccArgoCDCluster_projectScope(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.project_scope",
 						"config.0.tls_client_config.0.insecure",
-						strconv.FormatBool(isInsecure()),
+						"false",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.project_scope",
@@ -114,7 +110,7 @@ func TestAccArgoCDCluster_projectScope(t *testing.T) {
 				ResourceName:            "argocd_cluster.project_scope",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info", "config.0.tls_client_config.0.key_data"},
+				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info", "config.0.tls_client_config.0.key_data", "config.0.tls_client_config.0.cert_data", "config.0.tls_client_config.0.ca_data"},
 			},
 		},
 	})
@@ -138,7 +134,7 @@ func TestAccArgoCDCluster_optionalName(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.cluster_metadata",
 						"config.0.tls_client_config.0.insecure",
-						strconv.FormatBool(isInsecure()),
+						"false",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.cluster_metadata",
@@ -158,7 +154,7 @@ func TestAccArgoCDCluster_optionalName(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.cluster_metadata",
 						"config.0.tls_client_config.0.insecure",
-						strconv.FormatBool(isInsecure()),
+						"false",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.cluster_metadata",
@@ -178,7 +174,7 @@ func TestAccArgoCDCluster_optionalName(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.cluster_metadata",
 						"config.0.tls_client_config.0.insecure",
-						strconv.FormatBool(isInsecure()),
+						"false",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.cluster_metadata",
@@ -211,7 +207,7 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 				ResourceName:            "argocd_cluster.cluster_metadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info", "config.0.tls_client_config.0.key_data"},
+				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info", "config.0.tls_client_config.0.key_data", "config.0.tls_client_config.0.cert_data", "config.0.tls_client_config.0.ca_data"},
 			},
 			{
 				Config: testAccArgoCDClusterMetadata_addLabels(clusterName),
@@ -231,7 +227,7 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 				ResourceName:            "argocd_cluster.cluster_metadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info", "config.0.tls_client_config.0.key_data"},
+				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info", "config.0.tls_client_config.0.key_data", "config.0.tls_client_config.0.cert_data", "config.0.tls_client_config.0.ca_data"},
 			},
 			{
 				Config: testAccArgoCDClusterMetadata_addAnnotations(clusterName),
@@ -252,7 +248,7 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 				ResourceName:            "argocd_cluster.cluster_metadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info", "config.0.tls_client_config.0.key_data"},
+				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info", "config.0.tls_client_config.0.key_data", "config.0.tls_client_config.0.cert_data", "config.0.tls_client_config.0.ca_data"},
 			},
 			{
 				Config: testAccArgoCDClusterMetadata_removeLabels(clusterName),
@@ -272,7 +268,7 @@ func TestAccArgoCDCluster_metadata(t *testing.T) {
 				ResourceName:            "argocd_cluster.cluster_metadata",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info", "config.0.tls_client_config.0.key_data"},
+				ImportStateVerifyIgnore: []string{"config.0.bearer_token", "info", "config.0.tls_client_config.0.key_data", "config.0.tls_client_config.0.cert_data", "config.0.tls_client_config.0.ca_data"},
 			},
 		},
 	})
@@ -316,7 +312,7 @@ func TestAccArgoCDCluster_outsideDeletion(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.cluster_metadata",
 						"config.0.tls_client_config.0.insecure",
-						strconv.FormatBool(isInsecure()),
+						"false",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.cluster_metadata",
@@ -354,7 +350,7 @@ func TestAccArgoCDCluster_outsideDeletion(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.cluster_metadata",
 						"config.0.tls_client_config.0.insecure",
-						strconv.FormatBool(isInsecure()),
+						"false",
 					),
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.cluster_metadata",
@@ -387,7 +383,7 @@ func TestAccArgoCDCluster_urlUpdate(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.check_url_change",
 						"config.0.tls_client_config.0.insecure",
-						strconv.FormatBool(isInsecure()),
+						"false",
 					),
 				),
 			},
@@ -411,7 +407,7 @@ func TestAccArgoCDCluster_urlUpdate(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"argocd_cluster.check_url_change",
 						"config.0.tls_client_config.0.insecure",
-						strconv.FormatBool(isInsecure()),
+						"false",
 					),
 				),
 			},
@@ -458,10 +454,7 @@ func testAccArgoCDClusterTLSCertificate(t *testing.T, clusterName string) string
 		t.Skip("Acceptance tests skipped unless env 'TF_ACC' set")
 	}
 
-	rc, err := getInternalRestConfig()
-	if err != nil {
-		t.Error(err)
-	}
+	rc := testhelpers.GlobalTestEnv.RESTConfig
 
 	return fmt.Sprintf(`
 resource "argocd_cluster" "tls" {
@@ -669,44 +662,6 @@ resource "argocd_cluster" "simple" {
 `, clusterName, getConfig())
 }
 
-// getInternalRestConfig returns the internal Kubernetes cluster REST config.
-func getInternalRestConfig() (*rest.Config, error) {
-	if testhelpers.GlobalTestEnv != nil {
-		return testhelpers.GlobalTestEnv.RESTConfig, nil
-	}
-
-	var kubeConfigFilePath string
-
-	switch runtime.GOOS {
-	case "windows":
-		kubeConfigFilePath = fmt.Sprintf("%s\\.kube\\config", homedir.HomeDir())
-	default:
-		kubeConfigFilePath = fmt.Sprintf("%s/.kube/config", homedir.HomeDir())
-	}
-
-	cfg, err := clientcmd.LoadFromFile(kubeConfigFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	rc := &rest.Config{}
-
-	for key, cluster := range cfg.Clusters {
-		if key == "kind-argocd" {
-			authInfo := cfg.AuthInfos[key]
-			rc.Host = cluster.Server
-			rc.ServerName = cluster.TLSServerName
-			rc.CAData = cluster.CertificateAuthorityData
-			rc.CertData = authInfo.ClientCertificateData
-			rc.KeyData = authInfo.ClientKeyData
-
-			return rc, nil
-		}
-	}
-
-	return nil, fmt.Errorf("could not find a kind-argocd cluster from the current ~/.kube/config file")
-}
-
 // build & init ArgoCD server interface
 func getServerInterface() (*provider.ServerInterface, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -733,10 +688,14 @@ func getServerInterface() (*provider.ServerInterface, error) {
 }
 
 func getConfig() string {
-	if testhelpers.GlobalTestEnv != nil {
-		r := testhelpers.GlobalTestEnv.RESTConfig
+	// Without TF_ACC there is no test fixture; the tests using this config are skipped by resource.Test in that case.
+	if testhelpers.GlobalTestEnv == nil {
+		return ""
+	}
 
-		return fmt.Sprintf(`
+	r := testhelpers.GlobalTestEnv.RESTConfig
+
+	return fmt.Sprintf(`
     tls_client_config {
       insecure = false
       ca_data = <<CA_DATA
@@ -746,17 +705,4 @@ func getConfig() string {
       key_data = <<KEY_DATA
 %sKEY_DATA
     }`, string(r.CAData), string(r.CertData), string(r.KeyData))
-	}
-
-	return `
-    # Uses Kind's bootstrap token whose ttl is 24 hours after cluster bootstrap.
-    bearer_token = "abcdef.0123456789abcdef"
-    tls_client_config {
-      insecure = true
-    }
-`
-}
-
-func isInsecure() bool {
-	return testhelpers.GlobalTestEnv == nil
 }
