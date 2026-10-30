@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/k3s"
@@ -21,6 +22,14 @@ import (
 const (
 	// DefaultFileMode represents standard file permissions (0o644)
 	DefaultFileMode = 0o644
+
+	// readyTimeout is how long we wait for each CRD / deployment to become ready. It has to be generous since it
+	// includes pulling images from remote registries inside the k3s container.
+	readyTimeout = "300s"
+
+	// diagnoseTimeout bounds the collection of diagnostics after a failed wait; it uses its own context since the
+	// original one may be the reason for the failure.
+	diagnoseTimeout = 30 * time.Second
 )
 
 // K3sTestEnvironment represents a test environment with K3s and ArgoCD
@@ -201,18 +210,17 @@ func (env *K3sTestEnvironment) waitForArgoCD(ctx context.Context) error {
 	}
 
 	for _, crd := range crds {
-		if _, err := env.ExecInK3s(ctx, "kubectl", "wait", "--for=condition=Established", fmt.Sprintf("crd/%s", crd), "--timeout=60s"); err != nil {
-			return err
+		if _, err := env.ExecInK3s(ctx, "kubectl", "wait", "--for=condition=Established", fmt.Sprintf("crd/%s", crd), "--timeout="+readyTimeout); err != nil {
+			return fmt.Errorf("failed to wait for CRD %s: %w\n%s", crd, err, env.diagnose(""))
 		}
 	}
 
 	// Wait for deployments to be ready
 	deployments := []string{"argocd-server", "argocd-repo-server", "argocd-redis", "private-git-repository"}
 
-	timeout := "60s"
 	for _, deployment := range deployments {
-		if _, err := env.ExecInK3s(ctx, "kubectl", "wait", "--for=condition=available", fmt.Sprintf("deployment/%s", deployment), "-n", "argocd", "--timeout="+timeout); err != nil {
-			return fmt.Errorf("failed to wait for deployment %s: %w", deployment, err)
+		if _, err := env.ExecInK3s(ctx, "kubectl", "wait", "--for=condition=available", fmt.Sprintf("deployment/%s", deployment), "-n", "argocd", "--timeout="+readyTimeout); err != nil {
+			return fmt.Errorf("failed to wait for deployment %s: %w\n%s", deployment, err, env.diagnose(deployment))
 		}
 	}
 
@@ -224,6 +232,42 @@ func (env *K3sTestEnvironment) waitForArgoCD(ctx context.Context) error {
 	env.ArgoCDURL = fmt.Sprintf("127.0.0.1:%s", localPort.Port())
 
 	return nil
+}
+
+// diagnose collects cluster state after a failed wait so that flakes (image pulls, scheduling, resource pressure) can
+// be root-caused from the logs. It is best effort: failing commands are included in the output instead of aborting.
+// If deployment is empty only cluster-wide information is collected.
+func (env *K3sTestEnvironment) diagnose(deployment string) string {
+	ctx, cancel := context.WithTimeout(context.Background(), diagnoseTimeout)
+	defer cancel()
+
+	cmds := [][]string{
+		{"kubectl", "-n", "argocd", "get", "pods", "-o", "wide"},
+		{"kubectl", "-n", "argocd", "get", "events", "--sort-by=.lastTimestamp"},
+		{"kubectl", "top", "nodes"},
+	}
+
+	if deployment != "" {
+		cmds = append(cmds,
+			[]string{"kubectl", "-n", "argocd", "describe", "deployment", deployment},
+			[]string{"kubectl", "-n", "argocd", "describe", "pods", "-l", "app.kubernetes.io/name=" + deployment},
+		)
+	}
+
+	var b strings.Builder
+
+	b.WriteString("=== diagnostics ===\n")
+
+	for _, c := range cmds {
+		out, err := env.ExecInK3s(ctx, c...)
+		fmt.Fprintf(&b, "\n--- %s ---\n%s\n", strings.Join(c, " "), out)
+
+		if err != nil && len(out) == 0 {
+			fmt.Fprintf(&b, "(command failed: %v)\n", err)
+		}
+	}
+
+	return b.String()
 }
 
 // GetEnvironmentVariables returns the environment variables needed for tests
