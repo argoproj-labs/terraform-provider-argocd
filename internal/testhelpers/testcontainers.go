@@ -211,6 +211,7 @@ func (env *K3sTestEnvironment) waitForArgoCD(ctx context.Context) error {
 
 	for _, crd := range crds {
 		if _, err := env.ExecInK3s(ctx, "kubectl", "wait", "--for=condition=Established", fmt.Sprintf("crd/%s", crd), "--timeout="+readyTimeout); err != nil {
+			//nolint:contextcheck // diagnose deliberately uses a fresh context since ctx may be the reason for the failure
 			return fmt.Errorf("failed to wait for CRD %s: %w\n%s", crd, err, env.diagnose(""))
 		}
 	}
@@ -220,6 +221,7 @@ func (env *K3sTestEnvironment) waitForArgoCD(ctx context.Context) error {
 
 	for _, deployment := range deployments {
 		if _, err := env.ExecInK3s(ctx, "kubectl", "wait", "--for=condition=available", fmt.Sprintf("deployment/%s", deployment), "-n", "argocd", "--timeout="+readyTimeout); err != nil {
+			//nolint:contextcheck // diagnose deliberately uses a fresh context since ctx may be the reason for the failure
 			return fmt.Errorf("failed to wait for deployment %s: %w\n%s", deployment, err, env.diagnose(deployment))
 		}
 	}
