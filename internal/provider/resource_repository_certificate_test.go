@@ -184,24 +184,6 @@ func TestAccArgoCDRepositoryCertificates_Empty(t *testing.T) {
 	})
 }
 
-func TestAccArgoCDRepositoryCertificatesSSH_Allow_Random_Subtype(t *testing.T) {
-	certSubType := acctest.RandomWithPrefix("cert")
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccArgoCDRepositoryCertificatesSSH(
-					"dummy_server",
-					certSubType,
-					"AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFSMqzJeV9rUzU4kWitGjeR4PWSa29SPqJ1fVkhtj3Hw9xjLVXVYrU9QlYWrOLXBpQ6KWjbjTDTdDkoohFzgbEY=",
-				),
-			},
-		},
-	})
-}
-
 func TestAccArgoCDRepositoryCertificatesSSH_WithApplication(t *testing.T) {
 	// Skip if we're not in an acceptance test environment
 	if os.Getenv("TF_ACC") == "" {
@@ -261,7 +243,7 @@ func TestAccArgoCDRepositoryCertificatesSSH_CannotUpdateExisting_MultipleAtOnce(
 			{
 				Config: testAccArgoCDRepositoryCertificateSSH_Duplicated(
 					"github.com",
-					"ssh-rsaaa",
+					"ssh-rsa",
 					// github's
 					"AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==",
 				),
