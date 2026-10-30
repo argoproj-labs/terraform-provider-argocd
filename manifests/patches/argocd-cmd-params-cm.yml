@@ -7,3 +7,4 @@ data:
   applicationsetcontroller.enable.scm.providers: "true"
   applicationsetcontroller.allowed.scm.providers: "https://github.com,https://gitlab.com,https://dev.azure.com/,https://gitea.com,https://git.example.com"
   applicationsetcontroller.namespaces: "*"
+  server.repo.server.timeout.seconds: "300"

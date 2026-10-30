@@ -9,7 +9,3 @@ patches:
       kind: ConfigMap
       name: argocd-cmd-params-cm
     path: argocd-cmd-params-cm.yml
-  - target:
-      kind: Secret
-      name: argocd-secret
-    path: secret.yml

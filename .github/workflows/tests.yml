@@ -84,27 +84,11 @@ jobs:
         with:
           terraform_version: ${{ matrix.terraform_version }}
           terraform_wrapper: false
-      - name: Install Kustomize
-        run: |
-          curl -sL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-          chmod +x ./kustomize
-      - name: Install Kind 0.24.0
-        run: |
-          curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64
-          chmod +x ./kind
-      - name: Set up ArgoCD ${{ matrix.argocd_version }}
-        env:
-          ARGOCD_VERSION: ${{ matrix.argocd_version }}
-        run: |
-          make testacc_prepare_env
-          until $(nc -z 127.0.0.1 8080); do sleep 2;done
-          netstat -tulpn
       - name: Download go deps for tests
         run: go mod download
       - name: Run acceptance tests
         env:
           ARGOCD_VERSION: ${{ matrix.argocd_version }}
-          USE_TESTCONTAINERS: false
         run: make testacc
 
   # This job aggregates test results. It's the required check for branch protection.

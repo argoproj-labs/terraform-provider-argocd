@@ -32,7 +32,7 @@ provider "argocd" {
   auth_token                  = "1234..."
   port_forward_with_namespace = "custom-argocd-namespace"
   kubernetes {
-    config_context = "kind-argocd"
+    config_context = "my-cluster"
   }
 }
 
