@@ -1,4 +1,0 @@
-.terraform*
-terraform.tfstate*
-crash.log
-*-config
