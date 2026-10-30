@@ -131,7 +131,7 @@ func applicationSetSpecSchemaV0() *schema.Schema {
 				},
 				"template_patch": {
 					Type:        schema.TypeString,
-					Description: "Application set template patch, as in the [Argo CD ApplicationSet spec](https://argocd-applicationset.readthedocs.io/en/stable/fields/#templatepatch).",
+					Description: "Application set template patch, as in the [Argo CD ApplicationSet spec](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Template/#template-patch).",
 					Optional:    true,
 				},
 			},

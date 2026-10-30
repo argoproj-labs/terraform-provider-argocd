@@ -272,7 +272,7 @@ Optional:
 Required:
 
 - `name` (String) The name of the role.
-- `policies` (List of String) List of casbin formatted strings that define access policies for the role in the project. For more information, see the [ArgoCD RBAC reference](https://argoproj.github.io/argo-cd/operator-manual/rbac/#rbac-permission-structure).
+- `policies` (List of String) List of casbin formatted strings that define access policies for the role in the project. For more information, see the [ArgoCD RBAC reference](https://argo-cd.readthedocs.io/en/stable/operator-manual/rbac/#rbac-model-structure).
 
 Optional:
 

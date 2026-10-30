@@ -259,7 +259,7 @@ func projectSpecSchemaBlocks() map[string]schema.Block {
 						Optional:    true,
 					},
 					"policies": schema.ListAttribute{
-						Description: "List of casbin formatted strings that define access policies for the role in the project. For more information, see the [ArgoCD RBAC reference](https://argoproj.github.io/argo-cd/operator-manual/rbac/#rbac-permission-structure).",
+						Description: "List of casbin formatted strings that define access policies for the role in the project. For more information, see the [ArgoCD RBAC reference](https://argo-cd.readthedocs.io/en/stable/operator-manual/rbac/#rbac-model-structure).",
 						Required:    true,
 						ElementType: types.StringType,
 					},
