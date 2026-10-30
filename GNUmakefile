@@ -58,9 +58,9 @@ testacc_prepare_env:
 
 	echo "\n--- Wait for ArgoCD components to be ready...\n"
 	kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd
-	kubectl wait --for=condition=available --timeout=30s deployment/argocd-repo-server -n argocd
-	kubectl wait --for=condition=available --timeout=30s deployment/argocd-dex-server -n argocd
-	kubectl wait --for=condition=available --timeout=30s deployment/argocd-redis -n argocd
+	kubectl wait --for=condition=available --timeout=300s deployment/argocd-repo-server -n argocd
+	kubectl wait --for=condition=available --timeout=300s deployment/argocd-dex-server -n argocd
+	kubectl wait --for=condition=available --timeout=300s deployment/argocd-redis -n argocd
 	
 clean:
 	git clean -fXd -e \!vendor -e \!vendor/**/* -e \!.vscode
