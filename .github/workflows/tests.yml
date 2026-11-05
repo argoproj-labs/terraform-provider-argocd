@@ -17,10 +17,10 @@ permissions:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     steps:
-      - name: Check out code into the Go module directory
+      - name: Check out code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
       - name: Set up Go
         uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
@@ -37,9 +37,9 @@ jobs:
 
   generate:
     name: Generate
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
-      - name: Check out code into the Go module directory
+      - name: Check out code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
       - name: Set up Go
         uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
@@ -63,7 +63,7 @@ jobs:
     needs:
       - build
       - generate
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -84,27 +84,11 @@ jobs:
         with:
           terraform_version: ${{ matrix.terraform_version }}
           terraform_wrapper: false
-      - name: Install Kustomize
-        run: |
-          curl -sL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-          chmod +x ./kustomize
-      - name: Install Kind 0.24.0
-        run: |
-          curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-$(uname)-amd64
-          chmod +x ./kind
-      - name: Set up ArgoCD ${{ matrix.argocd_version }}
-        env:
-          ARGOCD_VERSION: ${{ matrix.argocd_version }}
-        run: |
-          make testacc_prepare_env
-          until $(nc -z 127.0.0.1 8080); do sleep 2;done
-          netstat -tulpn
       - name: Download go deps for tests
         run: go mod download
       - name: Run acceptance tests
         env:
           ARGOCD_VERSION: ${{ matrix.argocd_version }}
-          USE_TESTCONTAINERS: false
         run: make testacc
 
   # This job aggregates test results. It's the required check for branch protection.
@@ -115,7 +99,7 @@ jobs:
     if: always()
     needs:
       - acceptance_tests
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0

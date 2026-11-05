@@ -1,5 +1,7 @@
 ---
-# Access to argocd service port without the need to proxy through kubectl proxy
+# Exposes the Argo CD API server on a fixed NodePort so that the tests can reach it from the host. The port is published
+# by the K3s container (WithExposedPorts) and resolved via MappedPort to build the server address in
+# internal/testhelpers/testcontainers.go. Keep the nodePort in sync with the port used there.
 apiVersion: v1
 kind: Service
 metadata:
@@ -7,11 +9,6 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      nodePort: 30124
-      targetPort: 8080
     - name: https
       port: 443
       protocol: TCP

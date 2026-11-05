@@ -1,8 +1,15 @@
----
+# Kustomization for the acceptance test fixture. It combines the upstream Argo CD install manifests with our own
+# resources and patches the upstream ConfigMaps to configure Argo CD for testing.
+# ARGOCD_VERSION is a placeholder that is replaced with the Argo CD version under test before this is applied.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: argocd
 resources:
+  - https://raw.githubusercontent.com/argoproj/argo-cd/ARGOCD_VERSION/manifests/install.yaml
   - namespace.yml
   - git-private-repository.yml
   - proxy-service.yml
   - cluster-rbac.yml
+patches:
+  - path: patches/argocd-cm.yml
+  - path: patches/argocd-cmd-params-cm.yml

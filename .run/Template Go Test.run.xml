@@ -5,12 +5,6 @@
     <go_parameters value="-i" />
     <envs>
       <env name="ARGOCD_VERSION" value="v3.5.6" />
-      <env name="ARGOCD_INSECURE" value="true" />
-      <env name="ARGOCD_SERVER" value="127.0.0.1:8080" />
-      <env name="ARGOCD_AUTH_USERNAME" value="admin" />
-      <env name="ARGOCD_AUTH_PASSWORD" value="acceptancetesting" />
-      <env name="ARGOCD_CONTEXT" value="kind-argocd" />
-      <env name="USE_TESTCONTAINERS" value="true" />
       <env name="K3S_VERSION" value="v1.34.3-k3s3" />
       <env name="TF_ACC" value="1" />
     </envs>

@@ -22,11 +22,10 @@ We also encourage contributions in the form of:
 ### Setting up
 
 To contribute to this Provider you need the following tools installed locally:
-* [Go](https://go.dev/doc/install) (1.25)
+* [Go](https://go.dev/doc/install) (see the `go` directive in [go.mod](./go.mod) for the required version)
 * [GNU Make](https://www.gnu.org/software/make/)
-* [Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/)
-* [Container runtime](https://java.testcontainers.org/supported_docker_environment/)
-* [Kind](https://kind.sigs.k8s.io) (optional)
+* [Container runtime](https://java.testcontainers.org/supported_docker_environment/) (required for the acceptance tests)
+* [Terraform](https://developer.hashicorp.com/terraform/install) (used by the acceptance tests; the test framework uses the one on your `PATH`)
 * [golangci-lint](https://golangci-lint.run/docs/welcome/install/local/) (optional)
 
 #### Codespaces
@@ -58,12 +57,19 @@ and linting. Taking a look at its content is recommended.
 
 ## Testing
 
-The acceptance tests run against a disposable ArgoCD installation within a containerized-K3s cluster. We are using [testcontainers](https://testcontainers.com) for this. If you have a [supported container runtime](https://java.testcontainers.org/supported_docker_environment/) installed you can simply run the tests using:
+The acceptance tests run against a disposable Argo CD installation within a containerized K3s cluster. We are using [testcontainers](https://testcontainers.com) for this, so all you need is a [supported container runtime](https://java.testcontainers.org/supported_docker_environment/) and network access (images and the upstream Argo CD manifests are pulled). Then run:
 
 ```sh
-make testacc # to run all the Terraform tests
-make test # to only run helper unit tests (minority of the testcases)
+make test # unit tests only; acceptance tests are skipped and no containers are started
+make testacc # all tests, including the acceptance tests
+make testacc TEST_FILTER=TestAccArgoCDRepository_ProjectChange # only run tests matching the (regex) filter
 ```
+
+How it works:
+* The fixture is set up in `TestMain` (see [internal/testhelpers](./internal/testhelpers)) and only when `TF_ACC` is set (which `make testacc` does). It starts K3s, installs Argo CD from the kustomize resources in [manifests](./manifests) and waits until it is ready. This takes a few minutes.
+* Every test package that contains acceptance tests (`argocd` and `internal/provider`) starts its own cluster, so `make testacc` creates two in parallel. Note that `go test` buffers the output of each package until it has finished, so you won't see any output while the fixture is starting.
+* The Argo CD and K3s versions are defined in the `GNUmakefile` and can be overridden, e.g. `make testacc ARGOCD_VERSION=v3.4.8`. The connection details (server address, admin credentials) are taken from the fixture, you don't need to configure anything else.
+* The fixture container is removed again when the tests finish.
 
 ## Documentation
 
@@ -100,7 +106,9 @@ terraform apply -auto-approve # will use the provider running in debug-mode
 
 Open a test file, **hover** over a test function's name and then in the Debug tab of VSCode select "Debug selected Test". This will run the test you selected with the specific arguments required for Terraform to run the acceptance test.
 
-**Note**: You shouldn't use the builtin "Debug Test" profile that is shown when hovering over a test function since it doesn't contain the necessary configuration to find your Argo CD environment.
+This starts the test fixture (see [Testing](#testing)) just like `make testacc`. The Argo CD and K3s versions are duplicated in [.vscode/launch.json](.vscode/launch.json) (and in [.run](.run) for IntelliJ), keep them in sync with the `GNUmakefile`.
+
+**Note**: You shouldn't use the builtin "Debug Test" profile that is shown when hovering over a test function since it doesn't set `TF_ACC` and the versions, so the test fixture is not started.
 
 ## Run Terraform using a local build
 
@@ -140,9 +148,9 @@ For further reference consult [HashiCorp's article](https://www.terraform.io/plu
 ## Dependency Management
 
 ### K8s version
-In our CI we test against a Kubernetes version that is supported by all Argo CD versions we support.
+In our CI we test against a Kubernetes version (`K3S_VERSION` in the `GNUmakefile`) that is supported by all Argo CD versions we support. When changing it, also update the copies in [.vscode/launch.json](.vscode/launch.json) and [.run](.run).
 
-That version can be obtained when looking at [this table](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/#tested-versions) in the Argo CD documentation.
+A supported version can be obtained when looking at [this table](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/#tested-versions) in the Argo CD documentation.
 
 ### Argo CD client-lib
 

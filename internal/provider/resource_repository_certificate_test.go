@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"regexp"
 	"testing"
 
@@ -430,36 +429,9 @@ resource "argocd_application" "simple" {
 // [3] = AAAAB3NzaC1y...
 // etc
 func getSshKeysForHost(ctx context.Context, host string) ([]string, error) {
-	app := "kubectl"
-	args := []string{
-		"exec",
-		"-n",
-		"argocd",
-		"deploy/argocd-server",
-		"--",
-		"ssh-keyscan",
-		host,
-	}
-
-	var err error
-	var output []byte
-
-	if testhelpers.GlobalTestEnv != nil {
-		args = append([]string{app}, args...)
-		output, err = testhelpers.GlobalTestEnv.ExecInK3s(ctx, args...)
-		if err != nil {
-			// Print the actual command output to see what ssh-keyscan is saying
-			fmt.Printf("ERROR: Command failed: %v\n", err)
-			fmt.Printf("ERROR: Command output:\n%s\n", string(output))
-			return nil, fmt.Errorf("ssh-keyscan failed for host %s: %w (output: %s)", host, err, string(output))
-		}
-	} else {
-		cmd := exec.Command(app, args...)
-		output, err = cmd.Output()
-		if err != nil {
-			fmt.Println(err.Error())
-			return nil, err
-		}
+	output, err := testhelpers.GlobalTestEnv.ExecInK3s(ctx, "kubectl", "exec", "-n", "argocd", "deploy/argocd-server", "--", "ssh-keyscan", host)
+	if err != nil {
+		return nil, fmt.Errorf("ssh-keyscan failed for host %s: %w", host, err)
 	}
 
 	re, _ := regexp.Compile(`(?m)^private-git-repository (?P<subtype>[^\s]+) (?P<key>.+)$`)
