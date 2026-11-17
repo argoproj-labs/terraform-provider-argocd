@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/assert"
@@ -64,6 +65,39 @@ func TestAccArgoCDAccountToken_ExplicitAccount(t *testing.T) {
 						"argocd_account_token.this",
 					),
 				),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDAccountToken_TokenID(t *testing.T) {
+	tokenID := acctest.RandomWithPrefix("ci-pipeline")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDAccountToken_TokenID(tokenID),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_account_token.this",
+						"token_id",
+						tokenID,
+					),
+					resource.TestCheckResourceAttr(
+						"argocd_account_token.this",
+						"id",
+						tokenID,
+					),
+					testCheckTokenIssuedAt(
+						"argocd_account_token.this",
+					),
+				),
+			},
+			{
+				Config:      testAccArgoCDAccountToken_TokenIDDuplicate(tokenID),
+				ExpectError: regexp.MustCompile("already has token with id"),
 			},
 		},
 	})
@@ -188,6 +222,30 @@ resource "argocd_account_token" "this" {
 	account = "test"
 }
 `
+}
+
+func testAccArgoCDAccountToken_TokenID(tokenID string) string {
+	return fmt.Sprintf(`
+resource "argocd_account_token" "this" {
+	account  = "test"
+	token_id = "%s"
+}
+`, tokenID)
+}
+
+func testAccArgoCDAccountToken_TokenIDDuplicate(tokenID string) string {
+	return fmt.Sprintf(`
+resource "argocd_account_token" "this" {
+	account  = "test"
+	token_id = "%[1]s"
+}
+
+resource "argocd_account_token" "duplicate" {
+	account    = "test"
+	token_id   = "%[1]s"
+	depends_on = [argocd_account_token.this]
+}
+`, tokenID)
 }
 
 func testAccArgoCDAccountToken_Multiple(count int) string {
