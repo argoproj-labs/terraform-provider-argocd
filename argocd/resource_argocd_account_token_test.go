@@ -1,14 +1,17 @@
 package argocd
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"regexp"
 	"testing"
 	"time"
 
+	"github.com/argoproj/argo-cd/v3/pkg/apiclient/account"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/assert"
 )
@@ -98,6 +101,51 @@ func TestAccArgoCDAccountToken_TokenID(t *testing.T) {
 			{
 				Config:      testAccArgoCDAccountToken_TokenIDDuplicate(tokenID),
 				ExpectError: regexp.MustCompile("already has token with id"),
+			},
+		},
+	})
+}
+
+func TestAccArgoCDAccountToken_TokenIDAdded(t *testing.T) {
+	tokenID := acctest.RandomWithPrefix("ci-pipeline")
+
+	var generatedID string
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArgoCDAccountToken_ExplicitAccount(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(
+						"argocd_account_token.this",
+						"token_id",
+					),
+					func(s *terraform.State) error {
+						generatedID = s.RootModule().Resources["argocd_account_token.this"].Primary.ID
+						return testCheckAccountTokenExists("test", generatedID, true)(s)
+					},
+				),
+			},
+			{
+				Config: testAccArgoCDAccountToken_TokenID(tokenID),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("argocd_account_token.this", plancheck.ResourceActionDestroyBeforeCreate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"argocd_account_token.this",
+						"id",
+						tokenID,
+					),
+					testCheckAccountTokenExists("test", tokenID, true),
+					func(s *terraform.State) error {
+						return testCheckAccountTokenExists("test", generatedID, false)(s)
+					},
+				),
 			},
 		},
 	})
@@ -299,6 +347,38 @@ resource "argocd_account_token" "renew_after" {
 	renew_after = "%ds"
 }
 `, renewAfter)
+}
+
+func testCheckAccountTokenExists(accountName, tokenID string, expected bool) resource.TestCheckFunc {
+	return func(_ *terraform.State) error {
+		si, err := getServerInterface()
+		if err != nil {
+			return fmt.Errorf("failed to get server interface: %w", err)
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		acc, err := si.AccountClient.GetAccount(ctx, &account.GetAccountRequest{Name: accountName})
+		if err != nil {
+			return fmt.Errorf("failed to get account %s: %w", accountName, err)
+		}
+
+		found := false
+
+		for _, tok := range acc.Tokens {
+			if tok.Id == tokenID {
+				found = true
+				break
+			}
+		}
+
+		if found != expected {
+			return fmt.Errorf("token %s of account %s: expected to exist=%t, got %t", tokenID, accountName, expected, found)
+		}
+
+		return nil
+	}
 }
 
 func testCheckTokenIssuedAt(resourceName string) resource.TestCheckFunc {
